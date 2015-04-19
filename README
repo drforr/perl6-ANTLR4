@@ -1,0 +1,29 @@
+A simple Perl 6 module for parsing ANTLR4 Grammars
+
+  use ANTLR4::Grammar;
+  my $g = ANTLR4::Grammar.new;
+  say $g.parsefile('JSON.g4').perl;
+
+All files (unless noted otherwise) can be used, modified and redistributed
+under the terms of the Artistic License Version 2. Examples (in the
+documentation, in tests or distributed as separate files) can be considered
+public domain.
+
+To build and test this module, please get 'ufo' from
+http://github.com/masak/ufo and run:
+
+    ufo
+    make
+    make test
+
+State:
+
+    Works.
+
+Missing features:
+
+ * 
+
+Credits
+    Terence Parr
+    Sam Marwell
