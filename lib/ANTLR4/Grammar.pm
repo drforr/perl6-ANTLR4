@@ -377,7 +377,7 @@ rule delegateGrammar
 rule tokensSpec
 # 	{	<TOKENS> <id> [<COMMA> <id>]* <COMMA>? <RBRACE>
 # 	}
- 	{	<TOKENS> <id>+ % <COMMA> <COMMA>? <RBRACE>
+ 	{	<TOKENS> <id>+ %% <COMMA> <RBRACE>
  	}
  
 #  Match stuff like @parser::members {int i;}
