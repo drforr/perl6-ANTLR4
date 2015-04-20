@@ -1,9 +1,3 @@
-/*
- [The "MIT licence"]
- Copyright (c) 2014 Kyle Lee
- All rights reserved.
-*/
-
 parser grammar LessParser;
 
 options { tokenVocab=LessLexer; }
@@ -68,7 +62,6 @@ variableDeclaration
   : variableName COLON values
   ;
 
-//Imports
 importDeclaration
   : '@import' referenceUrl mediaTypes? ';'
   ;
@@ -82,7 +75,6 @@ mediaTypes
   : (Identifier (COMMA Identifier)*)
   ;
 
-//Rules
 ruleset
    : selectors block
   ;

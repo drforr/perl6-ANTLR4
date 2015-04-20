@@ -1,68 +1,18 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2014 by Bart Kiers
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- */
 grammar ECMAScript;
 
-/// Program :
-///     SourceElements?
 program
  : sourceElements? EOF
  ;
 
-/// SourceElements :
-///     SourceElement
-///     SourceElements SourceElement
 sourceElements
  : sourceElement+
  ;
 
-/// SourceElement :
-///     Statement
-///     FunctionDeclaration
 sourceElement
  : statement
  | functionDeclaration
  ;
 
-/// Statement :
-///     Block
-///     VariableStatement
-///     EmptyStatement
-///     ExpressionStatement
-///     IfStatement
-///     IterationStatement
-///     ContinueStatement
-///     BreakStatement
-///     ReturnStatement
-///     WithStatement
-///     LabelledStatement
-///     SwitchStatement
-///     ThrowStatement
-///     TryStatement
-///     DebuggerStatement
 statement
  : block
  | variableStatement
@@ -81,70 +31,42 @@ statement
  | debuggerStatement
  ;
 
-/// Block :
-///     { StatementList? }
 block
  : '{' statementList? '}'
  ;
 
-/// StatementList :
-///     Statement
-///     StatementList Statement
 statementList
  : statement+
  ;
 
-/// VariableStatement :
-///     var VariableDeclarationList ;
 variableStatement
  : Var variableDeclarationList eos
  ;
 
-/// VariableDeclarationList :
-///     VariableDeclaration
-///     VariableDeclarationList , VariableDeclaration
 variableDeclarationList
  : variableDeclaration ( ',' variableDeclaration )*
  ;
 
-/// VariableDeclaration :
-///     Identifier Initialiser?
 variableDeclaration
  : Identifier initialiser?
  ;
 
-/// Initialiser :
-///     = AssignmentExpression
 initialiser
  : '=' singleExpression
  ;
 
-/// EmptyStatement :
-///     ;
 emptyStatement
  : SemiColon
  ;
 
-/// ExpressionStatement :
-///     [lookahead ∉ {{, function}] Expression ;
 expressionStatement
  : {(_input.LA(1) != OpenBrace) && (_input.LA(1) != Function)}? expressionSequence SemiColon
  ;
 
-/// IfStatement :
-///     if ( Expression ) Statement else Statement
-///     if ( Expression ) Statement
 ifStatement
  : If '(' expressionSequence ')' statement ( Else statement )?
  ;
 
-/// IterationStatement :
-///     do Statement while ( Expression );
-///     while ( Expression ) Statement
-///     for ( Expression? ; Expression? ; Expression? ) Statement
-///     for ( var VariableDeclarationList ; Expression? ; Expression? ) Statement
-///     for ( LeftHandSideExpression in Expression ) Statement
-///     for ( var VariableDeclaration in Expression ) Statement
 iterationStatement
  : Do statement While '(' expressionSequence ')' eos                                                 # DoStatement
  | While '(' expressionSequence ')' statement                                                        # WhileStatement
@@ -154,316 +76,124 @@ iterationStatement
  | For '(' Var variableDeclaration In expressionSequence ')' statement                               # ForVarInStatement
  ;
 
-/// ContinueStatement :
-///     continue ;
-///     continue [no LineTerminator here] Identifier ;
 continueStatement
  : Continue Identifier? eos
  ;
 
-/// BreakStatement :
-///     break ;
-///     break [no LineTerminator here] Identifier ;
 breakStatement
  : Break Identifier? eos
  ;
 
-/// ReturnStatement :
-///     return ;
-///     return [no LineTerminator here] Expression ;
 returnStatement
  : Return expressionSequence? eos
  ;
 
-/// WithStatement :
-///     with ( Expression ) Statement
 withStatement
  : With '(' expressionSequence ')' statement
  ;
 
-/// SwitchStatement :
-///     switch ( Expression ) CaseBlock
 switchStatement
  : Switch '(' expressionSequence ')' caseBlock
  ;
 
-/// CaseBlock :
-///     { CaseClauses? }
-///     { CaseClauses? DefaultClause CaseClauses? }
 caseBlock
  : '{' caseClauses? ( defaultClause caseClauses? )? '}'
  ;
 
-/// CaseClauses :
-///     CaseClause
-///     CaseClauses CaseClause
 caseClauses
  : caseClause+
  ;
 
-/// CaseClause :
-///     case Expression ':' StatementList?
 caseClause
  : Case expressionSequence ':' statementList?
  ;
 
-/// DefaultClause :
-///     default ':' StatementList?
 defaultClause
  : Default ':' statementList?
  ;
 
-/// LabelledStatement :
-///     Identifier ':' Statement
 labelledStatement
  : Identifier ':' statement
  ;
 
-/// ThrowStatement :
-///     throw [no LineTerminator here] Expression ;
 throwStatement
  : Throw expressionSequence eos
  ;
 
-/// TryStatement :
-///     try Block Catch
-///     try Block Finally
-///     try Block Catch Finally
 tryStatement
  : Try block catchProduction
  | Try block finallyProduction
  | Try block catchProduction finallyProduction
  ;
 
-/// Catch :
-///     catch ( Identifier ) Block
 catchProduction
  : Catch '(' Identifier ')' block
  ;
 
-/// Finally :
-///     finally Block
 finallyProduction
  : Finally block
  ;
 
-/// DebuggerStatement :
-///     debugger ;
 debuggerStatement
  : Debugger eos
  ;
 
-/// FunctionDeclaration :
-///     function Identifier ( FormalParameterList? ) { FunctionBody }
 functionDeclaration
  : Function Identifier '(' formalParameterList? ')' '{' functionBody '}'
  ;
 
-/// FormalParameterList :
-///     Identifier
-///     FormalParameterList , Identifier
 formalParameterList
  : Identifier ( ',' Identifier )*
  ;
 
-/// FunctionBody :
-///     SourceElements?
 functionBody
  : sourceElements?
  ;
     
-/// ArrayLiteral :
-///     [ Elision? ]
-///     [ ElementList ]
-///     [ ElementList , Elision? ]
 arrayLiteral
  : '[' elementList? ','? elision? ']'
  ;
 
-/// ElementList :
-///     Elision? AssignmentExpression
-///     ElementList , Elision? AssignmentExpression
 elementList
  : elision? singleExpression ( ',' elision? singleExpression )*
  ;
 
-/// Elision :
-///     ,
-///     Elision ,
 elision
  : ','+
  ;
 
-/// ObjectLiteral :
-///     { }
-///     { PropertyNameAndValueList }
-///     { PropertyNameAndValueList , }
 objectLiteral
  : '{' propertyNameAndValueList? ','? '}'
  ;
 
-/// PropertyNameAndValueList :
-///     PropertyAssignment
-///     PropertyNameAndValueList , PropertyAssignment
 propertyNameAndValueList
  : propertyAssignment ( ',' propertyAssignment )*
  ;
     
-/// PropertyAssignment :
-///     PropertyName : AssignmentExpression
-///     get PropertyName ( ) { FunctionBody }
-///     set PropertyName ( PropertySetParameterList ) { FunctionBody }
 propertyAssignment
  : propertyName ':' singleExpression                            # PropertyExpressionAssignment
  | getter '(' ')' '{' functionBody '}'                          # PropertyGetter
  | setter '(' propertySetParameterList ')' '{' functionBody '}' # PropertySetter
  ;           
     
-/// PropertyName :
-///     IdentifierName
-///     StringLiteral
-///     NumericLiteral
 propertyName
  : identifierName
  | StringLiteral
  | numericLiteral
  ;
     
-/// PropertySetParameterList :
-///     Identifier
 propertySetParameterList
  : Identifier
  ;
 
-/// Arguments :
-///     ( )
-///     ( ArgumentList )
 arguments
  : '(' argumentList? ')'
  ;
     
-/// ArgumentList :
-///     AssignmentExpression
-///     ArgumentList , AssignmentExpression
 argumentList
  : singleExpression ( ',' singleExpression )*
  ;
     
-/// Expression :
-///     AssignmentExpression
-///     Expression , AssignmentExpression
-///
-/// AssignmentExpression :
-///     ConditionalExpression
-///     LeftHandSideExpression = AssignmentExpression
-///     LeftHandSideExpression AssignmentOperator AssignmentExpression
-///
-/// ConditionalExpression :
-///     LogicalORExpression
-///     LogicalORExpression ? AssignmentExpression : AssignmentExpression
-///
-/// LogicalORExpression :
-///     LogicalANDExpression
-///     LogicalORExpression || LogicalANDExpression
-///
-/// LogicalANDExpression :
-///     BitwiseORExpression
-///     LogicalANDExpression && BitwiseORExpression
-///
-/// BitwiseORExpression :
-///     BitwiseXORExpression
-///     BitwiseORExpression | BitwiseXORExpression
-///
-/// BitwiseXORExpression :
-///     BitwiseANDExpression
-///     BitwiseXORExpression ^ BitwiseANDExpression
-///
-/// BitwiseANDExpression :
-///     EqualityExpression
-///     BitwiseANDExpression & EqualityExpression
-///
-/// EqualityExpression :
-///     RelationalExpression
-///     EqualityExpression == RelationalExpression
-///     EqualityExpression != RelationalExpression
-///     EqualityExpression === RelationalExpression
-///     EqualityExpression !== RelationalExpression
-///
-/// RelationalExpression :
-///     ShiftExpression
-///     RelationalExpression < ShiftExpression
-///     RelationalExpression > ShiftExpression
-///     RelationalExpression <= ShiftExpression
-///     RelationalExpression >= ShiftExpression
-///     RelationalExpression instanceof ShiftExpression 
-///     RelationalExpression in ShiftExpression
-///
-/// ShiftExpression :
-///     AdditiveExpression
-///     ShiftExpression << AdditiveExpression
-///     ShiftExpression >> AdditiveExpression
-///     ShiftExpression >>> AdditiveExpression
-/// 
-/// AdditiveExpression :
-///     MultiplicativeExpression
-///     AdditiveExpression + MultiplicativeExpression
-///     AdditiveExpression - MultiplicativeExpression
-///
-/// MultiplicativeExpression :
-///     UnaryExpression
-///     MultiplicativeExpression * UnaryExpression
-///     MultiplicativeExpression / UnaryExpression
-///     MultiplicativeExpression % UnaryExpression
-///
-/// UnaryExpression :
-///     PostfixExpression
-///     delete UnaryExpression
-///     void UnaryExpression
-///     typeof UnaryExpression
-///     ++ UnaryExpression
-///     -- UnaryExpression
-///     + UnaryExpression
-///     - UnaryExpression
-///     ~ UnaryExpression
-///     ! UnaryExpression
-///
-/// PostfixExpression :
-///     LeftHandSideExpression
-///     LeftHandSideExpression [no LineTerminator here] ++
-///     LeftHandSideExpression [no LineTerminator here] --
-///
-/// LeftHandSideExpression :
-///     NewExpression
-///     CallExpression
-///
-/// CallExpression :
-///     MemberExpression Arguments
-///     CallExpression Arguments
-///     CallExpression [ Expression ]
-///     CallExpression . IdentifierName
-///
-/// NewExpression :
-///     MemberExpression
-///     new NewExpression
-///
-/// MemberExpression :
-///     PrimaryExpression
-///     FunctionExpression
-///     MemberExpression [ Expression ]
-///     MemberExpression . IdentifierName
-///     new MemberExpression Arguments
-///
-/// FunctionExpression :
-///     function Identifier? ( FormalParameterList? ) { FunctionBody }
-///
-/// PrimaryExpression :
-///     this
-///     Identifier
-///     Literal
-///     ArrayLiteral
-///     ObjectLiteral
-///     ( Expression )
-///
 expressionSequence
  : singleExpression ( ',' singleExpression )*
  ;
@@ -508,8 +238,6 @@ singleExpression
  | '(' expressionSequence ')'                                             # ParenthesizedExpression
  ;
 
-/// AssignmentOperator : one of
-///     *=	/=	%=	+=	-=	<<=	>>=	>>>=	&=	^=	|=
 assignmentOperator
  : '*=' 
  | '/=' 
@@ -619,13 +347,10 @@ eof
  : EOF
  ;
 
-/// RegularExpressionLiteral ::
-///     / RegularExpressionBody / RegularExpressionFlags
 RegularExpressionLiteral
  : {isRegexPossible()}? '/' RegularExpressionBody '/' RegularExpressionFlags
  ;
 
-/// 7.3 Line Terminators
 LineTerminator
  : [\r\n\u2028\u2029] -> channel(HIDDEN)
  ;
@@ -679,25 +404,21 @@ BitAndAssign               : '&=';
 BitXorAssign               : '^='; 
 BitOrAssign                : '|=';
 
-/// 7.8.1 Null Literals
 NullLiteral
  : 'null'
  ;
 
-/// 7.8.2 Boolean Literals
 BooleanLiteral
  : 'true'
  | 'false'
  ;
 
-/// 7.8.3 Numeric Literals
 DecimalLiteral
  : DecimalIntegerLiteral '.' DecimalDigit* ExponentPart?
  | '.' DecimalDigit+ ExponentPart?
  | DecimalIntegerLiteral ExponentPart?
  ;
 
-/// 7.8.3 Numeric Literals
 HexIntegerLiteral
  : '0' [xX] HexDigit+
  ;
@@ -706,7 +427,6 @@ OctalIntegerLiteral
  : {!strictMode}? '0' OctalDigit+
  ;
 
-/// 7.6.1.1 Keywords
 Break      : 'break';
 Do         : 'do';
 Instanceof : 'instanceof';
@@ -734,7 +454,6 @@ Delete     : 'delete';
 In         : 'in';
 Try        : 'try';
 
-/// 7.6.1.2 Future Reserved Words
 Class   : 'class';
 Enum    : 'enum';
 Extends : 'extends';
@@ -743,8 +462,6 @@ Const   : 'const';
 Export  : 'export';
 Import  : 'import';
 
-/// The following tokens are also considered to be FutureReservedWords 
-/// when parsing strict mode  
 Implements : {strictMode}? 'implements';
 Let        : {strictMode}? 'let';
 Private    : {strictMode}? 'private';
@@ -755,12 +472,10 @@ Protected  : {strictMode}? 'protected';
 Static     : {strictMode}? 'static';
 Yield      : {strictMode}? 'yield';
 
-/// 7.6 Identifier Names and Identifiers
 Identifier
  : IdentifierStart IdentifierPart*
  ;
 
-/// 7.8.4 String Literals
 StringLiteral
  : '"' DoubleStringCharacter* '"'
  | '\'' SingleStringCharacter* '\''
@@ -770,7 +485,6 @@ WhiteSpaces
  : [\t\u000B\u000C\u0020\u00A0]+ -> channel(HIDDEN)
  ;
 
-/// 7.4 Comments
 MultiLineComment
  : '/*' .*? '*/' -> channel(HIDDEN)
  ;
@@ -797,7 +511,7 @@ fragment SingleStringCharacter
 
 fragment EscapeSequence
  : CharacterEscapeSequence
- | '0' // no digit ahead! TODO
+ | '0' 
  | HexEscapeSequence
  | UnicodeEscapeSequence
  ;
@@ -1282,68 +996,38 @@ fragment ZWJ
  : '\u200D'
  ;
 
-/// RegularExpressionBody ::
-///     RegularExpressionFirstChar RegularExpressionChars
-///
-/// RegularExpressionChars ::
-///     [empty]
-///     RegularExpressionChars RegularExpressionChar
 fragment RegularExpressionBody
  : RegularExpressionFirstChar RegularExpressionChar*
  ;
 
-/// RegularExpressionFlags ::
-///     [empty]
-///     RegularExpressionFlags IdentifierPart
 fragment RegularExpressionFlags
  : IdentifierPart*
  ;
 
-/// RegularExpressionFirstChar ::
-///     RegularExpressionNonTerminator but not one of * or \ or / or [
-///     RegularExpressionBackslashSequence
-///     RegularExpressionClass
 fragment RegularExpressionFirstChar
  : ~[\r\n\u2028\u2029*\\/\[]
  | RegularExpressionBackslashSequence
  | RegularExpressionClass
  ;
 
-/// RegularExpressionChar ::
-///     RegularExpressionNonTerminator but not \ or / or [
-///     RegularExpressionBackslashSequence
-///     RegularExpressionClass
 fragment RegularExpressionChar
  : ~[\r\n\u2028\u2029\\/\[]
  | RegularExpressionBackslashSequence
  | RegularExpressionClass
  ;
 
-/// RegularExpressionNonTerminator ::
-///     SourceCharacter but not LineTerminator
 fragment RegularExpressionNonTerminator
  : ~[\r\n\u2028\u2029]
  ;
 
-/// RegularExpressionBackslashSequence ::
-///     \ RegularExpressionNonTerminator
 fragment RegularExpressionBackslashSequence
  : '\\' RegularExpressionNonTerminator
  ;
  
-/// RegularExpressionClass ::
-///     [ RegularExpressionClassChars ]
-///
-/// RegularExpressionClassChars ::
-///     [empty]
-///     RegularExpressionClassChars RegularExpressionClassChar
 fragment RegularExpressionClass
   : '[' RegularExpressionClassChar* ']'
   ;
  
-/// RegularExpressionClassChar ::
-///     RegularExpressionNonTerminator but not ] or \
-///     RegularExpressionBackslashSequence
 fragment RegularExpressionClassChar
  : ~[\r\n\u2028\u2029\]\\]
  | RegularExpressionBackslashSequence

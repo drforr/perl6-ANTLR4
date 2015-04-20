@@ -87,11 +87,11 @@ rule DOC_COMMENT {
 
 # XXX JMG unused...?
 token BLOCK_COMMENT {
-  '/*' .*? ['*/' | $]  # XXX -> channel(HIDDEN)
+  '/*' .*? ['*/' | $]
 }
 
 token LINE_COMMENT {
-  '//' <-[\r\n]>* # XXX -> channel(HIDDEN)
+  '//' .* $$ #<-[\r\n]>*
 }
 
 # XXX JMG unused...?
@@ -105,44 +105,6 @@ token BEGIN_ARG_ACTION {
 
 token OPTIONS { 'options' [' '|<[\t\f\n\r]>]* '{' }
 token TOKENS  { 'tokens'  [' '|<[\t\f\n\r]>]* '{' }
-
-token IMPORT       { 'import'    }
-token FRAGMENT     { 'fragment'  }
-token LEXER        { 'lexer'     }
-token PARSER       { 'parser'    }
-token GRAMMAR      { 'grammar'   }
-token PROTECTED    { 'protected' }
-token PUBLIC       { 'public'    }
-token PRIVATE      { 'private'   }
-token RETURNS      { 'returns'   }
-token LOCALS       { 'locals'    }
-token THROWS       { 'throws'    }
-token CATCH        { 'catch'     }
-token FINALLY      { 'finally'   }
-token MODE         { 'mode'      }
-
-token COLON        { ':'  }
-token COLONCOLON   { '::' }
-token COMMA        { ','  }
-token SEMI         { ';'  }
-token LPAREN       { '('  }
-token RPAREN       { ')'  }
-token RARROW       { '->' }
-token LT           { '<'  }
-token GT           { '>'  }
-token ASSIGN       { '='  }
-token QUESTION     { '?'  }
-token STAR         { '*'  }
-token PLUS         { '+'  }
-token PLUS_ASSIGN  { '+=' }
-token OR           { '|'  }
-token DOLLAR       { '$'  } # XXX JMG Uused?
-token DOT	   { '.'  }
-token RANGE        { '..' }
-token AT           { '@'  }
-token POUND        { '#'  }
-token NOT          { '~'  }
-token RBRACE       { '}'  }
 
 #  Allow unicode rule/token names
 
@@ -211,7 +173,7 @@ token UNICODE_ESC
 
 token HEX_DIGIT { <[0..9a..fA..F]>	}
 
-token WS  {	[' '|<[\t\r\n\f]>]+ } # -> channel(HIDDEN)
+token WS  {	[' '|<[\t\r\n\f]>]+ }
 
 #  Many language targets use {} as block delimiters and so we
 #  must recursively match {} delimited blocks to balance the
@@ -258,7 +220,7 @@ token ACTION_CHAR_LITERAL
 #  errors.
 
 token ERRCHAR
-{	.	#-> channel(HIDDEN)
+{	.
 }
 #
 # mode ArgAction; # E.g., [int x, List<String> a[]]
@@ -316,17 +278,17 @@ token UNTERMINATED_CHAR_SET
 # 
 rule TOP # grammarSpec
 	{	<DOC_COMMENT>*
-		<grammarType> <id> <SEMI>
+		<grammarType> <id> ';'
 		<prequelConstruct>*
 		<rules>
 		<modeSpec>*
-		$
+#		$
 	}
 
 rule grammarType
-	{	<LEXER> <GRAMMAR>
-	|	<PARSER> <GRAMMAR>
-	|	<GRAMMAR>
+	{	'lexer' 'grammar'
+	|	'parser' 'grammar'
+	|	'grammar'
 	}
 
 #  This is the list of all constructs that can be declared before
@@ -343,42 +305,42 @@ rule prequelConstruct
 #  A list of options that affect analysis and/or code generation
 
 rule optionsSpec
-	{	<OPTIONS> [<option> <SEMI>]* <RBRACE>
+	{	<OPTIONS> [<option> ';']* '}'
 	}
 
 rule option
-	{	<id> <ASSIGN> <optionValue>
+	{	<id> '=' <optionValue>
 	}
 
 rule optionValue
- 	{	#<id> [<DOT> <id>]*
-		<id>+ % <DOT>
+ 	{	#<id> ['.' <id>]*
+		<id>+ % ','
  	|	<STRING_LITERAL>
  	|	<ACTION>
  	|	<INT>
  	}
  
 rule delegateGrammars
-# 	{	<IMPORT> <delegateGrammar> [<COMMA> <delegateGrammar>]* <SEMI>
+# 	{	'import' <delegateGrammar> [',' <delegateGrammar>]* ';'
 # 	}
- 	{	<IMPORT> <delegateGrammar>+ % <COMMA> <SEMI>
+ 	{	'import' <delegateGrammar>+ % ',' ';'
  	}
  
 rule delegateGrammar
- 	{	<id> <ASSIGN> <id>
+ 	{	<id> '=' <id>
  	|	<id>
  	}
  
 rule tokensSpec
-# 	{	<TOKENS> <id> [<COMMA> <id>]* <COMMA>? <RBRACE>
+# 	{	<TOKENS> <id> [',' <id>]* ','? '}'
 # 	}
- 	{	<TOKENS> <id>+ %% <COMMA> <RBRACE>
+ 	{	<TOKENS> <id>+ %% ',' '}'
  	}
  
 #  Match stuff like @parser::members {int i;}
  
 rule action
- 	{	<AT> [<actionScopeName> <COLONCOLON>]? <id> <ACTION>
+ 	{	'@' [<actionScopeName> '::']? <id> <ACTION>
  	}
  
 #  Sometimes the scope names will collide with keywords; allow them as
@@ -386,12 +348,12 @@ rule action
  
 rule actionScopeName
  	{	<id>
- 	|	<LEXER>
- 	|	<PARSER>
+ 	|	'lexer'
+ 	|	'parser'
  	}
  
 rule modeSpec
- 	{	<MODE> <id> <SEMI> <lexerRule>*
+ 	{	'mode' <id> ';' <lexerRule>*
  	}
  
 rule rules
@@ -409,10 +371,10 @@ rule parserRuleSpec
 		<ruleModifiers>? <RULE_REF> <ARG_ACTION>?
 		<ruleReturns>? <throwsSpec>? <localsSpec>?
 		<rulePrequel>*
-		<COLON>
+		':'
 		<ruleBlock>
-# 		<SEMI>
-		<SEMI> <LINE_COMMENT>* # XXX This needs to be looked into.
+# 		';'
+		';' <LINE_COMMENT>* # XXX This needs to be looked into.
 		<exceptionGroup>
 		<LINE_COMMENT>* # XXX Eating up more comments...
  	}
@@ -422,11 +384,11 @@ rule exceptionGroup
  	}
  
 rule exceptionHandler
- 	{	<CATCH> <ARG_ACTION> <ACTION>
+ 	{	'catch' <ARG_ACTION> <ACTION>
  	}
  
 rule finallyClause
- 	{	<FINALLY> <ACTION>
+ 	{	'finally' <ACTION>
  	}
  
 rule rulePrequel
@@ -435,23 +397,23 @@ rule rulePrequel
  	}
  
 rule ruleReturns
- 	{	<RETURNS> <ARG_ACTION>
+ 	{	'returns' <ARG_ACTION>
  	}
  
 rule throwsSpec
-# 	{	<THROWS> <id> [<COMMA> <id>]*
+# 	{	'throws' <id> [',' <id>]*
 # 	}
- 	{	<THROWS> <id>+ % <COMMA>
+ 	{	'throws' <id>+ % ','
  	}
  
 rule localsSpec
- 	{	<LOCALS> <ARG_ACTION>
+ 	{	'locals' <ARG_ACTION>
  	}
  
 #  Match stuff like @init {int i;}
  
 rule ruleAction
- 	{	<AT> <id> <ACTION>
+ 	{	'@' <id> <ACTION>
  	}
  
 rule ruleModifiers
@@ -466,10 +428,10 @@ rule ruleModifiers
 #  if they are of no use in that language.
  
 rule ruleModifier
- 	{	<PUBLIC>
- 	|	<PRIVATE>
- 	|	<PROTECTED>
- 	|	<FRAGMENT>
+ 	{	'public'
+ 	|	'private'
+ 	|	'protected'
+ 	|	'fragment'
  	}
  
 rule ruleBlock
@@ -477,18 +439,19 @@ rule ruleBlock
  	}
  
 rule ruleAltList
-# 	{	<labeledAlt> [<OR> <labeledAlt>]*
+# 	{	<labeledAlt> ['|' <labeledAlt>]*
 # 	}
-	{	<labeledAlt>+ % <OR>
+	{	<labeledAlt>+ % '|'
 	}
  
 rule labeledAlt
- 	{	<alternative> [<POUND> <id>]?
+ 	{	<alternative> ['#' <id>]?
  	}
  
 rule lexerRule
- 	{	<DOC_COMMENT>? <FRAGMENT>?
- 		<TOKEN_REF> <COLON> <lexerRuleBlock> <SEMI>
+ 	{	<DOC_COMMENT>? 'fragment'?
+		<LINE_COMMENT>*
+ 		<TOKEN_REF> ':' <lexerRuleBlock> ';'
  	}
  
 rule lexerRuleBlock
@@ -496,9 +459,9 @@ rule lexerRuleBlock
  	}
  
 rule lexerAltList
-# 	{	<lexerAlt> [<OR> <lexerAlt>]*
+# 	{	<lexerAlt> ['|' <lexerAlt>]*
 # 	}
-	{	<lexerAlt>+ % <OR>
+	{	<lexerAlt>+ % '|'
 	}
  
 rule lexerAlt
@@ -514,37 +477,37 @@ rule lexerElement
  	{	<labeledLexerElement> <ebnfSuffix>?
  	|	<lexerAtom> <ebnfSuffix>?
  	|	<lexerBlock> <ebnfSuffix>?
- 	|	<ACTION> <QUESTION>? # actions only allowed at end of outer alt actually,
+ 	|	<ACTION> '?'? # actions only allowed at end of outer alt actually,
                           # but preds can be anywhere
  	}
  
 rule labeledLexerElement
- 	{	<id> [<ASSIGN>|<PLUS_ASSIGN>]
+ 	{	<id> ['='|'+=']
  		[	<lexerAtom>
  		|	<block>
  		]
  	}
  
 rule lexerBlock
- 	{	<LPAREN> <lexerAltList> <RPAREN>
+ 	{	'(' <lexerAltList> ')'
  	}
  
 #  E.g., channel(HIDDEN), skip, more, mode(INSIDE), push(INSIDE), pop
  
 rule lexerCommands
-# 	{	<RARROW> <lexerCommand> [<COMMA> <lexerCommand>]*
+# 	{	'->' <lexerCommand> [',' <lexerCommand>]*
 # 	}
- 	{	<RARROW> <lexerCommand>+ % <COMMA>
+ 	{	'->' <lexerCommand>+ % ','
  	}
  
 rule lexerCommand
- 	{	<lexerCommandName> <LPAREN> <lexerCommandExpr> <RPAREN>
+ 	{	<lexerCommandName> '(' <lexerCommandExpr> ')'
  	|	<lexerCommandName>
  	}
  
 rule lexerCommandName
  	{	<id>
- 	|	<MODE>
+ 	|	'mode'
  	}
  
 rule lexerCommandExpr
@@ -553,9 +516,9 @@ rule lexerCommandExpr
  	}
  
 rule altList
-# 	{	<alternative> [<OR> <alternative>]*
+# 	{	<alternative> ['|' <alternative>]*
 # 	}
-	{	<alternative>+ % <OR>
+	{	<alternative>+ % '|'
 	}
  
 rule alternative
@@ -574,11 +537,11 @@ rule element
  		#| 'XXX' # XXX Suppress null warning
  		#]
  	|	<ebnf>
- 	|	<ACTION> <QUESTION>? # SEMPRED is ACTION followed by QUESTION
+ 	|	<ACTION> '?'? # SEMPRED is ACTION followed by QUESTION
  	}
  
 rule labeledElement
- 	{	<id> [<ASSIGN>|<PLUS_ASSIGN>]
+ 	{	<id> ['='|'+=']
  		[	<atom>
  		|	<block>
  		]
@@ -593,9 +556,9 @@ rule blockSuffix
  	}
  
 rule ebnfSuffix
- 	{	<QUESTION> <QUESTION>?
-   	|	<STAR> <QUESTION>?
-    	|	<PLUS> <QUESTION>?
+ 	{	'?' '?'?
+   	|	'*' '?'?
+    	|	'+' '?'?
  	}
  
 rule lexerAtom
@@ -604,7 +567,7 @@ rule lexerAtom
  	|	<RULE_REF>
  	|	<notSet>
  	|	<LEXER_CHAR_SET>
- 	|	<DOT> <elementOptions>?
+ 	|	'.' <elementOptions>?
  	}
  
 rule atom
@@ -612,18 +575,18 @@ rule atom
  	|	<terminal>
  	|	<ruleref>
  	|	<notSet>
- 	|	<DOT> <elementOptions>?
+ 	|	'.' <elementOptions>?
  	}
  
 rule notSet
- 	{	<NOT> <setElement>
- 	|	<NOT> <blockSet>
+ 	{	'~' <setElement>
+ 	|	'~' <blockSet>
  	}
  
 rule blockSet
-# 	{	<LPAREN> <setElement> [<OR> <setElement>]* <RPAREN>
+# 	{	'(' <setElement> ['|' <setElement>]* ')'
 # 	}
-	{	<LPAREN> <setElement>+ % <OR> <RPAREN>
+	{	'(' <setElement>+ % '|' ')'
 	}
  
 rule setElement
@@ -634,10 +597,10 @@ rule setElement
  	}
  
 rule block
- 	{	<LPAREN>
- 		[ <optionsSpec>? <ruleAction>* <COLON> ]?
+ 	{	'('
+ 		[ <optionsSpec>? <ruleAction>* ':' ]?
  		<altList>
- 		<RPAREN>
+ 		')'
  	}
  
 rule ruleref
@@ -645,7 +608,7 @@ rule ruleref
  	}
  
 rule range
- 	{ <STRING_LITERAL> <RANGE> <STRING_LITERAL>
+ 	{ <STRING_LITERAL> '..' <STRING_LITERAL>
  	}
  
 rule terminal
@@ -657,16 +620,16 @@ rule terminal
 #  reference in the grammar: TOK<,,,>
  
 rule elementOptions
-# 	{	<LT> <elementOption> [<COMMA> <elementOption>]* <GT>
+# 	{	'<' <elementOption> [',' <elementOption>]* '>'
 # 	}
- 	{	<LT> <elementOption>+ % <COMMA> <GT>
+ 	{	'<' <elementOption>+ % ',' '>'
  	}
  
 rule elementOption
  	{	# This format indicates the default node option
  		<id>
  	|	# This format indicates option assignment
- 		<id> <ASSIGN> [<id> | <STRING_LITERAL>]
+ 		<id> '=' [<id> | <STRING_LITERAL>]
  	}
  
 rule id	{	<RULE_REF>

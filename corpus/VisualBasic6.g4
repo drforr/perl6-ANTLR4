@@ -1,62 +1,3 @@
-/*
-* Copyright (C) 2014 Ulrich Wolffgang <u.wol@wwu.de>
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
-* Visual Basic 6.0 Grammar for ANTLR4
-*
-* This is an approximate grammar for Visual Basic 6.0, derived 
-* from the Visual Basic 6.0 language reference 
-* http://msdn.microsoft.com/en-us/library/aa338033%28v=vs.60%29.aspx 
-* and tested against MSDN VB6 statement examples as well as several Visual 
-* Basic 6.0 code repositories.
-*
-* Characteristics:
-*
-* 1. This grammar is line-based and takes into account whitespace, so that
-*    member calls (e.g. "A.B") are distinguished from contextual object calls 
-*    in WITH statements (e.g. "A .B").
-*
-* 2. Keywords can be used as identifiers depending on the context, enabling
-*    e.g. "A.Type", but not "Type.B".
-*
-*
-* Known limitations:
-*
-* 1. Preprocessor statements (#if, #else, ...) must not interfere with regular
-*    statements.
-*
-* 2. Comments are skipped.
-*
-*
-* Change log:
-*
-* v1.3
-*	- call statement precedence
-*
-* v1.2
-*	- refined call statements
-*
-* v1.1 
-*	- precedence of operators and of ELSE in select statements
-*	- optimized member calls
-*
-* v1.0 Initial revision
-*/
-
 grammar VisualBasic6;
 
 options
@@ -65,7 +6,6 @@ options
 }
 
 
-// module ----------------------------------
 
 startRule : module EOF;
 
@@ -121,7 +61,6 @@ moduleBodyElement :
 ;
 
 
-// block ----------------------------------
 
 moduleBlock : block;
 
@@ -200,7 +139,6 @@ blockStmt :
 ;
 
 
-// statements ----------------------------------
 
 appactivateStmt : APPACTIVATE WS valueStmt (WS? ',' WS? valueStmt)?;
 
@@ -431,7 +369,6 @@ sC_Case :
 	(block NEWLINE+)?
 ;
 
-// ELSE first, so that it is not interpreted as a variable call
 sC_Cond : 
 	ELSE 															# caseCondElse
 	| IS WS? comparisonOperator WS? valueStmt 						# caseCondIs
@@ -469,7 +406,6 @@ unloadStmt : UNLOAD WS valueStmt;
 
 unlockStmt : UNLOCK WS valueStmt (WS? ',' WS? valueStmt (WS TO WS valueStmt)?)?;
 
-// operator precedence is represented by rule order
 valueStmt : 
 	literal 												# vsLiteral
 	| implicitCallStmt_InStmt 								# vsICS
@@ -530,17 +466,14 @@ withStmt :
 writeStmt : WRITE WS valueStmt WS? ',' (WS? outputList)?;
 
 
-// complex call statements ----------------------------------
 
 explicitCallStmt : 
 	eCS_ProcedureCall 
 	| eCS_MemberProcedureCall 
 ;
 
-// parantheses are required in case of args -> empty parantheses are removed
 eCS_ProcedureCall : CALL WS ambiguousIdentifier typeHint? (WS? LPAREN WS? argsCall WS? RPAREN)?;
 
-// parantheses are required in case of args -> empty parantheses are removed
 eCS_MemberProcedureCall : CALL WS implicitCallStmt_InStmt? '.' ambiguousIdentifier typeHint? (WS? LPAREN WS? argsCall WS? RPAREN)?;
 
 
@@ -549,15 +482,11 @@ implicitCallStmt_InBlock :
 	| iCS_B_MemberProcedureCall
 ;
 
-// parantheses are forbidden in case of args
-// variables cannot be called in blocks
-// certainIdentifier instead of ambiguousIdentifier for preventing ambiguity with statement keywords 
 iCS_B_ProcedureCall : certainIdentifier (WS argsCall)?;
 
 iCS_B_MemberProcedureCall : implicitCallStmt_InStmt? '.' ambiguousIdentifier typeHint? (WS argsCall)? dictionaryCallStmt?;
 
 
-// iCS_S_MembersCall first, so that member calls are not resolved as separate iCS_S_VariableOrProcedureCalls
 implicitCallStmt_InStmt :
 	iCS_S_MembersCall
 	| iCS_S_VariableOrProcedureCall
@@ -576,8 +505,6 @@ iCS_S_MemberCall : '.' (iCS_S_VariableOrProcedureCall | iCS_S_ProcedureOrArrayCa
 iCS_S_DictionaryCall : dictionaryCallStmt;
 
 
-// atomic call statements ----------------------------------
-
 argsCall : (argCall? WS? (',' | ';') WS?)* argCall (WS? (',' | ';') WS? argCall?)*;
 
 argCall : ((BYVAL | BYREF | PARAMARRAY) WS)? valueStmt;
@@ -585,7 +512,6 @@ argCall : ((BYVAL | BYREF | PARAMARRAY) WS)? valueStmt;
 dictionaryCallStmt : '!' ambiguousIdentifier typeHint?;
 
 
-// atomic rules for statements
 
 argList : LPAREN (WS? arg (WS? ',' WS? arg)*)? WS? RPAREN;
 
@@ -598,7 +524,6 @@ subscripts : subscript (WS? ',' WS? subscript)*;
 subscript : (valueStmt WS TO WS)? valueStmt;
 
 
-// atomic rules ----------------------------------
 
 ambiguousIdentifier : 
 	(IDENTIFIER | ambiguousKeyword)+
@@ -633,7 +558,6 @@ typeHint : '&' | '%' | '#' | '!' | '@' | '$';
 visibility : PRIVATE | PUBLIC | FRIEND | GLOBAL;
 
 
-// ambiguous keywords
 ambiguousKeyword : 
 	ACCESS | ADDRESSOF | ALIAS | AND | ATTRIBUTE | APPACTIVATE | APPEND | AS |
 	BEEP | BEGIN | BINARY | BOOLEAN | BYVAL | BYREF | BYTE | 
@@ -659,10 +583,8 @@ ambiguousKeyword :
 ;
 
 
-// lexer rules --------------------------------------------------------------------------------
 
 
-// keywords
 ACCESS : A C C E S S;
 ADDRESSOF : A D D R E S S O F;
 ALIAS : A L I A S;
@@ -838,7 +760,6 @@ WRITE : W R I T E;
 XOR : X O R;
 
 
-// symbols
 AMPERSAND : '&';
 ASSIGN : ':=';
 DIV : '\\' | '/';
@@ -860,7 +781,6 @@ L_SQUARE_BRACKET : '[';
 R_SQUARE_BRACKET : ']';
 
 
-// literals
 STRINGLITERAL : '"' (~["\r\n] | '""')* '"';
 DATELITERAL : '#' (~[#\r\n])* '#';
 COLORLITERAL : '&H' [0-9A-F]+ '&'?;
@@ -869,22 +789,18 @@ DOUBLELITERAL : (PLUS|MINUS)? ('0'..'9')* '.' ('0'..'9')+ ( ('e' | 'E') (PLUS|MI
 FILENUMBER : '#' LETTERORDIGIT+;
 
 
-// identifier
 IDENTIFIER : LETTER (LETTERORDIGIT)*;
 
 
-// whitespace, line breaks, comments, ...
 LINE_CONTINUATION : ' ' '_' '\r'? '\n' -> skip;
 NEWLINE : WS? ('\r'? '\n' | ':' ' ') WS?;
 COMMENT : WS? ('\'' | ':'? REM ' ') (LINE_CONTINUATION | ~('\n' | '\r'))* -> skip;
 WS : [ \t]+;
 
 
-// letters
 fragment LETTER : [a-zA-Z_הצüִײÜ];
 fragment LETTERORDIGIT : [a-zA-Z0-9_הצüִײÜ];
 
-// case insensitive chars
 fragment A:('a'|'A');
 fragment B:('b'|'B');
 fragment C:('c'|'C');

@@ -1,20 +1,3 @@
-//
-//  Copyright (C) 2010-2014  Denis Gavrish
-//
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-
 grammar vhdl;
 
 	ABS:'abs';
@@ -128,8 +111,6 @@ grammar vhdl;
 	WHILE : 'while';
 	XNOR : 'xnor';
 	XOR : 'xor';
-
-//------------------------------------------Parser----------------------------------------
 
 abstract_literal
    :  INTEGER
@@ -247,9 +228,6 @@ attribute_declaration
   : ATTRIBUTE label_colon name SEMI
   ;
 
-// Need to add several tokens here, for they are both, VHDLAMS reserved words
-// and attribute names.
-// (25.2.2004, e.f.)
 attribute_designator
   : identifier
   | RANGE
@@ -661,8 +639,6 @@ exit_statement
   : ( label_colon )? EXIT ( identifier )? ( WHEN condition )? SEMI
   ;
 
-// NOTE that NAND/NOR are in (...)* now (used to be in (...)?).
-// (21.1.2004, e.f.)
 expression
   : relation ( options{greedy=true;}: logical_operator relation )*
   ;
@@ -916,18 +892,6 @@ multiplying_operator
   ;
 
 
-// was
-//   name
-//     : simple_name
-//     | operator_symbol
-//     | selected_name
-//     | indexed_name
-//     | slice_name
-//     | attribute_name
-//     ;
-// changed to avoid left-recursion to name (from selected_name, indexed_name,
-// slice_name, and attribute_name, respectively)
-// (2.2.2004, e.f.)
 name
   : selected_name  
   | name_part ( DOT name_part)*
@@ -1309,9 +1273,6 @@ signature
   : LBRACKET ( name ( COMMA name )* )? ( RETURN name )? RBRACKET
   ;
 
-// NOTE that sign is applied to first operand only (LRM does not permit
-// `a op -b' - use `a op (-b)' instead).
-// (3.2.2004, e.f.)
 simple_expression
   : ( PLUS | MINUS )? term ( options{greedy=true;}: adding_operator term )*
   ;
@@ -1439,9 +1400,6 @@ subtype_declaration
   : SUBTYPE identifier IS subtype_indication SEMI
   ;
 
-// VHDLAMS 1076.1-1999 declares first name as optional. Here, second name
-// is made optional to prevent antlr nondeterminism.
-// (9.2.2004, e.f.)
 subtype_indication
   : selected_name ( selected_name )? ( constraint )? ( tolerance_aspect )?
   ;
@@ -1530,7 +1488,6 @@ waveform_element
   : expression ( AFTER expression )?
   ;
 
-//------------------------------------------Lexer-----------------------------------------
 BASE_LITERAL
    :  BINANRY_BASED_INTEGER
    |  OCTAL_BASED_INTEGER

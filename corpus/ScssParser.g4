@@ -1,31 +1,3 @@
-/*
- [The "BSD licence"]
- Copyright (c) 2014 Vlad Shlosberg
- All rights reserved.
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
- 3. The name of the author may not be used to endorse or promote products
-    derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
 parser grammar ScssParser;
 
 options { tokenVocab=ScssLexer; }
@@ -50,7 +22,6 @@ statement
 
 
 
-//Params to mixins, includes, etc
 params
   : param (COMMA param)* Ellipsis?
   ;
@@ -68,17 +39,14 @@ paramOptionalValue
   ;
 
 
-//MIXINS
 mixinDeclaration
   : '@mixin' Identifier (LPAREN params? RPAREN)? block
   ;
 
-//Includes
 includeDeclaration
   : INCLUDE Identifier (';' | (LPAREN values? RPAREN ';'?)? block?)
   ;
 
-//FUNCTIONS
 functionDeclaration
   : '@function' Identifier LPAREN params? RPAREN BlockStart functionBody? BlockEnd
   ;
@@ -123,7 +91,6 @@ expression
 
 
 
-//If statement
 ifDeclaration
   : AT_IF conditions block elseIfStatement* elseStatement?
   ;
@@ -151,7 +118,6 @@ variableDeclaration
   ;
 
 
-//for
 forDeclaration
   : AT_FOR variableName 'from' fromNumber 'through' throughNumber block
   ;
@@ -163,12 +129,10 @@ throughNumber
   : Number
   ;
 
-//while
 whileDeclaration
   : AT_WHILE conditions block
   ;
 
-//EACH
 eachDeclaration
   : AT_EACH variableName (COMMA variableName)* IN eachValueList block
   ;
@@ -187,7 +151,6 @@ identifierValue
   ;
 
 
-//Imports
 importDeclaration
 	: '@import' referenceUrl mediaTypes? ';'
 	;
@@ -205,7 +168,6 @@ mediaTypes
 
 
 
-//Nested (stylesheets, etc)
 nested
  	: '@' nest selectors BlockStart stylesheet BlockEnd
 	;
@@ -218,7 +180,6 @@ nest
 
 
 
-//Rules
 ruleset
  	: selectors block
 	;

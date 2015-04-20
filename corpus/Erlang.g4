@@ -1,34 +1,8 @@
-/*
- [The "BSD licence"]
- Copyright (c) 2013 Terence Parr
- All rights reserved.
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
- 3. The name of the author may not be used to endorse or promote products
-    derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-*/
-
-// An ANTLR4 Grammar of Erlang R16B01 made by Pierre Fenoll from
-// https://github.com/erlang/otp/blob/maint/lib/stdlib/src/erl_parse.yrl
-
-
 grammar Erlang;
 
 forms : form+ EOF ;
 
 form : (attribute | function | ruleClauses) '.' ;
-
-/// Tokens
 
 tokAtom : TokAtom ;
 TokAtom : [a-z@][0-9a-zA-Z_@]*
@@ -49,7 +23,6 @@ TokChar : '$' ('\\'? ~[\r\n] | '\\' [0-9] [0-9] [0-9]) ;
 tokString : TokString ;
 TokString : '"' ( '\\' (~'\\'|'\\') | ~[\\"] )* '"' ;
 
-// antlr4 would not accept spec as an Atom otherwise.
 AttrName : '-' ('spec' | 'callback') ;
 
 Comment : '%' ~[\r\n]* '\r'? '\n' -> skip ;
@@ -65,16 +38,12 @@ attribute : '-' tokAtom                           attrVal
           ;
 
 
-/// Typing
-
 typeSpec :     specFun typeSigs
          | '(' specFun typeSigs ')'
          ;
 
 specFun :             tokAtom
         | tokAtom ':' tokAtom
-// The following two are retained only for backwards compatibility;
-// they are not part of the EEP syntax and should be removed.
         |             tokAtom '/' tokInteger '::'
         | tokAtom ':' tokAtom '/' tokInteger '::'
         ;
@@ -157,8 +126,6 @@ binUnitType : tokVar ':' tokVar '*' type ;
 
 
 
-/// Exprs
-
 attrVal :     expr
         | '(' expr           ')'
         |     expr ',' exprs
@@ -208,7 +175,6 @@ exprMax : tokVar
         | listComprehension
         | binaryComprehension
         | tuple
-      //  | struct
         | '(' expr ')'
         | 'begin' exprs 'end'
         | ifExpr
@@ -260,12 +226,8 @@ lcExpr : expr
 tuple : '{' exprs? '}' ;
 
 
-/* struct : tokAtom tuple ; */
 
 
-/* N.B. This is called from expr700.
-   N.B. Field names are returned as the complete object, even if they are
-   always atoms for the moment, this might change in the future.           */
 
 recordExpr : exprMax?   '#' tokAtom ('.' tokAtom | recordTuple)
            | recordExpr '#' tokAtom ('.' tokAtom | recordTuple)
@@ -277,8 +239,6 @@ recordFields : recordField (',' recordField)* ;
 
 recordField : (tokVar | tokAtom) '=' expr ;
 
-
-/* N.B. This is called from expr700. */
 
 functionCall : expr800 argumentList ;
 

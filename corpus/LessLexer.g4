@@ -1,9 +1,3 @@
-/*
- [The "MIT License"]
- Copyright (c) 2014 Kyle Lee
- All rights reserved.
-*/
-
 lexer grammar LessLexer;
 
 NULL: 'null';
@@ -21,7 +15,6 @@ InterpolationStart
   : AT BlockStart -> pushMode(IDENTIFY)
   ;
 
-//Separators
 LPAREN          : '(';
 RPAREN          : ')';
 BlockStart      : '{';
@@ -55,8 +48,6 @@ EQ              : '=';
 PIPE_EQ         : '|=';
 TILD_EQ         : '~=';
 
-// URLs
-// http://lesscss.org/features/#variables-feature-urls
 URL : 'url';
 
 UrlStart
@@ -70,8 +61,6 @@ IMPORTANT       : '!important';
 ARGUMENTS       : '@arguments';
 REST            : '@rest';
 
-// Import options
-// http://lesscss.org/features/#import-options
 REFERENCE : 'reference';
 INLINE : 'inline';
 LESS : 'less';
@@ -79,7 +68,6 @@ CSS : 'css';
 ONCE : 'once';
 MULTIPLE: 'multiple';
 
-// Mixin Guards
 WHEN : 'when';
 NOT : 'not';
 AND : 'and';
@@ -96,7 +84,6 @@ fragment STRING
   |  '\'' (~('\''|'\n'|'\r'))* '\''
   ;
 
-// string literals
 StringLiteral
   :  STRING
   ;
@@ -111,19 +98,16 @@ Color
   ;
 
 
-// Whitespace -- ignored
 WS
   : (' '|'\t'|'\n'|'\r'|'\r\n')+ -> skip
   ;
 
-// Single-line comments
 SL_COMMENT
   :  '//'
     (~('\n'|'\r'))* ('\n'|'\r'('\n')?) -> skip
   ;
 
 
-// multiple-line comments
 COMMENT
   :  '/*' .*? '*/' -> skip
   ;
@@ -208,8 +192,6 @@ FUNCTION_NAME
  | AVERAGE
  | NEGATION
  ;
-// Function reference
-// Misc http://lesscss.org/functions/#misc-functions
 COLOR:'color';
 CONVERT:'convert';
 DATA_URI:'data-uri';
@@ -218,17 +200,14 @@ UNIT:'unit';
 GET_UNIT:'get-unit';
 SVG_GRADIENT:'svg-gradient';
 
-// String http://lesscss.org/functions/#string-functions
 ESCAPE : 'escape';
 E: 'e';
 FORMAT: '%';
 REPLACE : 'replace';
 
-// List http://lesscss.org/functions/#list-functions
 LENGTH: 'length';
 EXTRACT: 'extract';
 
-// Math http://lesscss.org/functions/#math-functions
 CEIL: 'ceil';
 FLOOR: 'floor';
 PERCENTAGE: 'percentage';
@@ -247,7 +226,6 @@ MOD: 'mod';
 MIN: 'min';
 MAX: 'max';
 
-// Type http://lesscss.org/functions/#type-functions
 ISNUMBER: 'isnumber';
 ISSTRING: 'isstring';
 ISCOLOR: 'iscolor';
@@ -258,7 +236,6 @@ ISEM: 'isem';
 ISPERCENTAGE: 'ispercentage';
 ISUNIT: 'isunit';
 
-// Color http://lesscss.org/functions/#color-definition
 RGB: 'rgb';
 RGBA: 'rgba';
 ARGB: 'argb';
@@ -267,7 +244,6 @@ HSLA: 'hsla';
 HSV: 'hsv';
 HSVA: 'hsva';
 
-// Color channel http://lesscss.org/functions/#color-channel
 HUE: 'hue';
 SATURATION: 'saturation';
 LIGHTNESS: 'lightness';
@@ -281,7 +257,6 @@ ALPHA: 'alpha';
 LUMA: 'luma';
 LUMINANCE: 'luminance';
 
-// Color operation http://lesscss.org/functions/#color-operations
 SATURATE: 'saturate';
 DESATURATE: 'desaturate';
 LIGHTEN: 'lighten';
@@ -294,7 +269,6 @@ MIX: 'mix';
 GREYSCALE: 'greyscale';
 CONTRAST: 'contrast';
 
-// Color blending http://lesscss.org/functions/#color-blending
 MULTIPLY: 'multiply';
 SCREEN: 'screen';
 OVERLAY: 'overlay';

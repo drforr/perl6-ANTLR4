@@ -1,7 +1,3 @@
-/** Taken from "The Definitive ANTLR 4 Reference" by Terence Parr */
-
-// Derived from http://json.org
-
 grammar JSON;
 
 json:   object
@@ -10,22 +6,22 @@ json:   object
 
 object
     :   '{' pair (',' pair)* '}'
-    |   '{' '}' // empty object
+    |   '{' '}' 
     ;
     
 pair:   STRING ':' value ;
 
 array
     :   '[' value (',' value)* ']'
-    |   '[' ']' // empty array
+    |   '[' ']' 
     ;
 
 value
     :   STRING
     |   NUMBER
-    |   object  // recursion
-    |   array   // recursion
-    |   'true'  // keywords
+    |   object  
+    |   array   
+    |   'true'  
     |   'false'
     |   'null'
     ;
@@ -37,12 +33,12 @@ fragment UNICODE : 'u' HEX HEX HEX HEX ;
 fragment HEX : [0-9a-fA-F] ;
 
 NUMBER
-    :   '-'? INT '.' [0-9]+ EXP? // 1.35, 1.35E-9, 0.3, -4.5
-    |   '-'? INT EXP             // 1e10 -3e4
-    |   '-'? INT                 // -3, 45
+    :   '-'? INT '.' [0-9]+ EXP? 
+    |   '-'? INT EXP             
+    |   '-'? INT                
     ;
 
-fragment INT :   '0' | [1-9] [0-9]* ; // no leading zeros
-fragment EXP :   [Ee] [+\-]? INT ; // \- since - means "range" inside [...]
+fragment INT :   '0' | [1-9] [0-9]* ; 
+fragment EXP :   [Ee] [+\-]? INT ; 
 
 WS  :   [ \t\n\r]+ -> skip ;
