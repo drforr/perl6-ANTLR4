@@ -1,5 +1,5 @@
 use v6;
-use Grammar::Tracer;
+#use Grammar::Tracer;
 grammar ANTLR4::Grammar;
 
 ###############################################################################
@@ -80,19 +80,6 @@ token RULE_REF { <ID> } # XXX Look into this.
 #   	return _currentRuleType == RULE_REF;
 #   }
 # }
-
-rule DOC_COMMENT {
-  '/*' .*? ['*/' | $]
-}
-
-# XXX JMG unused...?
-token BLOCK_COMMENT {
-  '/*' .*? ['*/' | $]
-}
-
-token LINE_COMMENT {
-  '//' .* $$ #<-[\r\n]>*
-}
 
 # XXX JMG unused...?
 token BEGIN_ARG_ACTION {
@@ -189,7 +176,6 @@ token ACTION
 	|	<ACTION_STRING_LITERAL>
 	|	<ACTION_CHAR_LITERAL>
 	|	'/*' .*? '*/' # ('*/' | $)
-	|	<LINE_COMMENT> # was literal
 	|	.
 	]*?
 #	['}'|$]
@@ -277,8 +263,7 @@ token UNTERMINATED_CHAR_SET
 #  The main entry point for parsing a v4 grammar.
 # 
 rule TOP # grammarSpec
-	{	<DOC_COMMENT>*
-		<grammarType> <id> ';'
+	{	<grammarType> <id> ';'
 		<prequelConstruct>*
 		<rules>
 		<modeSpec>*
@@ -366,17 +351,13 @@ rule ruleSpec
  	}
 
 rule parserRuleSpec
- 	{	<DOC_COMMENT>?
-		<LINE_COMMENT>* # XXX JMG addition
-		<ruleModifiers>? <RULE_REF> <ARG_ACTION>?
+ 	{ 	<ruleModifiers>? <RULE_REF> <ARG_ACTION>?
 		<ruleReturns>? <throwsSpec>? <localsSpec>?
 		<rulePrequel>*
 		':'
 		<ruleBlock>
-# 		';'
-		';' <LINE_COMMENT>* # XXX This needs to be looked into.
+		';'
 		<exceptionGroup>
-		<LINE_COMMENT>* # XXX Eating up more comments...
  	}
  
 rule exceptionGroup
@@ -449,8 +430,7 @@ rule labeledAlt
  	}
  
 rule lexerRule
- 	{	<DOC_COMMENT>? 'fragment'?
-		<LINE_COMMENT>*
+ 	{	'fragment'?
  		<TOKEN_REF> ':' <lexerRuleBlock> ';'
  	}
  
