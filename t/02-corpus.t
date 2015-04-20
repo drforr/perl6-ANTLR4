@@ -1,0 +1,67 @@
+use v6;
+BEGIN { @*INC.push('lib') };
+use ANTLR4::Grammar;
+use Test;
+
+plan 57;
+
+my $g = ANTLR4::Grammar.new;
+
+ok $g.parsefile( 'corpus/Abnf.g4'                ), 'Abnf.g4';
+ok $g.parsefile( 'corpus/ANTLRv4Lexer.g4'        ), 'ANTLRv4Lexer.g4';
+#ok $g.parsefile( 'corpus/ANTLRv4Parser.g4'       ), 'ANTLRv4Parser.g4';
+#ok $g.parsefile( 'corpus/asm6502.g4'             ), 'asm6502.g4';
+#ok $g.parsefile( 'corpus/ATL.g4'                 ), 'ATL.g4';
+#ok $g.parsefile( 'corpus/bnf.g4'                 ), 'bnf.g4';
+#ok $g.parsefile( 'corpus/C.g4'                   ), 'C.g4';
+#ok $g.parsefile( 'corpus/Clojure.g4'             ), 'Clojure.g4';
+#ok $g.parsefile( 'corpus/creole.g4'              ), 'creole.g4';
+#ok $g.parsefile( 'corpus/CSharp4.g4'             ), 'CSharp4.g4';
+#ok $g.parsefile( 'corpus/CSharp4Lexer.g4'        ), 'CSharp4Lexer.g4';
+#ok $g.parsefile( 'corpus/CSharp4PreProcessor.g4' ), 'CSharp4PreProcessor.g4';
+#ok $g.parsefile( 'corpus/CSV.g4'                 ), 'CSV.g4';
+#ok $g.parsefile( 'corpus/DOT.g4'                 ), 'DOT.g4';
+#ok $g.parsefile( 'corpus/ECMAScript.g4'          ), 'ECMAScript.g4';
+#ok $g.parsefile( 'corpus/Erlang.g4'              ), 'Erlang.g4';
+#ok $g.parsefile( 'corpus/fasta.g4'               ), 'fasta.g4';
+#ok $g.parsefile( 'corpus/gff3.g4'                ), 'gff3.g4';
+#ok $g.parsefile( 'corpus/HTMLLexer.g4'           ), 'HTMLLexer.g4';
+#ok $g.parsefile( 'corpus/HTMLParser.g4'          ), 'HTMLParser.g4';
+#ok $g.parsefile( 'corpus/ICalendar.g4'           ), 'ICalendar.g4';
+#ok $g.parsefile( 'corpus/IDL.g4'                 ), 'IDL.g4';
+#ok $g.parsefile( 'corpus/IRI.g4'                 ), 'IRI.g4';
+#ok $g.parsefile( 'corpus/Java8.g4'               ), 'Java8.g4';
+#ok $g.parsefile( 'corpus/Java.g4'                ), 'Java.g4';
+#ok $g.parsefile( 'corpus/JSON.g4'                ), 'JSON.g4';
+#ok $g.parsefile( 'corpus/jvmBasic.g4'            ), 'jvmBasic.g4';
+#ok $g.parsefile( 'corpus/LessLexer.g4'           ), 'LessLexer.g4';
+#ok $g.parsefile( 'corpus/LessParser.g4'          ), 'LessParser.g4';
+#ok $g.parsefile( 'corpus/logo.g4'                ), 'logo.g4';
+#ok $g.parsefile( 'corpus/Lua.g4'                 ), 'Lua.g4';
+#ok $g.parsefile( 'corpus/MySQLBase.g4'           ), 'MySQLBase.g4';
+#ok $g.parsefile( 'corpus/MySQL.g4'               ), 'MySQL.g4';
+#ok $g.parsefile( 'corpus/ObjC.g4'                ), 'ObjC.g4';
+#ok $g.parsefile( 'corpus/PCRE.g4'                ), 'PCRE.g4';
+#ok $g.parsefile( 'corpus/PGN.g4'                 ), 'PGN.g4';
+#ok $g.parsefile( 'corpus/Python3.g4'             ), 'Python3.g4';
+#ok $g.parsefile( 'corpus/redcode.g4'             ), 'redcode.g4';
+#ok $g.parsefile( 'corpus/RFilter.g4'             ), 'RFilter.g4';
+#ok $g.parsefile( 'corpus/R.g4'                   ), 'R.g4';
+#ok $g.parsefile( 'corpus/scala.g4'               ), 'scala.g4';
+#ok $g.parsefile( 'corpus/ScssLexer.g4'           ), 'ScssLexer.g4';
+#ok $g.parsefile( 'corpus/ScssParser.g4'          ), 'ScssParser.g4';
+#ok $g.parsefile( 'corpus/Smalltalk.g4'           ), 'Smalltalk.g4';
+#ok $g.parsefile( 'corpus/SQLite.g4'              ), 'SQLite.g4';
+#ok $g.parsefile( 'corpus/Swift.g4'               ), 'Swift.g4';
+#ok $g.parsefile( 'corpus/tnsnames.g4'            ), 'tnsnames.g4';
+#ok $g.parsefile( 'corpus/tnt.g4'                 ), 'tnt.g4';
+#ok $g.parsefile( 'corpus/TURTLE.g4'              ), 'TURTLE.g4';
+#ok $g.parsefile( 'corpus/UCBLogo.g4'             ), 'UCBLogo.g4';
+#ok $g.parsefile( 'corpus/Verilog2001.g4'         ), 'Verilog2001.g4';
+##ok $g.parsefile( 'corpus/vhdl.g4'                ), 'vhdl.g4';
+##ok $g.parsefile( 'corpus/VisualBasic6.g4'        ), 'VisualBasic6.g4';
+##ok $g.parsefile( 'corpus/WebIDL.g4'              ), 'WebIDL.g4';
+##ok $g.parsefile( 'corpus/XMLLexer.g4'            ), 'XMLLexer.g4';
+##ok $g.parsefile( 'corpus/XMLParser.g4'           ), 'XMLParser.g4';
+
+# vim: ft=perl6

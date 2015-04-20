@@ -1,13 +1,4 @@
-use v6;
-
-use ANTLR4::Grammar;
-use Test;
-
-plan 1;
-
-#############################################################################
-
-my $csv-grammar = q{/*
+/*
  [The "BSD licence"]
  Copyright (c) 2013 Terence Parr
  All rights reserved.
@@ -35,26 +26,29 @@ my $csv-grammar = q{/*
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-grammar CSV;
+/** XML parser derived from ANTLR v4 ref guide book example */
+parser grammar XMLParser;
 
-file: hdr row+ ;
-hdr : row ;
+options { tokenVocab=XMLLexer; }
 
-row : field (',' field)* '\r'? '\n' ;
+document    :   prolog? misc* element misc*;
 
-field
-    : TEXT
-    | STRING
-    |
-    ;
+prolog      :   XMLDeclOpen attribute* SPECIAL_CLOSE ;
 
-TEXT   : ~[,\n\r"]+ ;
-STRING : '"' ('""'|~'"')* '"' ; // quote-quote is an escaped quote
-};
+content     :   chardata?
+                ((element | reference | CDATA | PI | COMMENT) chardata?)* ;
 
-#############################################################################
+element     :   '<' Name attribute* '>' content '<' '/' Name '>'
+            |   '<' Name attribute* '/>'
+            ;
 
-my $g = ANTLR4::Grammar.new;
-ok $g.parse( $csv-grammar );
+reference   :   EntityRef | CharRef ;
 
-# vim: ft=perl6
+attribute   :   Name '=' STRING ; // Our STRING is AttValue in spec
+
+/** ``All text that is not markup constitutes the character data of
+ *  the document.''
+ */
+chardata    :   TEXT | SEA_WS ;
+
+misc        :   COMMENT | PI | SEA_WS ;

@@ -81,20 +81,15 @@ token RULE_REF { <ID> } # XXX Look into this.
 #   }
 # }
 
-rule EOF { # XXX My own
-  $
-}
-
 rule DOC_COMMENT {
-  '/*' .*? ['*/' | <EOF>]
+  '/*' .*? ['*/' | $]
 }
 
 # XXX JMG unused...?
 token BLOCK_COMMENT {
-  '/*' .*? ['*/' | <EOF>]  # XXX -> channel(HIDDEN)
+  '/*' .*? ['*/' | $]  # XXX -> channel(HIDDEN)
 }
 
-# XXX JMG unused...?
 token LINE_COMMENT {
   '//' <-[\r\n]>* # XXX -> channel(HIDDEN)
 }
@@ -105,11 +100,11 @@ token BEGIN_ARG_ACTION {
 }
 
 # OPTIONS and TOKENS must also consume the opening brace that captures
-# their option block, as this is teh easiest way to parse it separate
-# to an ACTION block, despite it usingthe same {} delimiters.
+# their option block, as this is the easiest way to parse it separate
+# to an ACTION block, despite it using the same {} delimiters.
 
-token OPTIONS { 'options' (' '|<[\t\f\n\r]>)* '{' }
-token TOKENS  { 'tokens'  (' '|<[\t\f\n\r]>)* '{' }
+token OPTIONS { 'options' [' '|<[\t\f\n\r]>]* '{' }
+token TOKENS  { 'tokens'  [' '|<[\t\f\n\r]>]* '{' }
 
 token IMPORT       { 'import'    }
 token FRAGMENT     { 'fragment'  }
@@ -206,7 +201,7 @@ token ESC_SEQ
 	|	# Invalid escape
 		.
 	|	# Invalid escape at end of file
-		<EOF>
+		$
 	]
 }
 
@@ -231,11 +226,12 @@ token ACTION
 	|	<ACTION_ESCAPE>
 	|	<ACTION_STRING_LITERAL>
 	|	<ACTION_CHAR_LITERAL>
-	|	'/*' .*? '*/' # ('*/' | <EOF>)
-	|	'//' <-[\r\n]>*
+	|	'/*' .*? '*/' # ('*/' | $)
+	|	<LINE_COMMENT> # was literal
 	|	.
 	]*?
-	['}'|<EOF>]
+#	['}'|$]
+	'}'
 }
 
 token ACTION_ESCAPE
@@ -288,7 +284,7 @@ token ARG_ACTION
 }
 
 token UNTERMINATED_ARG_ACTION # added this to return non-EOF token type here. EOF did something weird
-{	<EOF>		#				-> popMode
+{	$		#				-> popMode
 }
 
 token ARG_ACTION_CHAR # must be last
@@ -309,7 +305,7 @@ token LEXER_CHAR_SET
 {  '[' [ '\\' . | <-[ \\ \x[5d]]> ]* ']' } # XXX Prettify this if need be.
 
 token UNTERMINATED_CHAR_SET
-{	<EOF>	#					-> popMode
+{	$	#					-> popMode
 }
 
 # options {
@@ -319,19 +315,18 @@ token UNTERMINATED_CHAR_SET
 #  The main entry point for parsing a v4 grammar.
 # 
 rule TOP # grammarSpec
-	{	<DOC_COMMENT>?
+	{	<DOC_COMMENT>*
 		<grammarType> <id> <SEMI>
 		<prequelConstruct>*
 		<rules>
-#		<modeSpec>*
-#		<EOF>
+		<modeSpec>*
+		$
 	}
 
 rule grammarType
-	{	(	<LEXER> <GRAMMAR>
-		|	<PARSER> <GRAMMAR>
-		|	<GRAMMAR>
-		)
+	{	<LEXER> <GRAMMAR>
+	|	<PARSER> <GRAMMAR>
+	|	<GRAMMAR>
 	}
 
 #  This is the list of all constructs that can be declared before
@@ -377,7 +372,7 @@ rule delegateGrammar
 rule tokensSpec
 # 	{	<TOKENS> <id> [<COMMA> <id>]* <COMMA>? <RBRACE>
 # 	}
- 	{	<TOKENS> <id>+ % <COMMA> <COMMA>? <RBRACE>
+ 	{	<TOKENS> <id>+ %% <COMMA> <RBRACE>
  	}
  
 #  Match stuff like @parser::members {int i;}
@@ -410,14 +405,16 @@ rule ruleSpec
 
 rule parserRuleSpec
  	{	<DOC_COMMENT>?
-		 <ruleModifiers>? <RULE_REF> <ARG_ACTION>?
-		 <ruleReturns>? <throwsSpec>? <localsSpec>?
- 		<rulePrequel>*
- 		<COLON>
-             <ruleBlock>
+		<LINE_COMMENT>* # XXX JMG addition
+		<ruleModifiers>? <RULE_REF> <ARG_ACTION>?
+		<ruleReturns>? <throwsSpec>? <localsSpec>?
+		<rulePrequel>*
+		<COLON>
+		<ruleBlock>
 # 		<SEMI>
- 		<SEMI> <LINE_COMMENT>? # XXX This needs to be looked into.
- 		<exceptionGroup>
+		<SEMI> <LINE_COMMENT>* # XXX This needs to be looked into.
+		<exceptionGroup>
+		<LINE_COMMENT>* # XXX Eating up more comments...
  	}
  
 rule exceptionGroup
@@ -676,44 +673,4 @@ rule id	{	<RULE_REF>
  	|	<TOKEN_REF>
  	}
  
-###############################################################################
-
-
-#### token TOP       { ^ \s* [ <object> | <array> ] \s* $ }
-#### rule object     { '{' ~ '}' <pairlist>     }
-#### rule pairlist   { <pair> * % \,            }
-#### rule pair       { <string> ':' <value>     }
-#### rule array      { '[' ~ ']' <arraylist>    }
-#### rule arraylist  {  <value> * % [ \, ]        }
-#### 
-#### proto token value {*};
-#### token value:sym<number> {
-####     '-'?
-####     [ 0 | <[1..9]> <[0..9]>* ]
-####     [ \. <[0..9]>+ ]?
-####     [ <[eE]> [\+|\-]? <[0..9]>+ ]?
-#### }
-#### token value:sym<true>    { <sym>    };
-#### token value:sym<false>   { <sym>    };
-#### token value:sym<null>    { <sym>    };
-#### token value:sym<object>  { <object> };
-#### token value:sym<array>   { <array>  };
-#### token value:sym<string>  { <string> }
-#### 
-#### token string {
-####     \" ~ \" [ <str> | \\ <str=.str_escape> ]*
-#### }
-#### 
-#### token str {
-####     <-["\\\t\n]>+
-#### }
-#### 
-#### token str_escape {
-####     <["\\/bfnrt]> | 'u' <utf16_codepoint>+ % '\u'
-#### }
-#### 
-#### token utf16_codepoint {
-####     <.xdigit>**4
-#### }
-#### 
 # vim: ft=perl6

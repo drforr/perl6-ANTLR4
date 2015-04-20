@@ -1,15 +1,6 @@
-use v6;
-
-use ANTLR4::Grammar;
-use Test;
-
-plan 1;
-
-#############################################################################
-
-my $csv-grammar = q{/*
+/*
  [The "BSD licence"]
- Copyright (c) 2013 Terence Parr
+ Copyright (c) 2013 Tom Everett
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,26 +26,169 @@ my $csv-grammar = q{/*
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-grammar CSV;
+grammar redcode;
 
-file: hdr row+ ;
-hdr : row ;
-
-row : field (',' field)* '\r'? '\n' ;
-
-field
-    : TEXT
-    | STRING
-    |
+file
+    : line+
     ;
 
-TEXT   : ~[,\n\r"]+ ;
-STRING : '"' ('""'|~'"')* '"' ; // quote-quote is an escaped quote
-};
+line
+    : (comment | instruction) EOL
+    ;
 
-#############################################################################
+instruction
+    : opcode ('.' modifier)? mmode? number (',' mmode? number)? comment?
+    ;
 
-my $g = ANTLR4::Grammar.new;
-ok $g.parse( $csv-grammar );
+opcode
+    : DAT 
+    | MOV 
+    | ADD 
+    | SUB 
+    | MUL 
+    | DIV 
+    | MOD 
+    | JMP 
+    | JMZ 
+    | JMN 
+    | DJN 
+    | CMP 
+    | SLT 
+    | SPL 
+    | ORG
+    | DJZ
+    ;
+    
+modifier
+    : A 
+    | B 
+    | AB 
+    | BA 
+    | F 
+    | X 
+    | I
+    ;
 
-# vim: ft=perl6
+ mmode
+    : '#'
+    | '$'
+    | '@'
+    | '<'
+    | '>'
+    ;
+ 
+ number
+    : ('+' | '-')? NUMBER
+    ;
+ 
+ comment
+     : COMMENT
+     ;
+
+A
+    : 'A'
+    ;
+
+B
+    : 'B'
+    ;
+
+AB
+    : 'AB'
+    ;
+
+BA
+    : 'BA'
+    ;
+
+F
+    : 'F'
+    ;
+ 
+X
+    : 'X'
+    ;
+
+I
+    : 'I'
+    ;
+
+DAT
+    : 'DAT'
+    ;
+
+MOV
+    : 'MOV'
+    ;
+
+ADD
+    : 'ADD'
+    ;
+
+SUB
+    : 'SUB'
+    ;
+
+MUL
+    : 'MUL'
+    ;
+
+DIV
+    : 'DIV'
+    ;
+
+MOD
+    : 'MOD';
+
+JMP
+    : 'JMP'
+    ;
+
+JMZ
+    : 'JMZ'
+    ;
+
+JMN
+    : 'JMN'
+    ;
+
+DJN
+    : 'DJN'
+    ;
+
+CMP
+    : 'CMP'
+    ;
+
+SLT
+    : 'SLT'
+    ;
+
+DJZ
+    : 'DJZ'
+    ;
+
+SPL
+    : 'SPL'
+    ;
+
+ORG
+    : 'ORG'
+    ;
+
+NUMBER
+    : [0-9]+
+    ;
+
+COMMENT
+    : ';' ~[\r\n]*
+    ;
+
+EOL
+    : [\r\n]+
+    ;
+
+WS
+    : [ \t]->skip
+    ;
+

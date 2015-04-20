@@ -1,15 +1,6 @@
-use v6;
-
-use ANTLR4::Grammar;
-use Test;
-
-plan 1;
-
-#############################################################################
-
-my $csv-grammar = q{/*
+/*
  [The "BSD licence"]
- Copyright (c) 2013 Terence Parr
+ Copyright (c) 2013 Tom Everett
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,26 +26,87 @@ my $csv-grammar = q{/*
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-grammar CSV;
+/**
+* <p>http://en.wikipedia.org/wiki/Typographical_Number_Theory</p>
+*/
+grammar tnt;
 
-file: hdr row+ ;
-hdr : row ;
-
-row : field (',' field)* '\r'? '\n' ;
-
-field
-    : TEXT
-    | STRING
-    |
+equation
+    : expression '=' expression
     ;
 
-TEXT   : ~[,\n\r"]+ ;
-STRING : '"' ('""'|~'"')* '"' ; // quote-quote is an escaped quote
-};
+atom
+    : number
+    | variable
+    ;
 
-#############################################################################
+number
+    : SUCCESSOR* ZERO
+    ;
 
-my $g = ANTLR4::Grammar.new;
-ok $g.parse( $csv-grammar );
+variable
+    : SUCCESSOR* (A | B | C | D | E) PRIME*
+    ;     
 
-# vim: ft=perl6
+expression
+    : atom
+    | expression '+' expression
+    | expression '*' expression
+    | '(' expression ')'
+    | '~' expression
+    | forevery expression
+    | exists expression  
+    ;
+
+forevery
+    : FOREVERY variable ':'
+    ;
+
+exists
+    : EXISTS variable ':'
+    ;
+          
+ZERO
+    : '0'
+    ;
+
+SUCCESSOR
+    : 'S'
+    ;
+
+A
+    : 'a'
+    ;
+
+B
+    : 'b'
+    ;
+
+C
+    : 'c'
+    ;
+
+D
+    : 'd'
+    ;
+
+E
+    : 'e'
+    ;
+
+PRIME
+    : '\''
+    ;
+
+FOREVERY
+    : 'A'
+    ;
+
+EXISTS
+    : 'E'
+    ;
+
+WS
+    : [ \r\t\n]->skip
+    ;
+

@@ -1,15 +1,6 @@
-use v6;
-
-use ANTLR4::Grammar;
-use Test;
-
-plan 1;
-
-#############################################################################
-
-my $csv-grammar = q{/*
+/*
  [The "BSD licence"]
- Copyright (c) 2013 Terence Parr
+ Copyright (c) 2013 Tom Everett
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,26 +26,83 @@ my $csv-grammar = q{/*
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-grammar CSV;
+parser grammar HTMLParser;
 
-file: hdr row+ ;
-hdr : row ;
+options { tokenVocab=HTMLLexer; }
 
-row : field (',' field)* '\r'? '\n' ;
-
-field
-    : TEXT
-    | STRING
-    |
+htmlDocument    
+    : (scriptlet | SEA_WS)* xml? (scriptlet | SEA_WS)* dtd? (scriptlet | SEA_WS)* htmlElements*
     ;
 
-TEXT   : ~[,\n\r"]+ ;
-STRING : '"' ('""'|~'"')* '"' ; // quote-quote is an escaped quote
-};
+htmlElements
+    : htmlMisc* htmlElement htmlMisc*
+    ;
 
-#############################################################################
+htmlElement     
+    : TAG_OPEN htmlTagName htmlAttribute* TAG_CLOSE htmlContent TAG_OPEN TAG_SLASH htmlTagName TAG_CLOSE
+    | TAG_OPEN htmlTagName htmlAttribute* TAG_SLASH_CLOSE
+    | TAG_OPEN htmlTagName htmlAttribute* TAG_CLOSE
+    | scriptlet
+    | script
+    | style
+    ;
 
-my $g = ANTLR4::Grammar.new;
-ok $g.parse( $csv-grammar );
+htmlContent     
+    : htmlChardata? ((htmlElement | xhtmlCDATA | htmlComment) htmlChardata?)*
+    ;
 
-# vim: ft=perl6
+htmlAttribute   
+    : htmlAttributeName TAG_EQUALS htmlAttributeValue
+    | htmlAttributeName
+    ;
+
+htmlAttributeName
+    : TAG_NAME
+    ;
+
+htmlAttributeValue
+    : ATTVALUE_VALUE
+    ;
+
+htmlTagName
+    : TAG_NAME
+    ;
+
+htmlChardata    
+    : HTML_TEXT 
+    | SEA_WS
+    ;
+
+htmlMisc        
+    : htmlComment 
+    | SEA_WS
+    ;
+
+htmlComment
+    : HTML_COMMENT
+    | HTML_CONDITIONAL_COMMENT
+    ;
+
+xhtmlCDATA
+    : CDATA
+    ;
+
+dtd
+    : DTD
+    ;
+
+xml
+    : XML_DECLARATION
+    ;
+
+scriptlet
+    : SCRIPTLET
+    ;
+
+script
+    : SCRIPT_OPEN ( SCRIPT_BODY | SCRIPT_SHORT_BODY)
+    ;
+
+style
+    : STYLE_OPEN ( STYLE_BODY | STYLE_SHORT_BODY)
+    ;
