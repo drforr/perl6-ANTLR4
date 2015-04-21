@@ -116,7 +116,6 @@ memberDeclaration
     |   enumDeclaration
     ;
 
-
 methodDeclaration
     :   (type|'void') Identifier formalParameters ('[' ']')*
         ('throws' qualifiedNameList)?
@@ -271,6 +270,7 @@ literal
     |   'null'
     ;
 
+
 annotation
     :   '@' annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
     ;
@@ -332,6 +332,7 @@ annotationConstantRest
 defaultValue
     :   'default' elementValue
     ;
+
 
 block
     :   '{' blockStatement* '}'
@@ -395,7 +396,6 @@ resource
     :   variableModifier* classOrInterfaceType variableDeclaratorId '=' expression
     ;
 
-
 switchBlockStatementGroup
     :   switchLabel+ blockStatement+
     ;
@@ -423,6 +423,7 @@ enhancedForControl
 forUpdate
     :   expressionList
     ;
+
 
 parExpression
     :   '(' expression ')'
@@ -551,6 +552,8 @@ arguments
     :   '(' expressionList? ')'
     ;
 
+
+
 ABSTRACT      : 'abstract';
 ASSERT        : 'assert';
 BOOLEAN       : 'boolean';
@@ -601,6 +604,7 @@ TRY           : 'try';
 VOID          : 'void';
 VOLATILE      : 'volatile';
 WHILE         : 'while';
+
 
 IntegerLiteral
     :   DecimalIntegerLiteral
@@ -730,6 +734,7 @@ BinaryDigitOrUnderscore
     |   '_'
     ;
 
+
 FloatingPointLiteral
     :   DecimalFloatingPointLiteral
     |   HexadecimalFloatingPointLiteral
@@ -789,10 +794,12 @@ BinaryExponentIndicator
     :   [pP]
     ;
 
+
 BooleanLiteral
     :   'true'
     |   'false'
     ;
+
 
 CharacterLiteral
     :   '\'' SingleCharacter '\''
@@ -803,6 +810,7 @@ fragment
 SingleCharacter
     :   ~['\\]
     ;
+
 
 StringLiteral
     :   '"' StringCharacters? '"'
@@ -818,6 +826,7 @@ StringCharacter
     :   ~["\\]
     |   EscapeSequence
     ;
+
 
 fragment
 EscapeSequence
@@ -843,9 +852,11 @@ ZeroToThree
     :   [0-3]
     ;
 
+
 NullLiteral
     :   'null'
     ;
+
 
 LPAREN          : '(';
 RPAREN          : ')';
@@ -856,6 +867,7 @@ RBRACK          : ']';
 SEMI            : ';';
 COMMA           : ',';
 DOT             : '.';
+
 
 ASSIGN          : '=';
 GT              : '>';
@@ -892,6 +904,7 @@ MOD_ASSIGN      : '%=';
 LSHIFT_ASSIGN   : '<<=';
 RSHIFT_ASSIGN   : '>>=';
 URSHIFT_ASSIGN  : '>>>=';
+
 
 Identifier
     :   JavaLetter JavaLetterOrDigit*

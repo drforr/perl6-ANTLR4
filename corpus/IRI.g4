@@ -89,7 +89,6 @@ isegment_nz
  : ipchar+
  ;
 
-///                ; non-zero-length segment without any colon ":"
 isegment_nz_nc
  : (iunreserved | pct_encoded | sub_delims | '@')+
  ;

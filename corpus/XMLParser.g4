@@ -17,7 +17,6 @@ reference   :   EntityRef | CharRef ;
 
 attribute   :   Name '=' STRING ; 
 
-
 chardata    :   TEXT | SEA_WS ;
 
 misc        :   COMMENT | PI | SEA_WS ;

@@ -127,6 +127,7 @@ HEX_DIGIT : [0-9a-fA-F]	;
 
 WS  :	[ \t\r\n\f]+ -> channel(HIDDEN)	;
 
+
 ACTION
 	:	'{'
 		(	ACTION

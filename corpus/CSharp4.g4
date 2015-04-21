@@ -2,6 +2,7 @@ grammar CSharp4;
 
 import CSharp4PreProcessor;
 
+
 namespace_name 
 	: namespace_or_type_name
 	;
@@ -51,10 +52,9 @@ type
   ;
 base_type
   : simple_type
-  | class_type 
+  | class_type  
   | VOID STAR
   ;
-
 simple_type 
 	: numeric_type
 	| BOOL
@@ -96,7 +96,6 @@ reference_type
   | class_type ((STAR | INTERR)* rank_specifier)*
   | VOID STAR ((STAR | INTERR)* rank_specifier)* (STAR | INTERR)* rank_specifier
   ;
-
 class_type 
 	: type_name
 	| OBJECT
@@ -106,7 +105,6 @@ class_type
 interface_type 
 	: type_name
 	;
-
 delegate_type 
 	: type_name
 	;
@@ -122,7 +120,6 @@ type_argument
 type_void
   : VOID
   ;
-
 
 variable_reference 
 	: expression
@@ -182,6 +179,7 @@ bracket_expression
   : OPEN_BRACKET expression_list CLOSE_BRACKET
   ;
 
+
 simple_name 
 	: identifier type_argument_list_opt
 	;
@@ -210,13 +208,13 @@ predefined_type
 	| USHORT
 	;
 
+
 expression_list 
 	: expression ( COMMA expression)*
 	;
 this_access 
 	: THIS
 	;
-
 base_access
 	: BASE DOT identifier type_argument_list_opt
 	| BASE OPEN_BRACKET expression_list CLOSE_BRACKET
@@ -265,15 +263,12 @@ array_creation_expression
         | rank_specifier array_initializer
         )
   ;
-
 delegate_creation_expression 
 	: NEW delegate_type OPEN_PARENS expression CLOSE_PARENS
 	;
-
 anonymous_object_creation_expression 
 	: NEW anonymous_object_initializer
 	;
-
 
 anonymous_object_initializer 
   : OPEN_BRACE CLOSE_BRACE
@@ -404,15 +399,12 @@ null_coalescing_expression
   : conditional_or_expression (OP_COALESCING null_coalescing_expression)?
   ;
 
-
 conditional_expression 
   : null_coalescing_expression (INTERR expression COLON expression)?
   ;
-
 lambda_expression 
 	: anonymous_function_signature right_arrow anonymous_function_body
 	;
-
 anonymous_method_expression 
 	: DELEGATE explicit_anonymous_function_signature? block
 	;
@@ -509,11 +501,9 @@ select_clause
 group_clause 
 	: group_contextual_keyword expression by_contextual_keyword expression
 	;
-
 query_continuation 
 	: into_contextual_keyword identifier query_body
 	;
-
 assignment 
 	: unary_expression assignment_operator expression
 	;
@@ -569,7 +559,6 @@ simple_embedded_statement
 	| yield_statement
 	| embedded_statement_unsafe
 	;
-
 block 
 	: OPEN_BRACE statement_list? CLOSE_BRACE
 	;
@@ -579,11 +568,9 @@ statement_list
 empty_statement 
 	: SEMICOLON
 	;
-
 labeled_statement 
 	: identifier COLON statement
 	;
-
 declaration_statement 
 	: local_variable_declaration SEMICOLON
 	| local_constant_declaration SEMICOLON
@@ -594,7 +581,6 @@ local_variable_declaration
 local_variable_type 
 	: type 
 	;
-
 local_variable_declarators 
 	: local_variable_declarator ( COMMA  local_variable_declarator )*
 	;
@@ -734,6 +720,7 @@ lock_statement
 using_statement 
 	: USING OPEN_PARENS resource_acquisition CLOSE_PARENS embedded_statement
 	;
+
 resource_acquisition 
 	: local_variable_declaration
 	| expression
@@ -742,6 +729,7 @@ yield_statement
 	: yield_contextual_keyword RETURN expression SEMICOLON
 	| yield_contextual_keyword BREAK SEMICOLON
 	;
+
 
 compilation_unit 
   : BYTE_ORDER_MARK? extern_alias_directives? using_directives?
@@ -793,7 +781,6 @@ type_declaration
     | delegate_definition
     )
   ;
-
 qualified_alias_member 
 	: identifier DOUBLE_COLON identifier type_argument_list_opt
 	;
@@ -822,7 +809,6 @@ type_parameter_list
 type_parameters 
 	: attributes? type_parameter ( COMMA  attributes?  type_parameter )*
 	;
-
 type_parameter 
 	: identifier
 	;
@@ -889,7 +875,6 @@ all_member_modifier
   | EXTERN
   | partial_contextual_keyword
   ;
-
 
 common_member_declaration
   : constant_declaration2
@@ -1148,7 +1133,6 @@ overloadable_binary_operator
 	| OP_GE
 	| OP_LE
 	;
-
 overloadable_operator
   : PLUS
   | MINUS
@@ -1173,7 +1157,6 @@ overloadable_operator
   | OP_GE
   | OP_LE
   ;
-
 conversion_operator_declarator
 	: IMPLICIT OPERATOR type OPEN_PARENS type identifier CLOSE_PARENS
 	| EXPLICIT OPERATOR type OPEN_PARENS type identifier CLOSE_PARENS
@@ -1266,19 +1249,19 @@ array_type
 	: base_type ((STAR | INTERR)* rank_specifier)+
 	;
 
-
 non_array_type 
 	: base_type (rank_specifier | INTERR | STAR)*
 	;
 
-
+rank_specifiers 
+  : rank_specifier+
+  ;
 rank_specifier 
 	: OPEN_BRACKET dim_separators? CLOSE_BRACKET
 	;
 dim_separators 
 	: COMMA ( COMMA )*
 	;
-
 
 array_initializer 
   : OPEN_BRACE CLOSE_BRACE
@@ -1452,15 +1435,12 @@ positional_argument_list
 	: arg=positional_argument
 	    ( COMMA  arg2=positional_argument )*
 	;
-
 positional_argument 
 	: attribute_argument_expression
 	;
-
 named_argument_list 
 	: named_argument ( COMMA  named_argument )*
 	;
-
 named_argument 
 	: identifier ASSIGNMENT attribute_argument_expression
 	;
@@ -1521,7 +1501,6 @@ static_constructor_modifiers_unsafe
   | STATIC EXTERN UNSAFE
   | STATIC UNSAFE EXTERN
   ;
-
 embedded_statement_unsafe 
 	: unsafe_statement
 	| fixed_statement
@@ -1545,7 +1524,6 @@ unmanaged_type
 primary_no_array_creation_expression_unsafe 
 	: primary_expression
 	;
-
 unary_expression_unsafe 
 	: pointer_indirection_expression
 	| addressof_expression
@@ -1553,8 +1531,6 @@ unary_expression_unsafe
 pointer_indirection_expression 
 	: STAR unary_expression
 	;
-
-
 
 addressof_expression 
 	: AMP unary_expression
@@ -1602,7 +1578,6 @@ fixed_size_buffer_declarators
 fixed_size_buffer_declarator 
 	: identifier OPEN_BRACKET constant_expression CLOSE_BRACKET
 	;
-
 local_variable_initializer_unsafe 
 	: stackalloc_initializer
 	;
@@ -1808,7 +1783,6 @@ interface_event_declaration2
 interface_indexer_declaration2
   : THIS OPEN_BRACKET formal_parameter_list CLOSE_BRACKET OPEN_BRACE interface_accessors CLOSE_BRACE
   ;
-
 member_access2
   : DOT identifier type_argument_list_opt
   ;

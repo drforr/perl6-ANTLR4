@@ -1,5 +1,5 @@
-
 grammar WebIDL;
+
 
 webIDL
 	: definitions EOF

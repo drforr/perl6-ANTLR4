@@ -35,7 +35,7 @@ fragment HEX : [0-9a-fA-F] ;
 NUMBER
     :   '-'? INT '.' [0-9]+ EXP? 
     |   '-'? INT EXP             
-    |   '-'? INT                
+    |   '-'? INT                 
     ;
 
 fragment INT :   '0' | [1-9] [0-9]* ; 

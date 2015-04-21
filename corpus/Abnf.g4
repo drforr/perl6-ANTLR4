@@ -1,5 +1,6 @@
 grammar Abnf;
 
+
 rulelist
     : rule_* EOF
 ;

@@ -3,6 +3,7 @@ grammar Swift;
 top_level : (statement | expression)* EOF ;
 
 
+
 statement
  : expression ';'?
  | declaration ';'?
@@ -14,11 +15,13 @@ statement
 
 statements : statement+ ;
 
+
 loop_statement : for_statement
  | for_in_statement
  | while_statement
  | do_while_statement
  ;
+
 
 for_statement
  : 'for' for_init? ';' expression? ';' expression? code_block
@@ -27,18 +30,24 @@ for_statement
 
 for_init : variable_declaration | expression_list  ;
 
+
 for_in_statement : 'for' pattern 'in' expression code_block  ;
+
 
 while_statement : 'while' while_condition code_block  ;
 while_condition : expression | declaration  ;
 
+
 do_while_statement : 'do' code_block 'while' while_condition  ;
 
+
 branch_statement : if_statement | switch_statement  ;
+
 
 if_statement : 'if' if_condition code_block else_clause? ;
 if_condition : expression | declaration  ;
 else_clause : 'else' code_block | 'else' if_statement  ;
+
 
 switch_statement : 'switch' expression '{' switch_cases? '}'  ;
 switch_cases : switch_case switch_cases? ;
@@ -49,9 +58,11 @@ default_label : 'default' ':' ;
 guard_clause : 'where' guard_expression ;
 guard_expression : expression  ;
 
+
 labeled_statement : statement_label loop_statement | statement_label switch_statement  ;
 statement_label : label_name ':' ;
 label_name : identifier  ;
+
 
 control_transfer_statement : break_statement
  | continue_statement
@@ -59,13 +70,19 @@ control_transfer_statement : break_statement
  | return_statement
  ;
 
+
 break_statement : 'break' label_name? ;
+
 
 continue_statement : 'continue' label_name? ;
 
+
 fallthrough_statement : 'fallthrough'  ;
 
+
 return_statement : 'return' expression? ;
+
+
 
 generic_parameter_clause : '<' generic_parameter_list requirement_clause? '>'  ;
 generic_parameter_list : generic_parameter | generic_parameter ',' generic_parameter_list  ;
@@ -76,9 +93,12 @@ requirement : conformance_requirement | same_type_requirement  ;
 conformance_requirement : type_identifier ':' type_identifier | type_identifier ':' protocol_composition_type  ;
 same_type_requirement : type_identifier '==' type_identifier  ;
 
+
 generic_argument_clause : '<' generic_argument_list '>'  ;
 generic_argument_list : generic_argument (',' generic_argument)* ;
 generic_argument : type  ;
+
+
 
 declaration
  : import_declaration
@@ -101,17 +121,21 @@ declarations : declaration declarations? ;
 declaration_specifiers : declaration_specifier declaration_specifiers? ;
 declaration_specifier : 'class' | 'mutating' | 'nonmutating' | 'override' | 'static' | 'unowned' | 'unowned(safe)' | 'unowned(unsafe)' | 'weak' ;
 
+
 code_block : '{' statements? '}'  ;
+
 
 import_declaration : attributes? 'import' import_kind? import_path  ;
 import_kind : 'typealias' | 'struct' | 'class' | 'enum' | 'protocol' | 'var' | 'func'  ;
 import_path : import_path_identifier | import_path_identifier '.' import_path  ;
 import_path_identifier : identifier | operator  ;
 
+
 constant_declaration : attributes? declaration_specifiers? 'let' pattern_initializer_list  ;
 pattern_initializer_list : pattern_initializer (',' pattern_initializer)* ;
 pattern_initializer : pattern initializer? ;
 initializer : '=' expression  ;
+
 
 variable_declaration
  : variable_declaration_head pattern_initializer_list
@@ -134,10 +158,12 @@ willSet_didSet_block : '{' willSet_clause didSet_clause?'}' | '{' didSet_clause 
 willSet_clause : attributes? 'willSet' setter_name? code_block  ;
 didSet_clause : attributes? 'didSet' setter_name? code_block  ;
 
+
 typealias_declaration : typealias_head typealias_assignment  ;
 typealias_head : 'typealias' typealias_name  ;
 typealias_name : identifier  ;
 typealias_assignment : '=' type  ;
+
 
 function_declaration : function_head function_name generic_parameter_clause? function_signature function_body  ;
 function_head : attributes? declaration_specifiers? 'func'  ;
@@ -156,6 +182,7 @@ parameter_name : identifier | '_'  ;
 local_parameter_name : identifier | '_'  ;
 default_argument_clause : '=' expression  ;
 
+
 enum_declaration : attributes? union_style_enum | attributes? raw_value_style_enum  ;
 union_style_enum : enum_name generic_parameter_clause?'{' union_style_enum_members?'}'  ;
 union_style_enum_members : union_style_enum_member union_style_enum_members? ;
@@ -173,13 +200,16 @@ raw_value_style_enum_case_list : raw_value_style_enum_case | raw_value_style_enu
 raw_value_style_enum_case : enum_case_name raw_value_assignment? ;
 raw_value_assignment : '=' literal  ;
 
+
 struct_declaration : attributes? 'struct' struct_name generic_parameter_clause? type_inheritance_clause? struct_body  ;
 struct_name : identifier  ;
 struct_body : '{' declarations?'}'  ;
 
+
 class_declaration : attributes? 'class' class_name generic_parameter_clause? type_inheritance_clause? class_body  ;
 class_name : identifier ;
 class_body : '{' declarations? '}'  ;
+
 
 protocol_declaration : attributes? 'protocol' protocol_name type_inheritance_clause? protocol_body  ;
 protocol_name : identifier  ;
@@ -192,24 +222,33 @@ protocol_member_declaration : protocol_property_declaration
  ;
 protocol_member_declarations : protocol_member_declaration protocol_member_declarations? ;
 
+
 protocol_property_declaration : variable_declaration_head variable_name type_annotation getter_setter_keyword_block  ;
+
 
 protocol_method_declaration : function_head function_name generic_parameter_clause? function_signature  ;
 
+
 protocol_initializer_declaration : initializer_head generic_parameter_clause? parameter_clause  ;
+
 
 protocol_subscript_declaration : subscript_head subscript_result getter_setter_keyword_block  ;
 
+
 protocol_associated_type_declaration : typealias_head type_inheritance_clause? typealias_assignment? ;
+
 
 initializer_declaration : initializer_head generic_parameter_clause? parameter_clause initializer_body  ;
 initializer_head : attributes? 'convenience'? 'init'  ;
 initializer_body : code_block  ;
 
+
 deinitializer_declaration : attributes? 'deinit' code_block  ;
+
 
 extension_declaration : 'extension' type_identifier type_inheritance_clause? extension_body  ;
 extension_body : '{' declarations?'}'  ;
+
 
 subscript_declaration : subscript_head subscript_result code_block
  | subscript_head subscript_result getter_setter_block
@@ -217,6 +256,7 @@ subscript_declaration : subscript_head subscript_result code_block
  ;
 subscript_head : attributes? 'subscript' parameter_clause  ;
 subscript_result : '->' attributes? type  ;
+
 
 operator_declaration : prefix_operator_declaration | postfix_operator_declaration | infix_operator_declaration  ;
 prefix_operator_declaration : 'operator' 'prefix' 'operator' '{' '}'  ;
@@ -227,6 +267,8 @@ precedence_clause : 'precedence' precedence_level  ;
 precedence_level : integer_literal ;
 associativity_clause : 'associativity' associativity  ;
 associativity : 'left' | 'right' | 'none'  ;
+
+
 
 
 pattern
@@ -240,11 +282,15 @@ pattern
  | expression_pattern
  ;
 
+
 wildcard_pattern : '_'  ;
+
 
 identifier_pattern : identifier  ;
 
+
 value_binding_pattern : 'var' pattern | 'let' pattern  ;
+
 
 tuple_pattern : '(' tuple_pattern_element_list? ')'  ;
 tuple_pattern_element_list
@@ -252,13 +298,17 @@ tuple_pattern_element_list
 	;
 tuple_pattern_element : pattern  ;
 
+
 enum_case_pattern : type_identifier? '.' enum_case_name tuple_pattern? ;
+
 
 type_casting_pattern : is_pattern | as_pattern  ;
 is_pattern : 'is' type  ;
 as_pattern : pattern 'as' type  ;
 
+
 expression_pattern : expression  ;
+
 
 
 attribute : '@' attribute_name attribute_argument_clause? ;
@@ -274,6 +324,7 @@ balanced_token
  ;
 
 
+
 expression_list : expression (',' expression)* ;
 
 expression : prefix_expression binary_expression* ;
@@ -282,6 +333,8 @@ prefix_expression
   : prefix_operator? postfix_expression
   | in_out_expression
   ;
+
+
 
 
 in_out_expression : '&' identifier ;
@@ -293,15 +346,19 @@ binary_expression
   | type_casting_operator
   ;
 
+
 assignment_operator : '='  ;
 
+
 conditional_operator : '?' expression ':' ;
+
 
 type_casting_operator
   : 'is' type
   | 'as' '?' type
   | 'as' type
   ;
+
 
 primary_expression
  : identifier generic_argument_clause?
@@ -312,6 +369,7 @@ primary_expression
  | parenthesized_expression
  | wildcard_expression
  ;
+
 
 literal_expression
  : literal
@@ -327,12 +385,14 @@ dictionary_literal : '[' dictionary_literal_items ']' | '[' ':' ']'  ;
 dictionary_literal_items : dictionary_literal_item (',' dictionary_literal_item)* ','? ;
 dictionary_literal_item : expression ':' expression  ;
 
+
 self_expression
  : 'self'
  | 'self' '.' identifier
  | 'self' '[' expression ']'
  | 'self' '.' 'init'
  ;
+
 
 superclass_expression
   : superclass_method_expression
@@ -343,6 +403,7 @@ superclass_expression
 superclass_method_expression : 'super' '.' identifier  ;
 superclass_subscript_expression : 'super' '[' expression ']'  ;
 superclass_initializer_expression : 'super' '.' 'init'  ;
+
 
 closure_expression : '{' closure_signature? statements '}'  ;
 closure_signature
@@ -357,13 +418,17 @@ capture_list : '[' capture_specifier expression ']'  ;
 
 capture_specifier : 'weak' | 'unowned' | 'unowned(safe)' | 'unowned(unsafe)'  ;
 
+
 implicit_member_expression : '.' identifier  ;
+
 
 parenthesized_expression : '(' expression_element_list? ')'  ;
 expression_element_list : expression_element (',' expression_element_list)*  ;
 expression_element : expression | identifier ':' expression  ;
 
+
 wildcard_expression : '_'  ;
+
 
 postfix_expression
  : primary_expression                                             # primary
@@ -396,6 +461,7 @@ postfix_expression
 
 
 
+
 operator: Operator ;
 
 
@@ -410,6 +476,7 @@ prefix_operator : operator  ;
 
 
 postfix_operator : operator  ;
+
 
 
 type
@@ -530,6 +597,7 @@ fragment Identifier_character : [0-9]
 fragment Identifier_characters : Identifier_character+ ;
 
 Implicit_parameter_name : '$' Decimal_literal ; 
+
 
 literal : integer_literal | Floating_point_literal | String_literal  ;
 

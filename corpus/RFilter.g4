@@ -18,6 +18,7 @@ elem:   op eat?
     |   'if' eat? '(' (elem|eat)* ')' eat?
     |   'else'
         {
+        
         WritableToken tok = (WritableToken)_input.LT(-2);
         if (curlies>0&&tok.getType()==NL) tok.setChannel(Token.HIDDEN_CHANNEL);
         }

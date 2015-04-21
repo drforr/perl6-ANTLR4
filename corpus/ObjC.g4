@@ -469,6 +469,7 @@ constant : DECIMAL_LITERAL | HEX_LITERAL | OCTAL_LITERAL | CHARACTER_LITERAL | F
 
 
 
+
 AUTORELEASEPOOL : '@autoreleasepool';
 CATCH           : '@catch';
 CLASS           : '@class';
@@ -542,6 +543,7 @@ NS_ENUM             : 'NS_ENUM';
 WWEAK               : '__weak';
 WUNSAFE_UNRETAINED  : '__unsafe_unretained';
 
+
 LPAREN          : '(';
 RPAREN          : ')';
 LBRACE          : '{';
@@ -553,6 +555,7 @@ COMMA           : ',';
 DOT             : '.';
 STRUCTACCESS    : '->';
 AT              : '@';
+
 
 ASSIGN          : '=';
 GT              : '>';
@@ -579,6 +582,7 @@ CARET           : '^';
 MOD             : '%';
 SHIFT_R         : '>>';
 SHIFT_L         : '<<';
+
 
 ADD_ASSIGN      : '+=';
 SUB_ASSIGN      : '-=';
@@ -685,6 +689,7 @@ COMMENT
 LINE_COMMENT
     : '//' ~[\r\n]*  -> channel(HIDDEN)
     ;
+
 
 HDEFINE : '#define' ~[\r\n]* -> channel(HIDDEN);
 HIF : '#if' ~[\r\n]* -> channel(HIDDEN);

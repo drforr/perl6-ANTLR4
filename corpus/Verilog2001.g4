@@ -1,5 +1,9 @@
 grammar Verilog2001;
 
+
+
+
+
 config_declaration : 'config' config_identifier ';' design_statement ( config_rule_statement )* 'endconfig' ;
 
 design_statement : 'design' ( ( library_identifier '.' )? cell_identifier )* ';' ;
@@ -19,6 +23,7 @@ liblist_clause : 'liblist' library_identifier* ;
 cell_clause : 'cell' ( library_identifier '.' )? cell_identifier ;
 use_clause : 'use' ( library_identifier '.' )? cell_identifier ( ':config' )? ;
 
+
 source_text : description* EOF ;
 
 description : module_declaration ;
@@ -34,6 +39,7 @@ module_declaration
 	;
 
 module_keyword : 'module' | 'macromodule' ;
+
 
 module_parameter_port_list : '#' '(' parameter_declaration_ ( ',' parameter_declaration_ )* ')' ;
 
@@ -64,6 +70,7 @@ attribute_instance* inout_declaration
 | attribute_instance* input_declaration
 | attribute_instance* output_declaration
 ;
+
 
 module_item :
 module_or_generate_item
@@ -118,6 +125,7 @@ function_declaration
 
 parameter_override : 'defparam' list_of_param_assignments ';' ;
 
+
 local_parameter_declaration :
 'localparam' ( 'signed' )? ( range )? list_of_param_assignments ';'
 | 'localparam' 'integer' list_of_param_assignments ';'
@@ -137,6 +145,7 @@ parameter_declaration_ :
 ;
 
 specparam_declaration : 'specparam' ( range )? list_of_specparam_assignments ';' ;
+
 
 inout_declaration : 'inout' ( net_type )? ( 'signed' )? ( range )? list_of_port_identifiers ;
 input_declaration : 'input' ( net_type )? ( 'signed' )? ( range )? list_of_port_identifiers ;
@@ -472,6 +481,8 @@ generate_block : 'begin' ( ':' generate_block_identifier )? ( generate_item )* '
 
 
 
+
+
     
 
 continuous_assign : 'assign' ( drive_strength )? ( delay3 )? list_of_net_assignments ';' ;
@@ -749,6 +760,8 @@ state_dependent_path_declaration :
 polarity_operator : '+' | '-' ;
 
 
+
+
 checktime_condition : mintypmax_expression ;
 delayed_data :
 terminal_identifier
@@ -770,6 +783,11 @@ stamptime_condition : mintypmax_expression ;
 start_edge_offset : mintypmax_expression ;
 threshold : constant_expression ;
 timing_check_limit : expression ;
+
+
+
+
+
 
 
 concatenation : '{' expression ( ',' expression )* '}' ;
@@ -1026,6 +1044,7 @@ attr_name : identifier ;
 One_line_comment : '//' .*? '\r'? '\n' -> channel(HIDDEN);
 Block_comment : '/*' .*? '*/' -> channel(HIDDEN);
 
+
 arrayed_identifier :
 simple_arrayed_identifier
 | escaped_arrayed_identifier
@@ -1104,6 +1123,7 @@ escaped_hierarchical_branch :
 	Escaped_identifier ( '[' Decimal_number ']' )?
 	( '.' Escaped_identifier ( '[' Decimal_number ']' )? )*
 ;
+
 
 White_space : [ \t\n\r]+ -> channel(HIDDEN) ;
 

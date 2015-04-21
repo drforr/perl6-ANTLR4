@@ -845,3 +845,4 @@ COMMENT
 LINE_COMMENT
     :   '//' ~('\n' | '\r')* '\r'? '\n' -> channel(HIDDEN)
     ;
+

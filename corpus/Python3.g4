@@ -1,5 +1,6 @@
 grammar Python3;
 
+
 tokens { INDENT, DEDENT }
 
 single_input
@@ -452,7 +453,6 @@ integer
  ;
 
 
-
 DEF : 'def';
 RETURN : 'return';
 RAISE : 'raise';
@@ -615,6 +615,7 @@ SKIP
 UNKNOWN_CHAR
  : .
  ;
+
 
 fragment SHORT_STRING
  : '\'' ( STRING_ESCAPE_SEQ | ~[\\\r\n'] )* '\''

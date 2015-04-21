@@ -172,7 +172,6 @@ lexerElement
 	|	lexerAtom ebnfSuffix?
 	|	lexerBlock ebnfSuffix?
 	|	ACTION QUESTION? 
-                         
 	;
 
 labeledLexerElement

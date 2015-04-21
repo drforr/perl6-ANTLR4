@@ -1,5 +1,6 @@
 grammar tnsnames;
 
+
 tnsnames         : (tns_entry | ifile | lsnr_entry)* ;
 
 tns_entry        : alias_list EQUAL (description_list | description) ;
@@ -92,7 +93,6 @@ protocol_info    : tcp_protocol
                  | nmp_protocol
                  | beq_protocol
                  ;                    
-                                      
 
 
 tcp_protocol     : tcp_params ;
@@ -128,6 +128,9 @@ ipc_parameter    : ipc_ipc
 ipc_ipc          : L_PAREN PROTOCOL EQUAL IPC R_PAREN ;
 
 ipc_key          : L_PAREN KEY EQUAL ID R_PAREN ;
+
+
+
 
 
 spx_protocol     : spx_params ; 

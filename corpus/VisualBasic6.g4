@@ -505,6 +505,7 @@ iCS_S_MemberCall : '.' (iCS_S_VariableOrProcedureCall | iCS_S_ProcedureOrArrayCa
 iCS_S_DictionaryCall : dictionaryCallStmt;
 
 
+
 argsCall : (argCall? WS? (',' | ';') WS?)* argCall (WS? (',' | ';') WS? argCall?)*;
 
 argCall : ((BYVAL | BYREF | PARAMARRAY) WS)? valueStmt;

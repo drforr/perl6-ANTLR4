@@ -103,7 +103,6 @@ TEXT
     : (UPPERCASE_LETTER | LOWERCASE_LETTER | DIGIT| SYMBOL)+
     ;
 
-
 STRINGLITERAL
     : '"' .*? '"'
     ;

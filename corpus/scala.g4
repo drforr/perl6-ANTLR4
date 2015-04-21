@@ -324,7 +324,6 @@ Comment          :  '/*' .*?  '*/'
 fragment UnicodeEscape    :	'\\' 'u' 'u'? HexDigit HexDigit HexDigit HexDigit ;
 fragment WhiteSpace       :  '\u0020' | '\u0009' | '\u000D' | '\u000A';
 fragment Opchar           : PrintableChar 
-                          
                           ;
 fragment Op               :  Opchar+;
 fragment Plainid          :  Upper Idrest

@@ -4,6 +4,7 @@ forms : form+ EOF ;
 
 form : (attribute | function | ruleClauses) '.' ;
 
+
 tokAtom : TokAtom ;
 TokAtom : [a-z@][0-9a-zA-Z_@]*
         | '\'' ( '\\' (~'\\'|'\\') | ~[\\''] )* '\'' ;
@@ -36,6 +37,7 @@ attribute : '-' tokAtom                           attrVal
           | '-' tokAtom                  '(' typedAttrVal ')'
           | AttrName                           typeSpec
           ;
+
 
 
 typeSpec :     specFun typeSigs
@@ -123,6 +125,7 @@ binaryType : '<<'                             '>>'
 binBaseType : tokVar ':'            type ;
 
 binUnitType : tokVar ':' tokVar '*' type ;
+
 
 
 
@@ -228,7 +231,6 @@ tuple : '{' exprs? '}' ;
 
 
 
-
 recordExpr : exprMax?   '#' tokAtom ('.' tokAtom | recordTuple)
            | recordExpr '#' tokAtom ('.' tokAtom | recordTuple)
            ;
@@ -238,6 +240,7 @@ recordTuple : '{' recordFields? '}' ;
 recordFields : recordField (',' recordField)* ;
 
 recordField : (tokVar | tokAtom) '=' expr ;
+
 
 
 functionCall : expr800 argumentList ;

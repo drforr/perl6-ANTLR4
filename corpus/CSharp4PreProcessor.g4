@@ -114,6 +114,7 @@ fragment Pp_pragma_text
   | WHITESPACE Input_characters? NEW_LINE?
   ;
 
+
 fragment SkiPped_section_part
   : WHITESPACE? SkiPped_characters? NEW_LINE
   | Pp_directive

@@ -10,7 +10,6 @@ literal
 	;
 
 
-
 type
 	:	primitiveType
 	|	referenceType
@@ -132,8 +131,6 @@ wildcardBounds
 	|	'super' referenceType
 	;
 
-
-
 packageName
 	:	Identifier
 	|	packageName '.' Identifier
@@ -162,8 +159,6 @@ ambiguousName
 	:	Identifier
 	|	ambiguousName '.' Identifier
 	;
-
-
 
 compilationUnit
 	:	packageDeclaration? importDeclaration* typeDeclaration* EOF
@@ -205,8 +200,6 @@ typeDeclaration
 	|	interfaceDeclaration
 	|	';'
 	;
-
-
 
 classDeclaration
 	:	normalClassDeclaration
@@ -498,8 +491,6 @@ enumBodyDeclarations
 	:	';' classBodyDeclaration*
 	;
 
-
-
 interfaceDeclaration
 	:	normalInterfaceDeclaration
 	|	annotationTypeDeclaration
@@ -629,8 +620,6 @@ singleElementAnnotation
 	:	'@' typeName '(' elementValue ')'
 	;
 
-
-
 arrayInitializer
 	:	'{' variableInitializerList? ','? '}'
 	;
@@ -638,8 +627,6 @@ arrayInitializer
 variableInitializerList
 	:	variableInitializer (',' variableInitializer)*
 	;
-
-
 
 block
 	:	'{' blockStatements? '}'
@@ -876,8 +863,6 @@ resourceList
 resource
 	:	variableModifier* unannType variableDeclaratorId '=' expression
 	;
-
-
 
 primary
 	:	(	primaryNoNewArray_lfno_primary
@@ -1268,6 +1253,8 @@ castExpression
 	|	'(' referenceType additionalBound* ')' lambdaExpression
 	;
 
+
+
 ABSTRACT : 'abstract';
 ASSERT : 'assert';
 BOOLEAN : 'boolean';
@@ -1318,6 +1305,7 @@ TRY : 'try';
 VOID : 'void';
 VOLATILE : 'volatile';
 WHILE : 'while';
+
 
 IntegerLiteral
 	:	DecimalIntegerLiteral
@@ -1467,6 +1455,7 @@ BinaryDigitOrUnderscore
 	|	'_'
 	;
 
+
 FloatingPointLiteral
 	:	DecimalFloatingPointLiteral
 	|	HexadecimalFloatingPointLiteral
@@ -1526,10 +1515,12 @@ BinaryExponentIndicator
 	:	[pP]
 	;
 
+
 BooleanLiteral
 	:	'true'
 	|	'false'
 	;
+
 
 CharacterLiteral
 	:	'\'' SingleCharacter '\''
@@ -1540,6 +1531,7 @@ fragment
 SingleCharacter
 	:	~['\\]
 	;
+
 
 StringLiteral
 	:	'"' StringCharacters? '"'
@@ -1555,6 +1547,7 @@ StringCharacter
 	:	~["\\]
 	|	EscapeSequence
 	;
+
 
 fragment
 EscapeSequence
@@ -1662,8 +1655,10 @@ JavaLetterOrDigit
 		{Character.isJavaIdentifierPart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
 	;
 
+
 AT : '@';
 ELLIPSIS : '...';
+
 
 WS  :  [ \t\r\n\u000C]+ -> skip
     ;

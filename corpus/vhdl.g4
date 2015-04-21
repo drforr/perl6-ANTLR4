@@ -1,3 +1,4 @@
+
 grammar vhdl;
 
 	ABS:'abs';
@@ -111,6 +112,7 @@ grammar vhdl;
 	WHILE : 'while';
 	XNOR : 'xnor';
 	XOR : 'xor';
+
 
 abstract_literal
    :  INTEGER

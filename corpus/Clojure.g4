@@ -140,6 +140,7 @@ ns_symbol: NS_SYMBOL;
 
 param_name: PARAM_NAME;
 
+
 STRING : '"' ( ~'"' | '\\' '"' )* '"' ;
 
 FLOAT
@@ -199,6 +200,7 @@ NS_SYMBOL
 
 PARAM_NAME: '%' ((('1'..'9')('0'..'9')*)|'&')? ;
 
+
 fragment
 NAME: SYMBOL_HEAD SYMBOL_REST* (':' SYMBOL_REST+)* ;
 
@@ -216,6 +218,7 @@ SYMBOL_REST
     | '0'..'9'
     | '.'
     ;
+
 
 fragment
 WS : [ \n\r\t\,] ;

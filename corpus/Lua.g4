@@ -90,8 +90,6 @@ varSuffix
     : nameAndArgs* ('[' exp ']' | '.' NAME)
     ;
 
-
-
 args
     : '(' explist? ')' | tableconstructor | string
     ;
@@ -155,6 +153,7 @@ number
 string
     : NORMALSTRING | CHARSTRING | LONGSTRING
     ;
+
 
 NAME
     : [a-zA-Z_][a-zA-Z_0-9]*

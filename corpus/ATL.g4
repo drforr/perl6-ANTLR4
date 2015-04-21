@@ -216,6 +216,7 @@ SingleStringCharacter
 	;
 
 
+
 INTEGER
 	:   DecimalIntegerLiteral
 	;

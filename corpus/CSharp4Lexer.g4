@@ -1,5 +1,3 @@
-
-
 lexer grammar CSharp4Lexer;
 
 BYTE_ORDER_MARK: '\u00EF\u00BB\u00BF';
@@ -388,6 +386,7 @@ OP_XOR_ASSIGNMENT : '^=';
 OP_LEFT_SHIFT : '<<';
 OP_LEFT_SHIFT_ASSIGNMENT : '<<=';
 
+
 QUOTE :             '\'';
 DOUBLE_QUOTE :      '"';
 BACK_SLASH :        '\\';
@@ -531,3 +530,4 @@ fragment UNICODE_CLASS_ND
   | '\u0038' 
   | '\u0039' 
   ;
+
