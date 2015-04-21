@@ -1,4 +1,3 @@
-
 grammar vhdl;
 
 	ABS:'abs';

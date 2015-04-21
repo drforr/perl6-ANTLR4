@@ -73,7 +73,8 @@ token ESC_SEQ
 	}
 
 token UNICODE_ESC
-	{	'u' [<HEX_DIGIT> [<HEX_DIGIT> [<HEX_DIGIT> <HEX_DIGIT>?]?]?]?
+	{	'u'
+		[ <HEX_DIGIT> [ <HEX_DIGIT> [ <HEX_DIGIT> <HEX_DIGIT> ?]? ]? ]?
 	}
 
 token HEX_DIGIT
@@ -134,7 +135,7 @@ token LEXER_CHAR_SET
 rule TOP # grammarSpec
 	{	<grammarType> <id> ';'
 		<prequelConstruct>*
-		<rules>
+		<ruleSpec>*
 		<modeSpec>*
 	}
 
@@ -205,21 +206,17 @@ rule modeSpec
  	{	'mode' <id> ';' <lexerRule>*
  	}
  
-rule rules
- 	{	<ruleSpec>*
- 	}
- 
 rule ruleSpec
  	{	<parserRuleSpec>
  	|	<lexerRule>
  	}
 
 rule parserRuleSpec
- 	{ 	<ruleModifiers>? <RULE_REF> <ARG_ACTION>?
+ 	{ 	<ruleModifier>* <RULE_REF> <ARG_ACTION>?
 		<ruleReturns>? <throwsSpec>? <localsSpec>?
-		<rulePrequel>*
+		<optionsSpec>*
 		':'
-		<ruleBlock>
+		<ruleAltList>
 		';'
 		<exceptionGroup>
  	}
@@ -236,10 +233,6 @@ rule finallyClause
  	{	'finally' <ACTION>
  	}
  
-rule rulePrequel
- 	{	<optionsSpec>
- 	}
- 
 rule ruleReturns
  	{	'returns' <ARG_ACTION>
  	}
@@ -250,10 +243,6 @@ rule throwsSpec
  
 rule localsSpec
  	{	'locals' <ARG_ACTION>
- 	}
- 
-rule ruleModifiers
- 	{	<ruleModifier>+
  	}
  
 #  An individual access modifier for a rule. The 'fragment' modifier
@@ -270,10 +259,6 @@ rule ruleModifier
  	|	'fragment'
  	}
  
-rule ruleBlock
- 	{	<ruleAltList>
- 	}
- 
 #
 # ('a' | ) # Trailing empty alternative is allowed in sample code
 #
@@ -287,24 +272,18 @@ rule labeledAlt
  
 rule lexerRule
  	{	'fragment'?
- 		<TOKEN_REF> ':' <lexerRuleBlock> ';'
+ 		<TOKEN_REF> ':' <lexerAltList> ';'
  	}
  
-rule lexerRuleBlock
- 	{	<lexerAltList>
- 	}
-
+#
+# XXX The null alternative here is fugly.
+#
 rule lexerAltList
-	{	<lexerAlt>+ %% '|'
+	{	[<lexerAlt> | '' ]+ %% '|'
 	}
  
 rule lexerAlt
- 	{	<lexerElements> <lexerCommands>?
-# 	| 'XXX' # Suppress null regex warning
- 	}
- 
-rule lexerElements
- 	{	<lexerElement>+
+ 	{	<lexerElement>+ <lexerCommands>?
  	}
  
 rule lexerElement
@@ -359,14 +338,8 @@ rule alternative
 rule element
  	{	<labeledElement>
 		<ebnfSuffix>?
- 		#[	<ebnfSuffix>
- 		#| 'XXX' # XXX Suppress null warning
- 		#]
  	|	<atom>
 		<ebnfSuffix>?
- 		#[	<ebnfSuffix>
- 		#| 'XXX' # XXX Suppress null warning
- 		#]
  	|	<ebnf>
  	|	<ACTION> '?'? # SEMPRED is ACTION followed by QUESTION
  	}
