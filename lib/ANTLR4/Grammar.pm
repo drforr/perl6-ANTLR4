@@ -1,15 +1,23 @@
 use v6;
-#use Grammar::Tracer;
+use Grammar::Tracer;
 grammar ANTLR4::Grammar;
 
-# XXX Look into this.
-token TOKEN_REF
-	{	<ID>
+rule JAVADOC_COMMENT
+	{	'/**' .*? '*/'
 	}
 
-# XXX Look into this.
-token RULE_REF
-	{	<ID>
+rule BLOCK_COMMENT
+	{	'/*' .*? '*/'
+	}
+
+rule LINE_COMMENT
+	{	'//' <-[\n]>*
+	}
+
+rule COMMENT
+	{	<JAVADOC_COMMENT>
+	|	<BLOCK_COMMENT>
+	|	<LINE_COMMENT>
 	}
 
 #  Allow unicode rule/token names
@@ -89,8 +97,7 @@ token HEX_DIGIT
 #  in their own alts so as not to inadvertantly match {}.
 
 token ACTION
-	{	'{'
-			[	<ACTION>
+	{	'{'	[	<ACTION>
 			|	<ACTION_ESCAPE>
 			|	<ACTION_STRING_LITERAL>
 			|	<ACTION_CHAR_LITERAL>
@@ -118,31 +125,23 @@ token ARG_ACTION
 	{	'[' <-[ \\ \x[5d]]>* ']' # XXX need to be fixed
 	}
 
-# mode LexerCharSet;
-
-token LEXER_CHAR_SET_BODY
-	{	[	<-[ \] \\ ]>
-		|	'\\' .
-		]+
-	}
-
 token LEXER_CHAR_SET
 {	'[' ['\\' . | <-[ \\ \x[5d]]>]* ']' # XXX Prettify this if need be.
 }
 
+#
 #  The main entry point for parsing a v4 grammar.
 # 
 rule TOP # grammarSpec
-	{	<grammarType> <id> ';'
+	{	[<BLOCK_COMMENT> | <LINE_COMMENT>]*
+		<grammarType> <id> ';'
 		<prequelConstruct>*
 		<ruleSpec>*
 		<modeSpec>*
 	}
 
 rule grammarType
-	{	'lexer' 'grammar'
-	|	'parser' 'grammar'
-	|	'grammar'
+	{	['lexer' | 'parser']? 'grammar'
 	}
 
 #  This is the list of all constructs that can be declared before
@@ -167,8 +166,7 @@ rule option
 	}
 
 rule optionValue
- 	{	#<id> ['.' <id>]*
-		<id>+ % ','
+ 	{	<id>+ % ','
  	|	<STRING_LITERAL>
  	|	<ACTION>
  	|	<INT>
@@ -179,8 +177,7 @@ rule delegateGrammars
  	}
  
 rule delegateGrammar
- 	{	<id> '=' <id>
- 	|	<id>
+ 	{	<id> ['=' <id>]?
  	}
  
 rule tokensSpec
@@ -212,11 +209,12 @@ rule ruleSpec
  	}
 
 rule parserRuleSpec
- 	{ 	<ruleModifier>* <RULE_REF> <ARG_ACTION>?
+ 	{ 	<COMMENT>*
+		<ruleModifier>* <ID> <ARG_ACTION>?
 		<ruleReturns>? <throwsSpec>? <localsSpec>?
 		<optionsSpec>*
 		':'
-		<ruleAltList>
+		<ruleAltList> <COMMENT>*
 		';'
 		<exceptionGroup>
  	}
@@ -271,8 +269,9 @@ rule labeledAlt
  	}
  
 rule lexerRule
- 	{	'fragment'?
- 		<TOKEN_REF> ':' <lexerAltList> ';'
+ 	{	<COMMENT>*
+		'fragment'?
+ 		<ID> ':' <lexerAltList> ';'
  	}
  
 #
@@ -283,13 +282,13 @@ rule lexerAltList
 	}
  
 rule lexerAlt
- 	{	<lexerElement>+ <lexerCommands>?
+ 	{	[<lexerElement> <COMMENT>*]+ <lexerCommands>?
  	}
  
 rule lexerElement
  	{	<labeledLexerElement> <ebnfSuffix>?
  	|	<lexerAtom> <ebnfSuffix>?
- 	|	'~'? <lexerBlock> <ebnfSuffix>? # XXX Find right place for '~'
+ 	|	<lexerBlock> <ebnfSuffix>?
 		# actions only allowed at end of outer alt actually,
  	|	<ACTION> '?'?
                           # but preds can be anywhere
@@ -303,7 +302,7 @@ rule labeledLexerElement
  	}
  
 rule lexerBlock
- 	{	'(' <lexerAltList>? ')'  # XXX Make lexerAltList optional
+ 	{	'~'? '(' <lexerAltList>? ')'  # XXX Make lexerAltList optional
  	}
  
 #  E.g., channel(HIDDEN), skip, more, mode(INSIDE), push(INSIDE), pop
@@ -368,7 +367,7 @@ rule ebnfSuffix
 rule lexerAtom
  	{	<range>
  	|	<terminal>
- 	|	<RULE_REF>
+ 	|	<ID>
  	|	<notSet>
  	|	<LEXER_CHAR_SET>
  	|	'.' <elementOptions>?
@@ -391,7 +390,7 @@ rule blockSet
 	}
  
 rule setElement
- 	{	<TOKEN_REF> <elementOptions>?
+ 	{	<ID> <elementOptions>?
  	|	<STRING_LITERAL> <elementOptions>?
  	|	<range>
  	|	<LEXER_CHAR_SET>
@@ -402,7 +401,7 @@ rule block
  	}
  
 rule ruleref
- 	{	<RULE_REF> <ARG_ACTION>? <elementOptions>?
+ 	{	<ID> <ARG_ACTION>? <elementOptions>?
  	}
  
 rule range
@@ -410,7 +409,7 @@ rule range
  	}
  
 rule terminal
- 	{	<TOKEN_REF> <elementOptions>?
+ 	{	<ID> <elementOptions>?
  	|	<STRING_LITERAL> <elementOptions>?
  	}
  
@@ -431,8 +430,8 @@ rule elementOption
  		<id>
  	}
  
-rule id	{	<RULE_REF>
- 	|	<TOKEN_REF>
+rule id	{	<ID>
+ 	|	<ID>
  	}
  
 # vim: ft=perl6

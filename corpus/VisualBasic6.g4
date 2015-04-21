@@ -798,7 +798,6 @@ NEWLINE : WS? ('\r'? '\n' | ':' ' ') WS?;
 COMMENT : WS? ('\'' | ':'? REM ' ') (LINE_CONTINUATION | ~('\n' | '\r'))* -> skip;
 WS : [ \t]+;
 
-
 fragment LETTER : [a-zA-Z_הצüִײÜ];
 fragment LETTERORDIGIT : [a-zA-Z0-9_הצüִײÜ];
 
