@@ -2,22 +2,13 @@ use v6;
 use Grammar::Tracer;
 grammar ANTLR4::Grammar;
 
-rule JAVADOC_COMMENT
-	{	'/**' .*? '*/'
+token COMMENT
+	{	'//' \N*
 	}
 
-rule BLOCK_COMMENT
-	{	'/*' .*? '*/'
-	}
-
-rule LINE_COMMENT
-	{	'//' <-[\n]>*
-	}
-
-rule COMMENT
-	{	<JAVADOC_COMMENT>
-	|	<BLOCK_COMMENT>
-	|	<LINE_COMMENT>
+rule COMMENTS
+	{	[<COMMENT> \s*]* # Rather than using the fragile (IMO) <f> *
+                                  # construct.
 	}
 
 #  Allow unicode rule/token names
@@ -35,7 +26,7 @@ token NameChar
 	|	<[ \x[203F]..\x[2040] ]>
 	}
 
-token  NameStartChar
+token NameStartChar
 	{	<[ A..Z ]>
 	|	<[ a..z ]>
 	|	<[ \x[00C0]..\x[00D6] ]>
@@ -132,8 +123,8 @@ token LEXER_CHAR_SET
 #
 #  The main entry point for parsing a v4 grammar.
 # 
-rule TOP # grammarSpec
-	{	[<BLOCK_COMMENT> | <LINE_COMMENT>]*
+rule TOP 
+	{	<COMMENTS>
 		<grammarType> <id> ';'
 		<prequelConstruct>*
 		<ruleSpec>*
@@ -149,10 +140,12 @@ rule grammarType
 #  times by the grammarPrequel rule.
 
 rule prequelConstruct
- 	{	<optionsSpec>
- 	|	<delegateGrammars>
- 	|	<tokensSpec>
- 	|	<action>
+ 	{	<COMMENTS>
+		[	<optionsSpec>
+		|	<delegateGrammars>
+		|	<tokensSpec>
+		|	<action>
+		]
  	}
  
 #  A list of options that affect analysis and/or code generation
@@ -209,12 +202,13 @@ rule ruleSpec
  	}
 
 rule parserRuleSpec
- 	{ 	<COMMENT>*
+ 	{	<COMMENTS>
 		<ruleModifier>* <ID> <ARG_ACTION>?
 		<ruleReturns>? <throwsSpec>? <localsSpec>?
 		<optionsSpec>*
+		<COMMENTS>
 		':'
-		<ruleAltList> <COMMENT>*
+		<ruleAltList>
 		';'
 		<exceptionGroup>
  	}
@@ -240,7 +234,7 @@ rule throwsSpec
  	}
  
 rule localsSpec
- 	{	'locals' <ARG_ACTION>
+ 	{	'locals' <ARG_ACTION> <COMMENTS>
  	}
  
 #  An individual access modifier for a rule. The 'fragment' modifier
@@ -261,7 +255,7 @@ rule ruleModifier
 # ('a' | ) # Trailing empty alternative is allowed in sample code
 #
 rule ruleAltList
-	{	<labeledAlt>+ % '|'
+	{	[<labeledAlt> <COMMENTS>]+ % '|'
 	}
  
 rule labeledAlt
@@ -269,8 +263,7 @@ rule labeledAlt
  	}
  
 rule lexerRule
- 	{	<COMMENT>*
-		'fragment'?
+ 	{	'fragment'?
  		<ID> ':' <lexerAltList> ';'
  	}
  
@@ -282,7 +275,7 @@ rule lexerAltList
 	}
  
 rule lexerAlt
- 	{	[<lexerElement> <COMMENT>*]+ <lexerCommands>?
+ 	{	<lexerElement>+ <lexerCommands>?
  	}
  
 rule lexerElement
@@ -340,7 +333,7 @@ rule element
  	|	<atom>
 		<ebnfSuffix>?
  	|	<ebnf>
- 	|	<ACTION> '?'? # SEMPRED is ACTION followed by QUESTION
+ 	|	<ACTION> '?'? <COMMENTS> # SEMPRED is ACTION followed by QUESTION
  	}
  
 rule labeledElement
@@ -397,7 +390,7 @@ rule setElement
  	}
  
 rule block
- 	{	'(' [ <optionsSpec>? ':' ]? <altList> ')'
+ 	{	'(' [ <optionsSpec>? ':' ]? <altList> <COMMENTS> ')'
  	}
  
 rule ruleref
