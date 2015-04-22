@@ -1,9 +1,10 @@
 use v6;
-use Grammar::Tracer;
+#use Grammar::Tracer;
 grammar ANTLR4::Grammar;
 
 token COMMENT
 	{	'//' \N*
+	|	'/*' .*? '*/'
 	}
 
 rule COMMENTS
@@ -328,10 +329,8 @@ rule alternative
  	}
  
 rule element
- 	{	<labeledElement>
-		<ebnfSuffix>?
- 	|	<atom>
-		<ebnfSuffix>?
+ 	{	<labeledElement> <ebnfSuffix>?
+ 	|	<atom> <ebnfSuffix>?
  	|	<ebnf>
  	|	<ACTION> '?'? <COMMENTS> # SEMPRED is ACTION followed by QUESTION
  	}
