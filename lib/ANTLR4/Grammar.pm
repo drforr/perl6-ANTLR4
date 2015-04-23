@@ -124,7 +124,8 @@ token LEXER_CHAR_SET
 #  The main entry point for parsing a v4 grammar.
 # 
 rule TOP 
-	{	<grammarType> <id> ';'
+	{	\N* # XXX Not the most elegant way of handling this.
+		<grammarType> <id> ';'
 		<prequelConstruct>*
 		<ruleSpec>*
 		<modeSpec>*
@@ -172,7 +173,7 @@ rule delegateGrammar
  	}
  
 rule tokensSpec
- 	{	'tokens' '{' <id>+ %% ',' '}'
+ 	{	<COMMENTS>? 'tokens' '{' <id>+ %% ',' '}'
  	}
  
 #  Match stuff like @parser::members {int i;}
@@ -191,7 +192,7 @@ rule actionScopeName
  	}
  
 rule modeSpec
- 	{	'mode' <id> ';' <lexerRule>*
+ 	{	<COMMENTS>? 'mode' <id> ';' <lexerRule>*
  	}
  
 rule ruleSpec
@@ -256,12 +257,12 @@ rule ruleAltList
 	}
  
 rule labeledAlt
- 	{	<alternative> <COMMENTS>? ['#' <id>]?
+ 	{	<alternative> <COMMENTS>? ['#' <id> <COMMENTS>?]?
  	}
  
 rule lexerRule
  	{	<COMMENTS>? 'fragment'?
- 		<COMMENTS>? <ID> <COMMENTS>? ':' <lexerAltList> ';'
+ 		<COMMENTS>? <ID> <COMMENTS>? ':' <lexerAltList> ';' <COMMENTS>?
  	}
  
 #
@@ -292,7 +293,7 @@ rule labeledLexerElement
  	}
  
 rule lexerBlock
- 	{	'~'? '(' <lexerAltList>? ')'  # XXX Make lexerAltList optional
+ 	{	'~'? '(' <COMMENTS>? <lexerAltList>? ')'  # XXX Make lexerAltList optional
  	}
  
 #  E.g., channel(HIDDEN), skip, more, mode(INSIDE), push(INSIDE), pop
