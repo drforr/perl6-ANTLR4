@@ -8,7 +8,7 @@ token COMMENT
 	}
 
 token COMMENTS
-	{	[<COMMENT> \s* ]+
+	{	[<COMMENT> \s*]+
 	}
 
 #  Allow unicode rule/token names
@@ -42,33 +42,23 @@ token NameStartChar
 	|	<[ \x[FDF0]..\x[FFFD] ]>
 	} # ignores | ['\u10000-'\uEFFFF] ;
 
-token INT
-	{	<[ 0..9 ]>+
-	}
-
 #  ANTLR makes no distinction between a single character literal and a
 #  multi-character string. All literals are single quote delimited and
 #  may contain unicode escape sequences of the form \uxxxx, where x
 #  is a valid hexadecimal number (as per Java basically).
 
 token STRING_LITERAL
-	{	'\'' [<ESC_SEQ> | <-[ ' \r \n \\ ]>]* '\''
+	{	'\'' ['\\' <ESC_SEQ> | <-[ ' \r \n \\ ]>]* '\''
 	}
 
 #  Any kind of escaped character that we can embed within ANTLR
 #  literal strings.
 
 token ESC_SEQ
-	{	'\\'
-		[	# The standard escaped character set
-			<[ b t n f r " ' \\ ]>
-		|	# A Java style Unicode escape sequence
-			<UNICODE_ESC>
-		|	# Invalid escape
-			.
-		|	# Invalid escape at end of file
-			$
-		]
+	{	<[ b t n f r " ' \\ ]> 	# The standard escaped character set
+	|	<UNICODE_ESC>		# A Java style Unicode escape sequence
+	|	.			# Invalid escape
+	|	$			# Invalid escape at end of file
 	}
 
 token UNICODE_ESC
@@ -113,26 +103,27 @@ token ACTION_CHAR_LITERAL
 # mode ArgAction; # E.g., [int x, List<String> a[]]
 # 
 token ARG_ACTION
-	{	'[' <-[ \\ \x[5d]]>* ']' # XXX need to be fixed
+	{	'[' <-[ \\ \x[5d]]>* ']'
 	}
 
 token LEXER_CHAR_SET
-{	'[' ['\\' . | <-[ \\ \x[5d]]>]* ']' # XXX Prettify this if need be.
-}
+	{	'[' ['\\' . | <-[ \\ \x[5d]]>]* ']'
+	}
 
 #
 #  The main entry point for parsing a v4 grammar.
 # 
 rule TOP 
 	{	\N* # XXX Not the most elegant way of handling this.
-		<grammarType> <id> ';'
+		<grammarType> <ID> ';'
 		<prequelConstruct>*
 		<ruleSpec>*
 		<modeSpec>*
 	}
 
 rule grammarType
-	{	<COMMENTS>? ['lexer' | 'parser']? 'grammar'
+	{	<COMMENTS>? ['lexer' | 'parser']?
+		<COMMENTS>? 'grammar'
 	}
 
 #  This is the list of all constructs that can be declared before
@@ -140,11 +131,10 @@ rule grammarType
 #  times by the grammarPrequel rule.
 
 rule prequelConstruct
- 	{	[	<optionsSpec>
-		|	<delegateGrammars>
-		|	<tokensSpec>
-		|	<action>
-		]
+ 	{	<optionsSpec>
+	|	<delegateGrammars>
+	|	<tokensSpec>
+	|	<action>
  	}
  
 #  A list of options that affect analysis and/or code generation
@@ -154,14 +144,14 @@ rule optionsSpec
 	}
 
 rule option
-	{	<id> '=' <optionValue>
+	{	<ID> '=' <optionValue>
 	}
 
 rule optionValue
- 	{	<id>+ % ','
+ 	{	<ID>+ % ','
  	|	<STRING_LITERAL>
  	|	<ACTION>
- 	|	<INT>
+ 	|	<[ 0..9 ]>+
  	}
  
 rule delegateGrammars
@@ -169,30 +159,30 @@ rule delegateGrammars
  	}
  
 rule delegateGrammar
- 	{	<id> ['=' <id>]?
+ 	{	<ID> ['=' <ID>]?
  	}
  
 rule tokensSpec
- 	{	<COMMENTS>? 'tokens' '{' <id>+ %% ',' '}'
+ 	{	<COMMENTS>? 'tokens' '{' <ID>+ %% ',' '}'
  	}
  
 #  Match stuff like @parser::members {int i;}
  
 rule action
- 	{	'@' [<actionScopeName> '::']? <id> <ACTION>
+ 	{	'@' [<actionScopeName> '::']? <ID> <ACTION>
  	}
  
 #  Sometimes the scope names will collide with keywords; allow them as
 #  ids for action scopes.
  
 rule actionScopeName
- 	{	<id>
+ 	{	<ID>
  	|	'lexer'
  	|	'parser'
  	}
  
 rule modeSpec
- 	{	<COMMENTS>? 'mode' <id> ';' <lexerRule>*
+ 	{	<COMMENTS>? 'mode' <ID> ';' <lexerRule>*
  	}
  
 rule ruleSpec
@@ -228,7 +218,7 @@ rule ruleReturns
  	}
  
 rule throwsSpec
- 	{	'throws' <id>+ % ','
+ 	{	'throws' <ID>+ % ','
  	}
  
 rule localsSpec
@@ -257,12 +247,14 @@ rule ruleAltList
 	}
  
 rule labeledAlt
- 	{	<alternative> <COMMENTS>? ['#' <id> <COMMENTS>?]?
+ 	{	<alternative> <COMMENTS>? ['#' <ID> <COMMENTS>?]?
  	}
  
 rule lexerRule
  	{	<COMMENTS>? 'fragment'?
- 		<COMMENTS>? <ID> <COMMENTS>? ':' <lexerAltList> ';' <COMMENTS>?
+ 		<COMMENTS>? <ID>
+		<COMMENTS>? ':' <lexerAltList> ';'
+		<COMMENTS>?
  	}
  
 #
@@ -280,13 +272,11 @@ rule lexerElement
  	{	<labeledLexerElement> <ebnfSuffix>?
  	|	<lexerAtom> <ebnfSuffix>?
  	|	<lexerBlock> <ebnfSuffix>?
-		# actions only allowed at end of outer alt actually,
  	|	<ACTION> '?'?
-                          # but preds can be anywhere
  	}
  
 rule labeledLexerElement
- 	{	<id> ['=' | '+=']
+ 	{	<ID> ['=' | '+=']
  		[	<lexerAtom>
  		|	<block>
  		]
@@ -308,13 +298,13 @@ rule lexerCommand
  	}
  
 rule lexerCommandName
- 	{	<id>
+ 	{	<ID>
  	|	'mode'
  	}
  
 rule lexerCommandExpr
- 	{	<id>
- 	|	<INT>
+ 	{	<ID>
+ 	|	<[ 0..9 ]>+
  	}
  
 rule altList
@@ -329,28 +319,22 @@ rule element
  	{	<labeledElement> <ebnfSuffix>?
  	|	<atom> <ebnfSuffix>?
  	|	<ebnf>
- 	|	<ACTION> '?'? <COMMENTS>? # SEMPRED is ACTION followed by QUESTION
+ 	|	<ACTION> '?'? <COMMENTS>?
  	}
  
 rule labeledElement
- 	{	<id> ['=' | '+=']
+ 	{	<ID> ['=' | '+=']
  		[	<atom>
  		|	<block>
  		]
  	}
  
 rule ebnf
-	{	<block> <blockSuffix>?
- 	}
- 
-rule blockSuffix
- 	{	<ebnfSuffix> # Standard EBNF
+	{	<block> <ebnfSuffix>?
  	}
  
 rule ebnfSuffix
- 	{	'?' '?'?
-   	|	'*' '?'?
-    	|	'+' '?'?
+ 	{	['?' | '*' | '+'] '?'?
  	}
  
 rule lexerAtom
@@ -363,7 +347,7 @@ rule lexerAtom
  	}
  
 rule atom
- 	{	<range> # Range x..y - only valid in lexers
+ 	{	<range>
  	|	<terminal>
  	|	<ruleref>
  	|	<notSet>
@@ -386,12 +370,14 @@ rule setElement
  	}
  
 rule block
- 	{	'(' [ <optionsSpec>? ':' ]? <altList> <COMMENTS>? ')' }
+ 	{	'(' [ <optionsSpec>? ':' ]? <altList> <COMMENTS>? ')'
+	}
  
 rule ruleref
  	{	<ID> <ARG_ACTION>? <elementOptions>?
  	} 
-rule range {	<STRING_LITERAL> '..' <STRING_LITERAL>
+rule range
+	{	<STRING_LITERAL> '..' <STRING_LITERAL>
  	}
  
 rule terminal
@@ -411,13 +397,9 @@ rule elementOptions
 #
 rule elementOption
  	{	# This format indicates option assignment
- 		<id> '=' [<id> | <STRING_LITERAL>]
+ 		<ID> '=' [<ID> | <STRING_LITERAL>]
  	|	# This format indicates the default node option
- 		<id>
- 	}
- 
-rule id	{	<ID>
- 	|	<ID>
+ 		<ID>
  	}
  
 # vim: ft=perl6
