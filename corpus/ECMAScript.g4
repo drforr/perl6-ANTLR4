@@ -26,9 +26,147 @@
  */
 grammar ECMAScript;
 
+@parser::members {
+  
+    /**
+     * Returns {@code true} iff on the current index of the parser's
+     * token stream a token of the given {@code type} exists on the
+     * {@code HIDDEN} channel.
+     *
+     * @param type
+     *         the type of the token on the {@code HIDDEN} channel
+     *         to check.
+     *
+     * @return {@code true} iff on the current index of the parser's
+     * token stream a token of the given {@code type} exists on the
+     * {@code HIDDEN} channel.
+     */
+    private boolean here(final int type) {
 
+        // Get the token ahead of the current index.
+        int possibleIndexEosToken = this.getCurrentToken().getTokenIndex() - 1;
+        Token ahead = _input.get(possibleIndexEosToken);
 
+        // Check if the token resides on the HIDDEN channel and if it's of the
+        // provided type.
+        return (ahead.getChannel() == Lexer.HIDDEN) && (ahead.getType() == type);
+    }
 
+    /**
+     * Returns {@code true} iff on the current index of the parser's
+     * token stream a token exists on the {@code HIDDEN} channel which
+     * either is a line terminator, or is a multi line comment that
+     * contains a line terminator.
+     *
+     * @return {@code true} iff on the current index of the parser's
+     * token stream a token exists on the {@code HIDDEN} channel which
+     * either is a line terminator, or is a multi line comment that
+     * contains a line terminator.
+     */
+    private boolean lineTerminatorAhead() {
+
+        // Get the token ahead of the current index.
+        int possibleIndexEosToken = this.getCurrentToken().getTokenIndex() - 1;
+        Token ahead = _input.get(possibleIndexEosToken);
+
+        if (ahead.getChannel() != Lexer.HIDDEN) {
+            // We're only interested in tokens on the HIDDEN channel.
+            return false;
+        }
+
+        // Get the token's text and type.
+        String text = ahead.getText();
+        int type = ahead.getType();
+
+        // Check if the token is, or contains a line terminator.
+        return (type == MultiLineComment && (text.contains("\r") || text.contains("\n"))) ||
+                (type == LineTerminator);
+    }                                
+}
+
+@lexer::members {
+                 
+    // A flag indicating if the lexer should operate in strict mode.
+    // When set to true, FutureReservedWords are tokenized, when false,
+    // an octal literal can be tokenized.
+    private boolean strictMode = true;
+
+    // The most recently produced token.
+    private Token lastToken = null;
+
+    /**
+     * Returns {@code true} iff the lexer operates in strict mode.
+     *
+     * @return {@code true} iff the lexer operates in strict mode.
+     */
+    public boolean getStrictMode() {
+        return this.strictMode;
+    }
+
+    /**
+     * Sets whether the lexer operates in strict mode or not.
+     *
+     * @param strictMode
+     *         the flag indicating the lexer operates in strict mode or not.
+     */
+    public void setStrictMode(boolean strictMode) {
+        this.strictMode = strictMode;
+    }
+
+    /**
+     * Return the next token from the character stream and records this last
+     * token in case it resides on the default channel. This recorded token
+     * is used to determine when the lexer could possibly match a regex
+     * literal.
+     *
+     * @return the next token from the character stream.
+     */
+    @Override
+    public Token nextToken() {
+        
+        // Get the next token.
+        Token next = super.nextToken();
+        
+        if (next.getChannel() == Token.DEFAULT_CHANNEL) {
+            // Keep track of the last token on the default channel.                                              
+            this.lastToken = next;
+        }
+        
+        return next;
+    }
+
+    /**
+     * Returns {@code true} iff the lexer can match a regex literal.
+     *
+     * @return {@code true} iff the lexer can match a regex literal.
+     */
+    private boolean isRegexPossible() {
+                                       
+        if (this.lastToken == null) {
+            // No token has been produced yet: at the start of the input,
+            // no division is possible, so a regex literal _is_ possible.
+            return true;
+        }
+        
+        switch (this.lastToken.getType()) {
+            case Identifier:
+            case NullLiteral:
+            case BooleanLiteral:
+            case This:
+            case CloseBracket:
+            case CloseParen:
+            case OctalIntegerLiteral:
+            case DecimalLiteral:
+            case HexIntegerLiteral:
+            case StringLiteral:
+                // After any of the tokens above, no regex literal can follow.
+                return false;
+            default:
+                // In all other cases, a regex literal _is_ possible.
+                return true;
+        }
+    }
+}
 
 /// Program :
 ///     SourceElements?

@@ -1,6 +1,7 @@
 lexer grammar MySQLBase;
 
-
+@header {
+}
 
 SELECT: 'select';
 FROM: 'from';

@@ -34,7 +34,9 @@ parser grammar RFilter;
 
 options { tokenVocab=R; }
 
-
+@members {
+protected int curlies = 0;
+}
 
 // TODO: MAKE THIS GET ONE COMMAND ONLY
 stream : (elem|NL|';')* EOF ;
