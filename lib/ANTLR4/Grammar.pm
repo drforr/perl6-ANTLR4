@@ -232,7 +232,7 @@ rule throwsSpec
  	}
  
 rule localsSpec
- 	{	'locals' <ARG_ACTION>
+ 	{	'locals' <ARG_ACTION> <COMMENTS>?
  	}
  
 #  An individual access modifier for a rule. The 'fragment' modifier
@@ -329,7 +329,7 @@ rule element
  	{	<labeledElement> <ebnfSuffix>?
  	|	<atom> <ebnfSuffix>?
  	|	<ebnf>
- 	|	<ACTION> '?'? # SEMPRED is ACTION followed by QUESTION
+ 	|	<ACTION> '?'? <COMMENTS>? # SEMPRED is ACTION followed by QUESTION
  	}
  
 rule labeledElement
@@ -386,15 +386,12 @@ rule setElement
  	}
  
 rule block
- 	{	'(' [ <optionsSpec>? ':' ]? <altList> ')'
- 	}
+ 	{	'(' [ <optionsSpec>? ':' ]? <altList> <COMMENTS>? ')' }
  
 rule ruleref
  	{	<ID> <ARG_ACTION>? <elementOptions>?
- 	}
- 
-rule range
- 	{	<STRING_LITERAL> '..' <STRING_LITERAL>
+ 	} 
+rule range {	<STRING_LITERAL> '..' <STRING_LITERAL>
  	}
  
 rule terminal
