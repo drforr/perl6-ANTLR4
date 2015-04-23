@@ -2,7 +2,9 @@ grammar CSharp4;
 
 import CSharp4PreProcessor;
 
+//B.2 Syntactic grammar
 
+//B.2.1 Basic concepts
 namespace_name 
 	: namespace_or_type_name
 	;
@@ -42,19 +44,34 @@ namespace_or_type_name
     ) (DOT identifier type_argument_list_opt )*
   ;
 
+/** represents type_argument_list? */
 type_argument_list_opt
   : type_argument_list
-  | 
+  | /* empty */
   ;
 
+//B.2.2 Types
 type 
   : base_type (INTERR | rank_specifier | STAR)*
   ;
+// added by chw
 base_type
   : simple_type
-  | class_type  
+  | class_type  // represents types: enum, class, interface, delegate, type_parameter
   | VOID STAR
   ;
+/*
+value_type 
+	: struct_type
+	| enum_type
+	;
+struct_type 
+	: type_name
+	| simple_type
+	| nullable_type
+	;
+*/
+/** primitive types */
 simple_type 
 	: numeric_type
 	| BOOL
@@ -82,29 +99,48 @@ floating_point_type
 nullable_type 
 	: non_nullable_value_type INTERR
 	;
-
+/*
+non_nullable_value_type 
+  : type
+  ;
+*/
+// type without INTERR; undocumented but VS checks for this constraint
 non_nullable_value_type 
 	: base_type
     ( rank_specifier
     | STAR
     )*
 	;
-
-
+/* not used anymore
+enum_type 
+	: type_name
+	;
+*/
+/*
+reference_type 
+	: class_type
+	| interface_type
+	| array_type
+	| delegate_type
+	;
+*/
 reference_type 
   : simple_type ((STAR | INTERR)* rank_specifier)* (STAR | INTERR)* rank_specifier 
   | class_type ((STAR | INTERR)* rank_specifier)*
   | VOID STAR ((STAR | INTERR)* rank_specifier)* (STAR | INTERR)* rank_specifier
   ;
+/** type_name, OBJECT, STRING */
 class_type 
 	: type_name
 	| OBJECT
 	| dynamic_contextual_keyword
 	| STRING
 	;
+/** type_name */
 interface_type 
 	: type_name
 	;
+/** type_name */
 delegate_type 
 	: type_name
 	;
@@ -117,14 +153,18 @@ type_arguments
 type_argument 
 	: type
 	;
+// added by chw
 type_void
   : VOID
   ;
 
+//B.2.3 Variables
+/** expression */
 variable_reference 
 	: expression
 	;
 
+//B.2.4 Expressions
 argument_list 
 	: argument ( COMMA argument)*
 	;
@@ -139,7 +179,12 @@ argument_value
 	| REF variable_reference
 	| OUT variable_reference
 	;
-
+/*
+primary_expression 
+	: primary_no_array_creation_expression
+	| array_creation_expression
+	;
+*/
 primary_expression 
   : pe=primary_expression_start  bracket_expression* (
         ( member_access2
@@ -155,8 +200,8 @@ primary_expression_start
   : literal
   | simple_name
   | parenthesized_expression
-  | predefined_type 
-  | qualified_alias_member  
+  | predefined_type // member_access
+  | qualified_alias_member  // member_access
   | this_access
   | base_access
   | NEW ( type ( object_creation_expression2
@@ -174,19 +219,103 @@ primary_expression_start
   | anonymous_method_expression
   | sizeof_expression
   ;
-
+/*
+bracket_expression
+  : OPEN_BRACKET expression_list CLOSE_BRACKET
+  | OPEN_BRACKET expression CLOSE_BRACKET
+  ;
+*/
 bracket_expression
   : OPEN_BRACKET expression_list CLOSE_BRACKET
   ;
-
-
+/*
+primary_no_array_creation_expression 
+	: literal
+	| simple_name
+	| parenthesized_expression
+	| member_access
+	| invocation_expression
+	| element_access
+	| this_access
+	| base_access
+	| post_increment_expression
+	| post_decrement_expression
+	| object_creation_expression
+	| delegate_creation_expression
+	| anonymous_object_creation_expression
+	| typeof_expression
+	| checked_expression
+	| unchecked_expression
+	| default_value_expression
+	| anonymous_method_expression
+	| primary_no_array_creation_expression_unsafe
+	;
+*/
+/*
+primary_no_array_creation_expression 
+	: ( literal
+		| simple_name
+		| parenthesized_expression
+		| new_expression
+		// member_access
+    | predefined_type DOT identifier type_argument_list?
+    | qualified_alias_member DOT identifier
+    | this_access
+    | base_access
+		| typeof_expression
+		| checked_expression
+		| unchecked_expression
+		| default_value_expression
+		| anonymous_method_expression
+		// pointer_element_access
+	  | sizeof_expression
+	  ) ( DOT identifier type_argument_list?
+      | OPEN_PARENS argument_list? CLOSE_PARENS
+      | OPEN_BRACKET expression_list CLOSE_BRACKET
+      | OP_INC
+      | OP_DEC
+      | OP_PTR identifier
+      )*
+	;
+new_expression
+  : NEW ( type ( OPEN_BRACKET expression_list CLOSE_BRACKET rank_specifiers? array_initializer? array_creation_tail
+				       | rank_specifiers array_initializer array_creation_tail
+				       | OPEN_PARENS argument_list? CLOSE_PARENS object_or_collection_initializer? // inludes delegate
+				       | object_or_collection_initializer
+				       )
+	      | rank_specifier array_initializer array_creation_tail
+	      | anonymous_object_initializer
+	      )
+  ;
+array_creation_tail
+    // member_access
+  : DOT identifier type_argument_list?
+    // invocation_expression (but only one possibility)
+  | OPEN_PARENS argument_list? CLOSE_PARENS
+    // post inc
+  | OP_INC
+    // post dec
+  | OP_DEC
+    // pointer_member_access
+  | OP_PTR identifier
+  ;
+*/
+/** identifier type_argument_list? */
 simple_name 
 	: identifier type_argument_list_opt
 	;
+/** OPEN_PARENS expression CLOSE_PARENS */
 parenthesized_expression 
 	: OPEN_PARENS expression CLOSE_PARENS
 	;
-
+/*
+member_access 
+	: primary_expression DOT identifier type_argument_list?
+	| predefined_type DOT identifier type_argument_list?
+	| qualified_alias_member DOT identifier type_argument_list?
+	;
+*/
+/** primary_expression */
 member_access 
   : primary_expression
   ;
@@ -207,30 +336,60 @@ predefined_type
 	| ULONG
 	| USHORT
 	;
-
-
+/** primary_expression OPEN_PARENS argument_list? CLOSE_PARENS */
+/* not used anymore; included in primary_expression
+invocation_expression 
+	: primary_expression OPEN_PARENS argument_list? CLOSE_PARENS
+	;
+*/
+/*
+element_access 
+	: primary_no_array_creation_expression OPEN_BRACKET expression_list CLOSE_BRACKET
+	;
+*/
 expression_list 
 	: expression ( COMMA expression)*
 	;
 this_access 
 	: THIS
 	;
+/** BASE and more */
 base_access
 	: BASE DOT identifier type_argument_list_opt
 	| BASE OPEN_BRACKET expression_list CLOSE_BRACKET
 	;
-
-
+/* not used anymore; included in primary_expression
+post_increment_expression 
+	: primary_expression OP_INC
+	;
+post_decrement_expression 
+	: primary_expression OP_DEC
+	;
+*/
+/*
+object_creation_expression 
+	: NEW type OPEN_PARENS argument_list? CLOSE_PARENS object_or_collection_initializer?
+	| NEW type object_or_collection_initializer
+	;
+*/
+/** NEW type (OPEN_PARENS ... | OPEN_BRACE ...) */
 object_creation_expression 
   : NEW type ( OPEN_PARENS argument_list? CLOSE_PARENS object_or_collection_initializer?
              | object_or_collection_initializer
              )
   ;
+/** starts with OPEN_BRACE */
 object_or_collection_initializer 
 	: object_initializer
 	| collection_initializer
 	;
-
+/*
+object_initializer 
+	: OPEN_BRACE member_initializer_list? CLOSE_BRACE
+	| OPEN_BRACE member_initializer_list COMMA CLOSE_BRACE
+	;
+*/
+/** starts with OPEN_BRACE */
 object_initializer 
   : OPEN_BRACE CLOSE_BRACE
   | OPEN_BRACE member_initializer_list COMMA? CLOSE_BRACE
@@ -245,7 +404,13 @@ initializer_value
 	: expression
 	| object_or_collection_initializer
 	;
-
+/*
+collection_initializer 
+	: OPEN_BRACE element_initializer_list CLOSE_BRACE
+	| OPEN_BRACE element_initializer_list COMMA CLOSE_BRACE
+	;
+*/
+/** starts with OPEN_BRACE */
 collection_initializer 
   : OPEN_BRACE element_initializer_list COMMA? CLOSE_BRACE
   ;
@@ -256,20 +421,34 @@ element_initializer
 	: non_assignment_expression
 	| OPEN_BRACE expression_list CLOSE_BRACE
 	;
-
+/*
+array_creation_expression 
+	: NEW non_array_type OPEN_BRACKET expression_list CLOSE_BRACKET rank_specifiers? array_initializer?
+	| NEW array_type array_initializer
+	| NEW rank_specifier array_initializer
+	;
+*/
 array_creation_expression 
   : NEW ( array_type array_initializer
         | non_array_type OPEN_BRACKET expression_list CLOSE_BRACKET rank_specifiers? array_initializer?
         | rank_specifier array_initializer
         )
   ;
+/** NEW delegate_type OPEN_PARENS expression CLOSE_PARENS */
 delegate_creation_expression 
 	: NEW delegate_type OPEN_PARENS expression CLOSE_PARENS
 	;
+/** starts with NEW OPEN_BRACE */
 anonymous_object_creation_expression 
 	: NEW anonymous_object_initializer
 	;
-
+/*
+anonymous_object_initializer 
+	: OPEN_BRACE member_declarator_list? CLOSE_BRACE
+	| OPEN_BRACE member_declarator_list COMMA CLOSE_BRACE
+	;
+*/
+/** starts with OPEN_BRACE */
 anonymous_object_initializer 
   : OPEN_BRACE CLOSE_BRACE
   | OPEN_BRACE member_declarator_list COMMA? CLOSE_BRACE
@@ -277,7 +456,14 @@ anonymous_object_initializer
 member_declarator_list 
 	: member_declarator ( COMMA member_declarator)*
 	;
-
+/*
+member_declarator 
+	: simple_name
+	| member_access
+	| base_access
+	| identifier ASSIGNMENT expression
+	;
+*/
 member_declarator 
   : primary_expression
   | identifier ASSIGNMENT expression
@@ -289,7 +475,13 @@ typeof_expression
 	  | VOID CLOSE_PARENS
 	  )
 	;
-
+/*
+unbound_type_name 
+	: identifier generic_dimension_specifier?
+	| identifier DOUBLE_COLON identifier generic_dimension_specifier?
+	| unbound_type_name DOT identifier generic_dimension_specifier?
+	;
+*/
 unbound_type_name 
   : identifier ( generic_dimension_specifier?
                | DOUBLE_COLON identifier generic_dimension_specifier?
@@ -311,7 +503,19 @@ unchecked_expression
 default_value_expression 
 	: DEFAULT OPEN_PARENS type CLOSE_PARENS
 	;
-
+/*
+unary_expression 
+	: primary_expression
+	| PLUS unary_expression
+	| MINUS unary_expression
+	| BANG unary_expression
+	| TILDE unary_expression
+	| pre_increment_expression
+	| pre_decrement_expression
+	| cast_expression
+	| unary_expression_unsafe
+	;
+*/
 unary_expression 
 	: cast_expression
 	| primary_expression
@@ -323,10 +527,15 @@ unary_expression
 	| pre_decrement_expression
 	| unary_expression_unsafe
 	;
+// The sequence of tokens is correct grammar for a type, and the token immediately
+// following the closing parentheses is the token TILDE, the token BANG, the token OPEN_PARENS,
+// an identifier, a literal, or any keyword except AS and IS.
 scan_for_cast_generic_precedence
   : OPEN_PARENS type CLOSE_PARENS cast_disambiguation_token
   ;
 
+// One of these tokens must follow a valid cast in an expression, in order to
+// eliminate a grammar ambiguity.
 cast_disambiguation_token
   : (TILDE | BANG | OPEN_PARENS | identifier | literal | ABSTRACT | BASE | BOOL | BREAK | BYTE | CASE | CATCH
     | CHAR | CHECKED | CLASS | CONST | CONTINUE | DECIMAL | DEFAULT | DELEGATE | DO | DOUBLE | ELSE | ENUM
@@ -356,7 +565,8 @@ shift_expression
 	: additive_expression ( ( OP_LEFT_SHIFT  additive_expression ) | ( right_shift  additive_expression ) )*
 	;
 relational_expression
-  :  shift_expression ( LT shift_expression
+  : /* shift_expression
+	|*/ shift_expression ( LT shift_expression
                      | GT shift_expression
                      | OP_LE shift_expression
                      | OP_GE shift_expression
@@ -364,12 +574,18 @@ relational_expression
                      | AS type
 	                   )*
 	;
+// Syntactic predicate rule to disambiguate  "a<b,c>d" and a<b,c>(0)"
+// added by chw
 scan_for_shift_generic_precedence
   : identifier LT type (COMMA type)* GT shift_disambiguation_token
   ;
+// One of these tokens must follow a valid generic in an expression, in order to
+// eliminate a grammar ambiguity.
+// added by chw
 shift_disambiguation_token
   : OPEN_PARENS | CLOSE_PARENS | CLOSE_BRACKET | COLON | SEMICOLON | COMMA | DOT | INTERR | OP_EQ | OP_NE | GT
   ;
+// added by chw
 isType
   : non_nullable_value_type ( INTERR)?
   ;
@@ -394,21 +610,40 @@ conditional_and_expression
 conditional_or_expression 
 	: conditional_and_expression ( OP_OR conditional_and_expression)*
 	;
-
+/*
+null_coalescing_expression 
+	: conditional_or_expression
+	| conditional_or_expression OP_COALESCING null_coalescing_expression
+	;
+*/
 null_coalescing_expression 
   : conditional_or_expression (OP_COALESCING null_coalescing_expression)?
   ;
-
+/*
+conditional_expression 
+	: null_coalescing_expression
+	| null_coalescing_expression INTERR expression COLON expression
+	;
+*/
+/** starts with unary_expression */
 conditional_expression 
   : null_coalescing_expression (INTERR expression COLON expression)?
   ;
+/** starts with OPEN_PARENS or identifier */
 lambda_expression 
 	: anonymous_function_signature right_arrow anonymous_function_body
 	;
+/** starts with DELEGATE */
 anonymous_method_expression 
 	: DELEGATE explicit_anonymous_function_signature? block
 	;
-
+/*
+anonymous_function_signature 
+	: explicit_anonymous_function_signature
+	| implicit_anonymous_function_signature
+	;
+*/
+/** starts with OPEN_PARENS or identifier */
 anonymous_function_signature 
   : OPEN_PARENS CLOSE_PARENS
   | OPEN_PARENS explicit_anonymous_function_parameter_list CLOSE_PARENS
@@ -435,6 +670,7 @@ implicit_anonymous_function_signature
 implicit_anonymous_function_parameter_list 
 	: implicit_anonymous_function_parameter ( COMMA implicit_anonymous_function_parameter)*
 	;
+/** identifier */
 implicit_anonymous_function_parameter 
 	: identifier
 	;
@@ -442,20 +678,34 @@ anonymous_function_body
 	: expression
 	| block
 	;
+/** starts with from_contextual_keyword */
 query_expression 
 	: from_clause query_body
 	;
 from_clause 
 	: from_contextual_keyword type? identifier IN expression
 	;
-
+/*
+query_body 
+	: query_body_clauses? select_or_group_clause query_continuation?
+	;
+*/
 query_body 
   : query_body_clauses? select_or_group_clause query_continuation?
   ;
 query_body_clauses 
 	: query_body_clause ( query_body_clause )*
 	;
-
+/*
+query_body_clause 
+	: from_clause
+	| let_clause
+	| where_clause
+	| join_clause
+	| join_into_clause
+	| orderby_clause
+	;
+*/
 query_body_clause 
   : from_clause
   | let_clause
@@ -475,6 +725,7 @@ join_clause
 join_into_clause 
 	: join_contextual_keyword type? identifier IN expression on_contextual_keyword expression equals_contextual_keyword expression into_contextual_keyword identifier
 	;
+// added by chw
 combined_join_clause
   : join_contextual_keyword type? identifier IN expression on_contextual_keyword expression equals_contextual_keyword expression (into_contextual_keyword identifier)?
   ;
@@ -501,9 +752,11 @@ select_clause
 group_clause 
 	: group_contextual_keyword expression by_contextual_keyword expression
 	;
+/** starts with into_contextual_keyword */
 query_continuation 
 	: into_contextual_keyword identifier query_body
 	;
+/** starts with unary_expression */
 assignment 
 	: unary_expression assignment_operator expression
 	;
@@ -536,6 +789,7 @@ boolean_expression
 	: expression
 	;
 
+//B.2.5 Statements
 statement 
 	: labeled_statement
 	| declaration_statement
@@ -559,6 +813,7 @@ simple_embedded_statement
 	| yield_statement
 	| embedded_statement_unsafe
 	;
+/** starts with OPEN_BRACE */
 block 
 	: OPEN_BRACE statement_list? CLOSE_BRACE
 	;
@@ -568,9 +823,11 @@ statement_list
 empty_statement 
 	: SEMICOLON
 	;
+/** starts with identifier COLON */
 labeled_statement 
 	: identifier COLON statement
 	;
+/** starts with type, VAR, or CONST */
 declaration_statement 
 	: local_variable_declaration SEMICOLON
 	| local_constant_declaration SEMICOLON
@@ -579,8 +836,9 @@ local_variable_declaration
 	: t=local_variable_type  local_variable_declarators
 	;
 local_variable_type 
-	: type 
+	: type // includes 'var'
 	;
+/** starts with identifier */
 local_variable_declarators 
 	: local_variable_declarator ( COMMA  local_variable_declarator )*
 	;
@@ -687,11 +945,22 @@ return_statement
 throw_statement 
 	: THROW expression? SEMICOLON
 	;
-
+/*
+try_statement 
+	: TRY block catch_clauses
+	| TRY block finally_clause
+	| TRY block catch_clauses finally_clause
+	;
+*/
 try_statement 
   : TRY block catch_clauses? finally_clause?
   ;
-
+/*
+catch_clauses 
+	: specific_catch_clauses general_catch_clause?
+	| specific_catch_clauses? general_catch_clause
+	;
+*/
 catch_clauses 
   : specific_catch_clauses general_catch_clause?
   | general_catch_clause
@@ -720,7 +989,12 @@ lock_statement
 using_statement 
 	: USING OPEN_PARENS resource_acquisition CLOSE_PARENS embedded_statement
 	;
-
+/*
+resource_acquisition 
+	: local_variable_declaration
+	| expression
+	;
+*/
 resource_acquisition 
 	: local_variable_declaration
 	| expression
@@ -730,7 +1004,10 @@ yield_statement
 	| yield_contextual_keyword BREAK SEMICOLON
 	;
 
+// not used anymore; we use namespace_member_declaration+ directly
 
+//B.2.6 Namespaces;
+// entry point/ start rule
 compilation_unit 
   : BYTE_ORDER_MARK? extern_alias_directives? using_directives?
     global_attribute_section*
@@ -771,7 +1048,15 @@ namespace_member_declaration
 	: namespace_declaration
 	| type_declaration
 	;
-
+/*
+type_declaration 
+	: class_declaration
+	| struct_declaration
+	| interface_declaration
+	| enum_declaration
+	| delegate_declaration
+	;
+*/
 type_declaration 
   : attributes? all_member_modifiers?
     ( class_definition
@@ -781,10 +1066,13 @@ type_declaration
     | delegate_definition
     )
   ;
+/** starts with identifier DOUBLE_COLON */
 qualified_alias_member 
 	: identifier DOUBLE_COLON identifier type_argument_list_opt
 	;
 
+//B.2.7 Classes;
+// not used anymore
 class_declaration 
 	: attributes? class_modifiers? partial_contextual_keyword? CLASS identifier type_parameter_list?
 	    class_base? type_parameter_constraints_clauses? class_body SEMICOLON?
@@ -809,10 +1097,18 @@ type_parameter_list
 type_parameters 
 	: attributes? type_parameter ( COMMA  attributes?  type_parameter )*
 	;
+/** identifier */
 type_parameter 
 	: identifier
 	;
-
+/*
+class_base 
+	: COLON class_type
+	| COLON interface_type_list
+	| COLON class_type COMMA interface_type_list
+	;
+*/
+// class_type includes interface_type
 class_base 
   : COLON class_type ( COMMA  interface_type )*
   ;
@@ -825,7 +1121,17 @@ type_parameter_constraints_clauses
 type_parameter_constraints_clause 
 	: where_contextual_keyword type_parameter COLON type_parameter_constraints
 	;
-
+/*
+type_parameter_constraints 
+	: primary_constraint
+	| secondary_constraints
+	| constructor_constraint
+	| primary_constraint COMMA secondary_constraints
+	| primary_constraint COMMA constructor_constraint
+	| secondary_constraints COMMA constructor_constraint
+	| primary_constraint COMMA secondary_constraints COMMA constructor_constraint
+	;
+*/
 type_parameter_constraints 
   : constructor_constraint
   | primary_constraint (COMMA secondary_constraints)? (COMMA constructor_constraint)?
@@ -835,7 +1141,15 @@ primary_constraint
 	| CLASS
 	| STRUCT
 	;
-
+/**
+secondary_constraints 
+	: interface_type
+	| type_parameter
+	| secondary_constraints COMMA interface_type
+	| secondary_constraints COMMA type_parameter
+	;
+*/
+// interface_type includes type_parameter
 secondary_constraints
   : interface_type (COMMA interface_type)*
   ;
@@ -855,6 +1169,8 @@ class_member_declaration
 	  )
   | Pp_directive
   ;
+// added by chw
+// combines all available modifiers
 all_member_modifiers
   : (m=all_member_modifier)+
   ;
@@ -875,20 +1191,36 @@ all_member_modifier
   | EXTERN
   | partial_contextual_keyword
   ;
-
+/** represents the intersection of struct_member_declaration and class_member_declaration */
+/*common_member_declaration
+  : constant_declaration
+  | field_declaration
+  | method_declaration
+  | property_declaration
+  | event_declaration
+  | indexer_declaration
+  | operator_declaration
+  | constructor_declaration
+  | static_constructor_declaration
+  | type_declaration
+  ;
+*/
+// added by chw
 common_member_declaration
   : constant_declaration2
   | typed_member_declaration
   | event_declaration2
   | conversion_operator_declarator operator_body
+  // constructor_declaration and static_constructor_declaration
   | constructor_declaration2
-  | type_void   method_declaration2  
+  | type_void   method_declaration2  // we use type_void instead of VOID to switch rules
   | class_definition
   | struct_definition
   | interface_definition
   | enum_definition
   | delegate_definition
   ;
+// added by chw
 typed_member_declaration
   : type 
     ( interface_type DOT indexer_declaration2
@@ -899,14 +1231,47 @@ typed_member_declaration
     | field_declaration2
     )
   ;
-
+/*
+constant_declaration 
+	: attributes? constant_modifiers? CONST type constant_declarators SEMICOLON
+	;
+constant_modifiers 
+	: constant_modifier+
+	;
+constant_modifier 
+	: NEW
+	| PUBLIC
+	| PROTECTED
+	| INTERNAL
+	| PRIVATE
+	;
+*/
 constant_declarators 
 	: constant_declarator ( COMMA  constant_declarator )*
 	;
 constant_declarator 
 	: identifier ASSIGNMENT constant_expression
 	;
-
+/* not used anymore;
+field_declaration 
+	: attributes? field_modifiers? type variable_declarators SEMICOLON
+	;
+field_modifiers 
+	: field_modifier ( field_modifier )*
+	;
+field_modifier 
+	: NEW
+	| PUBLIC
+	| PROTECTED
+	| INTERNAL
+	| PRIVATE
+	| STATIC
+	| READONLY
+	| VOLATILE
+	| field_modifier_unsafe
+	;
+*/
+/** starts with identifier */
 variable_declarators
 	: variable_declarator ( COMMA  variable_declarator )*
 	;
@@ -941,11 +1306,18 @@ method_modifier
 	| EXTERN
 	| method_modifier_unsafe
 	;
+/** type | VOID */
 return_type 
 	: type
 	| VOID
 	;
-
+/*
+member_name 
+	: identifier
+	| interface_type DOT identifier
+	;
+*/
+/** interface_type */
 member_name 
   : interface_type
   ;
@@ -953,7 +1325,13 @@ method_body
 	: block
 	| SEMICOLON
 	;
-
+/*
+formal_parameter_list 
+	: fixed_parameters
+	| fixed_parameters COMMA parameter_array
+	| parameter_array
+	;
+*/
 formal_parameter_list 
   : parameter_array
   | fixed_parameters (COMMA parameter_array)?
@@ -961,7 +1339,12 @@ formal_parameter_list
 fixed_parameters 
 	: fixed_parameter ( COMMA fixed_parameter )*
 	;
-
+/*
+fixed_parameter 
+  : attributes? parameter_modifier? type identifier default_argument?
+  ;
+*/
+// TODO add | '__arglist' etc.
 fixed_parameter
   : attributes? parameter_modifier? type identifier default_argument?
   | arglist
@@ -997,7 +1380,12 @@ property_modifier
 	| EXTERN
 	| property_modifier_unsafe
 	;
-
+/*
+accessor_declarations 
+	: get_accessor_declaration set_accessor_declaration?
+	| set_accessor_declaration get_accessor_declaration?
+	;
+*/
 accessor_declarations 
   : attrs=attributes?
     mods=accessor_modifier? 
@@ -1022,7 +1410,12 @@ accessor_body
 	: block
 	| SEMICOLON
 	;
-
+/*
+event_declaration 
+	: attributes? event_modifiers? EVENT type variable_declarators SEMICOLON
+	| attributes? event_modifiers? EVENT type member_name OPEN_BRACE event_accessor_declarations CLOSE_BRACE
+	;
+*/
 event_declaration 
   : attributes? event_modifiers? EVENT type
     ( variable_declarators SEMICOLON
@@ -1077,7 +1470,12 @@ indexer_modifier
 	| EXTERN
 	| indexer_modifier_unsafe
 	;
-
+/*
+indexer_declarator 
+	: type THIS OPEN_BRACKET formal_parameter_list CLOSE_BRACKET
+	| type interface_type DOT THIS OPEN_BRACKET formal_parameter_list CLOSE_BRACKET
+	;
+*/
 indexer_declarator 
   : type (interface_type DOT)? THIS OPEN_BRACKET formal_parameter_list CLOSE_BRACKET
   ;
@@ -1093,7 +1491,13 @@ operator_modifier
 	| EXTERN
 	| operator_modifier_unsafe
 	;
-
+/*
+operator_declarator 
+	: unary_operator_declarator
+	| binary_operator_declarator
+	| conversion_operator_declarator
+	;
+*/
 operator_declarator 
   : unary_operator_declarator
   | binary_operator_declarator
@@ -1133,6 +1537,8 @@ overloadable_binary_operator
 	| OP_GE
 	| OP_LE
 	;
+// added by chw
+/** includes the unary and the binary operators */
 overloadable_operator
   : PLUS
   | MINUS
@@ -1157,6 +1563,7 @@ overloadable_operator
   | OP_GE
   | OP_LE
   ;
+/** starts with IMPLICIT or EXPLICIT */
 conversion_operator_declarator
 	: IMPLICIT OPERATOR type OPEN_PARENS type identifier CLOSE_PARENS
 	| EXPLICIT OPERATOR type OPEN_PARENS type identifier CLOSE_PARENS
@@ -1193,7 +1600,13 @@ constructor_body
 static_constructor_declaration 
 	: attributes? static_constructor_modifiers identifier OPEN_PARENS CLOSE_PARENS static_constructor_body
 	;
-
+/*
+static_constructor_modifiers 
+	: EXTERN? STATIC
+	| STATIC EXTERN?
+	| static_constructor_modifiers_unsafe
+	;
+*/
 static_constructor_modifiers 
   : static_constructor_modifiers_unsafe
   ;
@@ -1201,7 +1614,12 @@ static_constructor_body
 	: block
 	| SEMICOLON
 	;
-
+/*
+destructor_declaration 
+	: attributes? EXTERN? TILDE identifier OPEN_PARENS CLOSE_PARENS destructor_body
+	| destructor_declaration_unsafe
+	;
+*/
 destructor_declaration 
 	: destructor_declaration_unsafe
 	;
@@ -1209,11 +1627,13 @@ destructor_body
 	: block
 	| SEMICOLON
 	;
+// added by chw
 body
   : block
   | SEMICOLON
   ;
 
+//B.2.8 Structs
 struct_declaration 
 	: attributes? struct_modifiers? partial_contextual_keyword? STRUCT identifier type_parameter_list? struct_interfaces? type_parameter_constraints_clauses? struct_body SEMICOLON?
 	;
@@ -1237,32 +1657,69 @@ struct_body
 struct_member_declarations 
 	: struct_member_declaration ( struct_member_declaration )*
 	;
-
+/*
+struct_member_declaration 
+	: constant_declaration
+	| field_declaration
+	| method_declaration
+	| property_declaration
+	| event_declaration
+	| indexer_declaration
+	| operator_declaration
+	| constructor_declaration
+	| static_constructor_declaration
+	| type_declaration
+	| struct_member_declaration_unsafe
+	;
+*/
 struct_member_declaration 
 	: attributes? all_member_modifiers?
 		( common_member_declaration
 		| FIXED buffer_element_type fixed_size_buffer_declarators SEMICOLON
 		)
 	;
-
+//B.2.9 Arrays
+/*
+array_type 
+	: non_array_type rank_specifiers
+	;
+*/
+/** non_array_type rank_specifiers */
 array_type 
 	: base_type ((STAR | INTERR)* rank_specifier)+
 	;
-
+/*
+non_array_type 
+	: type
+	;
+*/
+/** type */
 non_array_type 
 	: base_type (rank_specifier | INTERR | STAR)*
 	;
-
+/*
+rank_specifiers 
+	: rank_specifier ( rank_specifier )*
+	;
+*/
+/** starts with OPEN_BRACKET */
 rank_specifiers 
   : rank_specifier+
   ;
+/** OPEN_BRACKET dim_separators? CLOSE_BRACKET */
 rank_specifier 
 	: OPEN_BRACKET dim_separators? CLOSE_BRACKET
 	;
 dim_separators 
 	: COMMA ( COMMA )*
 	;
-
+/*
+array_initializer 
+	: OPEN_BRACE variable_initializer_list? CLOSE_BRACE
+	| OPEN_BRACE variable_initializer_list COMMA CLOSE_BRACE
+	;
+*/
+/** starts with OPEN_BRACE */
 array_initializer 
   : OPEN_BRACE CLOSE_BRACE
   | OPEN_BRACE variable_initializer_list COMMA? CLOSE_BRACE
@@ -1270,6 +1727,7 @@ array_initializer
 variable_initializer_list 
 	: variable_initializer ( COMMA  variable_initializer )*
 	;
+//B.2.10 Interfaces
 interface_declaration 
 	: attributes? interface_modifiers? partial_contextual_keyword? INTERFACE identifier variant_type_parameter_list? interface_base? type_parameter_constraints_clauses? interface_body SEMICOLON?
 	;
@@ -1303,7 +1761,14 @@ interface_body
 interface_member_declarations 
 	: interface_member_declaration+
 	;
-
+/*
+interface_member_declaration 
+	: interface_method_declaration
+	| interface_property_declaration
+	| interface_event_declaration
+	| interface_indexer_declaration
+	;
+*/
 interface_member_declaration 
   : attributes? NEW?
     ( type
@@ -1321,7 +1786,14 @@ interface_method_declaration
 interface_property_declaration 
 	: attributes? NEW? type identifier OPEN_BRACE interface_accessors CLOSE_BRACE
 	;
-
+/*
+interface_accessors 
+	: attributes? get_contextual_keyword SEMICOLON
+	| attributes? set_contextual_keyword SEMICOLON
+	| attributes? get_contextual_keyword SEMICOLON attributes? set_contextual_keyword SEMICOLON
+	| attributes? set_contextual_keyword SEMICOLON attributes? get_contextual_keyword SEMICOLON
+	;
+*/
 interface_accessors 
   : attributes?
     ( get_contextual_keyword SEMICOLON (attributes? set_contextual_keyword SEMICOLON)?
@@ -1336,13 +1808,19 @@ interface_indexer_declaration
 	;
 
 
+//B.2.11 Enums
 enum_declaration 
 	: attributes? enum_modifiers? ENUM identifier enum_base? enum_body SEMICOLON?
 	;
 enum_base 
 	: COLON integral_type
 	;
-
+/*
+enum_body 
+	: OPEN_BRACE enum_member_declarations? CLOSE_BRACE
+	| OPEN_BRACE enum_member_declarations COMMA CLOSE_BRACE
+	;
+*/
 enum_body 
   : OPEN_BRACE CLOSE_BRACE
   | OPEN_BRACE enum_member_declarations COMMA? CLOSE_BRACE
@@ -1360,11 +1838,17 @@ enum_modifier
 enum_member_declarations 
 	: enum_member_declaration ( COMMA  enum_member_declaration )*
 	;
-
+/*
+enum_member_declaration 
+	: attributes? identifier
+	| attributes? identifier ASSIGNMENT constant_expression
+	;
+*/
 enum_member_declaration 
   : attributes? identifier (ASSIGNMENT constant_expression)?
   ;
 
+//B.2.12 Delegates
 delegate_declaration 
 	: attributes? delegate_modifiers? DELEGATE return_type identifier variant_type_parameter_list? 
 	    OPEN_PARENS formal_parameter_list? CLOSE_PARENS type_parameter_constraints_clauses? SEMICOLON
@@ -1382,13 +1866,20 @@ delegate_modifier
 	;
 
 
+//B.2.13 Attributes
+// not used anymore; we use global_attribute_section+ directly
 global_attributes 
 	: global_attribute_sections
 	;
 global_attribute_sections 
 	: global_attribute_section+
 	;
-
+/*
+global_attribute_section 
+	: OPEN_BRACKET global_attribute_target_specifier attribute_list CLOSE_BRACKET
+	| OPEN_BRACKET global_attribute_target_specifier attribute_list COMMA CLOSE_BRACKET
+	;
+*/
 global_attribute_section 
   : OPEN_BRACKET global_attribute_target_specifier attribute_list COMMA? CLOSE_BRACKET
   ;
@@ -1399,14 +1890,24 @@ global_attribute_target
   : keyword
   | identifier
   ;
-
+/*
+global_attribute_target 
+	: ASSEMBLY
+	| MODULE
+	;
+*/
 attributes 
 	: attribute_sections
 	;
 attribute_sections 
 	: attribute_section+
 	;
-
+/*
+attribute_section 
+	: OPEN_BRACKET attribute_target_specifier? attribute_list CLOSE_BRACKET
+	| OPEN_BRACKET attribute_target_specifier? attribute_list COMMA CLOSE_BRACKET
+	;
+*/
 attribute_section 
   : OPEN_BRACKET attribute_target_specifier? attribute_list COMMA? CLOSE_BRACKET
   ;
@@ -1417,7 +1918,17 @@ attribute_target
   : keyword
   | identifier
   ;
-
+/*
+attribute_target 
+	: FIELD
+	| EVENT
+	| METHOD
+	| PARAM
+	| PROPERTY
+	| RETURN
+	| TYPE
+	;
+*/
 attribute_list 
 	: attribute ( COMMA  attribute )*
 	;
@@ -1427,7 +1938,14 @@ attribute
 attribute_name 
 	: type_name
 	;
-
+/*
+attribute_arguments 
+	: OPEN_PARENS positional_argument_list? CLOSE_PARENS
+	| OPEN_PARENS positional_argument_list COMMA named_argument_list CLOSE_PARENS
+	| OPEN_PARENS named_argument_list CLOSE_PARENS
+	;
+*/
+/* positional_argument_list includes named_argument_list */ 
 attribute_arguments 
   : OPEN_PARENS positional_argument_list? CLOSE_PARENS
   ;
@@ -1435,12 +1953,15 @@ positional_argument_list
 	: arg=positional_argument
 	    ( COMMA  arg2=positional_argument )*
 	;
+/** expression */
 positional_argument 
 	: attribute_argument_expression
 	;
+/** starts with "identifier ASSIGNMENT expression" */
 named_argument_list 
 	: named_argument ( COMMA  named_argument )*
 	;
+/** identifier ASSIGNMENT expression */
 named_argument 
 	: identifier ASSIGNMENT attribute_argument_expression
 	;
@@ -1449,6 +1970,7 @@ attribute_argument_expression
 	;
 
 
+//B.3 Grammar extensions for unsafe code
 class_modifier_unsafe 
 	: UNSAFE
 	;
@@ -1482,7 +2004,12 @@ operator_modifier_unsafe
 constructor_modifier_unsafe 
 	: UNSAFE
 	;
-
+/*
+destructor_declaration_unsafe 
+	: attributes? EXTERN? UNSAFE? TILDE identifier OPEN_PARENS CLOSE_PARENS destructor_body
+	| attributes? UNSAFE? EXTERN? TILDE identifier OPEN_PARENS CLOSE_PARENS destructor_body
+	;
+*/
 destructor_declaration_unsafe 
   : attributes?
     ( EXTERN? UNSAFE?
@@ -1490,7 +2017,16 @@ destructor_declaration_unsafe
     )  
     TILDE identifier OPEN_PARENS CLOSE_PARENS destructor_body
   ;
-
+/*
+static_constructor_modifiers_unsafe 
+	: EXTERN? UNSAFE? STATIC
+	| UNSAFE? EXTERN? STATIC
+	| EXTERN? STATIC UNSAFE?
+	| UNSAFE? STATIC EXTERN?
+	| STATIC EXTERN? UNSAFE?
+	| STATIC UNSAFE? EXTERN?
+	;
+*/
 static_constructor_modifiers_unsafe 
   : (EXTERN | UNSAFE)? STATIC
   | EXTERN UNSAFE STATIC
@@ -1501,6 +2037,7 @@ static_constructor_modifiers_unsafe
   | STATIC EXTERN UNSAFE
   | STATIC UNSAFE EXTERN
   ;
+/** starts with UNSAFE or FIXED */
 embedded_statement_unsafe 
 	: unsafe_statement
 	| fixed_statement
@@ -1511,7 +2048,22 @@ unsafe_statement
 type_unsafe 
 	: pointer_type
 	;
-
+/*
+pointer_type 
+	: unmanaged_type STAR
+	| VOID STAR
+	;
+*/
+// for explanations, see http://www.antlr.org/wiki/display/ANTLR3/Left-Recursion+Removal+-+Print+Edition
+// pointer_type 
+//   : ( simple_type
+// 	  | class_type
+// 	  | VOID {allowAll = false;}
+//   ) ( {allowAll}? rank_specifier
+//     | {allowAll}? INTERR
+//     | STAR {allowAll = true;}
+//     )* STAR
+//   ;
 pointer_type
     :    simple_type (rank_specifier | INTERR)* STAR
     |    class_type (rank_specifier | INTERR)* STAR
@@ -1520,10 +2072,17 @@ pointer_type
 unmanaged_type 
 	: type
 	;
-
+/*
+primary_no_array_creation_expression_unsafe 
+	: pointer_member_access
+	| pointer_element_access
+	| sizeof_expression
+	;
+*/
 primary_no_array_creation_expression_unsafe 
 	: primary_expression
 	;
+/** starts with STAR or AMP */
 unary_expression_unsafe 
 	: pointer_indirection_expression
 	| addressof_expression
@@ -1531,7 +2090,17 @@ unary_expression_unsafe
 pointer_indirection_expression 
 	: STAR unary_expression
 	;
-
+/* not used anymore; included in primary_expression
+pointer_member_access 
+	: primary_expression OP_PTR identifier
+	;
+*/
+/* not used anymore; included in primary_no_array_creation_expression
+pointer_element_access 
+	: primary_no_array_creation_expression OPEN_BRACKET expression CLOSE_BRACKET
+	;
+*/
+/** AMP unary_expression */
 addressof_expression 
 	: AMP unary_expression
 	;
@@ -1547,7 +2116,12 @@ fixed_pointer_declarators
 fixed_pointer_declarator 
 	: identifier ASSIGNMENT fixed_pointer_initializer
 	;
-
+/*
+fixed_pointer_initializer 
+	: AMP variable_reference
+	| expression
+	;
+*/
 fixed_pointer_initializer 
   : AMP variable_reference
   | expression
@@ -1578,6 +2152,7 @@ fixed_size_buffer_declarators
 fixed_size_buffer_declarator 
 	: identifier OPEN_BRACKET constant_expression CLOSE_BRACKET
 	;
+/** starts with STACKALLOC */
 local_variable_initializer_unsafe 
 	: stackalloc_initializer
 	;
@@ -1608,13 +2183,13 @@ remove_contextual_keyword: REMOVE;
 dynamic_contextual_keyword: DYNAMIC;
 arglist: ARGLIST;
 right_arrow
-  : first=ASSIGNMENT second=GT {$first.index + 1 == $second.index}? 
+  : first=ASSIGNMENT second=GT {$first.index + 1 == $second.index}? // Nothing between the tokens?
   ;
 right_shift
-  : first=GT second=GT {$first.index + 1 == $second.index}? 
+  : first=GT second=GT {$first.index + 1 == $second.index}? // Nothing between the tokens?
   ;
 right_shift_assignment
-  : first=GT second=OP_GE {$first.index + 1 == $second.index}? 
+  : first=GT second=OP_GE {$first.index + 1 == $second.index}? // Nothing between the tokens?
   ;
 literal
   : boolean_literal
@@ -1629,6 +2204,7 @@ boolean_literal
   | FALSE
   ;
 
+//B.1.7 Keywords
 keyword
   : ABSTRACT
   | AS
@@ -1709,6 +2285,7 @@ keyword
   | WHILE
   ;
 
+// -------------------- extra rules for modularization --------------------------------
 
 class_definition
   : CLASS identifier type_parameter_list? class_base? type_parameter_constraints_clauses?
@@ -1759,6 +2336,7 @@ method_declaration2
       type_parameter_constraints_clauses? method_body
   ;
 
+// added by chw to allow detection of type parameters for methods
 method_member_name
   : method_member_name2
   ;
@@ -1783,6 +2361,7 @@ interface_event_declaration2
 interface_indexer_declaration2
   : THIS OPEN_BRACKET formal_parameter_list CLOSE_BRACKET OPEN_BRACE interface_accessors CLOSE_BRACE
   ;
+/** starts with DOT identifier */
 member_access2
   : DOT identifier type_argument_list_opt
   ;

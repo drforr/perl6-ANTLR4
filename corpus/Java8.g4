@@ -1,4 +1,61 @@
+/*
+ * [The "BSD license"]
+ *  Copyright (c) 2014 Terence Parr
+ *  Copyright (c) 2014 Sam Harwell
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *  2. Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *  3. The name of the author may not be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ *  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ *  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ *  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ * A Java 8 grammar for ANTLR 4 derived from the Java Language Specification
+ * chapter 19.
+ *
+ * NOTE: This grammar results in a generated parser that is much slower
+ *       than the Java 7 grammar in the grammars-v4/java directory. This
+ *     one is, however, extremely close to the spec.
+ *
+ * You can test with
+ *
+ *  $ antlr4 Java8.g4
+ *  $ javac *.java
+ *  $ grun Java8 compilationUnit *.java
+ *
+ * Or,
+~/antlr/code/grammars-v4/java8 $ java Test .
+/Users/parrt/antlr/code/grammars-v4/java8/./Java8BaseListener.java
+/Users/parrt/antlr/code/grammars-v4/java8/./Java8Lexer.java
+/Users/parrt/antlr/code/grammars-v4/java8/./Java8Listener.java
+/Users/parrt/antlr/code/grammars-v4/java8/./Java8Parser.java
+/Users/parrt/antlr/code/grammars-v4/java8/./Test.java
+Total lexer+parser time 30844ms.
+ */
 grammar Java8;
+
+/*
+ * Productions from §3 (Lexical Structure)
+ */
 
 literal
 	:	IntegerLiteral
@@ -9,6 +66,9 @@ literal
 	|	NullLiteral
 	;
 
+/*
+ * Productions from §4 (Types, Values, and Variables)
+ */
 
 type
 	:	primitiveType
@@ -131,6 +191,10 @@ wildcardBounds
 	|	'super' referenceType
 	;
 
+/*
+ * Productions from §6 (Names)
+ */
+
 packageName
 	:	Identifier
 	|	packageName '.' Identifier
@@ -159,6 +223,10 @@ ambiguousName
 	:	Identifier
 	|	ambiguousName '.' Identifier
 	;
+
+/*
+ * Productions from §7 (Packages)
+ */
 
 compilationUnit
 	:	packageDeclaration? importDeclaration* typeDeclaration* EOF
@@ -200,6 +268,10 @@ typeDeclaration
 	|	interfaceDeclaration
 	|	';'
 	;
+
+/*
+ * Productions from §8 (Classes)
+ */
 
 classDeclaration
 	:	normalClassDeclaration
@@ -491,6 +563,10 @@ enumBodyDeclarations
 	:	';' classBodyDeclaration*
 	;
 
+/*
+ * Productions from §9 (Interfaces)
+ */
+
 interfaceDeclaration
 	:	normalInterfaceDeclaration
 	|	annotationTypeDeclaration
@@ -620,6 +696,10 @@ singleElementAnnotation
 	:	'@' typeName '(' elementValue ')'
 	;
 
+/*
+ * Productions from §10 (Arrays)
+ */
+
 arrayInitializer
 	:	'{' variableInitializerList? ','? '}'
 	;
@@ -627,6 +707,10 @@ arrayInitializer
 variableInitializerList
 	:	variableInitializer (',' variableInitializer)*
 	;
+
+/*
+ * Productions from §14 (Blocks and Statements)
+ */
 
 block
 	:	'{' blockStatements? '}'
@@ -863,6 +947,10 @@ resourceList
 resource
 	:	variableModifier* unannType variableDeclaratorId '=' expression
 	;
+
+/*
+ * Productions from §15 (Expressions)
+ */
 
 primary
 	:	(	primaryNoNewArray_lfno_primary
@@ -1253,7 +1341,9 @@ castExpression
 	|	'(' referenceType additionalBound* ')' lambdaExpression
 	;
 
+// LEXER
 
+// §3.9 Keywords
 
 ABSTRACT : 'abstract';
 ASSERT : 'assert';
@@ -1306,6 +1396,7 @@ VOID : 'void';
 VOLATILE : 'volatile';
 WHILE : 'while';
 
+// §3.10.1 Integer Literals
 
 IntegerLiteral
 	:	DecimalIntegerLiteral
@@ -1455,6 +1546,7 @@ BinaryDigitOrUnderscore
 	|	'_'
 	;
 
+// §3.10.2 Floating-Point Literals
 
 FloatingPointLiteral
 	:	DecimalFloatingPointLiteral
@@ -1515,12 +1607,14 @@ BinaryExponentIndicator
 	:	[pP]
 	;
 
+// §3.10.3 Boolean Literals
 
 BooleanLiteral
 	:	'true'
 	|	'false'
 	;
 
+// §3.10.4 Character Literals
 
 CharacterLiteral
 	:	'\'' SingleCharacter '\''
@@ -1532,6 +1626,7 @@ SingleCharacter
 	:	~['\\]
 	;
 
+// §3.10.5 String Literals
 
 StringLiteral
 	:	'"' StringCharacters? '"'
@@ -1548,12 +1643,13 @@ StringCharacter
 	|	EscapeSequence
 	;
 
+// §3.10.6 Escape Sequences for Character and String Literals
 
 fragment
 EscapeSequence
 	:	'\\' [btnfr"'\\]
 	|	OctalEscape
-    |   UnicodeEscape 
+    |   UnicodeEscape // This is not in the spec but prevents having to preprocess the input
 	;
 
 fragment
@@ -1568,16 +1664,19 @@ ZeroToThree
 	:	[0-3]
 	;
 
+// This is not in the spec but prevents having to preprocess the input
 fragment
 UnicodeEscape
     :   '\\' 'u' HexDigit HexDigit HexDigit HexDigit
     ;
 
+// §3.10.7 The Null Literal
 
 NullLiteral
 	:	'null'
 	;
 
+// §3.11 Separators
 
 LPAREN : '(';
 RPAREN : ')';
@@ -1589,6 +1688,7 @@ SEMI : ';';
 COMMA : ',';
 DOT : '.';
 
+// §3.12 Operators
 
 ASSIGN : '=';
 GT : '>';
@@ -1628,6 +1728,7 @@ LSHIFT_ASSIGN : '<<=';
 RSHIFT_ASSIGN : '>>=';
 URSHIFT_ASSIGN : '>>>=';
 
+// §3.8 Identifiers (must appear after all keywords in the grammar)
 
 Identifier
 	:	JavaLetter JavaLetterOrDigit*
@@ -1635,30 +1736,36 @@ Identifier
 
 fragment
 JavaLetter
-	:	[a-zA-Z$_] 
-	|	
+	:	[a-zA-Z$_] // these are the "java letters" below 0xFF
+	|	// covers all characters above 0xFF which are not a surrogate
 		~[\u0000-\u00FF\uD800-\uDBFF]
 		{Character.isJavaIdentifierStart(_input.LA(-1))}?
-	|	
+	|	// covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
 		[\uD800-\uDBFF] [\uDC00-\uDFFF]
 		{Character.isJavaIdentifierStart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
 	;
 
 fragment
 JavaLetterOrDigit
-	:	[a-zA-Z0-9$_] 
-	|	
+	:	[a-zA-Z0-9$_] // these are the "java letters or digits" below 0xFF
+	|	// covers all characters above 0xFF which are not a surrogate
 		~[\u0000-\u00FF\uD800-\uDBFF]
 		{Character.isJavaIdentifierPart(_input.LA(-1))}?
-	|	
+	|	// covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
 		[\uD800-\uDBFF] [\uDC00-\uDFFF]
 		{Character.isJavaIdentifierPart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
 	;
 
+//
+// Additional symbols not defined in the lexical specification
+//
 
 AT : '@';
 ELLIPSIS : '...';
 
+//
+// Whitespace and comments
+//
 
 WS  :  [ \t\r\n\u000C]+ -> skip
     ;

@@ -1,3 +1,10 @@
+/*
+  Converted to ANTLR 4 by James Ladd (Redline Smalltalk Project http://redline.st).
+  Adapted from the Amber Smalltalk grammar parser.pegjs
+  
+  2015/01/18 James Ladd (object@redline.st)
+*/
+
 grammar Smalltalk;
 
 script : sequence EOF;

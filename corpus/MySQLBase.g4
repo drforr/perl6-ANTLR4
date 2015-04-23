@@ -1,5 +1,7 @@
 lexer grammar MySQLBase;
 
+
+
 SELECT: 'select';
 FROM: 'from';
 WHERE: 'where';

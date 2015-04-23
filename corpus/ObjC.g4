@@ -1,3 +1,17 @@
+// Converted to ANTLR 4 by Terence Parr; added @property and a few others.
+// Seems to handle stuff like this except for blocks:
+// https://google-api-objectivec-client.googlecode.com/svn/trunk/Examples/ShoppingSample/ShoppingSampleWindowController.m
+
+/**
+* ObjectiveC version 2
+* based on an LL ansic grammars and
+* and ObjectiveC grammar found in Learning Object C
+*
+* It's a Work in progress, most of the .h file can be parsed
+* June 2008 Cedric Cuche
+* Updated June 2014, Carlos Mejia.  Fix try-catch, add support for @( @{ @[ and blocks
+**/
+
 grammar ObjC;
 
 
@@ -88,8 +102,8 @@ property_attributes_list
 
 property_attribute
     : 'nonatomic' | 'assign' | 'weak' | 'strong' | 'retain' | 'readonly' | 'readwrite' |
-    | 'getter' '=' IDENTIFIER 
-    | 'setter' '=' IDENTIFIER ':' 
+    | 'getter' '=' IDENTIFIER //  getter 
+    | 'setter' '=' IDENTIFIER ':' // setter
     | IDENTIFIER
     ;
 
@@ -467,7 +481,9 @@ identifier : IDENTIFIER;
 
 constant : DECIMAL_LITERAL | HEX_LITERAL | OCTAL_LITERAL | CHARACTER_LITERAL | FLOATING_POINT_LITERAL;
 
+// LEXER
 
+// §3.9 Keywords
 
 
 AUTORELEASEPOOL : '@autoreleasepool';
@@ -543,6 +559,7 @@ NS_ENUM             : 'NS_ENUM';
 WWEAK               : '__weak';
 WUNSAFE_UNRETAINED  : '__unsafe_unretained';
 
+// §3.11 Separators
 
 LPAREN          : '(';
 RPAREN          : ')';
@@ -556,6 +573,7 @@ DOT             : '.';
 STRUCTACCESS    : '->';
 AT              : '@';
 
+// Operators
 
 ASSIGN          : '=';
 GT              : '>';
@@ -583,6 +601,7 @@ MOD             : '%';
 SHIFT_R         : '>>';
 SHIFT_L         : '<<';
 
+// Assignment
 
 ADD_ASSIGN      : '+=';
 SUB_ASSIGN      : '-=';
@@ -596,6 +615,7 @@ LSHIFT_ASSIGN   : '<<=';
 RSHIFT_ASSIGN   : '>>=';
 ELIPSIS         : '...';
 
+// Property attributes
 ASSIGNPA        : 'assign';
 GETTER          : 'getter';
 NONATOMIC       : 'nonatomic';
@@ -621,6 +641,11 @@ LETTER
 CHARACTER_LITERAL
     :   '\'' ( EscapeSequence | ~('\''|'\\') ) '\''
     ;
+
+/*
+s_char = [[[any_char - '"'] - '\'] - nl] | escape_sequence;
+string_literal = ('L' | '@') '"' s_char* '"';
+*/
 
 STRING_LITERAL
     :  [L@] STRING
@@ -690,6 +715,7 @@ LINE_COMMENT
     : '//' ~[\r\n]*  -> channel(HIDDEN)
     ;
 
+// ignore preprocessor defines for now
 
 HDEFINE : '#define' ~[\r\n]* -> channel(HIDDEN);
 HIF : '#if' ~[\r\n]* -> channel(HIDDEN);

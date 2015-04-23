@@ -1,3 +1,28 @@
+/* Reworked for grammar specificity by Reid Mckenzie. Did a bunch of
+   work so that rather than reading "a bunch of crap in parens" some
+   syntactic information is preserved and recovered. Dec. 14 2014.
+
+   Converted to ANTLR 4 by Terence Parr. Unsure of provence. I see
+   it commited by matthias.koester for clojure-eclipse project on
+   Oct 5, 2009:
+
+   https://code.google.com/p/clojure-eclipse/
+
+   Seems to me Laurent Petit had a version of this. I also see
+   Jingguo Yao submitting a link to a now-dead github project on
+   Jan 1, 2011.
+
+   https://github.com/laurentpetit/ccw/tree/master/clojure-antlr-grammar
+
+   Regardless, there are some issues perhaps related to "sugar";
+   I've tried to fix them.
+
+   This parses https://github.com/weavejester/compojure project.
+
+   I also note this is hardly a grammar; more like "match a bunch of
+   crap in parens" but I guess that is LISP for you ;)
+ */
+
 grammar Clojure;
 
 file: form *;
@@ -37,6 +62,7 @@ reader_macro
     | gensym
     ;
 
+// TJP added '&' (gather a variable number of arguments)
 quote
     : '\'' form
     ;
@@ -140,9 +166,12 @@ ns_symbol: NS_SYMBOL;
 
 param_name: PARAM_NAME;
 
+// Lexers
+//--------------------------------------------------------------------
 
 STRING : '"' ( ~'"' | '\\' '"' )* '"' ;
 
+// FIXME: Doesn't deal with arbitrary read radixes, BigNums
 FLOAT
     : '-'? [0-9]+ FLOAT_TAIL
     | '-'? 'Infinity'
@@ -200,6 +229,8 @@ NS_SYMBOL
 
 PARAM_NAME: '%' ((('1'..'9')('0'..'9')*)|'&')? ;
 
+// Fragments
+//--------------------------------------------------------------------
 
 fragment
 NAME: SYMBOL_HEAD SYMBOL_REST* (':' SYMBOL_REST+)* ;
@@ -207,8 +238,8 @@ NAME: SYMBOL_HEAD SYMBOL_REST* (':' SYMBOL_REST+)* ;
 fragment
 SYMBOL_HEAD
     : ~('0' .. '9'
-        | '^' | '`' | '\'' | '"' | '#' | '~' | '@' | ':' | '/' | '%' | '(' | ')' | '[' | ']' | '{' | '}' 
-        | [ \n\r\t\,] 
+        | '^' | '`' | '\'' | '"' | '#' | '~' | '@' | ':' | '/' | '%' | '(' | ')' | '[' | ']' | '{' | '}' // FIXME: could be one group
+        | [ \n\r\t\,] // FIXME: could be WS
         )
     ;
 
@@ -219,6 +250,8 @@ SYMBOL_REST
     | '.'
     ;
 
+// Discard
+//--------------------------------------------------------------------
 
 fragment
 WS : [ \n\r\t\,] ;

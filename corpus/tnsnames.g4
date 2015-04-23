@@ -1,22 +1,107 @@
+// -------------------------------------------------------------------
+// Definition of a grammar to parse a tnsnames.ora file.
+// Specification as per Oracle 11g Release 2 Network Reference manual
+// http://docs.oracle.com/cd/E11882_01/network.112/e10835/tnsnames.htm
+// -------------------------------------------------------------------
+// Norman Dunbar.
+// Email: norman@dunbar-it.co.uk
+// August 2014.
+// -------------------------------------------------------------------
+// Warning: I'm not a compiler writer, nor do I play one on TV.
+// Warning: This is my first "proper" ANTLR grammar.
+// -------------------------------------------------------------------
+// This grammar assumes, that we are dealing with tnsnames entries that 
+// locate a database, or, those that describe a listener or scan 
+// listener.
+// -------------------------------------------------------------------
+// MAYBE TODO:
+//
+// PROTOCOL_STACK??? - I've never seen this in the wild! Only on
+// http://www.toadworld.com/platforms/oracle/w/wiki/5484.defining-tnsname-addresses.aspx
+//
+// Add IP V6 lever rule. Currently only copes with IP V4.
+//--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------
+// The MIT License (MIT) 
+// 
+// Copyright (c) 2014 by Norman Dunbar 
+// 
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the "Software"), to deal in the Software without 
+// restriction, including without limitation the rights to use, 
+// copy, modify, merge, publish, distribute, sublicense, and/or sell 
+// copies of the Software, and to permit persons to whom the 
+// Software is furnished to do so, subject to the following 
+// conditions: 
+//
+// The above copyright notice and this permission notice shall be 
+// included in all copies or substantial portions of the Software. 
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR 
+// OTHER DEALINGS IN THE SOFTWARE. 
+//
+// Project      : Oracle Tnsnames.ora parser grammer for ANTLR4.
+// Developed by : Norman Dunbar, norman@dunbar-it.co.uk
+//--------------------------------------------------------------------
+
+
+
 grammar tnsnames;
 
+// ----------------------------------------------------------------
+// Parser rules are lower case, or at least, an initial lower case.
+// ----------------------------------------------------------------
 
+//-----------------------------------------------------------------
+// Top level rule. Start here with a complete tnsnames.ora file.
+//-----------------------------------------------------------------
 tnsnames         : (tns_entry | ifile | lsnr_entry)* ;
 
 tns_entry        : alias_list EQUAL (description_list | description) ;
 
 ifile            : IFILE '=' DQ_STRING ;
 
+//-----------------------------------------------------------------
+// Listener only entries can be interesting. Here are a couple of
+// valid examples, there are others:
+//
+// LSNR_FRED =
+//    (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=xebor04)(PORT=1524)))
+//
+// LSNR_WILMA =
+//    (ADDRESS=(PROTOCOL=IPC)(KEY=LISTENER))
+//-----------------------------------------------------------------
 lsnr_entry       : alias EQUAL (lsnr_description | address_list | (address)+) ;
 
 lsnr_description : L_PAREN DESCRIPTION EQUAL (address_list | (address)+) R_PAREN ;
 
+//-----------------------------------------------------------------
+// Stuff related to alias names. These are weird, they can start
+// with a letter or a digit. (See the lexer ID rule below). They
+// can also have domains attached - .world, for example. Pretty
+// much, anything goes!
+//-----------------------------------------------------------------
 alias_list       : alias (COMMA alias)* ;
 
 alias            : ID
                  | ID (DOT ID)+
                  ;
 
+//-----------------------------------------------------------------
+// Stuff related to description lists. These seem to be optional in
+// the file itself, as you can have multiple descriptions without
+// an enclosing description list. And parameters can go almost
+// anywhere.
+//-----------------------------------------------------------------
 description_list : L_PAREN DESCRIPTION_LIST  EQUAL  (dl_params)? (description)+ (dl_params)? R_PAREN ;
 
 dl_params        : dl_parameter+ ;
@@ -26,6 +111,10 @@ dl_parameter     : al_failover
                  | al_source_route
                  ;
                  
+//-----------------------------------------------------------------
+// Description stuff. Lots of optional parameters scattered willy
+// nilly around the description. 
+//-----------------------------------------------------------------
 description      : L_PAREN DESCRIPTION EQUAL  (d_params)? (address_list | (address)+) (d_params)? connect_data (d_params)? R_PAREN ;
 
 d_params         : d_parameter+ ;
@@ -64,11 +153,17 @@ d_tct            : L_PAREN TCT EQUAL INT R_PAREN ;
                  
 ds_parameter     : L_PAREN SSL_CERT EQUAL DQ_STRING R_PAREN ;                 
                  
+//-----------------------------------------------------------------
+// Stuff related to address lists. These seem to be optional in
+// the file itself, as you can have multiple addresses without
+// an enclosing address list. Specific parameters can go almost
+// anywhere.
+//-----------------------------------------------------------------
 address_list     : L_PAREN ADDRESS_LIST EQUAL (al_params)? (address)+ (al_params)? R_PAREN ;
 
 al_params        : al_parameter+ ;
 
-al_parameter     : al_failover              
+al_parameter     : al_failover              // More to come here ....
                  | al_load_balance
                  | al_source_route
                  ;                  
@@ -79,6 +174,10 @@ al_load_balance  : L_PAREN LOAD_BALANCE EQUAL (YES_NO | ON_OFF | TRUE_FALSE) R_P
                  
 al_source_route   : L_PAREN SOURCE_ROUTE EQUAL (YES_NO | ON_OFF) R_PAREN ;
                  
+//-----------------------------------------------------------------
+// Address stuff. Not much happening here, but the send and receive
+// buffer parameters must go at the end, after the protocol stuff.
+//-----------------------------------------------------------------
 address          : L_PAREN ADDRESS EQUAL  protocol_info (a_params)? R_PAREN ;
 
 a_params         : a_parameter+ ;
@@ -87,14 +186,23 @@ a_parameter      : d_send_buf
                  | d_recv_buf
                  ;                 
                  
-protocol_info    : tcp_protocol       
+//-----------------------------------------------------------------
+// Protocol stuff next. Currently, only TCP and IPC are defined as
+// these are the only ones I use at work. I can test those you see!
+//-----------------------------------------------------------------
+protocol_info    : tcp_protocol       // More to come here.... BEQ, NMP, SPX ....
                  | ipc_protocol
                  | spx_protocol
                  | nmp_protocol
                  | beq_protocol
-                 ;                    
+                 ;                    // See http://www.toadworld.com/platforms/oracle/w/wiki/5484.defining-tnsname-addresses.aspx
+                                      // for examples etc.
 
+//-----------------------------------------------------------------
+// TCP Protocol rules.
+// (PROTOCOL = TCP)(HOST = hostname)(PORT = portnumber)
 
+//-----------------------------------------------------------------
 tcp_protocol     : tcp_params ;
                  
 tcp_params       : tcp_parameter+ ;
@@ -117,6 +225,10 @@ host             : ID
 
 port             : INT ;
 
+//-----------------------------------------------------------------
+// IPC Protocol rules.
+// (PROTOCOL = IPC)(KEY = something)
+//-----------------------------------------------------------------
 ipc_protocol     : ipc_params ;
                  
 ipc_params       : ipc_parameter+ ;
@@ -130,9 +242,13 @@ ipc_ipc          : L_PAREN PROTOCOL EQUAL IPC R_PAREN ;
 ipc_key          : L_PAREN KEY EQUAL ID R_PAREN ;
 
 
+//-----------------------------------------------------------------
 
+// SPX Protocol rules.
 
+// (PROTOCOL = SPX)(SERVICE = spx_service_name)
 
+//-----------------------------------------------------------------
 spx_protocol     : spx_params ; 
 
 spx_params       : spx_parameter+ ; 
@@ -145,6 +261,10 @@ spx_spx          : L_PAREN PROTOCOL EQUAL SPX R_PAREN ;
 spx_service      : L_PAREN SERVICE EQUAL ID R_PAREN ;
 
 
+//-----------------------------------------------------------------
+// NMP Protocol rules (Named Pipes).
+// (PROTOCOL = NMP)(SERVER = server_name)(PIPE = pipe_name)
+//-----------------------------------------------------------------
 nmp_protocol     : nmp_params ;
 
 nmp_params       : nmp_parameter+ ;
@@ -161,6 +281,12 @@ nmp_server       : L_PAREN SERVER EQUAL ID R_PAREN ;
 nmp_pipe         : L_PAREN PIPE EQUAL ID R_PAREN ;
                  
 
+//-----------------------------------------------------------------
+// BEQ Protocol rules.
+// (PROTOCOL = BEQ)(PROGRAM = oracle_exe)(ARGV0 = sid_identifier)
+// (ARGS = '(DESCRIPTION=(LOCAL = YES)(ADDRESS = (PROTOCOL = BEQ)))'
+// )                 
+//-----------------------------------------------------------------
 beq_protocol     : beq_params ;
 
 beq_params       : beq_parameter+ ;
@@ -194,6 +320,9 @@ bad_local        : L_PAREN LOCAL EQUAL YES_NO R_PAREN ;
 bad_address      : L_PAREN ADDRESS EQUAL beq_beq R_PAREN ;
 
 
+//-----------------------------------------------------------------
+// Connect data rules. 
+//-----------------------------------------------------------------
 connect_data     : L_PAREN CONNECT_DATA EQUAL cd_params+ R_PAREN ;
 
 cd_params       : cd_parameter+
@@ -223,6 +352,12 @@ cd_global_name   : L_PAREN GLOBAL_NAME EQUAL ID (DOT ID)* R_PAREN ;
 
 cd_hs            : L_PAREN HS EQUAL OK R_PAREN ;
 
+// ---------------------------------------------------------------
+// This rdb_database one is a tad strange. According to the docs 
+// for 11gr2, it can be like (RDB_DATABASE = [.mf]mf_personal.rdb)
+// I'm assuming that the [] bit is optional? I have no idea what
+// any of this means! ;-)
+// ---------------------------------------------------------------
 cd_rdb_database  : L_PAREN RDB_DATABASE EQUAL (L_SQUARE DOT ID R_SQUARE)? ID (DOT ID)* R_PAREN ;
 
 cd_server        : L_PAREN SERVER EQUAL (DEDICATED | SHARED | POOLED) R_PAREN ;
@@ -251,6 +386,10 @@ fo_delay         : L_PAREN DELAY EQUAL INT R_PAREN ;
 
 
                  
+// ---------------------------------------------------------------
+// Lexer rules. Lots of useful and interesting stuff happening
+// around here.
+// ---------------------------------------------------------------
 
 L_PAREN          : '(' ;
                  
@@ -290,6 +429,10 @@ PORT             : P O R T ;
 
 LOCAL            : L O C A L ;
 
+// ---------------------------------------------------------------
+// Ok, I know this defines an IP version 4 address, but I haven't
+// got my head around the ipv6 format yet!
+// ---------------------------------------------------------------
 IP               : (DIGIT)+ DOT (DIGIT)+ DOT (DIGIT)+ DOT (DIGIT)+ ;
                  
 YES_NO           : Y E S | N O ;
@@ -365,9 +508,17 @@ TCT              : T R A N S P O R T '_' CONN_TIMEOUT ;
 IFILE            : I F I L E ; 
 
                  
+// ---------------------------------------------------------------
+// It seems I can't use D_QUOTE in the middle of the following 
+// lexer rule. Compiling the grammar gives "rule reference D_QUOTE 
+// is not currently supported in a set".
+// ---------------------------------------------------------------
 DQ_STRING        : D_QUOTE (~'"')* D_QUOTE ;
                  
                  
+//-------------------------------------------------
+// CONNECT_DATA parameters.
+//-------------------------------------------------
 SERVICE_NAME     : SERVICE '_' NAME ;
                  
 SID              : S I D ;
@@ -384,6 +535,9 @@ RDB_DATABASE     : R D B '_' D A T A B A S E ;
                  
 SERVER           : S E R V E R ;
                  
+//-------------------------------------------------
+// FAILOVER_MODE parameters.
+//-------------------------------------------------
 BACKUP           : B A C K U P ;
                  
 TYPE             : T Y P E ;
@@ -406,10 +560,16 @@ DELAY            : D E L A Y ;
 
 
 
+//-------------------------------------------------
+// Other lexer rules, and fragments.
+//-------------------------------------------------
 ID               : [A-Za-z0-9][A-Za-z0-9_-]* ;
 WS               : [ \t\r\n]+ -> skip ;
 
 
+// ----------
+// Fragments.
+// ----------
 
 fragment
 A                : [Aa] ;

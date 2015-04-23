@@ -1,5 +1,45 @@
+/*
+BSD License
+
+Copyright (c) 2013, Rainer Schuster
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of Rainer Schuster nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Web IDL grammar derived from:
+
+    http://heycam.github.io/webidl/
+
+    Web IDL (Second Edition)
+    W3C Editor's Draft 13 November 2014
+ */
 grammar WebIDL;
 
+// Note: Replaced keywords: const, default, enum, interface, null.
+// Note: Added "wrapper" rule webIDL with EOF token.
 
 webIDL
 	: definitions EOF
@@ -8,7 +48,7 @@ webIDL
 
 definitions
 	: extendedAttributeList definition definitions
-	| 
+	| /* empty */
 ;
 
 definition
@@ -49,7 +89,7 @@ partialInterface
 
 interfaceMembers
 	: extendedAttributeList interfaceMember interfaceMembers
-	| 
+	| /* empty */
 ;
 
 interfaceMember
@@ -71,7 +111,7 @@ dictionary
 
 dictionaryMembers
 	: extendedAttributeList dictionaryMember dictionaryMembers
-	| 
+	| /* empty */
 ;
 
 dictionaryMember
@@ -80,7 +120,7 @@ dictionaryMember
 
 required
 	: 'required'
-	| 
+	| /* empty */
 ;
 
 partialDictionary
@@ -89,7 +129,7 @@ partialDictionary
 
 default_
 	: '=' defaultValue
-	| 
+	| /* empty */
 ;
 
 defaultValue
@@ -100,7 +140,7 @@ defaultValue
 
 inheritance
 	: ':' IDENTIFIER_WEBIDL
-	| 
+	| /* empty */
 ;
 
 enum_
@@ -113,12 +153,12 @@ enumValueList
 
 enumValueListComma
 	: ',' enumValueListString
-	| 
+	| /* empty */
 ;
 
 enumValueListString
 	: STRING_WEBIDL enumValueListComma
-	| 
+	| /* empty */
 ;
 
 callbackRest
@@ -163,7 +203,7 @@ serializer
 serializerRest
 	: operationRest
 	| '=' serializationPattern
-	| 
+	| /* empty */
 ;
 
 serializationPattern
@@ -176,13 +216,13 @@ serializationPatternMap
 	: 'getter'
 	| 'inherit' identifiers
 	| IDENTIFIER_WEBIDL identifiers
-	| 
+	| /* empty */
 ;
 
 serializationPatternList
 	: 'getter'
 	| IDENTIFIER_WEBIDL identifiers
-	| 
+	| /* empty */
 ;
 
 stringifier
@@ -234,12 +274,12 @@ attributeNameKeyword
 
 inherit
 	: 'inherit'
-	| 
+	| /* empty */
 ;
 
 readOnly
 	: 'readonly'
-	| 
+	| /* empty */
 ;
 
 operation
@@ -253,7 +293,7 @@ specialOperation
 
 specials
 	: special specials
-	| 
+	| /* empty */
 ;
 
 special
@@ -270,17 +310,17 @@ operationRest
 
 optionalIdentifier
 	: IDENTIFIER_WEBIDL
-	| 
+	| /* empty */
 ;
 
 argumentList
 	: argument arguments
-	| 
+	| /* empty */
 ;
 
 arguments
 	: ',' argument arguments
-	| 
+	| /* empty */
 ;
 
 argument
@@ -299,7 +339,7 @@ argumentName
 
 ellipsis
 	: '...'
-	| 
+	| /* empty */
 ;
 
 iterable
@@ -309,7 +349,7 @@ iterable
 
 optionalType
 	: ',' type
-	| 
+	| /* empty */
 ;
 
 readWriteMaplike
@@ -330,12 +370,12 @@ setlikeRest
 
 extendedAttributeList
 	: '[' extendedAttribute extendedAttributes ']'
-	| 
+	| /* empty */
 ;
 
 extendedAttributes
 	: ',' extendedAttribute extendedAttributes
-	| 
+	| /* empty */
 ;
 
 extendedAttribute
@@ -347,7 +387,7 @@ extendedAttribute
 
 extendedAttributeRest
 	: extendedAttribute
-	| 
+	| /* empty */
 ;
 
 extendedAttributeInner
@@ -355,7 +395,7 @@ extendedAttributeInner
 	| '[' extendedAttributeInner ']' extendedAttributeInner
 	| '{' extendedAttributeInner '}' extendedAttributeInner
 	| otherOrComma extendedAttributeInner
-	| 
+	| /* empty */
 ;
 
 other
@@ -456,7 +496,7 @@ unionMemberType
 
 unionMemberTypes
 	: 'or' unionMemberType unionMemberTypes
-	| 
+	| /* empty */
 ;
 
 nonAnyType
@@ -523,7 +563,7 @@ integerType
 
 optionalLong
 	: 'long'
-	| 
+	| /* empty */
 ;
 
 promiseType
@@ -533,17 +573,17 @@ promiseType
 typeSuffix
 	: '[' ']' typeSuffix
 	| '?' typeSuffixStartingWithArray
-	| 
+	| /* empty */
 ;
 
 typeSuffixStartingWithArray
 	: '[' ']' typeSuffix
-	| 
+	| /* empty */
 ;
 
 null_
 	: '?'
-	| 
+	| /* empty */
 ;
 
 returnType
@@ -557,7 +597,7 @@ identifierList
 
 identifiers
 	: ',' IDENTIFIER_WEBIDL identifiers
-	| 
+	| /* empty */
 ;
 
 extendedAttributeNoArgs
@@ -603,7 +643,7 @@ WHITESPACE_WEBIDL
 
 COMMENT_WEBIDL
 	: ('//'~[\n\r]*|'/*'(.|'\n')*?'*/')+ -> channel(HIDDEN)
-; 
+; // Note: '/''/'~[\n\r]* instead of '/''/'.* (non-greedy because of wildcard).
 
 OTHER_WEBIDL
 	: ~[\t\n\r 0-9A-Z_a-z]
