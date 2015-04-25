@@ -74,6 +74,9 @@ method grammarType($/)
 method TOP ($/)
 	{
 	my %prequel;
+	#
+	# XXX needs rewriting in general.
+	#
 	if $<prequelConstruct>[0]
 		{
 		if $<prequelConstruct>[0]<optionsSpec>
@@ -81,7 +84,17 @@ method TOP ($/)
 			%prequel<options> =
 				$<prequelConstruct>[0]<optionsSpec>.ast.hash.item;
 			}
-	}
+		if $<prequelConstruct>[1]<delegateGrammars>
+			{
+			%prequel<import> =
+				$<prequelConstruct>[1]<delegateGrammars>.ast.hash.item
+			}
+		if $<prequelConstruct>[2]<tokensSpec>
+			{
+			%prequel<tokens> =
+				$<prequelConstruct>[2]<tokensSpec>.ast
+			}
+		}
 	make
 		{
 		name => $<grammarName>.ast,
@@ -109,6 +122,11 @@ method ID_list($/)
 	make [ $/<ID>>>.ast ]
 	}
 
+method ID_list_trailing_comma($/)
+	{
+	make [ $/<ID>>>.ast ]
+	}
+
 method optionValue($/)
 	{
 	#
@@ -116,7 +134,7 @@ method optionValue($/)
 	#
 	make
 		$/<ID_list>
-			?? $/<ID_list>.ast.list#.item
+			?? $/<ID_list>.ast.list
 			!! $/<STRING_LITERAL>
 			?? $/<STRING_LITERAL>.ast
 			!! $/<DIGITS>
@@ -124,17 +142,20 @@ method optionValue($/)
 			!! ''
 	}
  
-#method delegateGrammars($/)
-#	{
-#	}
+method delegateGrammars($/)
+	{
+	make $/<delegateGrammar>>>.ast
+	}
 
-#method delegateGrammar($/)
-#	{
-#	}
+method delegateGrammar($/)
+	{
+	make $/<key>.ast => $/<value> ?? $/<value>.ast !! ''
+	}
 
-#method tokensSpec($/)
-#	{
-#	}
+method tokensSpec($/)
+	{
+	make $/<ID_list_trailing_comma>.ast
+	}
 
 #method action($/)
 #	{

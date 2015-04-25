@@ -170,17 +170,25 @@ rule delegateGrammars
  	}
  
 rule delegateGrammar
- 	{	<ID> ['=' <ID>]?
+ 	{	<key=ID> ['=' <value=ID>]?
  	}
  
+rule ID_list_trailing_comma
+	{	<ID>+ %% ','
+	}
+
 rule tokensSpec
- 	{	<COMMENTS>? 'tokens' '{' <ID>+ %% ',' '}'
+ 	{	<COMMENTS>? 'tokens' '{' <ID_list_trailing_comma> '}'
  	}
  
 #  Match stuff like @parser::members {int i;}
+
+rule action_name
+ 	{	'@' [<actionScopeName> '::']? <ID>
+	}
  
 rule action
- 	{	'@' [<actionScopeName> '::']? <ID> <ACTION>
+ 	{	<action_name> <ACTION>
  	}
  
 #  Sometimes the scope names will collide with keywords; allow them as
