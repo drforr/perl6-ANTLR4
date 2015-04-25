@@ -2,6 +2,11 @@ use v6;
 #use Grammar::Tracer;
 grammar ANTLR4::Grammar;
 
+token BLANK_LINE
+	{
+	\s* \n
+	}
+
 token COMMENT
 	{	'/*' .*? '*/'
 	|	'//' \N*
@@ -9,6 +14,16 @@ token COMMENT
 
 token COMMENTS
 	{	[<COMMENT> \s*]+
+	}
+
+token DIGIT
+	{
+	<[ 0..9 ]>
+	}
+
+token DIGITS
+	{
+	<DIGIT>+
 	}
 
 #  Allow unicode rule/token names
@@ -19,7 +34,7 @@ token ID
 
 token NameChar
 	{	<NameStartChar>
-	|	<[ 0..9 ]>
+	|	<DIGIT>
 	|	'_'
 	|	\x[00B7]
 	|	<[ \x[0300]..\x[036F] ]>
@@ -42,17 +57,9 @@ token NameStartChar
 	|	<[ \x[FDF0]..\x[FFFD] ]>
 	} # ignores | ['\u10000-'\uEFFFF] ;
 
-#  ANTLR makes no distinction between a single character literal and a
-#  multi-character string. All literals are single quote delimited and
-#  may contain unicode escape sequences of the form \uxxxx, where x
-#  is a valid hexadecimal number (as per Java basically).
-
 token STRING_LITERAL
 	{	'\'' ['\\' <ESC_SEQ> | <-[ ' \r \n \\ ]>]* '\''
 	}
-
-#  Any kind of escaped character that we can embed within ANTLR
-#  literal strings.
 
 token ESC_SEQ
 	{	<[ b t n f r " ' \\ ]> 	# The standard escaped character set
@@ -114,15 +121,15 @@ token LEXER_CHAR_SET
 #  The main entry point for parsing a v4 grammar.
 # 
 rule TOP 
-	{	\N* # XXX Not the most elegant way of handling this.
-		<grammarType> <ID> ';'
+	{	<BLANK_LINE>*
+		<grammarType> <grammarName=ID> ';'
 		<prequelConstruct>*
 		<ruleSpec>*
 		<modeSpec>*
 	}
 
 rule grammarType
-	{	<COMMENTS>? ['lexer' | 'parser']?
+	{	<COMMENTS>? ( :!sigspace 'lexer' | 'parser' )?
 		<COMMENTS>? 'grammar'
 	}
 
@@ -147,11 +154,15 @@ rule option
 	{	<ID> '=' <optionValue>
 	}
 
+rule ID_list
+	{	<ID>+ % ','
+	}
+
 rule optionValue
- 	{	<ID>+ % ','
+ 	{	<ID_list>
  	|	<STRING_LITERAL>
  	|	<ACTION>
- 	|	<[ 0..9 ]>+
+ 	|	<DIGITS>
  	}
  
 rule delegateGrammars
@@ -304,7 +315,7 @@ rule lexerCommandName
  
 rule lexerCommandExpr
  	{	<ID>
- 	|	<[ 0..9 ]>+
+ 	|	<DIGITS>
  	}
  
 rule altList
