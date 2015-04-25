@@ -106,15 +106,17 @@ method option($/)
 
 method ID_list($/)
 	{
-make [ 'b', 'c' ]
-#	make [ @( $/<ID> ).map { $_.ast } ]
+	make [ $/<ID>>>.ast ]
 	}
 
 method optionValue($/)
 	{
+	#
+	# XXX I'm fully aware this can be written better, but for now...
+	#
 	make
 		$/<ID_list>
-			?? $/<ID_list>.ast
+			?? $/<ID_list>.ast.list#.item
 			!! $/<STRING_LITERAL>
 			?? $/<STRING_LITERAL>.ast
 			!! $/<DIGITS>
