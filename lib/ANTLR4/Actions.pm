@@ -139,39 +139,38 @@ method grammarType($/)
 
 method TOP ($/)
 	{
-	my %prequel;
+	my %content =
+		(
+		name    => $<grammarName>.ast,
+		type    => $<grammarType>.ast,
+		options => [ ],
+		import  => [ ],
+                tokens  => [ ]
+		);
+
+	for @( $<prequelConstruct> ) -> $prequel
+		{
+		%content<options> =
+			$prequel.<optionsSpec>.ast if
+			$prequel.<optionsSpec>;
+		%content<tokens> =
+			$prequel.<tokensSpec>.ast if
+			$prequel.<tokensSpec>;
+		%content<import> =
+			$prequel.<delegateGrammars>.ast if
+			$prequel.<delegateGrammars>;
+		}
+#say %prequel;
 	#
 	# XXX needs rewriting in general.
 	#
-	if $<prequelConstruct>[0]
+	if $<prequelConstruct>[3]<action>
 		{
-		if $<prequelConstruct>[0]<optionsSpec>
-			{
-			%prequel<options> =
-				$<prequelConstruct>[0]<optionsSpec>.ast#.hash.item;
-			}
-		if $<prequelConstruct>[1]<delegateGrammars>
-			{
-			%prequel<import> =
-				$<prequelConstruct>[1]<delegateGrammars>.ast#.hash.item
-			}
-		if $<prequelConstruct>[2]<tokensSpec>
-			{
-			%prequel<tokens> =
-				$<prequelConstruct>[2]<tokensSpec>.ast
-			}
-		if $<prequelConstruct>[3]<action>
-			{
-			%prequel<action> =
-				$<prequelConstruct>[3]<action>.ast
-			}
+		%content<action> =
+			$<prequelConstruct>[3]<action>.ast
 		}
-	make
-		{
-		name => $<grammarName>.ast,
-		type => $<grammarType>.ast,
-		%prequel
-		};
+
+	make	%content
 	}
 
 #method prequelConstruct($/)
@@ -235,7 +234,7 @@ method action_name($/)
 
 method action($/)
 	{
-	make [ $/<action_name>.ast => $/<ACTION>.ast ]
+	make [ $/<action_name>.Str => $/<ACTION>.Str ]
 	}
 
 #method actionScopeName($/)

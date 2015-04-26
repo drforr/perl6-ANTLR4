@@ -183,7 +183,7 @@ rule tokensSpec
  
 #  Match stuff like @parser::members {int i;}
 
-rule action_name
+token action_name
  	{	'@' ( :!sigspace <actionScopeName> '::')? <ID>
 	}
  
@@ -194,7 +194,7 @@ rule action
 #  Sometimes the scope names will collide with keywords; allow them as
 #  ids for action scopes.
  
-rule actionScopeName
+token actionScopeName
  	{	<ID>
  	|	'lexer'
  	|	'parser'
