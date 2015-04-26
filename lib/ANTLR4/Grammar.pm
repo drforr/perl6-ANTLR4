@@ -184,7 +184,7 @@ rule tokensSpec
 #  Match stuff like @parser::members {int i;}
 
 rule action_name
- 	{	'@' [<actionScopeName> '::']? <ID>
+ 	{	'@' ( :!sigspace <actionScopeName> '::')? <ID>
 	}
  
 rule action
