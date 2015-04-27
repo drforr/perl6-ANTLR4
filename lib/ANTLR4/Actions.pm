@@ -134,7 +134,7 @@ method STRING_LITERAL($/)
 
 method grammarType($/)
 	{
-	make $/[0] ?? ~$/[0] !! ''
+	make $/[0] ?? ~$/[0] !! Nil
 	}
 
 method TOP ($/)
@@ -142,10 +142,12 @@ method TOP ($/)
 	my %content =
 		(
 		name    => $<grammarName>.ast,
-		type    => $<grammarType>.ast,
+		type    => $<grammarType>.ast || Nil,
 		options => [ ],
 		import  => [ ],
-                tokens  => [ ]
+                tokens  => [ ],
+                actions => [ ],
+		rules   => [ ]
 		);
 
 	for @( $<prequelConstruct> ) -> $prequel
@@ -159,23 +161,14 @@ method TOP ($/)
 		%content<import> =
 			$prequel.<delegateGrammars>.ast if
 			$prequel.<delegateGrammars>;
+		push @( %content<actions> ),
+			@( $prequel.<action>.ast ) if
+			$prequel.<action>;
 		}
-#say %prequel;
-	#
-	# XXX needs rewriting in general.
-	#
-	if $<prequelConstruct>[3]<action>
-		{
-		%content<action> =
-			$<prequelConstruct>[3]<action>.ast
-		}
-
-	make	%content
+	%content<rules> = [ number => [ "'1'" ] ] if $/<ruleSpec>;
+#	%content<rules> = [$/<ruleSpec>.ast] if $/<ruleSpec>;
+	make %content
 	}
-
-#method prequelConstruct($/)
-#	{
-#	}
 
 method optionsSpec($/)
 	{
@@ -219,7 +212,7 @@ method delegateGrammars($/)
 
 method delegateGrammar($/)
 	{
-	make $/<key>.ast => $/<value> ?? $/<value>.ast !! ''
+	make $/<key>.ast => $/<value> ?? $/<value>.ast !! Nil
 	}
 
 method tokensSpec($/)
@@ -245,9 +238,10 @@ method action($/)
 #	{
 #	}
 
-#method ruleSpec($/)
-#	{
-#	}
+method ruleSpec($/)
+	{
+#	make number => [ 'digits' ] 
+	}
 
 #method parserRuleSpec($/)
 #	{
