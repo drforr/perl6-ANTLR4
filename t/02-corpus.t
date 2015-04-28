@@ -21,7 +21,7 @@ ok $g.parsefile( 'corpus/CSharp4Lexer.g4'        ), 'CSharp4Lexer.g4';
 ok $g.parsefile( 'corpus/CSharp4PreProcessor.g4' ), 'CSharp4PreProcessor.g4';
 ok $g.parsefile( 'corpus/CSV.g4'                 ), 'CSV.g4';
 ok $g.parsefile( 'corpus/DOT.g4'                 ), 'DOT.g4';
-#ok $g.parsefile( 'corpus/ECMAScript.g4'          ), 'ECMAScript.g4'; # XXX actions
+#ok $g.parsefile( 'corpus/ECMAScript.g4'          ), 'ECMAScript.g4'; # XXX Eats memory due to the Unicode block
 ok $g.parsefile( 'corpus/Erlang.g4'              ), 'Erlang.g4';
 ok $g.parsefile( 'corpus/fasta.g4'               ), 'fasta.g4';
 ok $g.parsefile( 'corpus/gff3.g4'                ), 'gff3.g4';

@@ -40,7 +40,7 @@ is_deeply $g.parse(
 	q{lexer grammar Name; options {a='foo';}}, :actions($a) ).ast,
           { name    => 'Name',
             type    => 'lexer',
-            options => [ a => "'foo'" ],
+            options => [ a => 'foo' ],
             import  => [ ],
             tokens  => [ ],
             actions => [ ],
@@ -154,10 +154,34 @@ number : '1' ;}, :actions($a) ).ast,
             tokens  => [ 'Foo', 'Bar' ],
             actions => [ '@members' => '{ protected int curlies = 0; }',
                          '@sample::stuff' => '{ 1; }' ],
-            rules   => [ number => [ [ type         => 'literal',
+            rules   => [ number => [ [ type         => 'terminal',
+                                       label        => Nil, # 'foo # bar'
                                        content      => '1',
                                        modifier     => Nil,
                                        greedy       => False,
                                        complemented => False ] ] ] };
+
+is_deeply $g.parse(
+	q{lexer grammar Name;
+options {a=b,c;de=3;}
+import Foo,Bar=Test;
+tokens { Foo, Bar }
+@members { protected int curlies = 0; }
+@sample::stuff { 1; }
+number : '1' # One ;}, :actions($a) ).ast,
+          { name    => 'Name',
+            type    => 'lexer',
+            options => [ a => [ 'b', 'c' ], de => 3 ],
+            import  => [ Foo => Nil, Bar => 'Test' ],
+            tokens  => [ 'Foo', 'Bar' ],
+            actions => [ '@members' => '{ protected int curlies = 0; }',
+                         '@sample::stuff' => '{ 1; }' ],
+            rules   => [ number => [ [ type         => 'terminal',
+                                       label        => 'One',
+                                       content      => '1',
+                                       modifier     => Nil,
+                                       greedy       => False,
+                                       complemented => False ] ] ] };
+
 
 # vim: ft=perl6

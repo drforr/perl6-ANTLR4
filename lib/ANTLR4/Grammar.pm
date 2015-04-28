@@ -57,8 +57,11 @@ token NameStartChar
 	|	<[ \x[FDF0]..\x[FFFD] ]>
 	} # ignores | ['\u10000-'\uEFFFF] ;
 
+token STRING_LITERAL_GUTS
+	{	['\\' <ESC_SEQ> | <-[ ' \r \n \\ ]>]*
+	}
 token STRING_LITERAL
-	{	'\'' ['\\' <ESC_SEQ> | <-[ ' \r \n \\ ]>]* '\''
+	{	'\'' <STRING_LITERAL_GUTS> '\''
 	}
 
 token ESC_SEQ
@@ -352,7 +355,7 @@ rule ebnf
 	{	<block> <ebnfSuffix>?
  	}
  
-rule ebnfSuffix
+token ebnfSuffix
  	{	['?' | '*' | '+'] '?'?
  	}
  

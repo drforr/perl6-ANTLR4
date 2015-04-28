@@ -95,9 +95,13 @@ method ID($/)
 #	{
 #	}
 
-method STRING_LITERAL($/)
+method STRING_LITERAL_GUTS($/)
 	{
 	make ~$/
+	}
+method STRING_LITERAL($/)
+	{
+	make $/<STRING_LITERAL_GUTS>.Str
 	}
 
 #method ESC_SEQ($/)
@@ -257,12 +261,7 @@ method ruleSpec($/)
 
 method parserRuleSpec($/)
 	{
-#	make $/<ID>.ast => [ $/<ruleAltList>[0].ast ]
-	make $/<ID>.ast => [ [ type         => 'literal',
-                               content      => '1',
-                               modifier     => Nil,
-                               greedy       => False,
-                               complemented => False ] ]
+	make $/<ID>.ast => $/<ruleAltList>.ast
 	}
 
 #method exceptionGroup($/)
@@ -290,16 +289,21 @@ method parserRuleSpec($/)
 
 method ruleAltList($/)
 	{
-	make [ type         => 'literal',
-               content      => '1',
-               modifier     => Nil,
+	make [ $/<labeledAlt>>>.ast ]
+	}
+
+method labeledAlt($/)
+	{
+	my $type = $/<alternative><element>[0]<atom><terminal><STRING_LITERAL>.ast ?? 'terminal' !! 'nonterminal';
+	my $modifier = $/<alternative><element>[0]<atom><ebnfSuffix> ?? $/<alternative><element>[0]<atom><ebnfSuffix>.Str !! Nil;
+	make [ type         => $type,
+               label        => $/<ID>.ast || Nil,
+               content      => $/<alternative><element>[0]<atom><terminal><STRING_LITERAL>.ast,
+               modifier     => $modifier,
                greedy       => False,
                complemented => False ]
 	}
-
-#method labeledAlt($/) {
-#	}
-# 
+ 
 #method lexerRule($/) {
 #	}
 # 
@@ -336,9 +340,10 @@ method ruleAltList($/)
 #method alternative($/) {
 #	}
 # 
-#method element($/) {
-#	}
-# 
+method element($/)
+	{
+	}
+ 
 #method labeledElement($/) {
 #	}
 # 
