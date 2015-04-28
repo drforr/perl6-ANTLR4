@@ -154,6 +154,10 @@ number : '1' ;}, :actions($a) ).ast,
             tokens  => [ 'Foo', 'Bar' ],
             actions => [ '@members' => '{ protected int curlies = 0; }',
                          '@sample::stuff' => '{ 1; }' ],
-            rules   => [ number => [ "'1'" ] ] };
+            rules   => [ number => [ [ type         => 'literal',
+                                       content      => '1',
+                                       modifier     => Nil,
+                                       greedy       => False,
+                                       complemented => False ] ] ] };
 
 # vim: ft=perl6

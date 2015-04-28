@@ -141,8 +141,8 @@ method TOP ($/)
 	{
 	my %content =
 		(
-		name    => $<grammarName>.ast,
-		type    => $<grammarType>.ast || Nil,
+		name    => $/<grammarName>.ast,
+		type    => $/<grammarType>.ast || Nil,
 		options => [ ],
 		import  => [ ],
                 tokens  => [ ],
@@ -150,7 +150,7 @@ method TOP ($/)
 		rules   => [ ]
 		);
 
-	for @( $<prequelConstruct> ) -> $prequel
+	for @( $/<prequelConstruct> ) -> $prequel
 		{
 		%content<options> =
 			$prequel.<optionsSpec>.ast if
@@ -165,8 +165,20 @@ method TOP ($/)
 			@( $prequel.<action>.ast ) if
 			$prequel.<action>;
 		}
-	%content<rules> = [ number => [ "'1'" ] ] if $/<ruleSpec>;
-#	%content<rules> = [$/<ruleSpec>.ast] if $/<ruleSpec>;
+#	%content<rules> = [ number => [ type          => 'literal',
+#                                       content      => '1',
+#                                       modifier     => Nil,
+#                                       greedy       => False,
+#                                       complemented => False ] ] if $/<ruleSpec>;
+
+	#
+	# XXX Not ideal, I know, but it'll serve for the moment.
+	# I'd do this in a map in perl5, syntax seems to be an issue in perl6.
+	#
+	for @( $/<ruleSpec> ) -> $rule
+		{
+		push @( %content<rules> ), $rule.ast
+		}
 	make %content
 	}
 
@@ -240,12 +252,18 @@ method action($/)
 
 method ruleSpec($/)
 	{
-#	make number => [ 'digits' ] 
+	make $/<parserRuleSpec>.ast
 	}
 
-#method parserRuleSpec($/)
-#	{
-#	}
+method parserRuleSpec($/)
+	{
+#	make $/<ID>.ast => [ $/<ruleAltList>[0].ast ]
+	make $/<ID>.ast => [ [ type         => 'literal',
+                               content      => '1',
+                               modifier     => Nil,
+                               greedy       => False,
+                               complemented => False ] ]
+	}
 
 #method exceptionGroup($/)
 #	{
@@ -269,10 +287,16 @@ method ruleSpec($/)
 # 
 #method ruleModifier($/) {
 #	}
-# 
-#method ruleAltList($/) {
-#	}
-# 
+
+method ruleAltList($/)
+	{
+	make [ type         => 'literal',
+               content      => '1',
+               modifier     => Nil,
+               greedy       => False,
+               complemented => False ]
+	}
+
 #method labeledAlt($/) {
 #	}
 # 
