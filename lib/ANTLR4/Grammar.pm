@@ -356,7 +356,7 @@ rule ebnf
  	}
  
 token ebnfSuffix
- 	{	['?' | '*' | '+'] '?'?
+ 	{	('?' | '*' | '+') ('?')?
  	}
  
 rule lexerAtom

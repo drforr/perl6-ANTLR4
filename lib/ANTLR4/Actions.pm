@@ -294,95 +294,143 @@ method ruleAltList($/)
 
 method labeledAlt($/)
 	{
-	my $type = $/<alternative><element>[0]<atom><terminal><STRING_LITERAL>.ast ?? 'terminal' !! 'nonterminal';
-	my $modifier = $/<alternative><element>[0]<atom><ebnfSuffix> ?? $/<alternative><element>[0]<atom><ebnfSuffix>.Str !! Nil;
-	make [ type         => $type,
-               label        => $/<ID>.ast || Nil,
-               content      => $/<alternative><element>[0]<atom><terminal><STRING_LITERAL>.ast,
-               modifier     => $modifier,
-               greedy       => False,
-               complemented => False ]
+        my $first_element = $/<alternative><element>[0];
+
+	my $content =
+		$first_element.<atom><terminal><STRING_LITERAL>
+		?? $first_element.<atom><terminal><STRING_LITERAL>.ast
+		!! $first_element.<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>.ast;
+	my $type = 'terminal';
+	my $modifier = $first_element.<ebnfSuffix>[0]
+		?? $first_element.<ebnfSuffix>[0].Str
+		!! Nil;
+	my $greedy = $first_element.<ebnfSuffix>[1]
+		?? True
+		!! False;
+	my $complemented = $first_element.<atom><notSet>
+		?? True
+		!! False;
+	my $label = $/<ID>
+		?? $/<ID>.ast
+		!! Nil;
+	make
+		[
+		type         => $type,
+		label        => $label,
+		content      => $content,
+		modifier     => $modifier,
+		greedy       => $greedy,
+		complemented => $complemented
+		]
 	}
  
-#method lexerRule($/) {
+#method lexerRule($/)
+#	{
 #	}
-# 
-#method lexerAltList($/) {
+
+#method lexerAltList($/)
+#	{
 #	}
-# 
-#method lexerAlt($/) {
+
+#method lexerAlt($/)
+#	{
 #	}
-# 
-#method lexerElement($/) {
+
+#method lexerElement($/)
+#	{
 #	}
-# 
-#method labeledLexerElement($/) {
+
+#method labeledLexerElement($/)
+#	{
 #	}
-# 
-#method lexerBlock($/) {
+
+#method lexerBlock($/)
+#	{
 #	}
-# 
-#method lexerCommands($/) {
+
+#method lexerCommands($/)
+#	{
 #	}
-# 
-#method lexerCommand($/) {
+
+#method lexerCommand($/)
+#	{
 #	}
-# 
-#method lexerCommandName($/) {
+
+#method lexerCommandName($/)
+#	{
 #	}
-# 
-#method lexerCommandExpr($/) {
+
+#method lexerCommandExpr($/)
+#	{
 #	}
-# 
-#method altList($/) {
+
+#method altList($/)
+#	{
 #	}
-# 
-#method alternative($/) {
+
+#method alternative($/)
+#	{
 #	}
-# 
+
 method element($/)
 	{
 	}
  
-#method labeledElement($/) {
+#method labeledElement($/)
+#	{
 #	}
-# 
-#method ebnf($/) {
+
+#method ebnf($/)
+#	{
 #	}
-# 
-#method ebnfSuffix($/) {
+
+#method ebnfSuffix($/)
+#	{
 #	}
-# 
-#method lexerAtom($/) {
+
+#method lexerAtom($/)
+#	{
 #	}
-# 
-#method atom($/) {
+
+method atom($/)
+	{
+	make { greedy => $<ebnfSuffix>[1]
+		?? True
+		!! False }
+	}
+
+#method notSet($/)
+#	{
 #	}
-# 
-#method notSet($/) {
+
+#method blockSet($/)
+#	{
 #	}
-# 
-#method blockSet($/) {
+
+#method setElement($/)
+#	{
 #	}
-# 
-#method setElement($/) {
+
+#method block($/)
+#	{
 #	}
-# 
-#method block($/) {
+
+#method ruleref($/)
+#	{
 #	}
-# 
-#method ruleref($/) {
+
+#method range($/)
+#	{
 #	}
-#
-#method range($/) {
+
+#method terminal($/)
+#	{
 #	}
-# 
-#method terminal($/) {
+
+#method elementOptions($/)
+#	{
 #	}
-# 
-#method elementOptions($/) {
-#	}
-# 
+
 #method elementOption($/)
 #	{
 #	}
