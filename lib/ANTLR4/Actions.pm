@@ -295,12 +295,18 @@ method ruleAltList($/)
 method labeledAlt($/)
 	{
         my $first_element = $/<alternative><element>[0];
+#say $first_element;
 
 	my $content =
-		$first_element.<atom><terminal><STRING_LITERAL>
+		$first_element.<atom><notSet><setElement><LEXER_CHAR_SET>
+                ?? [ ]
+		!! $first_element.<atom><terminal><STRING_LITERAL>
 		?? $first_element.<atom><terminal><STRING_LITERAL>.ast
 		!! $first_element.<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>.ast;
-	my $type = 'terminal';
+	my $type =
+		$first_element.<atom><notSet><setElement><LEXER_CHAR_SET>
+                ?? 'character class'
+                !! 'terminal';
 	my $modifier = $first_element.<ebnfSuffix>[0]
 		?? $first_element.<ebnfSuffix>[0].Str
 		!! Nil;
