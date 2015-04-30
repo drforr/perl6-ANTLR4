@@ -4,7 +4,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions;
 use Test;
 
-plan 21;
+plan 22;
 
 my $a = ANTLR4::Actions.new;
 my $g = ANTLR4::Grammar.new;
@@ -212,12 +212,12 @@ number : '1' ;},
         '@sample::stuff' => '{ 1; }' ],
     rules   =>
       [ number =>
-         [ [ type         => 'terminal',
+         [ { type         => 'terminal',
              label        => Nil,
              content      => '1',
              modifier     => Nil,
              greedy       => False,
-             complemented => False ] ] ] },
+             complemented => False } ] ] },
   'lexer grammar with options and single simple rule';
 
 is_deeply
@@ -245,12 +245,12 @@ number : '1' # One ;},
         '@sample::stuff' => '{ 1; }' ],
     rules   =>
       [ number =>
-         [ [ type         => 'terminal',
+         [ { type         => 'terminal',
              label        => 'One',
              content      => '1',
              modifier     => Nil,
              greedy       => False,
-             complemented => False ] ] ] },
+             complemented => False } ] ] },
   'lexer grammar with options and single labeled rule';
 
 is_deeply
@@ -278,12 +278,12 @@ number : '1'+ # One ;},
         '@sample::stuff' => '{ 1; }' ],
     rules   =>
       [ number =>
-         [ [ type         => 'terminal',
+         [ { type         => 'terminal',
              label        => 'One',
              content      => '1',
              modifier     => '+',
              greedy       => False,
-             complemented => False ] ] ] },
+             complemented => False } ] ] },
   'lexer grammar with options and labeled rule with modifier';
 
 is_deeply
@@ -311,12 +311,12 @@ number : '1'+? # One ;},
         '@sample::stuff' => '{ 1; }' ],
     rules   =>
       [ number =>
-         [ [ type         => 'terminal',
+         [ { type         => 'terminal',
              label        => 'One',
              content      => '1',
              modifier     => '+',
              greedy       => True,
-             complemented => False ] ] ] },
+             complemented => False } ] ] },
   'lexer grammar with options and labeled rule with greedy modifier';
 
 is_deeply
@@ -345,12 +345,12 @@ number : ~'1'+? # One ;},
         '@sample::stuff' => '{ 1; }' ],
     rules      =>
       [ number =>
-         [ [ type         => 'terminal',
+         [ { type         => 'terminal',
              label        => 'One',
              content      => '1',
              modifier     => '+',
              greedy       => True,
-             complemented => True ] ] ] },
+             complemented => True } ] ] },
   'lexer grammar, rule with complemented terminal';
 
 is_deeply
@@ -379,12 +379,12 @@ number : ~[]+? # One ;},
         '@sample::stuff' => '{ 1; }' ],
     rules      =>
       [ number =>
-         [ [ type         => 'character class',
+         [ { type         => 'character class',
              label        => 'One',
              content      => [ ],
              modifier     => '+',
              greedy       => True,
-             complemented => True ] ] ] },
+             complemented => True } ] ] },
   'lexer grammar, rule with empty character class';
 
 is_deeply
@@ -413,12 +413,12 @@ number : ~[0]+? # One ;},
         '@sample::stuff' => '{ 1; }' ],
     rules      =>
       [ number =>
-         [ [ type         => 'character class',
+         [ { type         => 'character class',
              label        => 'One',
              content      => [ '0' ],
              modifier     => '+',
              greedy       => True,
-             complemented => True ] ] ] },
+             complemented => True } ] ] },
   'lexer grammar, rule with character class';
 
 is_deeply
@@ -447,12 +447,12 @@ number : ~[0-9]+? # One ;},
         '@sample::stuff' => '{ 1; }' ],
     rules      =>
       [ number =>
-         [ [ type         => 'character class',
+         [ { type         => 'character class',
              label        => 'One',
              content      => [ '0-9' ],
              modifier     => '+',
              greedy       => True,
-             complemented => True ] ] ] },
+             complemented => True } ] ] },
   'lexer grammar, rule with hyphenated character class';
 
 is_deeply
@@ -481,12 +481,46 @@ number : ~[-0-9]+? # One ;},
         '@sample::stuff' => '{ 1; }' ],
     rules      =>
       [ number =>
-         [ [ type         => 'character class',
+         [ { type         => 'character class',
              label        => 'One',
              content      => [ '-', '0-9' ],
              modifier     => '+',
              greedy       => True,
-             complemented => True ] ] ] },
+             complemented => True } ] ] },
+  'lexer grammar, rule with leading hyphenated character class';
+
+is_deeply
+  $g.parse(
+    q{lexer grammar Name;
+options {a=b,c;de=3;}
+import Foo,Bar=Test;
+tokens { Foo, Bar }
+@members { protected int curlies = 0; }
+@sample::stuff { 1; }
+number : ~non_digits+? # One ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options =>
+      [ a   =>
+          [ 'b', 'c' ],
+        de  => 3 ],
+    import  =>
+      [ Foo => Nil,
+        Bar => 'Test' ],
+    tokens  =>
+      [ 'Foo', 'Bar' ],
+    actions =>
+      [ '@members'       => '{ protected int curlies = 0; }',
+        '@sample::stuff' => '{ 1; }' ],
+    rules      =>
+      [ number =>
+         [ { type         => 'nonterminal',
+             label        => 'One',
+             content      => 'non_digits',
+             modifier     => '+',
+             greedy       => True,
+             complemented => True } ] ] },
   'lexer grammar, rule with leading hyphenated character class';
 
 # vim: ft=perl6

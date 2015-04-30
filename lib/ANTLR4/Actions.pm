@@ -318,7 +318,7 @@ method ruleAltList($/)
 method labeledAlt($/)
 	{
         my $first_element = $/<alternative><element>[0];
-#say $first_element;
+say $first_element;
 #say $first_element.<atom><notSet><setElement><LEXER_CHAR_SET>[0];
 
 	my $content =
@@ -326,10 +326,14 @@ method labeledAlt($/)
 		?? [ $first_element.<atom><notSet><setElement><LEXER_CHAR_SET>[0]>>.Str ]
 		!! $first_element.<atom><terminal><STRING_LITERAL>
 		?? $first_element.<atom><terminal><STRING_LITERAL>.ast
-		!! $first_element.<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>.ast;
+		!! $first_element.<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>
+		?? $first_element.<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>.ast
+		!! $first_element.<atom><notSet><setElement><ID>.ast;
 	my $type =
 		$first_element.<atom><notSet><setElement><LEXER_CHAR_SET>
                 ?? 'character class'
+		!! $first_element.<atom><notSet><setElement><ID>
+		?? 'nonterminal'
                 !! 'terminal';
 	my $modifier = $first_element.<ebnfSuffix>[0]
 		?? $first_element.<ebnfSuffix>[0].Str
@@ -341,14 +345,14 @@ method labeledAlt($/)
 		?? True
 		!! False;
 	make
-		[
+		{
 		type         => $type,
 		label        => $/<ID> ?? $/<ID>.ast !! Nil,
 		content      => $content,
 		modifier     => $modifier,
 		greedy       => $greedy,
 		complemented => $complemented
-		]
+		}
 	}
  
 #method lexerRule($/)
