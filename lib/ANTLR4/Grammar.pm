@@ -118,7 +118,8 @@ token ARG_ACTION
 	}
 
 token LEXER_CHAR_SET_ELEMENT
-	{	'\\' .
+	{	'\\' <-[ u ]>
+	|	'\\' 'u' <HEX_DIGIT> ** {4}
 	|	<-[ \\ \x[5d]]>
 	}
 

@@ -100,12 +100,10 @@ method DIGITS($/)
 
 #method COMMENT($/)
 #	{
-#	make ~$/
 #	}
 
 #method COMMENTS($/)
 #	{
-#	make ~$/.join.ast
 #	}
 
 method ID($/)
@@ -318,8 +316,6 @@ method ruleAltList($/)
 method labeledAlt($/)
 	{
         my $first_element = $/<alternative><element>[0];
-say $first_element;
-#say $first_element.<atom><notSet><setElement><LEXER_CHAR_SET>[0];
 
 	my $content =
 		$first_element.<atom><notSet><setElement><LEXER_CHAR_SET>
