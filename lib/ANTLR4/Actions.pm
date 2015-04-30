@@ -18,49 +18,75 @@ from an ANTLR4 parser specification.
 
 The AST returns a hash reference consisting of the following keys:
 
-  C<name> - The name of the grammar, derived from 'grammar ECMAScript;'
+  =item name
 
-  C<type> - The type of the grammar, either 'lexer' or 'parser' as specified
-            in the text, or '' if no type is specified.
+  The name of the grammar, derived from 'grammar ECMAScript;'
 
-  C<options> - An array reference of options specified in the grammar file.
-               The most common option is 'tokenVocab', which would appear as
-               C<options => [ tokenVocab => 'ECMAScriptLexer' ]>. I'm
-               treating it as a list of pairs rather than a hash reference
-               because order may be significant.
+  =item type
 
-  C<import> - An array reference of grammar files the current grammar file
-              imports. This module does not recursively import grammar files,
-              at least not yet.
+  The type of the grammar, either 'lexer' or 'parser' as specified in the text,
+  or '' if no type is specified.
 
-  C<tokens> - An array reference of token names predefined in other grammar
-              files, such as the files in the C<import> array reference.
-              Order shouldn't be important, but I've chosen an array reference
-              to keep a consistent style.
+  =item options
 
-  C<action> - An array reference consisting of the action performed by the
-              top level of the grammar. It's just a reference to a single
-              pair, even though the grammar doesn't seem to support multiple
-              actions at the top level. Again, an array reference just for
-              consistency's sake.
+  An array reference of options specified in the grammar file.  The most common
+  option is 'tokenVocab', which would appear as
+  C<options => [ tokenVocab => 'ECMAScriptLexer' ]>. I'm treating it as a list
+  of pairs rather than a hash reference because order may be significant.
 
-              I should point out that the value will remain completely unparsed
-              even though there's a fairly complex grammar surrounding it.
-              This is simply because it's Java code, and doing so would require
-              a completely different embedded parser. I point out in passing
-              that there's a Java and Java8 grammar in the corpus test
-              directory, should anyone care to give it a whirl.
+  =item import
 
-  C<rules> - This is the most complex part of the specification, of course.
-             It's also where all the action happens. Order is probably not
-             significant, but just for consistency's sake, it will remain an
-             array reference of pairs.
+  An array reference of grammar files the current file imports, and their
+  optional aliases. This grammar does not recursively import grammar files.
 
-Rules of course have a name and a body. In this case the key of the pair is
-the rule's name, and the value is the rule's body. Naturally, the body is the
-most complex part. Ignoring decorations such as channels and modes for the
-moment, rules are collections of terms. These can be actual text to match,
-such as C<'parser'>, or the names of other rules, such as C<grammarType>.
+  =item tokens
+
+  An array reference of token names predefined in other grammar files, such as
+  the files in the C<import> array reference. Order shouldn't be important,
+  but I've chosen an array reference to keep a consistent style.
+
+  =item action
+
+  An array reference consisting of the action performed by the top level of the
+  grammar. It's just a reference to a single pair, even though the grammar
+  doesn't seem to support multiple actions at the top level. Again, an array
+  reference just for consistency's sake.
+
+  I should point out that the value will remain completely unparsed even though
+  there's a fairly complex grammar surrounding it. This is simply because it's
+  Java code, and doing so would require a completely different embedded parser.
+  I point out in passing that there's a Java and Java8 grammar in the corpus
+  test directory, should anyone care to give it a whirl.
+
+  =item rules
+
+  This is the most complex part of the specification, of course. It's also
+  where all the action happens. Order is probably not significant, but just for
+  consistency's sake, it will remain an array reference of pairs.
+
+  Rules of course have a name and a body. In this case the key of the pair is
+  the rule's name, and the value is the rule's body. Naturally, the body is the
+  most complex part. Ignoring decorations such as channels and modes for the
+  moment, rules are collections of terms. These can be actual text to match,
+  such as C<'parser'>, or the names of other rules, such as C<grammarType>.
+
+    =item literals
+
+      =item type
+
+      =item label
+
+      =item content
+
+      =item modifier
+
+      =item greedy
+
+      =item complemented
+
+    =item character classes
+
+    =item nonliterals
 
 =end pod
 
