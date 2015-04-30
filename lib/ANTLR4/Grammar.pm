@@ -88,7 +88,8 @@ token HEX_DIGIT
 #  in their own alts so as not to inadvertantly match {}.
 
 token ACTION
-	{	'{'	[	<ACTION>
+	{	'{'	[	<COMMENT>
+			|	<ACTION>
 			|	<ACTION_ESCAPE>
 			|	<ACTION_STRING_LITERAL>
 			|	<ACTION_CHAR_LITERAL>
@@ -116,8 +117,23 @@ token ARG_ACTION
 	{	'[' <-[ \\ \x[5d]]>* ']'
 	}
 
+token LEXER_CHAR_SET_ELEMENT
+	{	'\\' .
+	|	<-[ \\ \x[5d]]>
+	}
+
+token LEXER_CHAR_SET_ELEMENT_NO_HYPHEN
+	{	'\\' .
+	|	<-[ - \\ \x[5d]]>
+	}
+
+token LEXER_CHAR_SET_RANGE
+	{	[<LEXER_CHAR_SET_ELEMENT_NO_HYPHEN> '-']?
+		<LEXER_CHAR_SET_ELEMENT>
+	}
+
 token LEXER_CHAR_SET
-	{	'[' ['\\' . | <-[ \\ \x[5d]]>]* ']'
+	{	'[' (<LEXER_CHAR_SET_RANGE> | <LEXER_CHAR_SET_ELEMENT>)* ']'
 	}
 
 #

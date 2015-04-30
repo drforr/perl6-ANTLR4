@@ -21,7 +21,7 @@ ok $g.parsefile( 'corpus/CSharp4Lexer.g4'        ), 'CSharp4Lexer.g4';
 ok $g.parsefile( 'corpus/CSharp4PreProcessor.g4' ), 'CSharp4PreProcessor.g4';
 ok $g.parsefile( 'corpus/CSV.g4'                 ), 'CSV.g4';
 ok $g.parsefile( 'corpus/DOT.g4'                 ), 'DOT.g4';
-#ok $g.parsefile( 'corpus/ECMAScript.g4'          ), 'ECMAScript.g4'; # XXX Eats memory due to the Unicode block
+ok $g.parsefile( 'corpus/ECMAScript.g4'          ), 'ECMAScript.g4';
 ok $g.parsefile( 'corpus/Erlang.g4'              ), 'Erlang.g4';
 ok $g.parsefile( 'corpus/fasta.g4'               ), 'fasta.g4';
 ok $g.parsefile( 'corpus/gff3.g4'                ), 'gff3.g4';
@@ -43,7 +43,7 @@ ok $g.parsefile( 'corpus/MySQL.g4'               ), 'MySQL.g4';
 ok $g.parsefile( 'corpus/ObjC.g4'                ), 'ObjC.g4';
 ok $g.parsefile( 'corpus/PCRE.g4'                ), 'PCRE.g4';
 ok $g.parsefile( 'corpus/PGN.g4'                 ), 'PGN.g4';
-##ok $g.parsefile( 'corpus/Python3.g4'             ), 'Python3.g4'; # XXX Heh.
+ok $g.parsefile( 'corpus/Python3.g4'             ), 'Python3.g4';
 ok $g.parsefile( 'corpus/redcode.g4'             ), 'redcode.g4';
 ok $g.parsefile( 'corpus/RFilter.g4'             ), 'RFilter.g4';
 ok $g.parsefile( 'corpus/R.g4'                   ), 'R.g4';
@@ -59,7 +59,7 @@ ok $g.parsefile( 'corpus/TURTLE.g4'              ), 'TURTLE.g4';
 ok $g.parsefile( 'corpus/UCBLogo.g4'             ), 'UCBLogo.g4';
 ok $g.parsefile( 'corpus/Verilog2001.g4'         ), 'Verilog2001.g4';
 ok $g.parsefile( 'corpus/vhdl.g4'                ), 'vhdl.g4';
-##ok $g.parsefile( 'corpus/VisualBasic6.g4'        ), 'VisualBasic6.g4';
+#ok $g.parsefile( 'corpus/VisualBasic6.g4'        ), 'VisualBasic6.g4';
 ok $g.parsefile( 'corpus/WebIDL.g4'              ), 'WebIDL.g4';
 ok $g.parsefile( 'corpus/XMLLexer.g4'            ), 'XMLLexer.g4';
 ok $g.parsefile( 'corpus/XMLParser.g4'           ), 'XMLParser.g4';

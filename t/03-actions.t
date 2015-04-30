@@ -4,7 +4,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions;
 use Test;
 
-plan 18;
+plan 21;
 
 my $a = ANTLR4::Actions.new;
 my $g = ANTLR4::Grammar.new;
@@ -350,8 +350,8 @@ number : ~'1'+? # One ;},
              content      => '1',
              modifier     => '+',
              greedy       => True,
-             complemented => True ] ] ] };
-  'lexer grammar, ruie with complemented terminal';
+             complemented => True ] ] ] },
+  'lexer grammar, rule with complemented terminal';
 
 is_deeply
   $g.parse(
@@ -384,6 +384,109 @@ number : ~[]+? # One ;},
              content      => [ ],
              modifier     => '+',
              greedy       => True,
-             complemented => True ] ] ] };
+             complemented => True ] ] ] },
+  'lexer grammar, rule with empty character class';
+
+is_deeply
+  $g.parse(
+    q{lexer grammar Name;
+options {a=b,c;de=3;}
+import Foo,Bar=Test;
+tokens { Foo, Bar }
+@members { protected int curlies = 0; }
+@sample::stuff { 1; }
+number : ~[0]+? # One ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options =>
+      [ a   =>
+          [ 'b', 'c' ],
+        de  => 3 ],
+    import  =>
+      [ Foo => Nil,
+        Bar => 'Test' ],
+    tokens  =>
+      [ 'Foo', 'Bar' ],
+    actions =>
+      [ '@members'       => '{ protected int curlies = 0; }',
+        '@sample::stuff' => '{ 1; }' ],
+    rules      =>
+      [ number =>
+         [ [ type         => 'character class',
+             label        => 'One',
+             content      => [ '0' ],
+             modifier     => '+',
+             greedy       => True,
+             complemented => True ] ] ] },
+  'lexer grammar, rule with character class';
+
+is_deeply
+  $g.parse(
+    q{lexer grammar Name;
+options {a=b,c;de=3;}
+import Foo,Bar=Test;
+tokens { Foo, Bar }
+@members { protected int curlies = 0; }
+@sample::stuff { 1; }
+number : ~[0-9]+? # One ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options =>
+      [ a   =>
+          [ 'b', 'c' ],
+        de  => 3 ],
+    import  =>
+      [ Foo => Nil,
+        Bar => 'Test' ],
+    tokens  =>
+      [ 'Foo', 'Bar' ],
+    actions =>
+      [ '@members'       => '{ protected int curlies = 0; }',
+        '@sample::stuff' => '{ 1; }' ],
+    rules      =>
+      [ number =>
+         [ [ type         => 'character class',
+             label        => 'One',
+             content      => [ '0-9' ],
+             modifier     => '+',
+             greedy       => True,
+             complemented => True ] ] ] },
+  'lexer grammar, rule with hyphenated character class';
+
+is_deeply
+  $g.parse(
+    q{lexer grammar Name;
+options {a=b,c;de=3;}
+import Foo,Bar=Test;
+tokens { Foo, Bar }
+@members { protected int curlies = 0; }
+@sample::stuff { 1; }
+number : ~[-0-9]+? # One ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options =>
+      [ a   =>
+          [ 'b', 'c' ],
+        de  => 3 ],
+    import  =>
+      [ Foo => Nil,
+        Bar => 'Test' ],
+    tokens  =>
+      [ 'Foo', 'Bar' ],
+    actions =>
+      [ '@members'       => '{ protected int curlies = 0; }',
+        '@sample::stuff' => '{ 1; }' ],
+    rules      =>
+      [ number =>
+         [ [ type         => 'character class',
+             label        => 'One',
+             content      => [ '-', '0-9' ],
+             modifier     => '+',
+             greedy       => True,
+             complemented => True ] ] ] },
+  'lexer grammar, rule with leading hyphenated character class';
 
 # vim: ft=perl6

@@ -132,9 +132,20 @@ method STRING_LITERAL($/)
 #	{
 #	}
 
-#method LEXER_CHAR_SET($/)
-#	{
-#	}
+method LEXER_CHAR_SET_RANGE($/)
+	{
+	make ~$/.Str
+	}
+
+method LEXER_CHAR_SET_ELEMENT($/)
+	{
+	make ~$/
+	}
+
+method LEXER_CHAR_SET($/)
+	{
+	make [ $/[0]>>.ast ]
+	}
 
 method grammarType($/)
 	{
@@ -151,7 +162,7 @@ method TOP ($/)
 		import  => [ ],
                 tokens  => [ ],
                 actions => [ ],
-		rules   => [ ]
+		rules   => [ $/<ruleSpec>>>.ast ],
 		);
 
 	for @( $/<prequelConstruct> ) -> $prequel
@@ -168,20 +179,6 @@ method TOP ($/)
 		push @( %content<actions> ),
 			@( $prequel.<action>.ast ) if
 			$prequel.<action>;
-		}
-#	%content<rules> = [ number => [ type          => 'literal',
-#                                       content      => '1',
-#                                       modifier     => Nil,
-#                                       greedy       => False,
-#                                       complemented => False ] ] if $/<ruleSpec>;
-
-	#
-	# XXX Not ideal, I know, but it'll serve for the moment.
-	# I'd do this in a map in perl5, syntax seems to be an issue in perl6.
-	#
-	for @( $/<ruleSpec> ) -> $rule
-		{
-		push @( %content<rules> ), $rule.ast
 		}
 	make %content
 	}
@@ -296,10 +293,11 @@ method labeledAlt($/)
 	{
         my $first_element = $/<alternative><element>[0];
 #say $first_element;
+#say $first_element.<atom><notSet><setElement><LEXER_CHAR_SET>[0];
 
 	my $content =
 		$first_element.<atom><notSet><setElement><LEXER_CHAR_SET>
-                ?? [ ]
+		?? [ $first_element.<atom><notSet><setElement><LEXER_CHAR_SET>[0]>>.Str ]
 		!! $first_element.<atom><terminal><STRING_LITERAL>
 		?? $first_element.<atom><terminal><STRING_LITERAL>.ast
 		!! $first_element.<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>.ast;
@@ -316,13 +314,10 @@ method labeledAlt($/)
 	my $complemented = $first_element.<atom><notSet>
 		?? True
 		!! False;
-	my $label = $/<ID>
-		?? $/<ID>.ast
-		!! Nil;
 	make
 		[
 		type         => $type,
-		label        => $label,
+		label        => $/<ID> ?? $/<ID>.ast !! Nil,
 		content      => $content,
 		modifier     => $modifier,
 		greedy       => $greedy,
@@ -400,9 +395,6 @@ method element($/)
 
 method atom($/)
 	{
-	make { greedy => $<ebnfSuffix>[1]
-		?? True
-		!! False }
 	}
 
 #method notSet($/)
