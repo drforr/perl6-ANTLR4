@@ -271,7 +271,7 @@ rule localsSpec
 #  to the code generation templates and may be ignored by the template
 #  if they are of no use in that language.
  
-rule ruleModifier
+token ruleModifier
  	{	'public'
  	|	'private'
  	|	'protected'
