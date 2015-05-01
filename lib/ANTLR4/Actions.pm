@@ -324,16 +324,13 @@ method ruleAltList($/)
 
 method labeledAlt($/)
 	{
-        my $first_element = $/<alternative><element>[0];
-
 	make
 		{
-		type         => $first_element.ast<type>,
-		label        => $/<ID> ?? $/<ID>.ast !! Nil,
-		content      => $first_element.ast<content>,
-		modifier     => $first_element.ast<modifier>,
-		greedy       => $first_element.ast<greedy>,
-		complemented => $first_element.ast<complemented>,
+		type    => 'alternative',
+		label   => $/<ID>
+				?? $/<ID>.ast
+				!! Nil,
+		content => [ $/<alternative><element>>>.ast ]
 		}
 	}
  
