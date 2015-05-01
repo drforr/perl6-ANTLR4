@@ -165,7 +165,7 @@ rule prequelConstruct
 
 rule optionsSpec
 	{	'options' '{' [<option> ';']* '}'
-	}
+	} 
 
 rule option
 	{	<key=ID> '=' <optionValue>
@@ -228,8 +228,8 @@ rule ruleSpec
 
 rule parserRuleSpec
  	{	<COMMENTS>? <modifier=ruleModifier>* <name=ID> <ARG_ACTION>?
-		<ruleReturns>? <throwsSpec>? <localsSpec>?
-		<optionsSpec>*
+		<returns=ruleReturns>? <throws=throwsSpec>? <locals=localsSpec>?
+		<options=optionsSpec>? # XXX This was <optionsSpec>*
 		':'
 		<content=ruleAltList>
 		';'

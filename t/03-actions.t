@@ -226,6 +226,11 @@ number : '1' ;},
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ Bar => 1 ],
          content  =>
            [{ type => 'alternation',
               content =>
@@ -251,6 +256,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -265,6 +275,38 @@ is_deeply
 
 is_deeply
   $g.parse(
+    q{lexer grammar Name; number [int x] returns [int y] throws XFoo locals [int z] options{a=2;} : '1' # One ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    actions => [ ],
+    rules   =>
+      [{ name     => 'number',
+         modifier => [ ],
+         action   => '[int x]',
+         returns  => '[int y]',
+         throws   =>
+           [ 'XFoo' ],
+         locals   => '[int z]',
+#         options  =>
+#           [ a => 2 ],
+         content  =>
+           [{ type    => 'alternation',
+              content =>
+                [{ type    => 'concatenation',
+                   label   => 'One',
+                   content => [{ type         => 'terminal',
+                                 content      => '1',
+                                 modifier     => Nil,
+                                 greedy       => False,
+                                 complemented => False }] }] }] }] },
+  'lexer grammar with single labeled rule with action';
+
+is_deeply
+  $g.parse(
     q{lexer grammar Name; number : '1'+ # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
@@ -276,6 +318,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  => 
            [{ type    => 'alternation',
               content =>
@@ -301,6 +348,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -326,6 +378,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -351,6 +408,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -376,6 +438,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -401,6 +468,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -426,6 +498,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -452,6 +529,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -478,6 +560,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -503,6 +590,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -534,6 +626,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -569,6 +666,11 @@ is_deeply
     rules   =>
       [{ name     => 'number',
          modifier => [ 'protected' ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+#         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>

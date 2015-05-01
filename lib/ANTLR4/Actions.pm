@@ -84,12 +84,15 @@ most complex, and is described in detail at the appropriate place.
 
   The C<rules> key is an arrayref of hashrefs. Each of these hashrefs contains
   a full rule, laid out in a more or less conistent fashion. All of these
-  hashrefs contain the following keys - C<name>, C<modifier> nd C<content>.
-  
-  The name is unsurprisingly the name of the rule. If a rule is marked as
-  C<private> or C<protected>, or is a C<fragment> you'll find that in the
-  C<modifier> arrayref, in the order in which they were found.
+  hashrefs contain a fixed set of keys, only two of them important to Perl6
+  users in general.
 
+  The C<name> and C<content> are the most important items, C<name> is the
+  rule's name (go figure) and C<content> being the actual meat of the rule.
+  C<modifier>, C<action>, C<returns> and C<throws> are useful for the Java
+  author to restrict visibiity of the rule, and add additional arguments to the
+  Java method that is called by the generated parser.
+  
   The real fun begins inside the C<content> key. Even a simple ANTLR4 rule
   such as C<number : digits ;> will have several layers of what looks like
   redundant nesting. This is mostly for consistency's sake, and might change
@@ -188,9 +191,10 @@ method STRING_LITERAL($/)
 #	{
 #	}
 
-#method ARG_ACTION($/)
-#	{
-#	}
+method ARG_ACTION($/)
+	{
+	make ~$/
+	}
 
 method LEXER_CHAR_SET_RANGE($/)
 	{
@@ -325,7 +329,12 @@ method parserRuleSpec($/)
 		{
 		name     => $/<name>.ast,
 		content  => [ $/<content>>>.ast ],
-		modifier => [ $/<modifier>>>.ast ]
+		modifier => [ $/<modifier>>>.ast ],
+                action   => $/<ARG_ACTION>.ast,
+                returns  => $/<returns><ARG_ACTION>.ast,
+                throws   => [ $/<throws><ID>>>.ast ],
+                locals   => $/<locals><ARG_ACTION>.ast,
+#                options =>  $/<options>.ast ],
 		}
 	}
 
@@ -340,9 +349,10 @@ method parserRuleSpec($/)
 #method finallyClause($/) {
 #	}
 # 
-#method ruleReturns($/) {
+#method ruleReturns($/)
+#	{
 #	}
-# 
+
 #method throwsSpec($/) {
 #	}
 # 
