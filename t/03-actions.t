@@ -72,7 +72,8 @@ is_deeply
   { name    => 'Name',
     type    => 'lexer',
     options =>
-      [ a => [ 'b', 'c' ], de => 3 ],
+      [ a => [ 'b', 'c' ],
+        de => 3 ],
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
@@ -86,7 +87,8 @@ is_deeply
   { name    => 'Name',
     type    => 'lexer',
     options =>
-      [ a => [ 'b', 'c' ], de => 3 ],
+      [ a => [ 'b', 'c' ],
+        de => 3 ],
     import  =>
       [ Foo => Nil ],
     tokens  => [ ],
@@ -101,9 +103,11 @@ is_deeply
   { name    => 'Name',
     type    => 'lexer',
     options =>
-      [ a => [ 'b', 'c' ], de => 3 ],
+      [ a => [ 'b', 'c' ],
+        de => 3 ],
     import  =>
-      [ Foo => Nil, Bar => 'Test' ],
+      [ Foo => Nil,
+        Bar => 'Test' ],
     tokens  => [ ],
     actions => [ ],
     rules   => [ ] },
@@ -119,9 +123,11 @@ is_deeply
   { name    => 'Name',
     type    => 'lexer',
     options =>
-      [ a => [ 'b', 'c' ], de => 3 ],
+      [ a => [ 'b', 'c' ],
+        de => 3 ],
     import  =>
-      [ Foo => Nil, Bar => 'Test' ],
+      [ Foo => Nil,
+        Bar => 'Test' ],
     tokens  =>
       [ 'Foo', 'Bar' ],
     actions => [ ],
@@ -135,9 +141,11 @@ is_deeply
   { name    => 'Name',
     type    => 'lexer',
     options =>
-      [ a => [ 'b', 'c' ], de => 3 ],
+      [ a => [ 'b', 'c' ],
+        de => 3 ],
     import  =>
-      [ Foo => Nil, Bar => 'Test' ],
+      [ Foo => Nil,
+        Bar => 'Test' ],
     tokens  =>
       [ 'Foo', 'Bar' ],
     actions =>
@@ -156,9 +164,11 @@ tokens { Foo, Bar }
   { name    => 'Name',
     type    => 'lexer',
     options =>
-      [ a => [ 'b', 'c' ], de => 3 ],
+      [ a => [ 'b', 'c' ],
+        de => 3 ],
     import  =>
-      [ Foo => Nil, Bar => 'Test' ],
+      [ Foo => Nil,
+        Bar => 'Test' ],
     tokens  =>
       [ 'Foo', 'Bar' ],
     actions =>
@@ -178,9 +188,11 @@ tokens { Foo, Bar }
   { name    => 'Name',
     type    => 'lexer',
     options =>
-      [ a => [ 'b', 'c' ], de => 3 ],
+      [ a => [ 'b', 'c' ],
+        de => 3 ],
     import  =>
-      [ Foo => Nil, Bar => 'Test' ],
+      [ Foo => Nil,
+        Bar => 'Test' ],
     tokens  =>
       [ 'Foo', 'Bar' ],
     actions =>
@@ -202,22 +214,25 @@ number : '1' ;},
   { name    => 'Name',
     type    => 'lexer',
     options =>
-      [ a => [ 'b', 'c' ], de => 3 ],
+      [ a => [ 'b', 'c' ],
+        de => 3 ],
     import  =>
-      [ Foo => Nil, Bar => 'Test' ],
+      [ Foo => Nil,
+        Bar => 'Test' ],
     tokens  =>
       [ 'Foo', 'Bar' ],
     actions =>
       [ '@members'       => '{ protected int curlies = 0; }',
         '@sample::stuff' => '{ 1; }' ],
     rules   =>
-      [ number =>
-         [ { type         => 'terminal',
-             label        => Nil,
-             content      => '1',
-             modifier     => Nil,
-             greedy       => False,
-             complemented => False } ] ] },
+      [ { name    => 'number',
+          content =>
+            [ { type         => 'terminal',
+                label        => Nil,
+                content      => '1',
+                modifier     => Nil,
+                greedy       => False,
+                complemented => False } ] } ] },
   'lexer grammar with options and single simple rule';
 
 is_deeply
@@ -231,13 +246,14 @@ is_deeply
     tokens  => [ ],
     actions => [ ],
     rules   =>
-      [ number =>
-         [ { type         => 'terminal',
-             label        => 'One',
-             content      => '1',
-             modifier     => Nil,
-             greedy       => False,
-             complemented => False } ] ] },
+      [ { name    => 'number',
+          content =>
+            [ { type         => 'terminal',
+                label        => 'One',
+                content      => '1',
+                modifier     => Nil,
+                greedy       => False,
+                complemented => False } ] } ] },
   'lexer grammar with single labeled rule';
 
 is_deeply
@@ -251,13 +267,14 @@ is_deeply
     tokens  => [ ],
     actions => [ ],
     rules   =>
-      [ number =>
-         [ { type         => 'terminal',
-             label        => 'One',
-             content      => '1',
-             modifier     => '+',
-             greedy       => False,
-             complemented => False } ] ] },
+      [ { name    => 'number',
+          content => 
+            [ { type         => 'terminal',
+                label        => 'One',
+                content      => '1',
+                modifier     => '+',
+                greedy       => False,
+                complemented => False } ] } ] },
   'lexer grammar with options and labeled rule with modifier';
 
 is_deeply
@@ -271,13 +288,14 @@ is_deeply
     tokens  => [ ],
     actions => [ ],
     rules   =>
-      [ number =>
-         [ { type         => 'terminal',
-             label        => 'One',
-             content      => '1',
-             modifier     => '+',
-             greedy       => True,
-             complemented => False } ] ] },
+      [ { name    => 'number',
+          content =>
+            [ { type         => 'terminal',
+                label        => 'One',
+                content      => '1',
+                modifier     => '+',
+                greedy       => True,
+                complemented => False } ] } ] },
   'lexer grammar with options and labeled rule with greedy modifier';
 
 is_deeply
@@ -290,14 +308,15 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules      =>
-      [ number =>
-         [ { type         => 'terminal',
-             label        => 'One',
-             content      => '1',
-             modifier     => '+',
-             greedy       => True,
-             complemented => True } ] ] },
+    rules   =>
+      [ { name    => 'number',
+          content =>
+            [ { type         => 'terminal',
+                label        => 'One',
+                content      => '1',
+                modifier     => '+',
+                greedy       => True,
+                complemented => True } ] } ] },
   'lexer grammar, rule with complemented terminal';
 
 is_deeply
@@ -310,14 +329,15 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules      =>
-      [ number =>
-         [ { type         => 'character class',
-             label        => 'One',
-             content      => [ ],
-             modifier     => '+',
-             greedy       => True,
-             complemented => True } ] ] },
+    rules   =>
+      [ { name    => 'number',
+          content =>
+            [ { type         => 'character class',
+                label        => 'One',
+                content      => [ ],
+                modifier     => '+',
+                greedy       => True,
+                complemented => True } ] } ] },
   'lexer grammar, rule with empty character class';
 
 is_deeply
@@ -330,14 +350,15 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules      =>
-      [ number =>
-         [ { type         => 'character class',
-             label        => 'One',
-             content      => [ '0' ],
-             modifier     => '+',
-             greedy       => True,
-             complemented => True } ] ] },
+    rules   =>
+      [ { name    => 'number',
+          content =>
+            [ { type         => 'character class',
+                label        => 'One',
+                content      => [ '0' ],
+                modifier     => '+',
+                greedy       => True,
+                complemented => True } ] } ] },
   'lexer grammar, rule with character class';
 
 is_deeply
@@ -350,14 +371,15 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules      =>
-      [ number =>
-         [ { type         => 'character class',
-             label        => 'One',
-             content      => [ '0-9' ],
-             modifier     => '+',
-             greedy       => True,
-             complemented => True } ] ] },
+    rules   =>
+      [ { name    => 'number',
+          content =>
+            [ { type         => 'character class',
+                label        => 'One',
+                content      => [ '0-9' ],
+                modifier     => '+',
+                greedy       => True,
+                complemented => True } ] } ] },
   'lexer grammar, rule with hyphenated character class';
 
 is_deeply
@@ -370,14 +392,15 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules      =>
-      [ number =>
-         [ { type         => 'character class',
-             label        => 'One',
-             content      => [ '-', '0-9' ],
-             modifier     => '+',
-             greedy       => True,
-             complemented => True } ] ] },
+    rules   =>
+      [ { name    => 'number',
+          content =>
+            [ { type         => 'character class',
+                label        => 'One',
+                content      => [ '-', '0-9' ],
+                modifier     => '+',
+                greedy       => True,
+                complemented => True } ] } ] },
   'lexer grammar, rule with leading hyphenated character class';
 
 is_deeply
@@ -390,15 +413,16 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules      =>
-      [ number =>
-         [ { type         => 'character class',
-             label        => 'One',
-             content      => [ '-', '0-9', '\\f', '\\u000d' ],
-             modifier     => '+',
-             greedy       => True,
-             complemented => True } ] ] },
-  'lexer grammar, rule with leading hyphenated character class';
+    rules   =>
+      [ { name    => 'number',
+          content =>
+            [ { type         => 'character class',
+                label        => 'One',
+                content      => [ '-', '0-9', '\\f', '\\u000d' ],
+                modifier     => '+',
+                greedy       => True,
+                complemented => True } ] } ] },
+  'lexer grammar, rule with christmas-tree character class';
 
 is_deeply
   $g.parse(
@@ -410,14 +434,15 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules      =>
-      [ number =>
-         [ { type         => 'nonterminal',
-             label        => 'One',
-             content      => 'non_digits',
-             modifier     => '+',
-             greedy       => True,
-             complemented => True } ] ] },
+    rules   =>
+      [ { name    => 'number',
+          content =>
+            [ { type         => 'nonterminal',
+                label        => 'One',
+                content      => 'non_digits',
+                modifier     => '+',
+                greedy       => True,
+                complemented => True } ] } ] },
   'lexer grammar, rule with complemented nonterminal';
 
 # vim: ft=perl6

@@ -239,7 +239,7 @@ method optionValue($/)
 			?? $/<STRING_LITERAL>.ast
 			!! $/<DIGITS>
 			?? $/<DIGITS>.ast
-			!! ''
+			!! Nil
 	}
  
 method delegateGrammars($/)
@@ -249,7 +249,10 @@ method delegateGrammars($/)
 
 method delegateGrammar($/)
 	{
-	make $/<key>.ast => $/<value> ?? $/<value>.ast !! Nil
+	make
+		$/<key>.ast => $/<value>
+			?? $/<value>.ast
+			!! Nil
 	}
 
 method tokensSpec($/)
@@ -282,7 +285,11 @@ method ruleSpec($/)
 
 method parserRuleSpec($/)
 	{
-	make $/<ID>.ast => $/<ruleAltList>.ast
+	make
+		{
+		name    => $/<ID>.ast,
+		content => $/<ruleAltList>.ast
+		}
 	}
 
 #method exceptionGroup($/)
@@ -317,37 +324,14 @@ method labeledAlt($/)
 	{
         my $first_element = $/<alternative><element>[0];
 
-	my $content =
-		$first_element.<atom><notSet><setElement><LEXER_CHAR_SET>
-		?? [ $first_element.<atom><notSet><setElement><LEXER_CHAR_SET>[0]>>.Str ]
-		!! $first_element.<atom><terminal><STRING_LITERAL>
-		?? $first_element.<atom><terminal><STRING_LITERAL>.ast
-		!! $first_element.<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>
-		?? $first_element.<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>.ast
-		!! $first_element.<atom><notSet><setElement><ID>.ast;
-	my $type =
-		$first_element.<atom><notSet><setElement><LEXER_CHAR_SET>
-                ?? 'character class'
-		!! $first_element.<atom><notSet><setElement><ID>
-		?? 'nonterminal'
-                !! 'terminal';
-	my $modifier = $first_element.<ebnfSuffix>[0]
-		?? $first_element.<ebnfSuffix>[0].Str
-		!! Nil;
-	my $greedy = $first_element.<ebnfSuffix>[1]
-		?? True
-		!! False;
-	my $complemented = $first_element.<atom><notSet>
-		?? True
-		!! False;
 	make
 		{
-		type         => $type,
+		type         => $first_element.ast<type>,
 		label        => $/<ID> ?? $/<ID>.ast !! Nil,
-		content      => $content,
-		modifier     => $modifier,
-		greedy       => $greedy,
-		complemented => $complemented
+		content      => $first_element.ast<content>,
+		modifier     => $first_element.ast<modifier>,
+		greedy       => $first_element.ast<greedy>,
+		complemented => $first_element.ast<complemented>,
 		}
 	}
  
@@ -401,6 +385,30 @@ method labeledAlt($/)
 
 method element($/)
 	{
+	make
+		{
+		complemented => $/<atom><notSet>
+			?? True
+			!! False,
+		greedy => $/<ebnfSuffix>[1]
+			?? True
+			!! False,
+                modifier => $/<ebnfSuffix>[0]
+			?? $/<ebnfSuffix>[0].Str
+			!! Nil,
+		content => $<atom><notSet><setElement><LEXER_CHAR_SET>
+			?? [ $/<atom><notSet><setElement><LEXER_CHAR_SET>[0]>>.Str ]
+			!! $/<atom><terminal><STRING_LITERAL>
+			?? $/<atom><terminal><STRING_LITERAL>.ast
+			!! $/<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>
+			?? $/<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>.ast
+			!! $/<atom><notSet><setElement><ID>.ast,
+		type => $/<atom><notSet><setElement><LEXER_CHAR_SET>
+			?? 'character class'
+			!! $/<atom><notSet><setElement><ID>
+			?? 'nonterminal'
+			!! 'terminal',
+		}
 	}
  
 #method labeledElement($/)
@@ -419,9 +427,9 @@ method element($/)
 #	{
 #	}
 
-method atom($/)
-	{
-	}
+#method atom($/)
+#	{
+#	}
 
 #method notSet($/)
 #	{

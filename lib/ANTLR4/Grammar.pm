@@ -171,7 +171,7 @@ rule optionsSpec
 	}
 
 rule option
-	{	<ID> '=' <optionValue>
+	{	<key=ID> '=' <optionValue>
 	}
 
 rule ID_list
