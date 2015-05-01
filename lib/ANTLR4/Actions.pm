@@ -326,9 +326,9 @@ method labeledAlt($/)
 	{
 	make
 		{
-		type    => 'alternative',
-		label   => $/<ID>
-				?? $/<ID>.ast
+		type    => 'concatenation',
+		label   => $/<label>
+				?? $/<label>.ast
 				!! Nil,
 		content => [ $/<alternative><element>>>.ast ]
 		}

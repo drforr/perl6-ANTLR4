@@ -227,7 +227,7 @@ number : '1' ;},
       [ { name     => 'number',
           modifier => [ ],
           content  =>
-            [ { type    => 'alternative',
+            [ { type    => 'concatenation',
                 label   => Nil,
                 content => [ { type         => 'terminal',
                                content      => '1',
@@ -250,7 +250,7 @@ is_deeply
       [ { name     => 'number',
           modifier => [ ],
           content  =>
-            [ { type    => 'alternative',
+            [ { type    => 'concatenation',
                 label   => 'One',
                 content => [ { type         => 'terminal',
                                content      => '1',
@@ -273,8 +273,8 @@ is_deeply
       [ { name     => 'number',
           modifier => [ ],
           content  => 
-            [ { type => 'alternative',
-                label => 'One',
+            [ { type    => 'concatenation',
+                label   => 'One',
                 content => [ { type         => 'terminal',
                                content      => '1',
                                modifier     => '+',
@@ -296,7 +296,7 @@ is_deeply
       [ { name     => 'number',
           modifier => [ ],
           content  =>
-            [ { type    => 'alternative',
+            [ { type    => 'concatenation',
                 label   => 'One',
                 content => [ { type         => 'terminal',
                                content      => '1',
@@ -319,7 +319,7 @@ is_deeply
       [ { name     => 'number',
           modifier => [ ],
           content  =>
-            [ { type    => 'alternative',
+            [ { type    => 'concatenation',
                 label   => 'One',
                 content => [ { type         => 'terminal',
                                content      => '1',
@@ -342,7 +342,7 @@ is_deeply
       [ { name     => 'number',
           modifier => [ ],
           content  =>
-            [ { type    => 'alternative',
+            [ { type    => 'concatenation',
                 label   => 'One',
                 content => [ { type         => 'character class',
                                content      => [ ],
@@ -365,7 +365,7 @@ is_deeply
       [ { name     => 'number',
           modifier => [ ],
           content  =>
-            [ { type    => 'alternative',
+            [ { type    => 'concatenation',
                 label   => 'One',
                 content => [ { type         => 'character class',
                                content      => [ '0' ],
@@ -388,7 +388,7 @@ is_deeply
       [ { name     => 'number',
           modifier => [ ],
           content  =>
-            [ { type    => 'alternative',
+            [ { type    => 'concatenation',
                 label   => 'One',
                 content => [ { type         => 'character class',
                                content      => [ '0-9' ],
@@ -411,10 +411,11 @@ is_deeply
       [ { name     => 'number',
           modifier => [ ],
           content  =>
-            [ { type    => 'alternative',
+            [ { type    => 'concatenation',
                 label   => 'One',
                 content => [ { type         => 'character class',
-                               content      => [ '-', '0-9' ],
+                               content      =>
+                                 [ '-', '0-9' ],
                                modifier     => '+',
                                greedy       => True,
                                complemented => True } ] } ] } ] },
@@ -434,10 +435,11 @@ is_deeply
       [ { name     => 'number',
           modifier => [ ],
           content  =>
-            [ { type    => 'alternative',
+            [ { type    => 'concatenation',
                 label   => 'One',
                 content => [ { type         => 'character class',
-                               content      => [ '-', '0-9', '\\f', '\\u000d' ],
+                               content      =>
+                                 [ '-', '0-9', '\\f', '\\u000d' ],
                                modifier     => '+',
                                greedy       => True,
                                complemented => True } ] } ] } ] },
@@ -457,7 +459,7 @@ is_deeply
       [ { name     => 'number',
           modifier => [ ],
           content  =>
-            [ { type    => 'alternative',
+            [ { type    => 'concatenation',
                 label   => 'One',
                 content => [ { type         => 'nonterminal',
                                content      => 'non_digits',
@@ -465,5 +467,34 @@ is_deeply
                                greedy       => True,
                                complemented => True } ] } ] } ] },
   'lexer grammar, rule with complemented nonterminal';
+
+is_deeply
+  $g.parse(
+    q{lexer grammar Name; number : ~non_digits+? ~[-0-9\f\u000d]+? # One ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    actions => [ ],
+    rules   =>
+      [ { name     => 'number',
+          modifier => [ ],
+          content  =>
+            [ { type    => 'concatenation',
+                label   => 'One',
+                content => [ { type         => 'nonterminal',
+                               content      => 'non_digits',
+                               modifier     => '+',
+                               greedy       => True,
+                               complemented => True },
+                             { type         => 'character class',
+                               content      =>
+                                 [ '-', '0-9', '\\f', '\\u000d' ],
+                               modifier     => '+',
+                               greedy       => True,
+                               complemented => True } ] } ] } ] },
+  'lexer grammar, rule with multiple terms';
 
 # vim: ft=perl6

@@ -286,12 +286,12 @@ rule ruleAltList
 	}
  
 rule labeledAlt
- 	{	<alternative> <COMMENTS>? ['#' <ID> <COMMENTS>?]?
+ 	{	<alternative> <COMMENTS>? ['#' <label=ID> <COMMENTS>?]?
  	}
  
 rule lexerRule
  	{	<COMMENTS>? 'fragment'?
- 		<COMMENTS>? <ID>
+ 		<COMMENTS>? <name=ID>
 		<COMMENTS>? ':' <lexerAltList> ';'
 		<COMMENTS>?
  	}
