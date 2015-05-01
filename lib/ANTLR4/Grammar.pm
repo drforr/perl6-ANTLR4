@@ -3,8 +3,7 @@ use v6;
 grammar ANTLR4::Grammar;
 
 token BLANK_LINE
-	{
-	\s* \n
+	{	\s* \n
 	}
 
 token COMMENT
@@ -17,13 +16,11 @@ token COMMENTS
 	}
 
 token DIGIT
-	{
-	<[ 0..9 ]>
+	{	<[ 0..9 ]>
 	}
 
 token DIGITS
-	{
-	<DIGIT>+
+	{	<DIGIT>+
 	}
 
 #  Allow unicode rule/token names
@@ -230,7 +227,7 @@ rule ruleSpec
  	}
 
 rule parserRuleSpec
- 	{	<COMMENTS>? <ruleModifier>* <ID> <ARG_ACTION>?
+ 	{	<COMMENTS>? <ruleModifier>* <name=ID> <ARG_ACTION>?
 		<ruleReturns>? <throwsSpec>? <localsSpec>?
 		<optionsSpec>*
 		':'
@@ -322,7 +319,7 @@ rule labeledLexerElement
  	}
  
 rule lexerBlock
- 	{	'~'? '(' <COMMENTS>? <lexerAltList>? ')'  # XXX Make lexerAltList optional
+ 	{	'~'? '(' <COMMENTS>? <lexerAltList>? ')'
  	}
  
 #  E.g., channel(HIDDEN), skip, more, mode(INSIDE), push(INSIDE), pop

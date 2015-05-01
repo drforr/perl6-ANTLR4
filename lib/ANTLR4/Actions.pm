@@ -287,9 +287,9 @@ method parserRuleSpec($/)
 	{
 	make
 		{
-		name    => $/<ID>.ast,
-		content => $/<ruleAltList>.ast,
-		modifier => [ ]
+		name     => $/<name>.ast,
+		content  => [ $/<ruleAltList>>>.ast ],
+		modifier => [ $/<ruleModifier>>>.ast ]
 		}
 	}
 
@@ -313,13 +313,18 @@ method parserRuleSpec($/)
 #method localsSpec($/) {
 #	}
 # 
-#method ruleModifier($/)
-#	{
-#	}
+method ruleModifier($/)
+	{
+	make ~$/
+	}
 
 method ruleAltList($/)
 	{
-	make [ $/<labeledAlt>>>.ast ]
+	make
+		{
+		type    => 'alternation',
+		content => [ $/<labeledAlt>>>.ast ]
+		}
 	}
 
 method labeledAlt($/)
