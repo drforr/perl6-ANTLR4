@@ -139,9 +139,9 @@ token LEXER_CHAR_SET
 # 
 rule TOP 
 	{	<BLANK_LINE>*
-		<grammarType> <grammarName=ID> ';'
+		<type=grammarType> <name=grammarName=ID> ';'
 		<prequelConstruct>*
-		<ruleSpec>*
+		<rules=ruleSpec>*
 		<modeSpec>*
 	}
 
@@ -155,10 +155,10 @@ rule grammarType
 #  times by the grammarPrequel rule.
 
 rule prequelConstruct
- 	{	<optionsSpec>
-	|	<delegateGrammars>
-	|	<tokensSpec>
-	|	<action>
+ 	{	<options=optionsSpec>
+	|	<import=delegateGrammars>
+	|	<tokens=tokensSpec>
+	|	<actions=action>
  	}
  
 #  A list of options that affect analysis and/or code generation
@@ -227,11 +227,11 @@ rule ruleSpec
  	}
 
 rule parserRuleSpec
- 	{	<COMMENTS>? <ruleModifier>* <name=ID> <ARG_ACTION>?
+ 	{	<COMMENTS>? <modifier=ruleModifier>* <name=ID> <ARG_ACTION>?
 		<ruleReturns>? <throwsSpec>? <localsSpec>?
 		<optionsSpec>*
 		':'
-		<ruleAltList>
+		<content=ruleAltList>
 		';'
 		<COMMENTS>?
 		<exceptionGroup>
@@ -279,7 +279,7 @@ token ruleModifier
 # ('a' | ) # Trailing empty alternative is allowed in sample code
 #
 rule ruleAltList
-	{	<labeledAlt>+ % '|'
+	{	<content=labeledAlt>+ % '|'
 	}
  
 rule labeledAlt

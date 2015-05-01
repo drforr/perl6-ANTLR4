@@ -16,7 +16,23 @@ from an ANTLR4 parser specification.
 
 =head1 Documentation
 
-The AST returns a hash reference consisting of the following keys:
+The action in this file will return a completely unblessed abstract syntax
+tree (AST) of the ANTLR4 grammar perl6 has been asked to parse. Other variants
+may return an object or even the nearest perl6 equivalent grammar, but this
+just returns a hash reference with nested array references.
+
+If you're unfamiliar with ASTs, please check out the test suites, specifically
+L<t/03-actions.t> in order to see what this particular action generates.
+
+Broadly speaking you'll get back a hash reference containing data gleaned from
+the ANTLR4 grammar, minus the comments and unimportant syntax. Where order is
+important (and generally, even where it isn't) data will be kept in line in
+an array reference, and usually these array references will have hash
+references inside them.
+
+The top-level keys are listed below, and contain the important stuff that can
+be gleaned from a quick perusal of the grammar file. The C<rules> key is the
+most complex, and is described in detail at the appropriate place.
 
   =item name
 
@@ -31,19 +47,19 @@ The AST returns a hash reference consisting of the following keys:
 
   An array reference of options specified in the grammar file.  The most common
   option is 'tokenVocab', which would appear as
-  C<options => [ tokenVocab => 'ECMAScriptLexer' ]>. I'm treating it as a list
-  of pairs rather than a hash reference because order may be significant.
+  C<options => [ tokenVocab => 'ECMAScriptLexer' ]>.
 
   =item import
 
   An array reference of grammar files the current file imports, and their
-  optional aliases. This grammar does not recursively import grammar files.
+  optional aliases. This action doesn't load imported files, but feel free
+  to do so on your own.
 
   =item tokens
 
   An array reference of token names predefined in other grammar files, such as
-  the files in the C<import> array reference. Order shouldn't be important,
-  but I've chosen an array reference to keep a consistent style.
+  the files in the C<import> key. While tokens may be defined in other files,
+  they're beyond the scope of this action.
 
   =item action
 
@@ -52,41 +68,61 @@ The AST returns a hash reference consisting of the following keys:
   doesn't seem to support multiple actions at the top level. Again, an array
   reference just for consistency's sake.
 
-  I should point out that the value will remain completely unparsed even though
-  there's a fairly complex grammar surrounding it. This is simply because it's
-  Java code, and doing so would require a completely different embedded parser.
-  I point out in passing that there's a Java and Java8 grammar in the corpus
-  test directory, should anyone care to give it a whirl.
+  The action text itself will remain unparsed, mostly because it's a
+  monolithic block of Java code. If you're converting a grammar from ANTLR4 to
+  Perl6 you'll need to take note of this behavior, but it's currently beyond
+  the scope of this action to parse the text here.
 
   =item rules
 
-  This is the most complex part of the specification, of course. It's also
-  where all the action happens. Order is probably not significant, but just for
-  consistency's sake, it will remain an array reference of pairs.
+  To preserve ordering in case we want to round-trip ANTLR-Perl6-ANTLR, this
+  is also an array reference. It's also the most complex of the data
+  structures in the module.
 
-  Rules of course have a name and a body. In this case the key of the pair is
-  the rule's name, and the value is the rule's body. Naturally, the body is the
-  most complex part. Ignoring decorations such as channels and modes for the
-  moment, rules are collections of terms. These can be actual text to match,
-  such as C<'parser'>, or the names of other rules, such as C<grammarType>.
+  At this juncture you may want to keep L<t/03-actions.t> open in order to
+  follow along with the story.
 
-    =item literals
+  The C<rules> key is an arrayref of hashrefs. Each of these hashrefs contains
+  a full rule, laid out in a more or less conistent fashion. All of these
+  hashrefs contain the following keys - C<name>, C<modifier> nd C<content>.
+  
+  The name is unsurprisingly the name of the rule. If a rule is marked as
+  C<private> or C<protected>, or is a C<fragment> you'll find that in the
+  C<modifier> arrayref, in the order in which they were found.
 
-      =item type
+  The real fun begins inside the C<content> key. Even a simple ANTLR4 rule
+  such as C<number : digits ;> will have several layers of what looks like
+  redundant nesting. This is mostly for consistency's sake, and might change
+  later on, especially for single-term rules where you wouldn't expect the
+  complexities of nesting.
 
-      =item label
+  The ANTLR4 grammar assumes that rules always start with a list of
+  alternatives, even if there's only one alternative. These alternatives
+  can themselves be a list of concatenations, even if there's only one
+  term to be "concatenated", thus appearing redundant.
 
-      =item content
+  ANTLR4 has two general kinds of groups - Implicit groups and explicit.
+  Implicit groups are those inferred from their surroundings, such as the
+  concatenation implicit in C<number : sign? digits ;>. Explicit groups are
+  those that override ANTLR4's assumptions, such as C<number : sign? (a b)?>.
 
-      =item modifier
+  Groups will always be a hashref, with a C<type> and C<content> key. The type
+  is one of C<alternation>, C<concatenation> or C<capturing>. The content
+  will always be an arrayref of either groups or terms.
 
-      =item greedy
+  Terms are the basics of the grammar, such as C<'foo'>, C<[0-9]+> or
+  C<digits>. Each term has a C<type>, C<content>, C<modifier>, C<greedy> and
+  C<complemented> key.
 
-      =item complemented
+  The C<type> is one of C<terminal>, C<nonterminal> or C<character class>. 
+  The content is the actual text of the term (such as C<foo> if the term is
+  C<'foo'>, or the individual "characters" of the character class.
 
-    =item character classes
-
-    =item nonliterals
+  The C<modifier> is the C<+>, C<*> or C<?> modifier at the end of the term,
+  or C<Nil> if no modifier is present. Just like in Perl6, terms can have
+  greedy quantifiers, and that's set by the C<greedy> flag. The
+  C<complemented> flag acts similarly, since terms can be complemented like
+  C<~'foo'> meaning "No 'foo' occurs here.
 
 =end pod
 
@@ -180,29 +216,29 @@ method TOP ($/)
 	{
 	my %content =
 		(
-		name    => $/<grammarName>.ast,
-		type    => $/<grammarType>.ast || Nil,
+		name    => $/<name>.ast,
+		type    => $/<type>.ast || Nil,
 		options => [ ],
 		import  => [ ],
                 tokens  => [ ],
                 actions => [ ],
-		rules   => [ $/<ruleSpec>>>.ast ],
+		rules   => [ $/<rules>>>.ast ],
 		);
 
 	for @( $/<prequelConstruct> ) -> $prequel
 		{
 		%content<options> =
-			$prequel.<optionsSpec>.ast if
-			$prequel.<optionsSpec>;
+			$prequel.<options>.ast if
+			$prequel.<options>;
 		%content<tokens> =
-			$prequel.<tokensSpec>.ast if
-			$prequel.<tokensSpec>;
+			$prequel.<tokens>.ast if
+			$prequel.<tokens>;
 		%content<import> =
-			$prequel.<delegateGrammars>.ast if
-			$prequel.<delegateGrammars>;
+			$prequel.<import>.ast if
+			$prequel.<import>;
 		push @( %content<actions> ),
-			@( $prequel.<action>.ast ) if
-			$prequel.<action>;
+			@( $prequel.<actions>.ast ) if
+			$prequel.<actions>;
 		}
 	make %content
 	}
@@ -288,8 +324,8 @@ method parserRuleSpec($/)
 	make
 		{
 		name     => $/<name>.ast,
-		content  => [ $/<ruleAltList>>>.ast ],
-		modifier => [ $/<ruleModifier>>>.ast ]
+		content  => [ $/<content>>>.ast ],
+		modifier => [ $/<modifier>>>.ast ]
 		}
 	}
 
@@ -323,7 +359,7 @@ method ruleAltList($/)
 	make
 		{
 		type    => 'alternation',
-		content => [ $/<labeledAlt>>>.ast ]
+		content => [ $/<content>>>.ast ]
 		}
 	}
 
