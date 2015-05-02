@@ -230,7 +230,7 @@ number : '1' ;},
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ Bar => 1 ],
+         options  => [ ],
          content  =>
            [{ type => 'alternation',
               content =>
@@ -260,7 +260,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -275,7 +275,13 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number [int x] returns [int y] throws XFoo locals [int z] options{a=2;} : '1' # One ;},
+    q{lexer grammar Name;
+number [int x]
+       returns [int y]
+       throws XFoo
+       locals [int z]
+       options{a=2;}
+  : '1' # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
     type    => 'lexer',
@@ -291,8 +297,8 @@ is_deeply
          throws   =>
            [ 'XFoo' ],
          locals   => '[int z]',
-#         options  =>
-#           [ a => 2 ],
+         options  =>
+           [ a => 2 ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -322,7 +328,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  => 
            [{ type    => 'alternation',
               content =>
@@ -352,7 +358,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -382,7 +388,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -412,7 +418,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -442,7 +448,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -472,7 +478,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -502,7 +508,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -533,7 +539,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -564,7 +570,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -594,7 +600,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -630,7 +636,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>
@@ -670,7 +676,7 @@ is_deeply
          returns  => Nil,
          throws   => [ ],
          locals   => Nil,
-#         options  => [ ],
+         options  => [ ],
          content  =>
            [{ type    => 'alternation',
               content =>

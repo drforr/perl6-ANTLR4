@@ -334,7 +334,7 @@ method parserRuleSpec($/)
                 returns  => $/<returns><ARG_ACTION>.ast,
                 throws   => [ $/<throws><ID>>>.ast ],
                 locals   => $/<locals><ARG_ACTION>.ast,
-#                options =>  $/<options>.ast ],
+                options =>  [ $/<options><option>>>.ast ],
 		}
 	}
 
