@@ -1,12 +1,12 @@
 use v6;
 BEGIN { @*INC.push('lib') };
 use ANTLR4::Grammar;
-use ANTLR4::Actions;
+use ANTLR4::Actions::AST;
 use Test;
 
-plan 26;
+plan 27;
 
-my $a = ANTLR4::Actions.new;
+my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
 
 is_deeply
@@ -35,8 +35,7 @@ is_deeply
   $g.parse( q{lexer grammar Name; options {a=2;}}, :actions($a) ).ast,
   { name    => 'Name',
     type    => 'lexer',
-    options =>
-      [ a => 2 ],
+    options => [ a => 2 ],
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
@@ -47,8 +46,7 @@ is_deeply
   $g.parse( q{lexer grammar Name; options {a='foo';}}, :actions($a) ).ast,
   { name    => 'Name',
     type    => 'lexer',
-    options =>
-      [ a => 'foo' ],
+    options => [ a => 'foo' ],
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
@@ -59,8 +57,7 @@ is_deeply
   $g.parse( q{lexer grammar Name; options {a=b,c;}}, :actions($a) ).ast,
   { name    => 'Name',
     type    => 'lexer',
-    options =>
-      [ a => [ 'b', 'c' ] ],
+    options => [ a => [ 'b', 'c' ] ],
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
@@ -88,8 +85,7 @@ is_deeply
     options =>
       [ a => [ 'b', 'c' ],
         de => 3 ],
-    import  =>
-      [ Foo => Nil ],
+    import  => [ Foo => Nil ],
     tokens  => [ ],
     actions => [ ],
     rules   => [ ] },
@@ -127,8 +123,7 @@ is_deeply
     import  =>
       [ Foo => Nil,
         Bar => 'Test' ],
-    tokens  =>
-      [ 'Foo', 'Bar' ],
+    tokens  => [ 'Foo', 'Bar' ],
     actions => [ ],
     rules   => [ ] },
   'lexer grammar with options, imports and tokens';
@@ -145,10 +140,8 @@ is_deeply
     import  =>
       [ Foo => Nil,
         Bar => 'Test' ],
-    tokens  =>
-      [ 'Foo', 'Bar' ],
-    actions =>
-      [ '@members' => '{ protected int curlies = 0; }' ],
+    tokens  => [ 'Foo', 'Bar' ],
+    actions => [ '@members' => '{ protected int curlies = 0; }' ],
     rules   => [ ] },
   'lexer grammar with options, imports, tokens and action';
 
@@ -168,10 +161,8 @@ tokens { Foo, Bar }
     import  =>
       [ Foo => Nil,
         Bar => 'Test' ],
-    tokens  =>
-      [ 'Foo', 'Bar' ],
-    actions =>
-      [ '@members'       => '{ protected int curlies = 0; }' ],
+    tokens  => [ 'Foo', 'Bar' ],
+    actions => [ '@members' => '{ protected int curlies = 0; }' ],
     rules   => [ ] },
   'lexer grammar with options, imports, tokens and action';
 
@@ -192,8 +183,7 @@ tokens { Foo, Bar }
     import  =>
       [ Foo => Nil,
         Bar => 'Test' ],
-    tokens  =>
-      [ 'Foo', 'Bar' ],
+    tokens  => [ 'Foo', 'Bar' ],
     actions =>
       [ '@members'       => '{ protected int curlies = 0; }',
         '@sample::stuff' => '{ 1; }' ],
@@ -218,8 +208,7 @@ number : '1' ;},
     import  =>
       [ Foo => Nil,
         Bar => 'Test' ],
-    tokens  =>
-      [ 'Foo', 'Bar' ],
+    tokens  => [ 'Foo', 'Bar' ],
     actions =>
       [ '@members'       => '{ protected int curlies = 0; }',
         '@sample::stuff' => '{ 1; }' ],
@@ -236,11 +225,12 @@ number : '1' ;},
               content =>
                 [{ type    => 'concatenation',
                    label   => Nil,
-                   content => [{ type         => 'terminal',
-                                 content      => '1',
-                                 modifier     => Nil,
-                                 greedy       => False,
-                                 complemented => False }] }] }] }] },
+                   content =>
+                     [{ type         => 'terminal',
+                        content      => '1',
+                        modifier     => Nil,
+                        greedy       => False,
+                        complemented => False }] }] }] }] },
   'lexer grammar with options and single simple rule';
 
 is_deeply
@@ -266,11 +256,12 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'terminal',
-                                 content      => '1',
-                                 modifier     => Nil,
-                                 greedy       => False,
-                                 complemented => False }] }] }] }] },
+                   content =>
+                     [{ type         => 'terminal',
+                        content      => '1',
+                        modifier     => Nil,
+                        greedy       => False,
+                        complemented => False }] }] }] }] },
   'lexer grammar with single labeled rule';
 
 is_deeply
@@ -294,21 +285,20 @@ number [int x]
          modifier => [ ],
          action   => '[int x]',
          returns  => '[int y]',
-         throws   =>
-           [ 'XFoo' ],
+         throws   => [ 'XFoo' ],
          locals   => '[int z]',
-         options  =>
-           [ a => 2 ],
+         options  => [ a => 2 ],
          content  =>
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'terminal',
-                                 content      => '1',
-                                 modifier     => Nil,
-                                 greedy       => False,
-                                 complemented => False }] }] }] }] },
+                   content =>
+                     [{ type         => 'terminal',
+                        content      => '1',
+                        modifier     => Nil,
+                        greedy       => False,
+                        complemented => False }] }] }] }] },
   'lexer grammar with single labeled rule with action';
 
 is_deeply
@@ -334,11 +324,12 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'terminal',
-                                 content      => '1',
-                                 modifier     => '+',
-                                 greedy       => False,
-                                 complemented => False }] }] }] }] },
+                   content =>
+                     [{ type         => 'terminal',
+                        content      => '1',
+                        modifier     => '+',
+                        greedy       => False,
+                        complemented => False }] }] }] }] },
   'lexer grammar with options and labeled rule with modifier';
 
 is_deeply
@@ -364,11 +355,12 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'terminal',
-                                 content      => '1',
-                                 modifier     => '+',
-                                 greedy       => True,
-                                 complemented => False }] }] }] }] },
+                   content =>
+                     [{ type         => 'terminal',
+                        content      => '1',
+                        modifier     => '+',
+                        greedy       => True,
+                        complemented => False }] }] }] }] },
   'lexer grammar with options and labeled rule with greedy modifier';
 
 is_deeply
@@ -394,11 +386,12 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'terminal',
-                                 content      => '1',
-                                 modifier     => '+',
-                                 greedy       => True,
-                                 complemented => True }] }] }] }] },
+                   content =>
+                     [{ type         => 'terminal',
+                        content      => '1',
+                        modifier     => '+',
+                        greedy       => True,
+                        complemented => True }] }] }] }] },
   'lexer grammar, rule with complemented terminal';
 
 is_deeply
@@ -424,11 +417,12 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'character class',
-                                 content      => [ ],
-                                 modifier     => '+',
-                                 greedy       => True,
-                                 complemented => True }] }] }] }] },
+                   content =>
+                     [{ type         => 'character class',
+                        content      => [ ],
+                        modifier     => '+',
+                        greedy       => True,
+                        complemented => True }] }] }] }] },
   'lexer grammar, rule with empty character class';
 
 is_deeply
@@ -454,11 +448,12 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'character class',
-                                 content      => [ '0' ],
-                                 modifier     => '+',
-                                 greedy       => True,
-                                 complemented => True }] }] }] }] },
+                   content =>
+                     [{ type         => 'character class',
+                        content      => [ '0' ],
+                        modifier     => '+',
+                        greedy       => True,
+                        complemented => True }] }] }] }] },
   'lexer grammar, rule with character class';
 
 is_deeply
@@ -484,11 +479,12 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'character class',
-                                 content      => [ '0-9' ],
-                                 modifier     => '+',
-                                 greedy       => True,
-                                 complemented => True }] }] }] }] },
+                   content =>
+                     [{ type         => 'character class',
+                        content      => [ '0-9' ],
+                        modifier     => '+',
+                        greedy       => True,
+                        complemented => True }] }] }] }] },
   'lexer grammar, rule with hyphenated character class';
 
 is_deeply
@@ -514,12 +510,12 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'character class',
-                                 content      =>
-                                   [ '-', '0-9' ],
-                                 modifier     => '+',
-                                 greedy       => True,
-                                 complemented => True }] }] }] }] },
+                   content =>
+                     [{ type         => 'character class',
+                        content      => [ '-', '0-9' ],
+                        modifier     => '+',
+                        greedy       => True,
+                        complemented => True }] }] }] }] },
   'lexer grammar, rule with leading hyphenated character class';
 
 is_deeply
@@ -545,12 +541,12 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'character class',
-                                 content      =>
-                                   [ '-', '0-9', '\\f', '\\u000d' ],
-                                 modifier     => '+',
-                                 greedy       => True,
-                                 complemented => True }] }] }] }] },
+                   content =>
+                     [{ type         => 'character class',
+                        content      => [ '-', '0-9', '\\f', '\\u000d' ],
+                        modifier     => '+',
+                        greedy       => True,
+                        complemented => True }] }] }] }] },
   'lexer grammar, rule with christmas-tree character class';
 
 is_deeply
@@ -576,11 +572,12 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'nonterminal',
-                                 content      => 'non_digits',
-                                 modifier     => '+',
-                                 greedy       => True,
-                                 complemented => True }] }] }] }] },
+                   content =>
+                     [{ type         => 'nonterminal',
+                        content      => 'non_digits',
+                        modifier     => '+',
+                        greedy       => True,
+                        complemented => True }] }] }] }] },
   'lexer grammar, rule with complemented nonterminal';
 
 is_deeply
@@ -606,17 +603,17 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
-                   content => [{ type         => 'nonterminal',
-                                 content      => 'non_digits',
-                                 modifier     => '+',
-                                 greedy       => True,
-                                 complemented => True },
-                               { type         => 'character class',
-                                 content      =>
-                                   [ '-', '0-9', '\\f', '\\u000d' ],
-                                 modifier     => '+',
-                                 greedy       => True,
-                                 complemented => True }] }] }] }] },
+                   content =>
+                     [{ type         => 'nonterminal',
+                        content      => 'non_digits',
+                        modifier     => '+',
+                        greedy       => True,
+                        complemented => True },
+                      { type         => 'character class',
+                        content      => [ '-', '0-9', '\\f', '\\u000d' ],
+                        modifier     => '+',
+                        greedy       => True,
+                        complemented => True }] }] }] }] },
   'lexer grammar, rule with multiple concatenated terms';
 
 is_deeply
@@ -652,8 +649,7 @@ is_deeply
                    label   => 'One',
                    content =>
                      [{ type         => 'character class',
-                        content      =>
-                          [ '-', '0-9', '\\f', '\\u000d' ],
+                        content      => [ '-', '0-9', '\\f', '\\u000d' ],
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
@@ -692,11 +688,49 @@ is_deeply
                    label   => 'One',
                    content =>
                      [{ type         => 'character class',
-                        content      =>
-                          [ '-', '0-9', '\\f', '\\u000d' ],
+                        content      => [ '-', '0-9', '\\f', '\\u000d' ],
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
   'lexer grammar, rule with multiple alternating terms';
+
+#is_deeply
+#  $g.parse(
+#    q{lexer grammar Name; protected number : ( ~non_digits+? | ~[-0-9\f\u000d]+? ) # One ;},
+#    :actions($a) ).ast,
+#  { name    => 'Name',
+#    type    => 'lexer',
+#    options => [ ],
+#    import  => [ ],
+#    tokens  => [ ],
+#    actions => [ ],
+#    rules   =>
+#      [{ name     => 'number',
+#         modifier => [ 'protected' ],
+#         action   => Nil,
+#         returns  => Nil,
+#         throws   => [ ],
+#         locals   => Nil,
+#         options  => [ ],
+#         content  =>
+#           [{ type    => 'alternation',
+#              content =>
+#                [{ type    => 'concatenation',
+#                   label   => Nil,
+#                   content =>
+#                     [{ type         => 'nonterminal',
+#                        content      => 'non_digits',
+#                        modifier     => '+',
+#                        greedy       => True,
+#                        complemented => True }] },
+#                 { type    => 'concatenation',
+#                   label   => 'One',
+#                   content =>
+#                     [{ type         => 'character class',
+#                        content      => [ '-', '0-9', '\\f', '\\u000d' ],
+#                        modifier     => '+',
+#                        greedy       => True,
+#                        complemented => True }] }] }] }] },
+#  'lexer grammar, rule with group';
 
 # vim: ft=perl6

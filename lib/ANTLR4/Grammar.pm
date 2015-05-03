@@ -175,11 +175,15 @@ rule ID_list
 	{	<ID>+ % ','
 	}
 
+#
+# Strings, actions and digit strings are all just scalar types, so
+# rename the term, and take advantage of homogeneity.
+#
 rule optionValue
- 	{	<ID_list>
- 	|	<STRING_LITERAL>
- 	|	<ACTION>
- 	|	<DIGITS>
+ 	{	<list=ID_list>
+ 	|	<scalar=STRING_LITERAL>
+ 	|	<scalar=ACTION>
+ 	|	<scalar=DIGITS>
  	}
  
 rule delegateGrammars

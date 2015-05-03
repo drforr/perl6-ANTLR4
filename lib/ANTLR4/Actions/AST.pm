@@ -1,15 +1,15 @@
 =begin pod
 
-=head1 ANTLR4::Actions
+=head1 ANTLR4::Actions::AST
 
-C<ANTLR4::Actions> encompasses the grammar actions needed to create a perl6 AST
-from an ANTLR4 parser specification.
+C<ANTLR4::Actions::AST> encompasses the grammar actions needed to create a
+perl6 AST from an ANTLR4 parser specification.
 
 =head1 Synopsis
 
-    use ANTLR4::Actions;
+    use ANTLR4::Actions::AST;
     use ANTLR4::Grammar;
-    my $a = ANTLR4::Actions.new;
+    my $a = ANTLR4::Actions::AST.new;
     my $g = ANTLR4::Grammar.new;
 
     say $g.parsefile('ECMAScript.g4', :actions($a) ).ast;
@@ -130,7 +130,7 @@ most complex, and is described in detail at the appropriate place.
 =end pod
 
 use v6;
-class ANTLR4::Actions;
+class ANTLR4::Actions::AST;
 
 method DIGITS($/)
 	{
@@ -269,17 +269,10 @@ method ID_list_trailing_comma($/)
 
 method optionValue($/)
 	{
-	#
-	# XXX I'm fully aware this can be written better, but for now...
-	#
 	make
-		$/<ID_list>
-			?? $/<ID_list>.ast.list
-			!! $/<STRING_LITERAL>
-			?? $/<STRING_LITERAL>.ast
-			!! $/<DIGITS>
-			?? $/<DIGITS>.ast
-			!! Nil
+		$/<list>
+			?? $/<list>.ast.list
+			!! $/<scalar>.ast
 	}
  
 method delegateGrammars($/)
@@ -334,7 +327,7 @@ method parserRuleSpec($/)
                 returns  => $/<returns><ARG_ACTION>.ast,
                 throws   => [ $/<throws><ID>>>.ast ],
                 locals   => $/<locals><ARG_ACTION>.ast,
-                options =>  [ $/<options><option>>>.ast ],
+                options  => [ $/<options><option>>>.ast ],
 		}
 	}
 
@@ -405,17 +398,17 @@ method labeledAlt($/)
 #	{
 #	}
 
-#method lexerBlock($/)
-#	{
-#	}
+method lexerBlock($/)
+	{
+	}
 
 #method lexerCommands($/)
 #	{
 #	}
 
-#method lexerCommand($/)
-#	{
-#	}
+method lexerCommand($/)
+	{
+	}
 
 #method lexerCommandName($/)
 #	{
@@ -440,12 +433,10 @@ method element($/)
 		complemented => $/<atom><notSet>
 			?? True
 			!! False,
-		greedy => $/<ebnfSuffix>[1]
-			?? True
+		greedy => $/<ebnfSuffix>
+			?? $/<ebnfSuffix>.ast.<greedy>
 			!! False,
-                modifier => $/<ebnfSuffix>[0]
-			?? $/<ebnfSuffix>[0].Str
-			!! Nil,
+		modifier => $/<ebnfSuffix>.ast.<modifier>,
 		content => $<atom><notSet><setElement><LEXER_CHAR_SET>
 			?? [ $/<atom><notSet><setElement><LEXER_CHAR_SET>[0]>>.Str ]
 			!! $/<atom><terminal><STRING_LITERAL>
@@ -469,9 +460,14 @@ method element($/)
 #	{
 #	}
 
-#method ebnfSuffix($/)
-#	{
-#	}
+method ebnfSuffix($/)
+	{
+	make
+		{
+		modifier => $/[0] ?? $/[0].Str !! Nil,
+		greedy   => $/[1] ?? True !! False,
+		}
+	}
 
 #method lexerAtom($/)
 #	{
@@ -485,17 +481,17 @@ method element($/)
 #	{
 #	}
 
-#method blockSet($/)
-#	{
-#	}
+method blockSet($/)
+	{
+	}
 
 #method setElement($/)
 #	{
 #	}
 
-#method block($/)
-#	{
-#	}
+method block($/)
+	{
+	}
 
 #method ruleref($/)
 #	{
