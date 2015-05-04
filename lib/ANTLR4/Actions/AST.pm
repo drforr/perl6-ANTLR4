@@ -394,9 +394,9 @@ method labeledAlt($/)
 #	{
 #	}
 
-#method labeledLexerElement($/)
-#	{
-#	}
+method labeledLexerElement($/)
+	{
+	}
 
 method lexerBlock($/)
 	{
@@ -418,13 +418,19 @@ method lexerCommand($/)
 #	{
 #	}
 
-#method altList($/)
-#	{
-#	}
+method altList($/)
+	{
+	make [ $/<alternative>>>.ast.flat ]
+	}
 
-#method alternative($/)
-#	{
-#	}
+method alternative($/) # XXX Add <elementOptions>
+	{
+	make
+		{
+		type    => 'Alternation',
+		content => [ $/<element>>>.ast ]
+		}
+	}
 
 method element($/)
 	{
@@ -443,18 +449,24 @@ method element($/)
 			?? $/<atom><terminal><STRING_LITERAL>.ast
 			!! $/<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>
 			?? $/<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>.ast
+#			!! $/<atom><notSet><setElement><ID>.ast,
+			!! $/<ebnf><block>
+			?? $/<ebnf><block>.ast
 			!! $/<atom><notSet><setElement><ID>.ast,
 		type => $/<atom><notSet><setElement><LEXER_CHAR_SET>
 			?? 'character class'
 			!! $/<atom><notSet><setElement><ID>
 			?? 'nonterminal'
+#			!! 'terminal',
+			!! $/<ebnf><block>
+			?? 'capturing group'
 			!! 'terminal',
 		}
 	}
  
-#method labeledElement($/)
-#	{
-#	}
+method labeledElement($/)
+	{
+	}
 
 #method ebnf($/)
 #	{
@@ -491,6 +503,7 @@ method blockSet($/)
 
 method block($/)
 	{
+	make $/<altList>.ast # XXX Restore optionsSpec
 	}
 
 #method ruleref($/)

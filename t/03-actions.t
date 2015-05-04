@@ -235,6 +235,44 @@ number : '1' ;},
 
 is_deeply
   $g.parse(
+    q{lexer grammar Name; number : ( '1' ) ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    actions => [ ],
+    rules   =>
+      [{ name     => 'number',
+         modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+         options  => [ ],
+         content  =>
+           [{ type => 'alternation',
+              content =>
+                [{ type    => 'concatenation',
+                   label   => Nil,
+                   content =>
+                     [{ type         => 'capturing group',
+                        modifier     => Nil,
+                        greedy       => False,
+                        complemented => False,
+                        content =>
+                          [{ type         => 'Alternation', # XXX Fix this?
+                             content      =>
+                               [{ type         => 'terminal',
+                                  content      => '1',
+                                  modifier     => Nil,
+                                  greedy       => False,
+                                  complemented => False }] }] }] }] }] }] },
+  'lexer grammar with options and single simple rule';
+
+is_deeply
+  $g.parse(
     q{lexer grammar Name; number : '1' # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
@@ -693,44 +731,5 @@ is_deeply
                         greedy       => True,
                         complemented => True }] }] }] }] },
   'lexer grammar, rule with multiple alternating terms';
-
-#is_deeply
-#  $g.parse(
-#    q{lexer grammar Name; protected number : ( ~non_digits+? | ~[-0-9\f\u000d]+? ) # One ;},
-#    :actions($a) ).ast,
-#  { name    => 'Name',
-#    type    => 'lexer',
-#    options => [ ],
-#    import  => [ ],
-#    tokens  => [ ],
-#    actions => [ ],
-#    rules   =>
-#      [{ name     => 'number',
-#         modifier => [ 'protected' ],
-#         action   => Nil,
-#         returns  => Nil,
-#         throws   => [ ],
-#         locals   => Nil,
-#         options  => [ ],
-#         content  =>
-#           [{ type    => 'alternation',
-#              content =>
-#                [{ type    => 'concatenation',
-#                   label   => Nil,
-#                   content =>
-#                     [{ type         => 'nonterminal',
-#                        content      => 'non_digits',
-#                        modifier     => '+',
-#                        greedy       => True,
-#                        complemented => True }] },
-#                 { type    => 'concatenation',
-#                   label   => 'One',
-#                   content =>
-#                     [{ type         => 'character class',
-#                        content      => [ '-', '0-9', '\\f', '\\u000d' ],
-#                        modifier     => '+',
-#                        greedy       => True,
-#                        complemented => True }] }] }] }] },
-#  'lexer grammar, rule with group';
 
 # vim: ft=perl6
