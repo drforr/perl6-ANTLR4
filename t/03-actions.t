@@ -235,44 +235,6 @@ number : '1' ;},
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ( '1' ) ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type => 'alternation',
-              content =>
-                [{ type    => 'concatenation',
-                   label   => Nil,
-                   content =>
-                     [{ type         => 'capturing group',
-                        modifier     => Nil,
-                        greedy       => False,
-                        complemented => False,
-                        content =>
-                          [{ type         => 'alternation',
-                             content      =>
-                               [{ type         => 'terminal',
-                                  content      => '1',
-                                  modifier     => Nil,
-                                  greedy       => False,
-                                  complemented => False }] }] }] }] }] }] },
-  'lexer grammar with options and single simple rule';
-
-is_deeply
-  $g.parse(
     q{lexer grammar Name; number : ( '1' )+? ;},
     :actions($a) ).ast,
   { name    => 'Name',

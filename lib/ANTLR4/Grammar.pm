@@ -428,10 +428,21 @@ rule ebnf
 	{
 	<block> <ebnfSuffix>?
  	}
+
+token MODIFIER
+	{	'+'
+	|	'*'
+	|	'?'
+	}
+
+token GREED
+	{
+	'?'
+	}
  
 token ebnfSuffix
  	{
-	('?' | '*' | '+') ('?')?
+	<MODIFIER> <GREED>?
  	}
  
 rule lexerAtom

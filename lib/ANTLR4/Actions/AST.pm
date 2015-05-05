@@ -229,7 +229,7 @@ method TOP ($/)
 			$prequel.<import>.ast if
 			$prequel.<import>;
 		push @( %content<actions> ),
-			@( $prequel.<actions>.ast ) if
+			$prequel.<actions>.ast if
 			$prequel.<actions>;
 		}
 	make %content
@@ -285,7 +285,7 @@ method action_name($/)
 
 method action($/)
 	{
-	make [ ~$/<action_name> => ~$/<ACTION> ]
+	make ~$/<action_name> => ~$/<ACTION>
 	}
 
 #method actionScopeName($/)
@@ -436,13 +436,13 @@ method element($/)
 			!! $/<ebnf><block>
 			?? 'capturing group'
 			!! 'terminal',
-		greedy => $/<ebnf><ebnfSuffix>[1]
-			?? True
+		greedy => $/<ebnf><ebnfSuffix>
+			?? $/<ebnf><ebnfSuffix>.ast.<greedy>
 			!! $/<ebnfSuffix>
 			?? $/<ebnfSuffix>.ast.<greedy>
 			!! False,
-		modifier => $/<ebnf><ebnfSuffix>[0]
-			?? ~$/<ebnf><ebnfSuffix>[0]
+		modifier => $/<ebnf><ebnfSuffix>
+			?? $/<ebnf><ebnfSuffix>.ast.<modifier>
 			!! $/<ebnfSuffix>.ast.<modifier>,
 		}
 	}
@@ -459,8 +459,8 @@ method ebnfSuffix($/)
 	{
 	make
 		{
-		modifier => ~$/[0],
-		greedy   => $/[1].defined
+		modifier => ~$/<MODIFIER>,
+		greedy   => $/<GREED>.defined
 		}
 	}
 
