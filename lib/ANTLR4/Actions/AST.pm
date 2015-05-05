@@ -406,11 +406,11 @@ method altList($/)
 	make [ $/<alternative>>>.ast.flat ]
 	}
 
-method alternative($/) # XXX Add <elementOptions>
+method alternative($/)
 	{
 	make
 		{
-		type    => 'Alternation',
+		type    => 'alternation',
 		content => [ $/<element>>>.ast ]
 		}
 	}
@@ -436,10 +436,14 @@ method element($/)
 			!! $/<ebnf><block>
 			?? 'capturing group'
 			!! 'terminal',
-		greedy => $/<ebnfSuffix>
+		greedy => $/<ebnf><ebnfSuffix>[1]
+			?? True
+			!! $/<ebnfSuffix>
 			?? $/<ebnfSuffix>.ast.<greedy>
 			!! False,
-		modifier => $/<ebnfSuffix>.ast.<modifier>,
+		modifier => $/<ebnf><ebnfSuffix>[0]
+			?? ~$/<ebnf><ebnfSuffix>[0]
+			!! $/<ebnfSuffix>.ast.<modifier>,
 		}
 	}
  
