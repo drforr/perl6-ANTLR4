@@ -137,14 +137,6 @@ method DIGITS($/)
 	make +$/
 	}
 
-#method COMMENT($/)
-#	{
-#	}
-
-#method COMMENTS($/)
-#	{
-#	}
-
 method ID($/)
 	{
 	make ~$/

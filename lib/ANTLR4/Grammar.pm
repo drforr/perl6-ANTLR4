@@ -2,31 +2,48 @@ use v6;
 #use Grammar::Tracer;
 grammar ANTLR4::Grammar;
 
+#
+# Not currently acted upon
+#
 token BLANK_LINE
-	{	\s* \n
+	{
+	\s* \n
 	}
 
+#
+# Not currently acted upon
+#
 token COMMENT
 	{	'/*' .*? '*/'
 	|	'//' \N*
 	}
 
+#
+# Not currently acted upon
+#
 token COMMENTS
-	{	[<COMMENT> \s*]+
+	{
+	[<COMMENT> \s*]+
 	}
 
+#
+# Not currently acted upon
+#
 token DIGIT
-	{	<[ 0..9 ]>
+	{
+	<[ 0..9 ]>
 	}
 
 token DIGITS
-	{	<DIGIT>+
+	{
+	<DIGIT>+
 	}
 
 #  Allow unicode rule/token names
 
 token ID
-	{	<NameStartChar> <NameChar>*
+	{
+	<NameStartChar> <NameChar>*
 	}
 
 token NameChar
@@ -55,9 +72,10 @@ token NameStartChar
 	} # ignores | ['\u10000-'\uEFFFF] ;
 
 token STRING_LITERAL
-	{	'\''
-		( :!sigspace [ '\\' <ESC_SEQ> | <-[ ' \r \n \\ ]> ]* )
-		'\''
+	{
+	'\''
+	( :!sigspace [ '\\' <ESC_SEQ> | <-[ ' \r \n \\ ]> ]* )
+	'\''
 	}
 
 token ESC_SEQ
@@ -68,11 +86,13 @@ token ESC_SEQ
 	}
 
 token UNICODE_ESC
-	{	'u' <HEX_DIGIT> ** {0..4}
+	{
+	'u' <HEX_DIGIT> ** {4}
 	}
 
 token HEX_DIGIT
-	{	<[ 0..9 a..f A..F ]>
+	{
+	<[ 0..9 a..f A..F ]>
 	}
 
 #  Many language targets use {} as block delimiters and so we
@@ -83,69 +103,76 @@ token HEX_DIGIT
 #  in their own alts so as not to inadvertantly match {}.
 
 token ACTION
-	{	'{'	[	<COMMENT>
-			|	<ACTION>
-			|	<ACTION_ESCAPE>
-			|	<ACTION_STRING_LITERAL>
-			|	<ACTION_CHAR_LITERAL>
-			|	.
-			]*?
-		'}'
+	{
+	'{'	[	<COMMENT>
+		|	<ACTION>
+		|	<ACTION_ESCAPE>
+		|	<ACTION_STRING_LITERAL>
+		|	<ACTION_CHAR_LITERAL>
+		|	.
+		]*?
+	'}'
 	}
 
 token ACTION_ESCAPE
-	{	'\\' .
+	{
+	'\\' .
 	}
 
 token ACTION_STRING_LITERAL
-	{	'"' [<ACTION_ESCAPE> | <-[ " \\ ]>]* '"'
+	{
+	'"' [<ACTION_ESCAPE> | <-[ " \\ ]>]* '"'
 	}
 
 token ACTION_CHAR_LITERAL
-	{	'\'' [<ACTION_ESCAPE> | <-[ ' \\ ]>]* '\''
+	{
+	'\'' [<ACTION_ESCAPE> | <-[ ' \\ ]>]* '\''
 	}
 
 #
 # mode ArgAction; # E.g., [int x, List<String> a[]]
 # 
 token ARG_ACTION
-	{	'[' <-[ \\ \x[5d]]>* ']'
+	{
+	'[' <-[ \\ \x[5d]]>* ']'
 	}
 
 token LEXER_CHAR_SET_ELEMENT
 	{	'\\' <-[ u ]>
-	|	'\\' 'u' <HEX_DIGIT> ** {4}
-	|	<-[ \\ \x[5d]]>
+	|	'\\' <UNICODE_ESC>
+	|	<-[ \\ \x[5d] ]>
 	}
 
 token LEXER_CHAR_SET_ELEMENT_NO_HYPHEN
 	{	'\\' .
-	|	<-[ - \\ \x[5d]]>
+	|	<-[ - \\ \x[5d] ]>
 	}
 
 token LEXER_CHAR_SET_RANGE
-	{	[<LEXER_CHAR_SET_ELEMENT_NO_HYPHEN> '-']?
-		<LEXER_CHAR_SET_ELEMENT>
+	{
+	[<LEXER_CHAR_SET_ELEMENT_NO_HYPHEN> '-']? <LEXER_CHAR_SET_ELEMENT>
 	}
 
 token LEXER_CHAR_SET
-	{	'[' (<LEXER_CHAR_SET_RANGE> | <LEXER_CHAR_SET_ELEMENT>)* ']'
+	{
+	'[' (<LEXER_CHAR_SET_RANGE> | <LEXER_CHAR_SET_ELEMENT>)* ']'
 	}
 
 #
 #  The main entry point for parsing a v4 grammar.
 # 
 rule TOP 
-	{	<BLANK_LINE>*
-		<type=grammarType> <name=grammarName=ID> ';'
-		<prequelConstruct>*
-		<rules=ruleSpec>*
-		<modeSpec>*
+	{
+	<BLANK_LINE>*
+	<type=grammarType> <name=ID> ';'
+	<prequelConstruct>*
+	<rules=ruleSpec>*
+	<modeSpec>*
 	}
 
 rule grammarType
-	{	<COMMENTS>? ( :!sigspace 'lexer' | 'parser' )?
-		<COMMENTS>? 'grammar'
+	{
+	<COMMENTS>? ( :!sigspace 'lexer' | 'parser' )? <COMMENTS>? 'grammar'
 	}
 
 #  This is the list of all constructs that can be declared before
@@ -162,15 +189,18 @@ rule prequelConstruct
 #  A list of options that affect analysis and/or code generation
 
 rule optionsSpec
-	{	'options' '{' <option>* '}'
+	{
+	'options' '{' <option>* '}'
 	} 
 
 rule option
-	{	<key=ID> '=' <optionValue> ';'
+	{
+	<key=ID> '=' <optionValue> ';'
 	}
 
 rule ID_list
-	{	<ID>+ % ','
+	{
+	<ID>+ % ','
 	}
 
 #
@@ -185,29 +215,35 @@ rule optionValue
  	}
  
 rule delegateGrammars
- 	{	'import' <delegateGrammar>+ % ',' ';'
+ 	{
+	'import' <delegateGrammar>+ % ',' ';'
  	}
  
 rule delegateGrammar
- 	{	<key=ID> ['=' <value=ID>]?
+ 	{
+	<key=ID> ['=' <value=ID>]?
  	}
  
 rule ID_list_trailing_comma
-	{	<ID>+ %% ','
+	{
+	<ID>+ %% ','
 	}
 
 rule tokensSpec
- 	{	<COMMENTS>? 'tokens' '{' <ID_list_trailing_comma> '}'
+ 	{
+	<COMMENTS>? 'tokens' '{' <ID_list_trailing_comma> '}'
  	}
  
 #  Match stuff like @parser::members {int i;}
 
 token action_name
- 	{	'@' ( :!sigspace <actionScopeName> '::')? <ID>
+ 	{
+	'@' ( :!sigspace <actionScopeName> '::')? <ID>
 	}
  
 rule action
- 	{	<action_name> <ACTION>
+ 	{
+	<action_name> <ACTION>
  	}
  
 #  Sometimes the scope names will collide with keywords; allow them as
@@ -220,7 +256,8 @@ token actionScopeName
  	}
  
 rule modeSpec
- 	{	<COMMENTS>? 'mode' <ID> ';' <lexerRule>*
+ 	{
+	<COMMENTS>? 'mode' <ID> ';' <lexerRule>*
  	}
  
 rule ruleSpec
@@ -229,38 +266,45 @@ rule ruleSpec
  	}
 
 rule parserRuleSpec
- 	{	<COMMENTS>? <modifier=ruleModifier>* <name=ID> <ARG_ACTION>?
-		<returns=ruleReturns>? <throws=throwsSpec>? <locals=localsSpec>?
-		<options=optionsSpec>? # XXX This was <optionsSpec>*
-		':'
-		<content=ruleAltList>
-		';'
-		<COMMENTS>?
-		<exceptionGroup>
+ 	{
+	<COMMENTS>? <modifier=ruleModifier>* <name=ID> <ARG_ACTION>?
+	<returns=ruleReturns>? <throws=throwsSpec>? <locals=localsSpec>?
+	<options=optionsSpec>? # XXX This was <optionsSpec>*
+	':'
+	<content=ruleAltList>
+	';'
+	<COMMENTS>?
+	<exceptionGroup>
  	}
  
 rule exceptionGroup
- 	{	<exceptionHandler>* <finallyClause>?
+ 	{
+	<exceptionHandler>* <finallyClause>?
  	}
  
 rule exceptionHandler
- 	{	'catch' <ARG_ACTION> <ACTION>
+ 	{
+	'catch' <ARG_ACTION> <ACTION>
  	}
  
 rule finallyClause
- 	{	'finally' <ACTION>
+ 	{
+	'finally' <ACTION>
  	}
  
 rule ruleReturns
- 	{	'returns' <ARG_ACTION>
+ 	{
+	'returns' <ARG_ACTION>
  	}
  
 rule throwsSpec
- 	{	'throws' <ID>+ % ','
+ 	{
+	'throws' <ID>+ % ','
  	}
  
 rule localsSpec
- 	{	'locals' <ARG_ACTION> <COMMENTS>?
+ 	{
+	'locals' <ARG_ACTION> <COMMENTS>?
  	}
  
 #  An individual access modifier for a rule. The 'fragment' modifier
@@ -281,31 +325,36 @@ token ruleModifier
 # ('a' | ) # Trailing empty alternative is allowed in sample code
 #
 rule ruleAltList
-	{	<content=labeledAlt>+ % '|'
+	{
+	<content=labeledAlt>+ % '|'
 	}
  
 rule labeledAlt
- 	{	<alternative> <COMMENTS>? ['#' <label=ID> <COMMENTS>?]?
+ 	{
+	<alternative> <COMMENTS>? ['#' <label=ID> <COMMENTS>?]?
  	}
  
 rule lexerRule
- 	{	<COMMENTS>? 'fragment'?
- 		<COMMENTS>? <name=ID>
-		<COMMENTS>? ':'
-		<COMMENTS>? <lexerAltList>
-		<COMMENTS>? ';'
-		<COMMENTS>?
+ 	{
+	<COMMENTS>? 'fragment'?
+ 	<COMMENTS>? <name=ID>
+	<COMMENTS>? ':'
+	<COMMENTS>? <lexerAltList>
+	<COMMENTS>? ';'
+	<COMMENTS>?
  	}
  
 #
 # XXX The null alternative here is fugly.
 #
 rule lexerAltList
-	{	[ [<COMMENTS>? <lexerAlt> <COMMENTS>?] | '' ]+ %% '|'
+	{
+	[ [<COMMENTS>? <lexerAlt> <COMMENTS>?] | '' ]+ %% '|'
 	}
  
 rule lexerAlt
- 	{	<lexerElement>+ <lexerCommands>?
+ 	{
+	<lexerElement>+ <lexerCommands>?
  	}
  
 rule lexerElement
@@ -316,20 +365,23 @@ rule lexerElement
  	}
  
 rule labeledLexerElement
- 	{	<ID> ['=' | '+=']
+ 	{
+	<ID> ['=' | '+=']
  		[	<lexerAtom>
  		|	<block>
  		]
  	}
  
 rule lexerBlock
- 	{	'~'? '(' <COMMENTS>? <lexerAltList>? ')'
+ 	{
+	'~'? '(' <COMMENTS>? <lexerAltList>? ')'
  	}
  
 #  E.g., channel(HIDDEN), skip, more, mode(INSIDE), push(INSIDE), pop
  
 rule lexerCommands
- 	{	'->' <lexerCommand>+ % ','
+ 	{
+	'->' <lexerCommand>+ % ','
  	}
  
 rule lexerCommand
@@ -348,11 +400,13 @@ rule lexerCommandExpr
  	}
  
 rule altList
-	{	<alternative>+ % '|'
+	{
+	<alternative>+ % '|'
 	}
  
 rule alternative
- 	{	<elementOptions>? <element>*
+ 	{
+	<elementOptions>? <element>*
  	}
  
 rule element
@@ -363,18 +417,21 @@ rule element
  	}
  
 rule labeledElement
- 	{	<ID> ['=' | '+=']
+ 	{
+	<ID> ['=' | '+=']
  		[	<atom>
  		|	<block>
  		]
  	}
  
 rule ebnf
-	{	<block> <ebnfSuffix>?
+	{
+	<block> <ebnfSuffix>?
  	}
  
 token ebnfSuffix
- 	{	('?' | '*' | '+') ('?')?
+ 	{
+	('?' | '*' | '+') ('?')?
  	}
  
 rule lexerAtom
@@ -395,11 +452,13 @@ rule atom
  	}
  
 rule notSet
- 	{	'~' [<setElement> | <blockSet>]
+ 	{
+	'~' [<setElement> | <blockSet>]
  	}
  
 rule blockSet
-	{	'(' <setElement>+ % '|' ')' <COMMENTS>?
+	{
+	'(' <setElement>+ % '|' ')' <COMMENTS>?
 	}
  
 rule setElement
@@ -410,14 +469,17 @@ rule setElement
  	}
  
 rule block
- 	{	'(' [ <optionsSpec>? ':' ]? <altList> <COMMENTS>? ')'
+ 	{
+	'(' [ <optionsSpec>? ':' ]? <altList> <COMMENTS>? ')'
 	}
  
 rule ruleref
- 	{	<ID> <ARG_ACTION>? <elementOptions>?
+ 	{
+	<ID> <ARG_ACTION>? <elementOptions>?
  	} 
 rule range
-	{	<STRING_LITERAL> '..' <STRING_LITERAL>
+	{
+	<STRING_LITERAL> '..' <STRING_LITERAL>
  	}
  
 rule terminal
@@ -429,7 +491,8 @@ rule terminal
 #  reference in the grammar: TOK<,,,>
  
 rule elementOptions
- 	{	'<' <elementOption>+ % ',' '>'
+ 	{
+	'<' <elementOption>+ % ',' '>'
  	}
  
 #
