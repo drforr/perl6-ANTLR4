@@ -54,11 +54,10 @@ token NameStartChar
 	|	<[ \x[FDF0]..\x[FFFD] ]>
 	} # ignores | ['\u10000-'\uEFFFF] ;
 
-token STRING_LITERAL_GUTS
-	{	['\\' <ESC_SEQ> | <-[ ' \r \n \\ ]>]*
-	}
 token STRING_LITERAL
-	{	'\'' <STRING_LITERAL_GUTS> '\''
+	{	'\''
+		( :!sigspace [ '\\' <ESC_SEQ> | <-[ ' \r \n \\ ]> ]* )
+		'\''
 	}
 
 token ESC_SEQ
@@ -69,8 +68,7 @@ token ESC_SEQ
 	}
 
 token UNICODE_ESC
-	{	'u'
-		[ <HEX_DIGIT> [ <HEX_DIGIT> [ <HEX_DIGIT> <HEX_DIGIT> ?]? ]? ]?
+	{	'u' <HEX_DIGIT> ** {0..4}
 	}
 
 token HEX_DIGIT
@@ -164,11 +162,11 @@ rule prequelConstruct
 #  A list of options that affect analysis and/or code generation
 
 rule optionsSpec
-	{	'options' '{' [<option> ';']* '}'
+	{	'options' '{' <option>* '}'
 	} 
 
 rule option
-	{	<key=ID> '=' <optionValue>
+	{	<key=ID> '=' <optionValue> ';'
 	}
 
 rule ID_list
@@ -293,7 +291,9 @@ rule labeledAlt
 rule lexerRule
  	{	<COMMENTS>? 'fragment'?
  		<COMMENTS>? <name=ID>
-		<COMMENTS>? ':' <lexerAltList> ';'
+		<COMMENTS>? ':'
+		<COMMENTS>? <lexerAltList>
+		<COMMENTS>? ';'
 		<COMMENTS>?
  	}
  

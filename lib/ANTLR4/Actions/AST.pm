@@ -134,7 +134,7 @@ class ANTLR4::Actions::AST;
 
 method DIGITS($/)
 	{
-	make +$/.Str
+	make +$/
 	}
 
 #method COMMENT($/)
@@ -158,13 +158,9 @@ method ID($/)
 #	{
 #	}
 
-method STRING_LITERAL_GUTS($/)
-	{
-	make ~$/
-	}
 method STRING_LITERAL($/)
 	{
-	make $/<STRING_LITERAL_GUTS>.Str
+	make ~$/[0]
 	}
 
 #method ESC_SEQ($/)
@@ -198,7 +194,7 @@ method ARG_ACTION($/)
 
 method LEXER_CHAR_SET_RANGE($/)
 	{
-	make ~$/.Str
+	make ~$/
 	}
 
 method LEXER_CHAR_SET_ELEMENT($/)
@@ -213,7 +209,7 @@ method LEXER_CHAR_SET($/)
 
 method grammarType($/)
 	{
-	make $/[0] ?? ~$/[0] !! Nil
+	make ~$/[0]
 	}
 
 method TOP ($/)
@@ -282,10 +278,7 @@ method delegateGrammars($/)
 
 method delegateGrammar($/)
 	{
-	make
-		$/<key>.ast => $/<value>
-			?? $/<value>.ast
-			!! Nil
+	make $/<key>.ast => $/<value>.ast
 	}
 
 method tokensSpec($/)
@@ -300,7 +293,7 @@ method action_name($/)
 
 method action($/)
 	{
-	make [ $/<action_name>.Str => $/<ACTION>.Str ]
+	make [ ~$/<action_name> => ~$/<ACTION> ]
 	}
 
 #method actionScopeName($/)
@@ -371,9 +364,7 @@ method labeledAlt($/)
 	make
 		{
 		type    => 'concatenation',
-		label   => $/<label>
-				?? $/<label>.ast
-				!! Nil,
+		label   => $/<label>.ast || Nil,
 		content => [ $/<alternative><element>>>.ast ]
 		}
 	}
@@ -436,31 +427,27 @@ method element($/)
 	{
 	make
 		{
-		complemented => $/<atom><notSet>
-			?? True
-			!! False,
+		complemented => $/<atom><notSet>.defined,
+		content => $<atom><notSet><setElement><LEXER_CHAR_SET>
+			?? [ $/<atom><notSet><setElement><LEXER_CHAR_SET>[0]>>.Str ]
+			!! $/<atom><notSet><setElement><STRING_LITERAL>
+			?? $/<atom><notSet><setElement><STRING_LITERAL>.ast
+			!! $/<atom><terminal><STRING_LITERAL>
+			?? $/<atom><terminal><STRING_LITERAL>.ast
+			!! $/<ebnf><block>
+			?? $/<ebnf><block>.ast
+			!! $/<atom><notSet><setElement><ID>.ast,
+		type	=> $/<atom><notSet><setElement><LEXER_CHAR_SET>
+			?? 'character class'
+			!! $/<atom><notSet><setElement><ID>
+			?? 'nonterminal'
+			!! $/<ebnf><block>
+			?? 'capturing group'
+			!! 'terminal',
 		greedy => $/<ebnfSuffix>
 			?? $/<ebnfSuffix>.ast.<greedy>
 			!! False,
 		modifier => $/<ebnfSuffix>.ast.<modifier>,
-		content => $<atom><notSet><setElement><LEXER_CHAR_SET>
-			?? [ $/<atom><notSet><setElement><LEXER_CHAR_SET>[0]>>.Str ]
-			!! $/<atom><terminal><STRING_LITERAL>
-			?? $/<atom><terminal><STRING_LITERAL>.ast
-			!! $/<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>
-			?? $/<atom><notSet><setElement><STRING_LITERAL><STRING_LITERAL_GUTS>.ast
-#			!! $/<atom><notSet><setElement><ID>.ast,
-			!! $/<ebnf><block>
-			?? $/<ebnf><block>.ast
-			!! $/<atom><notSet><setElement><ID>.ast,
-		type => $/<atom><notSet><setElement><LEXER_CHAR_SET>
-			?? 'character class'
-			!! $/<atom><notSet><setElement><ID>
-			?? 'nonterminal'
-#			!! 'terminal',
-			!! $/<ebnf><block>
-			?? 'capturing group'
-			!! 'terminal',
 		}
 	}
  
@@ -476,8 +463,8 @@ method ebnfSuffix($/)
 	{
 	make
 		{
-		modifier => $/[0] ?? $/[0].Str !! Nil,
-		greedy   => $/[1] ?? True !! False,
+		modifier => ~$/[0],
+		greedy   => $/[1].defined
 		}
 	}
 
