@@ -4,7 +4,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 use Test;
 
-plan 28;
+plan 29;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -18,7 +18,7 @@ is_deeply
     tokens  => [ ],
     actions => [ ],
     rules   => [ ] },
-  'minimal file';
+  'minimal grammar';
 
 is_deeply
   $g.parse( q{lexer grammar Name;}, :actions($a) ).ast,
@@ -40,7 +40,7 @@ is_deeply
     tokens  => [ ],
     actions => [ ],
     rules   => [ ] },
-  'lexer grammar with option';
+  'grammar with option';
 
 is_deeply
   $g.parse( q{lexer grammar Name; options {a='foo';}}, :actions($a) ).ast,
@@ -51,7 +51,7 @@ is_deeply
     tokens  => [ ],
     actions => [ ],
     rules   => [ ] },
-  'lexer grammar with option';
+  'grammar with option';
 
 is_deeply
   $g.parse( q{lexer grammar Name; options {a=b,c;}}, :actions($a) ).ast,
@@ -62,7 +62,7 @@ is_deeply
     tokens  => [ ],
     actions => [ ],
     rules   => [ ] },
-  'lexer grammar with complex option';
+  'grammar with complex option';
 
 is_deeply
   $g.parse( q{lexer grammar Name; options {a=b,c;de=3;}}, :actions($a) ).ast,
@@ -74,7 +74,8 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   => [ ] }, 'lexer grammar with complex options';
+    rules   => [ ] },
+  'grammar with complex options';
 
 is_deeply
   $g.parse(
@@ -89,7 +90,7 @@ is_deeply
     tokens  => [ ],
     actions => [ ],
     rules   => [ ] },
-  'lexer grammar with options and import';
+  'grammar with options and import';
 
 is_deeply
   $g.parse(
@@ -106,7 +107,7 @@ is_deeply
     tokens  => [ ],
     actions => [ ],
     rules   => [ ] },
-  'lexer grammar with options and imports';
+  'grammar with options and imports';
 
 #
 # XXX tokens should really be a set, come to think of it.
@@ -126,7 +127,7 @@ is_deeply
     tokens  => [ 'Foo', 'Bar' ],
     actions => [ ],
     rules   => [ ] },
-  'lexer grammar with options, imports and tokens';
+  'grammar with options, imports and tokens';
 
 is_deeply
   $g.parse(
@@ -143,7 +144,7 @@ is_deeply
     tokens  => [ 'Foo', 'Bar' ],
     actions => [ '@members' => '{ protected int curlies = 0; }' ],
     rules   => [ ] },
-  'lexer grammar with options, imports, tokens and action';
+  'grammar with options, imports, tokens and action';
 
 is_deeply
   $g.parse(
@@ -164,7 +165,7 @@ tokens { Foo, Bar }
     tokens  => [ 'Foo', 'Bar' ],
     actions => [ '@members' => '{ protected int curlies = 0; }' ],
     rules   => [ ] },
-  'lexer grammar with options, imports, tokens and action';
+  'grammar with options, imports, tokens and action';
 
 is_deeply
   $g.parse(
@@ -188,7 +189,7 @@ tokens { Foo, Bar }
       [ '@members'       => '{ protected int curlies = 0; }',
         '@sample::stuff' => '{ 1; }' ],
     rules   => [ ] },
-  'lexer grammar with all the options, no rules yet';
+  'grammar with all the options, no rules yet';
 
 is_deeply
   $g.parse(
@@ -232,7 +233,7 @@ number : '1' ;},
                         modifier     => Nil,
                         greedy       => False,
                         complemented => False }] }] }] }] },
-  'lexer grammar with options and single simple rule';
+  'grammar with options and single simple rule';
 
 is_deeply
   $g.parse(
@@ -257,14 +258,14 @@ is_deeply
               content =>
                 [{ type    => 'concatenation',
                    label   => Nil,
-options => [ assoc => 'right' ],
+                   options => [ assoc => 'right' ],
                    content =>
                      [{ type         => 'terminal',
                         content      => '1',
                         modifier     => Nil,
                         greedy       => False,
                         complemented => False }] }] }] }] },
-  'lexer grammar with options and single simple rule';
+  'grammar with options and single simple rule with options';
 
 is_deeply
   $g.parse(
@@ -303,7 +304,7 @@ is_deeply
                                   modifier     => Nil,
                                   greedy       => False,
                                   complemented => False }] }] }] }] }] }] },
-  'lexer grammar with options and single simple rule';
+  'grammar with options and single simple rule';
 
 is_deeply
   $g.parse(
@@ -335,7 +336,7 @@ is_deeply
                         modifier     => Nil,
                         greedy       => False,
                         complemented => False }] }] }] }] },
-  'lexer grammar with single labeled rule';
+  'grammar with single labeled rule';
 
 is_deeply
   $g.parse(
@@ -373,7 +374,7 @@ number [int x]
                         modifier     => Nil,
                         greedy       => False,
                         complemented => False }] }] }] }] },
-  'lexer grammar with single labeled rule with action';
+  'grammar with single labeled rule with action';
 
 is_deeply
   $g.parse(
@@ -405,7 +406,7 @@ is_deeply
                         modifier     => '+',
                         greedy       => False,
                         complemented => False }] }] }] }] },
-  'lexer grammar with options and labeled rule with modifier';
+  'grammar with options and labeled rule with modifier';
 
 is_deeply
   $g.parse(
@@ -437,7 +438,7 @@ is_deeply
                         modifier     => '+',
                         greedy       => True,
                         complemented => False }] }] }] }] },
-  'lexer grammar with options and labeled rule with greedy modifier';
+  'grammar with options and labeled rule with greedy modifier';
 
 is_deeply
   $g.parse(
@@ -469,7 +470,7 @@ is_deeply
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
-  'lexer grammar, rule with complemented terminal';
+  'grammar, rule with complemented terminal';
 
 is_deeply
   $g.parse(
@@ -501,7 +502,7 @@ is_deeply
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
-  'lexer grammar, rule with empty character class';
+  'grammar, rule with empty character class';
 
 is_deeply
   $g.parse(
@@ -533,7 +534,7 @@ is_deeply
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
-  'lexer grammar, rule with character class';
+  'grammar, rule with character class';
 
 is_deeply
   $g.parse(
@@ -565,7 +566,7 @@ is_deeply
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
-  'lexer grammar, rule with hyphenated character class';
+  'grammar, rule with hyphenated character class';
 
 is_deeply
   $g.parse(
@@ -597,7 +598,7 @@ is_deeply
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
-  'lexer grammar, rule with leading hyphenated character class';
+  'grammar, rule with leading hyphenated character class';
 
 is_deeply
   $g.parse(
@@ -629,7 +630,7 @@ is_deeply
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
-  'lexer grammar, rule with christmas-tree character class';
+  'grammar, rule with christmas-tree character class';
 
 is_deeply
   $g.parse(
@@ -661,7 +662,40 @@ is_deeply
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
-  'lexer grammar, rule with complemented nonterminal';
+  'grammar, rule with complemented nonterminal';
+
+#is_deeply
+#  $g.parse(
+#    q{lexer grammar Name; number : ~'a'..'z'+? # One ;},
+#    :actions($a) ).ast,
+#  { name    => 'Name',
+#    type    => 'lexer',
+#    options => [ ],
+#    import  => [ ],
+#    tokens  => [ ],
+#    actions => [ ],
+#    rules   =>
+#      [{ name     => 'number',
+#         modifier => [ ],
+#         action   => Nil,
+#         returns  => Nil,
+#         throws   => [ ],
+#         locals   => Nil,
+#         options  => [ ],
+#         content  =>
+#           [{ type    => 'alternation',
+#              content =>
+#                [{ type    => 'concatenation',
+#                   options => [ ],
+#                   label   => 'One',
+#                   content =>
+#                     [{ type         => 'range',
+#			content      => [ from => 'a',
+#                                          to   => 'z' ],
+#                        modifier     => '+',
+#                        greedy       => True,
+#                        complemented => True }] }] }] }] },
+#  'grammar, rule with range literal';
 
 is_deeply
   $g.parse(
@@ -698,7 +732,7 @@ is_deeply
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
-  'lexer grammar, rule with multiple concatenated terms';
+  'grammar, rule with multiple concatenated terms';
 
 is_deeply
   $g.parse(
@@ -739,7 +773,7 @@ is_deeply
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
-  'lexer grammar, rule with multiple alternating terms';
+  'grammar, rule with multiple alternating terms';
 
 is_deeply
   $g.parse(
@@ -780,6 +814,6 @@ is_deeply
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] }] }] }] },
-  'lexer grammar, rule with multiple alternating terms';
+  'grammar, rule with multiple alternating terms';
 
 # vim: ft=perl6

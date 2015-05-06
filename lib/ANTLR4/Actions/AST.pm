@@ -196,14 +196,13 @@ method LEXER_CHAR_SET_ELEMENT($/)
 
 method LEXER_CHAR_SET($/)
 	{
-	make [ $/[0]>>.ast ]
+	make [ $/[0]>>.Str ]
 	}
 
 method grammarType($/)
 	{
 	make ~$/[0]
 	}
-
 
 method TOP ($/)
 	{
@@ -329,9 +328,10 @@ method parserRuleSpec($/)
 #	{
 #	}
 
-#method finallyClause($/) {
+#method finallyClause($/)
+#	{
 #	}
-# 
+
 #method ruleReturns($/)
 #	{
 #	}
@@ -429,17 +429,17 @@ method element($/)
 		{
 		complemented => $/<atom><notSet>.defined,
 		content => $<atom><notSet><setElement><LEXER_CHAR_SET>
-			?? [ $/<atom><notSet><setElement><LEXER_CHAR_SET>[0]>>.Str ]
-			!! $/<atom><notSet><setElement><STRING_LITERAL>
-			?? $/<atom><notSet><setElement><STRING_LITERAL>.ast
-			!! $/<atom><terminal><STRING_LITERAL>
-			?? $/<atom><terminal><STRING_LITERAL>.ast
-			!! $/<ebnf><block>
-			?? $/<ebnf><block>.ast
-			!! $/<atom><notSet><setElement><ID>.ast,
+			?? $/<atom><notSet><setElement><LEXER_CHAR_SET>.ast
+			!! $/<atom><notSet><setElement><range>
+			?? $/<atom><notSet><setElement><range>.ast
+			!! $/<atom><notSet><setElement><terminal><scalar>
+			?? $/<atom><notSet><setElement><terminal><scalar>.ast
+			!! $/<atom><terminal><scalar>
+			?? $/<atom><terminal><scalar>.ast
+			!! $/<ebnf><block>.ast,
 		type	=> $/<atom><notSet><setElement><LEXER_CHAR_SET>
 			?? 'character class'
-			!! $/<atom><notSet><setElement><ID>
+			!! $/<atom><notSet><setElement><terminal><ID>
 			?? 'nonterminal'
 			!! $/<ebnf><block>
 			?? 'capturing group'
@@ -488,9 +488,15 @@ method blockSet($/)
 	{
 	}
 
-#method setElement($/)
-#	{
-#	}
+method setElement($/)
+	{
+	make
+		$/<LEXER_CHAR_SET>
+			?? $/<LEXER_CHR_SET>.ast
+			!! $/<range>
+			?? $/<range>
+			!! $/<scalar>
+	}
 
 method block($/)
 	{

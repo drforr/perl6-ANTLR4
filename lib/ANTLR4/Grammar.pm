@@ -267,14 +267,17 @@ rule ruleSpec
 
 rule parserRuleSpec
  	{
-	<COMMENTS>? <modifier=ruleModifier>* <name=ID> <ARG_ACTION>?
-	<returns=ruleReturns>? <throws=throwsSpec>? <locals=localsSpec>?
-	<options=optionsSpec>? # XXX This was <optionsSpec>*
+	<COMMENTS>? <modifier=ruleModifier>*
+	<COMMENTS>? <name=ID>
+	<COMMENTS>? <ARG_ACTION>?
+	<COMMENTS>? <returns=ruleReturns>?
+	<COMMENTS>? <throws=throwsSpec>?
+	<COMMENTS>? <locals=localsSpec>?
+	<COMMENTS>? <options=optionsSpec>? # XXX This was <optionsSpec>*
 	':'
-	<content=ruleAltList>
+	<COMMENTS>? <content=ruleAltList>
 	';'
-	<COMMENTS>?
-	<exceptionGroup>
+	<COMMENTS>? <exceptionGroup>
  	}
  
 rule exceptionGroup
@@ -473,8 +476,7 @@ rule blockSet
 	}
  
 rule setElement
- 	{	<ID> <elementOptions>?
- 	|	<STRING_LITERAL> <elementOptions>?
+	{	<terminal>
  	|	<range>
  	|	<LEXER_CHAR_SET>
  	}
@@ -490,25 +492,19 @@ rule ruleref
  	} 
 rule range
 	{
-	<STRING_LITERAL> '..' <STRING_LITERAL>
+	<from=STRING_LITERAL> '..' <to=STRING_LITERAL>
  	}
  
 rule terminal
- 	{	<ID> <elementOptions>?
- 	|	<STRING_LITERAL> <elementOptions>?
- 	}
- 
-#  Terminals may be adorned with certain options when
-#  reference in the grammar: TOK<,,,>
+	{
+	[<scalar=ID> | <scalar=STRING_LITERAL>] <elementOptions>?
+	}
  
 rule elementOptions
  	{
 	'<' <elementOption>+ % ',' '>'
  	}
  
-#
-# XXX Switched the order of terms here
-#
 rule elementOption
 	{
 	<key=ID> ['=' [<value=ID> | <value=STRING_LITERAL>] ]?
