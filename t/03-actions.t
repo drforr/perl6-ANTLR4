@@ -221,10 +221,43 @@ number : '1' ;},
          locals   => Nil,
          options  => [ ],
          content  =>
-           [{ type => 'alternation',
+           [{ type    => 'alternation',
+              content =>
+                [{ type    => 'concatenation',
+                   options => [ ],
+                   label   => Nil,
+                   content =>
+                     [{ type         => 'terminal',
+                        content      => '1',
+                        modifier     => Nil,
+                        greedy       => False,
+                        complemented => False }] }] }] }] },
+  'lexer grammar with options and single simple rule';
+
+is_deeply
+  $g.parse(
+    q{lexer grammar Name; number : <assoc=right> '1' ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    actions => [ ],
+    rules   =>
+      [{ name     => 'number',
+         modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+         options  => [ ],
+         content  =>
+           [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
                    label   => Nil,
+options => [ assoc => 'right' ],
                    content =>
                      [{ type         => 'terminal',
                         content      => '1',
@@ -252,9 +285,10 @@ is_deeply
          locals   => Nil,
          options  => [ ],
          content  =>
-           [{ type => 'alternation',
+           [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => Nil,
                    content =>
                      [{ type         => 'capturing group',
@@ -293,6 +327,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'terminal',
@@ -330,6 +365,7 @@ number [int x]
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'terminal',
@@ -361,6 +397,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'terminal',
@@ -392,6 +429,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'terminal',
@@ -423,6 +461,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'terminal',
@@ -454,6 +493,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'character class',
@@ -485,6 +525,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'character class',
@@ -516,6 +557,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'character class',
@@ -547,6 +589,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'character class',
@@ -578,6 +621,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'character class',
@@ -609,6 +653,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'nonterminal',
@@ -640,6 +685,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'nonterminal',
@@ -676,6 +722,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => Nil,
                    content =>
                      [{ type         => 'nonterminal',
@@ -684,6 +731,7 @@ is_deeply
                         greedy       => True,
                         complemented => True }] },
                  { type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'character class',
@@ -715,6 +763,7 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
+                   options => [ ],
                    label   => Nil,
                    content =>
                      [{ type         => 'nonterminal',
@@ -723,6 +772,7 @@ is_deeply
                         greedy       => True,
                         complemented => True }] },
                  { type    => 'concatenation',
+                   options => [ ],
                    label   => 'One',
                    content =>
                      [{ type         => 'character class',

@@ -510,10 +510,8 @@ rule elementOptions
 # XXX Switched the order of terms here
 #
 rule elementOption
- 	{	# This format indicates option assignment
- 		<ID> '=' [<ID> | <STRING_LITERAL>]
- 	|	# This format indicates the default node option
- 		<ID>
- 	}
+	{
+	<key=ID> ['=' [<value=ID> | <value=STRING_LITERAL>] ]?
+	}
  
 # vim: ft=perl6

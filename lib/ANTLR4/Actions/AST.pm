@@ -204,17 +204,15 @@ method grammarType($/)
 	make ~$/[0]
 	}
 
+
 method TOP ($/)
 	{
 	my %content =
 		(
-		name    => $/<name>.ast,
-		type    => $/<type>.ast || Nil,
 		options => [ ],
 		import  => [ ],
                 tokens  => [ ],
                 actions => [ ],
-		rules   => [ $/<rules>>>.ast ],
 		);
 
 	for @( $/<prequelConstruct> ) -> $prequel
@@ -232,8 +230,15 @@ method TOP ($/)
 			$prequel.<actions>.ast if
 			$prequel.<actions>;
 		}
-	make %content
+	make
+		{
+		%content,
+		rules => [ $/<rules>>>.ast ],
+		type  => $/<type>.ast || Nil,
+		name  => $/<name>.ast,
+		}
 	}
+
 
 method optionsSpec($/)
 	{
@@ -331,12 +336,14 @@ method parserRuleSpec($/)
 #	{
 #	}
 
-#method throwsSpec($/) {
+#method throwsSpec($/)
+#	{
 #	}
-# 
-#method localsSpec($/) {
+
+#method localsSpec($/)
+#	{
 #	}
-# 
+
 method ruleModifier($/)
 	{
 	make ~$/
@@ -357,6 +364,7 @@ method labeledAlt($/)
 		{
 		type    => 'concatenation',
 		label   => $/<label>.ast || Nil,
+                options => $/<alternative><elementOptions>.ast || [ ],
 		content => [ $/<alternative><element>>>.ast ]
 		}
 	}
@@ -501,12 +509,14 @@ method block($/)
 #	{
 #	}
 
-#method elementOptions($/)
-#	{
-#	}
+method elementOptions($/)
+	{
+	make [ $/<elementOption>>>.ast ]
+	}
 
-#method elementOption($/)
-#	{
-#	}
+method elementOption($/)
+	{
+	make ~$/<key> => ~$/<value> || Nil
+	}
  
 # vim: ft=perl6
