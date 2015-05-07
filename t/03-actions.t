@@ -664,38 +664,38 @@ is_deeply
                         complemented => True }] }] }] }] },
   'grammar, rule with complemented nonterminal';
 
-#is_deeply
-#  $g.parse(
-#    q{lexer grammar Name; number : ~'a'..'z'+? # One ;},
-#    :actions($a) ).ast,
-#  { name    => 'Name',
-#    type    => 'lexer',
-#    options => [ ],
-#    import  => [ ],
-#    tokens  => [ ],
-#    actions => [ ],
-#    rules   =>
-#      [{ name     => 'number',
-#         modifier => [ ],
-#         action   => Nil,
-#         returns  => Nil,
-#         throws   => [ ],
-#         locals   => Nil,
-#         options  => [ ],
-#         content  =>
-#           [{ type    => 'alternation',
-#              content =>
-#                [{ type    => 'concatenation',
-#                   options => [ ],
-#                   label   => 'One',
-#                   content =>
-#                     [{ type         => 'range',
-#			content      => [ from => 'a',
-#                                          to   => 'z' ],
-#                        modifier     => '+',
-#                        greedy       => True,
-#                        complemented => True }] }] }] }] },
-#  'grammar, rule with range literal';
+is_deeply
+  $g.parse(
+    q{lexer grammar Name; number : 'a'..'z'+? # One ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    actions => [ ],
+    rules   =>
+      [{ name     => 'number',
+         modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+         options  => [ ],
+         content  =>
+           [{ type    => 'alternation',
+              content =>
+                [{ type    => 'concatenation',
+                   options => [ ],
+                   label   => 'One',
+                   content =>
+                     [{ type         => 'range',
+			content      => [{ from => 'a',
+                                           to   => 'z' }],
+                        modifier     => '+',
+                        greedy       => True,
+                        complemented => False }] }] }] }] },
+  'grammar, rule with range literal';
 
 is_deeply
   $g.parse(

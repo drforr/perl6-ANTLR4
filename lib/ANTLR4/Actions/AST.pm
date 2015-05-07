@@ -142,40 +142,16 @@ method ID($/)
 	make ~$/
 	}
 
-#method NameChar($/)
-#	{
-#	}
-
-#method NameStartChar($/)
-#	{
-#	}
-
 method STRING_LITERAL($/)
 	{
 	make ~$/[0]
 	}
-
-#method ESC_SEQ($/)
-#	{
-#	}
 
 #method UNICODE_ESC($/)
 #	{
 #	}
 
 #method ACTION($/)
-#	{
-#	}
-
-#method ACTION_ESCAPE($/)
-#	{
-#	}
-
-#method ACTION_STRING_LITERAL($/)
-#	{
-#	}
-
-#method ACTION_CHAR_LITERAL($/)
 #	{
 #	}
 
@@ -434,11 +410,15 @@ method element($/)
 			?? $/<atom><notSet><setElement><range>.ast
 			!! $/<atom><notSet><setElement><terminal><scalar>
 			?? $/<atom><notSet><setElement><terminal><scalar>.ast
+			!! $/<atom><range>
+			?? $/<atom><range>.ast
 			!! $/<atom><terminal><scalar>
 			?? $/<atom><terminal><scalar>.ast
 			!! $/<ebnf><block>.ast,
 		type	=> $/<atom><notSet><setElement><LEXER_CHAR_SET>
 			?? 'character class'
+			!! $/<atom><range>
+			?? 'range'
 			!! $/<atom><notSet><setElement><terminal><ID>
 			?? 'nonterminal'
 			!! $/<ebnf><block>
@@ -472,13 +452,13 @@ method ebnfSuffix($/)
 		}
 	}
 
-#method lexerAtom($/)
-#	{
-#	}
+method lexerAtom($/)
+	{
+	}
 
-#method atom($/)
-#	{
-#	}
+method atom($/)
+	{
+	}
 
 #method notSet($/)
 #	{
@@ -507,9 +487,16 @@ method block($/)
 #	{
 #	}
 
-#method range($/)
-#	{
-#	}
+method range($/)
+	{
+	make
+		[
+			{
+			from => ~$/<from>[0],
+			to   => ~$/<to>[0],
+			}
+		]
+	}
 
 #method terminal($/)
 #	{

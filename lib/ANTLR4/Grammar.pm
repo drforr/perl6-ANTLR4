@@ -352,12 +352,12 @@ rule lexerRule
 #
 rule lexerAltList
 	{
-	[ [<COMMENTS>? <lexerAlt> <COMMENTS>?] | '' ]+ %% '|'
+	[ [<lexerAlt> <COMMENTS>?] | '' ]+ %% '|'
 	}
  
 rule lexerAlt
  	{
-	<lexerElement>+ <lexerCommands>?
+	<COMMENTS>? <lexerElement>+ <lexerCommands>?
  	}
  
 rule lexerElement
