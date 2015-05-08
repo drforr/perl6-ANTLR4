@@ -278,7 +278,8 @@ method action($/)
 
 method ruleSpec($/)
 	{
-	make $/<parserRuleSpec>.ast
+	make
+		$/<parserRuleSpec>.ast || $/<lexerRuleSpec>.ast
 	}
 
 method parserRuleSpec($/)
@@ -286,7 +287,7 @@ method parserRuleSpec($/)
 	make
 		{
 		name     => $/<name>.ast,
-		content  => [ $/<content>>>.ast ],
+		content  => [ $/<parserAltList>>>.ast ],
 		modifier => [ $/<modifier>>>.ast ],
                 action   => $/<ARG_ACTION>.ast,
                 returns  => $/<returns><ARG_ACTION>.ast,
@@ -325,37 +326,60 @@ method ruleModifier($/)
 	make ~$/
 	}
 
-method ruleAltList($/)
+method parserAltList($/)
 	{
 	make
 		{
 		type    => 'alternation',
-		content => [ $/<content>>>.ast ]
+		content => [ $/<parserAlt>>>.ast ]
 		}
 	}
 
-method labeledAlt($/)
+method parserAlt($/)
 	{
 	make
 		{
 		type    => 'concatenation',
 		label   => $/<label>.ast || Nil,
-                options => $/<alternative><elementOptions>.ast || [ ],
-		content => [ $/<alternative><element>>>.ast ]
+                options => $/<parserElement><elementOptions>.ast || [ ],
+		content => [ $/<parserElement><element>>>.ast ]
 		}
 	}
  
-#method lexerRuleSpec($/)
-#	{
-#	}
+method lexerRuleSpec($/)
+	{
+	make
+		{
+		name     => $/<name>.ast,
+		content  => [ $/<parserAltList>>>.ast ],
+		modifier => [ ],#[ $/<modifier>>>.ast ],
+                action   => Nil,#$/<ARG_ACTION>.ast,
+                returns  => Nil,#$/<returns><ARG_ACTION>.ast,
+                throws   => [ ],#[ $/<throws><ID>>>.ast ],
+                locals   => Nil,#$/<locals><ARG_ACTION>.ast,
+                options  => [ ],#[ $/<options><option>>>.ast ],
+		}
+	}
 
-#method lexerAltList($/)
-#	{
-#	}
+method lexerAltList($/)
+	{
+	make
+		{
+		type    => 'alternation',
+		content => [ $/<lexerAlt>>>.ast ]
+		}
+	}
 
-#method lexerAlt($/)
-#	{
-#	}
+method lexerAlt($/)
+	{
+	make
+		{
+		type    => 'concatenation',
+		label   => Nil,
+                options => Nil,#$/<parserElement><elementOptions>.ast || [ ],
+		content => [ ],#[ $/<parserElement><element>>>.ast ]
+		}
+	}
 
 #method lexerElement($/)
 #	{
@@ -387,10 +411,10 @@ method lexerCommand($/)
 
 method altList($/)
 	{
-	make [ $/<alternative>>>.ast.flat ]
+	make [ $/<parserElement>>>.ast.flat ]
 	}
 
-method alternative($/)
+method parserElement($/)
 	{
 	make
 		{

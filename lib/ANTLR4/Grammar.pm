@@ -275,7 +275,7 @@ rule parserRuleSpec
 	<COMMENTS>? <locals=localsSpec>?
 	<COMMENTS>? <options=optionsSpec>? # XXX This was <optionsSpec>*
 	':'
-	<COMMENTS>? <content=ruleAltList>
+	<COMMENTS>? <parserAltList>
 	';'
 	<COMMENTS>? <exceptionGroup>
  	}
@@ -327,14 +327,14 @@ token ruleModifier
 #
 # ('a' | ) # Trailing empty alternative is allowed in sample code
 #
-rule ruleAltList
+rule parserAltList
 	{
-	<content=labeledAlt>+ % '|'
+	<parserAlt>+ % '|'
 	}
  
-rule labeledAlt
+rule parserAlt
  	{
-	<alternative> <COMMENTS>? ['#' <label=ID> <COMMENTS>?]?
+	<parserElement> <COMMENTS>? ['#' <label=ID> <COMMENTS>?]?
  	}
  
 rule lexerRuleSpec
@@ -352,12 +352,12 @@ rule lexerRuleSpec
 #
 rule lexerAltList
 	{
-	[ [<lexerAlt> <COMMENTS>?] | '' ]+ %% '|'
+	<lexerAlt>+ %% '|'
 	}
  
 rule lexerAlt
  	{
-	<COMMENTS>? <lexerElement>+ <lexerCommands>?
+	<COMMENTS>? <lexerElement>+ <lexerCommands>? <COMMENTS>? | ''
  	}
  
 rule lexerElement
@@ -404,10 +404,10 @@ rule lexerCommandExpr
  
 rule altList
 	{
-	<alternative>+ % '|'
+	<parserElement>+ % '|'
 	}
  
-rule alternative
+rule parserElement
  	{
 	<elementOptions>? <element>*
  	}

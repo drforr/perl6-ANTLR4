@@ -340,6 +340,38 @@ is_deeply
 
 is_deeply
   $g.parse(
+    q{lexer grammar Name; number : '1' -> channel(HIDDEN) ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    actions => [ ],
+    rules   =>
+      [{ name     => 'number',
+         modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+         options  => [ ],
+         content  =>
+           [{ type    => 'alternation',
+              content =>
+                [{ type    => 'concatenation',
+                   options => [ ],
+                   label   => Nil, 
+                   content =>
+                     [{ type         => 'terminal',
+                        content      => '1',
+                        modifier     => Nil,
+                        greedy       => False,
+                        complemented => False }] }] }] }] },
+  'grammar with single channeled rule';
+
+is_deeply
+  $g.parse(
     q{lexer grammar Name;
 number [int x]
        returns [int y]
