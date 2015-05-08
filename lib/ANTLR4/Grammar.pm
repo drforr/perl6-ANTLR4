@@ -257,12 +257,12 @@ token actionScopeName
  
 rule modeSpec
  	{
-	<COMMENTS>? 'mode' <ID> ';' <lexerRule>*
+	<COMMENTS>? 'mode' <ID> ';' <lexerRuleSpec>*
  	}
  
 rule ruleSpec
  	{	<parserRuleSpec>
- 	|	<lexerRule>
+ 	|	<lexerRuleSpec>
  	}
 
 rule parserRuleSpec
@@ -337,7 +337,7 @@ rule labeledAlt
 	<alternative> <COMMENTS>? ['#' <label=ID> <COMMENTS>?]?
  	}
  
-rule lexerRule
+rule lexerRuleSpec
  	{
 	<COMMENTS>? 'fragment'?
  	<COMMENTS>? <name=ID>

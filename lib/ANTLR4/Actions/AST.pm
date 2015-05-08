@@ -345,7 +345,7 @@ method labeledAlt($/)
 		}
 	}
  
-#method lexerRule($/)
+#method lexerRuleSpec($/)
 #	{
 #	}
 
