@@ -290,9 +290,9 @@ method parserRuleSpec($/)
 		content  => [ $/<parserAltList>>>.ast ],
 		modifier => [ $/<modifier>>>.ast ],
                 action   => $/<ARG_ACTION>.ast,
-                returns  => $/<returns><ARG_ACTION>.ast,
+                returns  => $/<returns>.ast,
                 throws   => [ $/<throws><ID>>>.ast ],
-                locals   => $/<locals><ARG_ACTION>.ast,
+                locals   => $/<locals>.ast,
                 options  => [ $/<options><option>>>.ast ],
 		}
 	}
@@ -309,17 +309,20 @@ method parserRuleSpec($/)
 #	{
 #	}
 
-#method ruleReturns($/)
-#	{
-#	}
+method ruleReturns($/)
+	{
+	make ~$/<ARG_ACTION>
+	}
 
-#method throwsSpec($/)
-#	{
-#	}
+method throwsSpec($/)
+	{
+	make [ $/<ID>>>.ast ]
+	}
 
-#method localsSpec($/)
-#	{
-#	}
+method localsSpec($/)
+	{
+	make $/<ARG_ACTION>.ast
+	}
 
 method ruleModifier($/)
 	{

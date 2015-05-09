@@ -307,7 +307,7 @@ rule throwsSpec
  
 rule localsSpec
  	{
-	'locals' <ARG_ACTION> <COMMENTS>?
+	'locals' <ARG_ACTION>
  	}
  
 #  An individual access modifier for a rule. The 'fragment' modifier
