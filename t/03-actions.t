@@ -340,7 +340,7 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ~'1' -> channel(HIDDEN) ;},
+    q{lexer grammar Name; number : ~'1'+ -> channel(HIDDEN) ;},
     :actions($a) ).ast,
   { name    => 'Name',
     type    => 'lexer',
@@ -366,7 +366,7 @@ is_deeply
                    content  =>
                      [{ type         => 'terminal',
                         content      => '1',
-                        modifier     => Nil,
+                        modifier     => '+',
                         greedy       => False,
                         complemented => False }] }] }] }] },
   'grammar with single channeled rule';

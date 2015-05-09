@@ -289,11 +289,11 @@ method parserRuleSpec($/)
 		name     => $/<name>.ast,
 		content  => [ $/<parserAltList>>>.ast ],
 		modifier => [ $/<modifier>>>.ast ],
-                action   => $/<ARG_ACTION>.ast,
+                action   => $/<action>.ast,
                 returns  => $/<returns>.ast,
-                throws   => [ $/<throws><ID>>>.ast ],
+                throws   => $/<throws>.ast || [ ],
                 locals   => $/<locals>.ast,
-                options  => [ $/<options><option>>>.ast ],
+                options  => $/<options>.ast || [ ],
 		}
 	}
 
@@ -394,7 +394,7 @@ method lexerElement($/)
 				?? $/<lexerAtom><terminal><scalar>.ast
 				!! $/<lexerAtom><notSet><setElement><terminal><scalar>.ast,
 		greedy       => False,
-		modifier     => Nil,
+		modifier     => ~$/<ebnfSuffix><MODIFIER> || Nil,
 		complemented => $/<lexerAtom><setElement>.ast
 				?? True
 				!! False,

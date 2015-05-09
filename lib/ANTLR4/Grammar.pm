@@ -269,7 +269,7 @@ rule parserRuleSpec
  	{
 	<COMMENTS>? <modifier=ruleModifier>*
 	<COMMENTS>? <name=ID>
-	<COMMENTS>? <ARG_ACTION>?
+	<COMMENTS>? <action=ARG_ACTION>?
 	<COMMENTS>? <returns=ruleReturns>?
 	<COMMENTS>? <throws=throwsSpec>?
 	<COMMENTS>? <locals=localsSpec>?
