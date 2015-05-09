@@ -4,7 +4,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 use Test;
 
-plan 30;
+plan 31;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -225,8 +225,8 @@ number : '1' ;},
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => Nil,
+                   options => [ ],
                    content =>
                      [{ type         => 'terminal',
                         content      => '1',
@@ -289,8 +289,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => Nil,
+                   options => [ ],
                    content =>
                      [{ type         => 'capturing group',
                         modifier     => '+',
@@ -328,8 +328,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'terminal',
                         content      => '1',
@@ -340,7 +340,7 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : '1' -> channel(HIDDEN) ;},
+    q{lexer grammar Name; number : ~'1' -> channel(HIDDEN) ;},
     :actions($a) ).ast,
   { name    => 'Name',
     type    => 'lexer',
@@ -359,10 +359,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   options => [ ],
-                   label   => Nil, 
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => Nil, 
+                   options  => [ ],
+                   commands => [ 'channel' => 'HIDDEN' ],
+                   content  =>
                      [{ type         => 'terminal',
                         content      => '1',
                         modifier     => Nil,
@@ -398,8 +399,8 @@ number [int x]
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'terminal',
                         content      => '1',
@@ -430,8 +431,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'terminal',
                         content      => '1',
@@ -462,8 +463,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'terminal',
                         content      => '1',
@@ -494,8 +495,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'terminal',
                         content      => '1',
@@ -526,8 +527,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'character class',
                         content      => [ ],
@@ -558,8 +559,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'character class',
                         content      => [ '0' ],
@@ -590,8 +591,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'character class',
                         content      => [ '0-9' ],
@@ -622,8 +623,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'character class',
                         content      => [ '-', '0-9' ],
@@ -654,8 +655,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'character class',
                         content      => [ '-', '0-9', '\\f', '\\u000d' ],
@@ -686,8 +687,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'nonterminal',
                         content      => 'non_digits',
@@ -718,8 +719,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'range',
 			content      => [{ from => 'a',
@@ -751,8 +752,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'nonterminal',
                         content      => 'non_digits',
@@ -788,8 +789,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => Nil,
+                   options => [ ],
                    content =>
                      [{ type         => 'nonterminal',
                         content      => 'non_digits',
@@ -797,8 +798,8 @@ is_deeply
                         greedy       => True,
                         complemented => True }] },
                  { type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'character class',
                         content      => [ '-', '0-9', '\\f', '\\u000d' ],
@@ -829,8 +830,8 @@ is_deeply
            [{ type    => 'alternation',
               content =>
                 [{ type    => 'concatenation',
-                   options => [ ],
                    label   => Nil,
+                   options => [ ],
                    content =>
                      [{ type         => 'nonterminal',
                         content      => 'non_digits',
@@ -838,8 +839,8 @@ is_deeply
                         greedy       => True,
                         complemented => True }] },
                  { type    => 'concatenation',
-                   options => [ ],
                    label   => 'One',
+                   options => [ ],
                    content =>
                      [{ type         => 'character class',
                         content      => [ '-', '0-9', '\\f', '\\u000d' ],

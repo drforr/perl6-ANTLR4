@@ -351,13 +351,13 @@ method lexerRuleSpec($/)
 	make
 		{
 		name     => $/<name>.ast,
-		content  => [ $/<parserAltList>>>.ast ],
-		modifier => [ ],#[ $/<modifier>>>.ast ],
-                action   => Nil,#$/<ARG_ACTION>.ast,
-                returns  => Nil,#$/<returns><ARG_ACTION>.ast,
-                throws   => [ ],#[ $/<throws><ID>>>.ast ],
-                locals   => Nil,#$/<locals><ARG_ACTION>.ast,
-                options  => [ ],#[ $/<options><option>>>.ast ],
+		content  => [ $/<lexerAltList>>>.ast ],
+		modifier => [ ],
+                action   => Nil,
+                returns  => Nil,
+                throws   => [ ],
+                locals   => Nil,
+                options  => [ ],
 		}
 	}
 
@@ -376,14 +376,27 @@ method lexerAlt($/)
 		{
 		type    => 'concatenation',
 		label   => Nil,
-                options => Nil,#$/<parserElement><elementOptions>.ast || [ ],
-		content => [ ],#[ $/<parserElement><element>>>.ast ]
+                options => [ ],
+		content => [ $/<lexerElement>>>.ast ],
+		commands => $/<lexerCommands>.ast || [ ],
 		}
 	}
 
-#method lexerElement($/)
-#	{
-#	}
+method lexerElement($/)
+	{
+	make
+		{
+		type         => 'terminal',
+                content      => $/<lexerAtom><terminal><scalar>
+				?? $/<lexerAtom><terminal><scalar>.ast
+				!! $/<lexerAtom><notSet><setElement><terminal><scalar>.ast,
+		greedy       => False,
+		modifier     => Nil,
+		complemented => $/<lexerAtom><setElement>.ast
+				?? True
+				!! False,
+		}
+	}
 
 method labeledLexerElement($/)
 	{
@@ -393,21 +406,25 @@ method lexerBlock($/)
 	{
 	}
 
-#method lexerCommands($/)
-#	{
-#	}
+method lexerCommands($/)
+	{
+	make [ $/<lexerCommand>>>.ast ]
+	}
 
 method lexerCommand($/)
 	{
+	make $/<lexerCommandName>.ast => $/<lexerCommandExpr>.ast || Nil
 	}
 
-#method lexerCommandName($/)
-#	{
-#	}
+method lexerCommandName($/)
+	{
+	make ~$/
+	}
 
-#method lexerCommandExpr($/)
-#	{
-#	}
+method lexerCommandExpr($/)
+	{
+	make ~$/
+	}
 
 method altList($/)
 	{

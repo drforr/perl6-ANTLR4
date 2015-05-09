@@ -388,8 +388,8 @@ rule lexerCommands
  	}
  
 rule lexerCommand
- 	{	<lexerCommandName> '(' <lexerCommandExpr> ')'
- 	|	<lexerCommandName>
+ 	{
+	<lexerCommandName> ['(' <lexerCommandExpr> ')']?
  	}
  
 rule lexerCommandName
