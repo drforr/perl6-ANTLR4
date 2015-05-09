@@ -142,19 +142,6 @@ method ID($/)
 	make ~$/
 	}
 
-method STRING_LITERAL($/)
-	{
-	make ~$/[0]
-	}
-
-#method UNICODE_ESC($/)
-#	{
-#	}
-
-#method ACTION($/)
-#	{
-#	}
-
 method ARG_ACTION($/)
 	{
 	make ~$/
@@ -170,15 +157,152 @@ method LEXER_CHAR_SET_ELEMENT($/)
 	make ~$/
 	}
 
-method LEXER_CHAR_SET($/)
+method action_name($/)
 	{
-	make [ $/[0]>>.Str ]
+	make ~$/
+	}
+
+method ruleModifier($/)
+	{
+	make ~$/
+	}
+
+method lexerCommandName($/)
+	{
+	make ~$/
+	}
+
+method lexerCommandExpr($/)
+	{
+	make ~$/
+	}
+
+method STRING_LITERAL($/)
+	{
+	make ~$/[0]
 	}
 
 method grammarType($/)
 	{
 	make ~$/[0]
 	}
+
+method localsSpec($/)
+	{
+	make $/<ARG_ACTION>.ast
+	}
+
+method ruleReturns($/)
+	{
+	make ~$/<ARG_ACTION>
+	}
+
+method block($/)
+	{
+	make $/<altList>.ast # XXX Restore optionsSpec
+	}
+
+method tokensSpec($/)
+	{
+	make $/<ID_list_trailing_comma>.ast
+	}
+
+method action($/)
+	{
+	make ~$/<action_name> => ~$/<ACTION>
+	}
+
+method option($/)
+	{
+	make $/<ID>.ast => $/<optionValue>.ast
+	}
+
+method delegateGrammar($/)
+	{
+	make $/<key>.ast => $/<value>.ast
+	}
+
+method elementOption($/)
+	{
+	make ~$/<key> => ~$/<value> || Nil
+	}
+ 
+method lexerCommand($/)
+	{
+	make $/<lexerCommandName>.ast => $/<lexerCommandExpr>.ast || Nil
+	}
+
+method LEXER_CHAR_SET($/)
+	{
+	make
+		[
+		$/[0]>>.Str
+		]
+	}
+
+method optionsSpec($/)
+	{
+	make
+		[
+		$/<option>>>.ast
+		]
+	}
+
+method ID_list_trailing_comma($/)
+	{
+	make
+		[
+		$/<ID>>>.ast
+		]
+	}
+
+method ID_list($/)
+	{
+	make
+		[
+		$/<ID>>>.ast
+		]
+	}
+
+method throwsSpec($/)
+	{
+	make
+		[
+		$/<ID>>>.ast
+		]
+	}
+
+method lexerCommands($/)
+	{
+	make
+		[
+		$/<lexerCommand>>>.ast
+		]
+	}
+
+method elementOptions($/)
+	{
+	make
+		[
+		$/<elementOption>>>.ast
+		]
+	}
+
+method delegateGrammars($/)
+	{
+	make
+		[
+		$/<delegateGrammar>>>.ast
+		]
+	}
+
+#method UNICODE_ESC($/)
+#	{
+#	}
+
+#method ACTION($/)
+#	{
+#	}
 
 method TOP ($/)
 	{
@@ -208,31 +332,13 @@ method TOP ($/)
 	make
 		{
 		%content,
-		rules => [ $/<rules>>>.ast ],
+		rules =>
+			[
+			$/<rules>>>.ast
+			],
 		type  => $/<type>.ast || Nil,
 		name  => $/<name>.ast,
 		}
-	}
-
-
-method optionsSpec($/)
-	{
-	make [ $/<option>>>.ast ]
-	}
-
-method option($/)
-	{
-	make $/<ID>.ast => $/<optionValue>.ast
-	}
-
-method ID_list($/)
-	{
-	make [ $/<ID>>>.ast ]
-	}
-
-method ID_list_trailing_comma($/)
-	{
-	make [ $/<ID>>>.ast ]
 	}
 
 method optionValue($/)
@@ -243,31 +349,6 @@ method optionValue($/)
 			!! $/<scalar>.ast
 	}
  
-method delegateGrammars($/)
-	{
-	make [ $/<delegateGrammar>>>.ast ]
-	}
-
-method delegateGrammar($/)
-	{
-	make $/<key>.ast => $/<value>.ast
-	}
-
-method tokensSpec($/)
-	{
-	make $/<ID_list_trailing_comma>.ast
-	}
-
-method action_name($/)
-	{
-	make ~$/
-	}
-
-method action($/)
-	{
-	make ~$/<action_name> => ~$/<ACTION>
-	}
-
 #method actionScopeName($/)
 #	{
 #	}
@@ -287,8 +368,14 @@ method parserRuleSpec($/)
 	make
 		{
 		name     => $/<name>.ast,
-		content  => [ $/<parserAltList>>>.ast ],
-		modifier => [ $/<modifier>>>.ast ],
+		content  =>
+			[
+			$/<parserAltList>>>.ast
+			],
+		modifier =>
+			[
+			$/<modifier>>>.ast
+			],
                 action   => $/<action>.ast,
                 returns  => $/<returns>.ast,
                 throws   => $/<throws>.ast || [ ],
@@ -309,32 +396,15 @@ method parserRuleSpec($/)
 #	{
 #	}
 
-method ruleReturns($/)
-	{
-	make ~$/<ARG_ACTION>
-	}
-
-method throwsSpec($/)
-	{
-	make [ $/<ID>>>.ast ]
-	}
-
-method localsSpec($/)
-	{
-	make $/<ARG_ACTION>.ast
-	}
-
-method ruleModifier($/)
-	{
-	make ~$/
-	}
-
 method parserAltList($/)
 	{
 	make
 		{
 		type    => 'alternation',
-		content => [ $/<parserAlt>>>.ast ]
+		content =>
+			[
+			$/<parserAlt>>>.ast
+			]
 		}
 	}
 
@@ -345,7 +415,10 @@ method parserAlt($/)
 		type    => 'concatenation',
 		label   => $/<label>.ast || Nil,
                 options => $/<parserElement><elementOptions>.ast || [ ],
-		content => [ $/<parserElement><element>>>.ast ]
+		content =>
+			[
+			$/<parserElement><element>>>.ast
+			]
 		}
 	}
  
@@ -354,7 +427,10 @@ method lexerRuleSpec($/)
 	make
 		{
 		name     => $/<name>.ast,
-		content  => [ $/<lexerAltList>>>.ast ],
+		content  =>
+			[
+			$/<lexerAltList>>>.ast
+			],
 		modifier => [ ],
                 action   => Nil,
                 returns  => Nil,
@@ -369,7 +445,10 @@ method lexerAltList($/)
 	make
 		{
 		type    => 'alternation',
-		content => [ $/<lexerAlt>>>.ast ]
+		content =>
+			[
+			$/<lexerAlt>>>.ast
+			]
 		}
 	}
 
@@ -380,7 +459,10 @@ method lexerAlt($/)
 		type    => 'concatenation',
 		label   => Nil,
                 options => [ ],
-		content => [ $/<lexerElement>>>.ast ],
+		content =>
+			[
+			$/<lexerElement>>>.ast
+			],
 		commands => $/<lexerCommands>.ast || [ ],
 		}
 	}
@@ -389,15 +471,19 @@ method lexerElement($/)
 	{
 	make
 		{
-		type         => 'terminal',
-                content      => $/<lexerAtom><terminal><scalar>
-				?? $/<lexerAtom><terminal><scalar>.ast
-				!! $/<lexerAtom><notSet><setElement><terminal><scalar>.ast,
-		greedy       => False,
-		modifier     => ~$/<ebnfSuffix><MODIFIER> || Nil,
-		complemented => $/<lexerAtom><setElement>.ast
-				?? True
-				!! False,
+		type => $/<lexerAtom><terminal>
+			?? 'nonterminal'
+			!! 'terminal',
+                content => $/<lexerAtom><terminal><scalar>
+			?? $/<lexerAtom><terminal><scalar>.ast
+			!! $/<lexerAtom><notSet><setElement><terminal><scalar>.ast,
+		greedy => $/<ebnf><ebnfSuffix>
+			?? $/<ebnf><ebnfSuffix><greedy>.ast
+			!! $/<ebnfSuffix>
+			?? $/<ebnfSuffix>.ast.<greedy>
+			!! False,
+		modifier => ~$/<ebnfSuffix><MODIFIER> || Nil,
+		complemented => $/<lexerAtom><notSet>.defined,
 		}
 	}
 
@@ -409,37 +495,24 @@ method lexerBlock($/)
 	{
 	}
 
-method lexerCommands($/)
-	{
-	make [ $/<lexerCommand>>>.ast ]
-	}
-
-method lexerCommand($/)
-	{
-	make $/<lexerCommandName>.ast => $/<lexerCommandExpr>.ast || Nil
-	}
-
-method lexerCommandName($/)
-	{
-	make ~$/
-	}
-
-method lexerCommandExpr($/)
-	{
-	make ~$/
-	}
 
 method altList($/)
 	{
-	make [ $/<parserElement>>>.ast.flat ]
+	make
+		[
+		$/<parserElement>>>.ast.flat
+		]
 	}
 
 method parserElement($/)
 	{
 	make
 		{
-		type    => 'alternation',
-		content => [ $/<element>>>.ast ]
+		type => 'alternation',
+		content =>
+			[
+			$/<element>>>.ast
+			]
 		}
 	}
 
@@ -459,7 +532,7 @@ method element($/)
 			!! $/<atom><terminal><scalar>
 			?? $/<atom><terminal><scalar>.ast
 			!! $/<ebnf><block>.ast,
-		type	=> $/<atom><notSet><setElement><LEXER_CHAR_SET>
+		type => $/<atom><notSet><setElement><LEXER_CHAR_SET>
 			?? 'character class'
 			!! $/<atom><range>
 			?? 'range'
@@ -522,11 +595,6 @@ method setElement($/)
 			!! $/<scalar>
 	}
 
-method block($/)
-	{
-	make $/<altList>.ast # XXX Restore optionsSpec
-	}
-
 #method ruleref($/)
 #	{
 #	}
@@ -546,14 +614,4 @@ method range($/)
 #	{
 #	}
 
-method elementOptions($/)
-	{
-	make [ $/<elementOption>>>.ast ]
-	}
-
-method elementOption($/)
-	{
-	make ~$/<key> => ~$/<value> || Nil
-	}
- 
 # vim: ft=perl6

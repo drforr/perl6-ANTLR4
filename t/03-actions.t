@@ -4,7 +4,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 use Test;
 
-plan 31;
+plan 33;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -340,7 +340,7 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ~'1'+ -> channel(HIDDEN) ;},
+    q{lexer grammar Name; number : ~'1'+? -> channel(HIDDEN) ;},
     :actions($a) ).ast,
   { name    => 'Name',
     type    => 'lexer',
@@ -367,9 +367,75 @@ is_deeply
                      [{ type         => 'terminal',
                         content      => '1',
                         modifier     => '+',
+                        greedy       => True,
+                        complemented => True }] }] }] }] },
+  'grammar with single channeled rule';
+
+is_deeply
+  $g.parse(
+    q{lexer grammar Name; number : digits -> channel(HIDDEN) ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    actions => [ ],
+    rules   =>
+      [{ name     => 'number',
+         modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+         options  => [ ],
+         content  =>
+           [{ type    => 'alternation',
+              content =>
+                [{ type     => 'concatenation',
+                   label    => Nil, 
+                   options  => [ ],
+                   commands => [ 'channel' => 'HIDDEN' ],
+                   content  =>
+                     [{ type         => 'nonterminal',
+                        content      => 'digits',
+                        modifier     => Nil,
                         greedy       => False,
                         complemented => False }] }] }] }] },
   'grammar with single channeled rule';
+
+#is_deeply
+#  $g.parse(
+#    q{lexer grammar Name; number : ~digits+? -> channel(HIDDEN) ;},
+#    :actions($a) ).ast,
+#  { name    => 'Name',
+#    type    => 'lexer',
+#    options => [ ],
+#    import  => [ ],
+#    tokens  => [ ],
+#    actions => [ ],
+#    rules   =>
+#      [{ name     => 'number',
+#         modifier => [ ],
+#         action   => Nil,
+#         returns  => Nil,
+#         throws   => [ ],
+#         locals   => Nil,
+#         options  => [ ],
+#         content  =>
+#           [{ type    => 'alternation',
+#              content =>
+#                [{ type     => 'concatenation',
+#                   label    => Nil, 
+#                   options  => [ ],
+#                   commands => [ 'channel' => 'HIDDEN' ],
+#                   content  =>
+#                     [{ type         => 'nonterminal',
+#                        content      => 'digits',
+#                        modifier     => '+',
+#                        greedy       => True,
+#                        complemented => True }] }] }] }] },
+#  'grammar with single channeled rule';
 
 is_deeply
   $g.parse(
