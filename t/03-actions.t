@@ -9,188 +9,88 @@ plan 33;
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
 
+#
+# When adding a new layer to the datastructure, do just one is_deeply() test.
+#
+# This way we can show the nested nature of the dataset, without having to
+# continually repeat the huge data structures each time.
+#
 is_deeply
-  $g.parse( q{grammar Name;}, :actions($a) ).ast,
-  { name    => 'Name',
+  $g.parse( q{grammar Minimal;}, :actions($a) ).ast,
+  { name    => 'Minimal',
     type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
     rules   => [ ] },
-  'minimal grammar';
-
-is_deeply
-  $g.parse( q{lexer grammar Name;}, :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   => [ ] },
-  'minimal lexer grammar';
-
-is_deeply
-  $g.parse( q{lexer grammar Name; options {a=2;}}, :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ a => 2 ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   => [ ] },
-  'grammar with option';
-
-is_deeply
-  $g.parse( q{lexer grammar Name; options {a='foo';}}, :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ a => 'foo' ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   => [ ] },
-  'grammar with option';
-
-is_deeply
-  $g.parse( q{lexer grammar Name; options {a=b,c;}}, :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ a => [ 'b', 'c' ] ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   => [ ] },
-  'grammar with complex option';
-
-is_deeply
-  $g.parse( q{lexer grammar Name; options {a=b,c;de=3;}}, :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options =>
-      [ a => [ 'b', 'c' ],
-        de => 3 ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   => [ ] },
-  'grammar with complex options';
-
-is_deeply
-  $g.parse(
-    q{lexer grammar Name; options {a=b,c;de=3;} import Foo;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options =>
-      [ a => [ 'b', 'c' ],
-        de => 3 ],
-    import  => [ Foo => Nil ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   => [ ] },
-  'grammar with options and import';
-
-is_deeply
-  $g.parse(
-    q{lexer grammar Name; options {a=b,c;de=3;} import Foo,Bar=Test;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options =>
-      [ a => [ 'b', 'c' ],
-        de => 3 ],
-    import  =>
-      [ Foo => Nil,
-        Bar => 'Test' ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   => [ ] },
-  'grammar with options and imports';
+  'Minimal grammar';
 
 #
-# XXX tokens should really be a set, come to think of it.
+# Now check the individual keys of the current layer.
 #
-is_deeply
-  $g.parse(
-    q{lexer grammar Name; options {a=b,c;de=3;} import Foo,Bar=Test; tokens { Foo, Bar }},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options =>
-      [ a => [ 'b', 'c' ],
-        de => 3 ],
-    import  =>
-      [ Foo => Nil,
-        Bar => 'Test' ],
-    tokens  => [ 'Foo', 'Bar' ],
-    actions => [ ],
-    rules   => [ ] },
-  'grammar with options, imports and tokens';
+# Earlier we determined that the overall layout has the defaults we want,
+# so just investigate each key, instead of is_deeply() on the root dataset.
+#
+{
+  my $parsed;
+  $parsed = $g.parse(
+    q{lexer grammar Name;}, :actions($a) ).ast;
+  is $parsed.<type>, 'lexer';
+}
 
-is_deeply
-  $g.parse(
-    q{lexer grammar Name; options {a=b,c;de=3;} import Foo,Bar=Test; tokens { Foo, Bar } @members { protected int curlies = 0; }},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options =>
-      [ a => [ 'b', 'c' ],
-        de => 3 ],
-    import  =>
-      [ Foo => Nil,
-        Bar => 'Test' ],
-    tokens  => [ 'Foo', 'Bar' ],
-    actions => [ '@members' => '{ protected int curlies = 0; }' ],
-    rules   => [ ] },
-  'grammar with options, imports, tokens and action';
+{
+  my $parsed;
+  $parsed = $g.parse(
+    q{lexer grammar Name; options {a=2;}}, :actions($a) ).ast;
+  is_deeply $parsed.<options>, [ a => 2 ];
+  $parsed = $g.parse(
+    q{lexer grammar Name; options {a='foo';}}, :actions($a) ).ast;
+  is_deeply $parsed.<options>, [ a => 'foo' ];
+  $parsed = $g.parse(
+    q{lexer grammar Name; options {a=b,c;}}, :actions($a) ).ast;
+  is_deeply $parsed.<options>, [ a => [ 'b', 'c' ] ];
+  $parsed = $g.parse(
+    q{lexer grammar Name; options {a=b,c;de=3;}}, :actions($a) ).ast;
+  is_deeply $parsed.<options>, [ a => [ 'b', 'c' ], de => 3 ];
+}
 
-is_deeply
-  $g.parse(
+{
+  my $parsed;
+  $parsed = $g.parse(
+    q{lexer grammar Name; options {a=2;} import Foo;}, :actions($a) ).ast;
+  is_deeply $parsed.<import>, [ Foo => Nil ];
+  $parsed = $g.parse(
+    q{lexer grammar Name; options {a=2;} import Foo,Bar=Test;}, :actions($a) ).ast;
+  is_deeply $parsed.<import>, [ Foo => Nil, Bar => 'Test' ];
+}
+
+{
+  my $parsed;
+  $parsed = $g.parse(
     q{lexer grammar Name;
-options {a=b,c;de=3;}
-import Foo,Bar=Test;
-tokens { Foo, Bar }
-@members { protected int curlies = 0; }},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options =>
-      [ a => [ 'b', 'c' ],
-        de => 3 ],
-    import  =>
-      [ Foo => Nil,
-        Bar => 'Test' ],
-    tokens  => [ 'Foo', 'Bar' ],
-    actions => [ '@members' => '{ protected int curlies = 0; }' ],
-    rules   => [ ] },
-  'grammar with options, imports, tokens and action';
+      options {a=2;}
+      import Foo;
+      tokens { Foo, Bar }
+      @members { protected int curlies = 0; }}, :actions($a) ).ast;
+  is_deeply $parsed.<actions>,
+    [ '@members' => '{ protected int curlies = 0; }' ];
 
-is_deeply
-  $g.parse(
+  $parsed = $g.parse(
     q{lexer grammar Name;
-options {a=b,c;de=3;}
-import Foo,Bar=Test;
-tokens { Foo, Bar }
-@members { protected int curlies = 0; }
-@sample::stuff { 1; }},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options =>
-      [ a => [ 'b', 'c' ],
-        de => 3 ],
-    import  =>
-      [ Foo => Nil,
-        Bar => 'Test' ],
-    tokens  => [ 'Foo', 'Bar' ],
-    actions =>
-      [ '@members'       => '{ protected int curlies = 0; }',
-        '@sample::stuff' => '{ 1; }' ],
-    rules   => [ ] },
-  'grammar with all the options, no rules yet';
+      options {a=2;}
+      import Foo;
+      tokens { Foo, Bar }
+      @members { protected int curlies = 0; }
+      @sample::stuff { 1; }}, :actions($a) ).ast;
+  is_deeply $parsed.<actions>,
+    [ '@members' => '{ protected int curlies = 0; }',
+      '@sample::stuff' => '{ 1; }' ];
+}
 
+#
+# Show off the first actual rule.
+#
 is_deeply
   $g.parse(
     q{lexer grammar Name;
