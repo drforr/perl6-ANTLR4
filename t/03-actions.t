@@ -61,7 +61,8 @@ is_deeply
     q{lexer grammar Name; options {a=2;} import Foo;}, :actions($a) ).ast;
   is_deeply $parsed.<import>, [ Foo => Nil ];
   $parsed = $g.parse(
-    q{lexer grammar Name; options {a=2;} import Foo,Bar=Test;}, :actions($a) ).ast;
+    q{lexer grammar Name; options {a=2;} import Foo,Bar=Test;},
+    :actions($a) ).ast;
   is_deeply $parsed.<import>, [ Foo => Nil, Bar => 'Test' ];
 }
 
@@ -69,18 +70,12 @@ is_deeply
   my $parsed;
   $parsed = $g.parse(
     q{lexer grammar Name;
-      options {a=2;}
-      import Foo;
-      tokens { Foo, Bar }
       @members { protected int curlies = 0; }}, :actions($a) ).ast;
   is_deeply $parsed.<actions>,
     [ '@members' => '{ protected int curlies = 0; }' ];
 
   $parsed = $g.parse(
     q{lexer grammar Name;
-      options {a=2;}
-      import Foo;
-      tokens { Foo, Bar }
       @members { protected int curlies = 0; }
       @sample::stuff { 1; }}, :actions($a) ).ast;
   is_deeply $parsed.<actions>,
@@ -124,10 +119,11 @@ number : '1' ;},
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => Nil,
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => Nil,
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'terminal',
                         content      => '1',
                         modifier     => Nil,
@@ -135,37 +131,13 @@ number : '1' ;},
                         complemented => False }] }] }] }] },
   'grammar with options and single simple rule';
 
-is_deeply
-  $g.parse(
-    q{lexer grammar Name; number : <assoc=right> '1' ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type    => 'concatenation',
-                   label   => Nil,
-                   options => [ assoc => 'right' ],
-                   content =>
-                     [{ type         => 'terminal',
-                        content      => '1',
-                        modifier     => Nil,
-                        greedy       => False,
-                        complemented => False }] }] }] }] },
-  'grammar with options and single simple rule with options';
+{
+  my $parsed = $g.parse(
+    q{lexer grammar Name; number : <assoc=right> '1' ;}, :actions($a) ).ast;
+
+  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<options>,
+    [ assoc => 'right' ];
+}
 
 is_deeply
   $g.parse(
@@ -188,10 +160,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => Nil,
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => Nil,
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'capturing group',
                         modifier     => '+',
                         greedy       => True,
@@ -227,16 +200,50 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'terminal',
                         content      => '1',
                         modifier     => Nil,
                         greedy       => False,
                         complemented => False }] }] }] }] },
   'grammar with single labeled rule';
+
+is_deeply
+  $g.parse(
+    q{lexer grammar Name; number : '1' -> channel(HIDDEN) ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    actions => [ ],
+    rules   =>
+      [{ name     => 'number',
+         modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+         options  => [ ],
+         content  =>
+           [{ type    => 'alternation',
+              content =>
+                [{ type     => 'concatenation',
+                   label    => Nil, 
+                   options  => [ ],
+                   commands => [ 'channel' => 'HIDDEN' ],
+                   content  =>
+                     [{ type         => 'terminal',
+                        content      => '1',
+                        modifier     => Nil,
+                        greedy       => False,
+                        complemented => False }] }] }] }] },
+  'grammar with single channeled rule';
 
 is_deeply
   $g.parse(
@@ -337,6 +344,39 @@ is_deeply
                         complemented => True }] }] }] }] },
   'grammar with single channeled rule and all flags';
 
+#is_deeply
+#  $g.parse(
+#    q{lexer grammar Name; number : [0..9] -> channel(HIDDEN) ;},
+#    :actions($a) ).ast,
+#  { name    => 'Name',
+#    type    => 'lexer',
+#    options => [ ],
+#    import  => [ ],
+#    tokens  => [ ],
+#    actions => [ ],
+#    rules   =>
+#      [{ name     => 'number',
+#         modifier => [ ],
+#         action   => Nil,
+#         returns  => Nil,
+#         throws   => [ ],
+#         locals   => Nil,
+#         options  => [ ],
+#         content  =>
+#           [{ type    => 'alternation',
+#              content =>
+#                [{ type     => 'concatenation',
+#                   label    => Nil, 
+#                   options  => [ ],
+#                   commands => [ 'channel' => 'HIDDEN' ],
+#                   content  =>
+#                     [{ type         => 'character class',
+#                        content      => [ '0-9' ],
+#                        modifier     => Nil,
+#                        greedy       => False,
+#                        complemented => False }] }] }] }] },
+#  'grammar with single channeled rule';
+
 is_deeply
   $g.parse(
     q{lexer grammar Name;
@@ -364,10 +404,11 @@ number [int x]
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'terminal',
                         content      => '1',
                         modifier     => Nil,
@@ -396,10 +437,11 @@ is_deeply
          content  => 
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'terminal',
                         content      => '1',
                         modifier     => '+',
@@ -428,10 +470,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'terminal',
                         content      => '1',
                         modifier     => '+',
@@ -460,10 +503,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'terminal',
                         content      => '1',
                         modifier     => '+',
@@ -492,10 +536,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'character class',
                         content      => [ ],
                         modifier     => '+',
@@ -524,10 +569,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'character class',
                         content      => [ '0' ],
                         modifier     => '+',
@@ -556,10 +602,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'character class',
                         content      => [ '0-9' ],
                         modifier     => '+',
@@ -588,10 +635,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'character class',
                         content      => [ '-', '0-9' ],
                         modifier     => '+',
@@ -620,10 +668,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'character class',
                         content      => [ '-', '0-9', '\\f', '\\u000d' ],
                         modifier     => '+',
@@ -652,10 +701,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'nonterminal',
                         content      => 'non_digits',
                         modifier     => '+',
@@ -684,10 +734,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'range',
 			content      => [{ from => 'a',
                                            to   => 'z' }],
@@ -717,10 +768,11 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'nonterminal',
                         content      => 'non_digits',
                         modifier     => '+',
@@ -754,19 +806,21 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => Nil,
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => Nil,
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'nonterminal',
                         content      => 'non_digits',
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] },
-                 { type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                 { type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'character class',
                         content      => [ '-', '0-9', '\\f', '\\u000d' ],
                         modifier     => '+',
@@ -795,19 +849,21 @@ is_deeply
          content  =>
            [{ type    => 'alternation',
               content =>
-                [{ type    => 'concatenation',
-                   label   => Nil,
-                   options => [ ],
-                   content =>
+                [{ type     => 'concatenation',
+                   label    => Nil,
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'nonterminal',
                         content      => 'non_digits',
                         modifier     => '+',
                         greedy       => True,
                         complemented => True }] },
-                 { type    => 'concatenation',
-                   label   => 'One',
-                   options => [ ],
-                   content =>
+                 { type     => 'concatenation',
+                   label    => 'One',
+                   options  => [ ],
+                   commands => [ ],
+                   content  =>
                      [{ type         => 'character class',
                         content      => [ '-', '0-9', '\\f', '\\u000d' ],
                         modifier     => '+',

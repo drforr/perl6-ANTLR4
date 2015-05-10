@@ -418,7 +418,8 @@ method parserAlt($/)
 		content =>
 			[
 			$/<parserElement><element>>>.ast
-			]
+			],
+		commands => [ ],
 		}
 	}
  
@@ -472,6 +473,8 @@ method lexerElement($/)
 	make
 		{
 		type => $/<lexerAtom><notSet><setElement><terminal><STRING_LITERAL>
+			?? 'terminal'
+			!! $/<lexerAtom><terminal><STRING_LITERAL>
 			?? 'terminal'
 			!! 'nonterminal',
                 content => $/<lexerAtom><terminal><scalar>
