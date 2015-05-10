@@ -125,7 +125,7 @@ most complex, and is described in detail at the appropriate place.
   or C<Nil> if no modifier is present. Just like in Perl6, terms can have
   greedy quantifiers, and that's set by the C<greedy> flag. The
   C<complemented> flag acts similarly, since terms can be complemented like
-  C<~'foo'> meaning "No 'foo' occurs here.
+  C<~'foo'> meaning "No 'foo' occurs here".
 
 =end pod
 
@@ -471,9 +471,9 @@ method lexerElement($/)
 	{
 	make
 		{
-		type => $/<lexerAtom><terminal>
-			?? 'nonterminal'
-			!! 'terminal',
+		type => $/<lexerAtom><notSet><setElement><terminal><STRING_LITERAL>
+			?? 'terminal'
+			!! 'nonterminal',
                 content => $/<lexerAtom><terminal><scalar>
 			?? $/<lexerAtom><terminal><scalar>.ast
 			!! $/<lexerAtom><notSet><setElement><terminal><scalar>.ast,
