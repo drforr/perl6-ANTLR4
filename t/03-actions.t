@@ -344,38 +344,38 @@ is_deeply
                         complemented => True }] }] }] }] },
   'grammar with single channeled rule and all flags';
 
-#is_deeply
-#  $g.parse(
-#    q{lexer grammar Name; number : [0..9] -> channel(HIDDEN) ;},
-#    :actions($a) ).ast,
-#  { name    => 'Name',
-#    type    => 'lexer',
-#    options => [ ],
-#    import  => [ ],
-#    tokens  => [ ],
-#    actions => [ ],
-#    rules   =>
-#      [{ name     => 'number',
-#         modifier => [ ],
-#         action   => Nil,
-#         returns  => Nil,
-#         throws   => [ ],
-#         locals   => Nil,
-#         options  => [ ],
-#         content  =>
-#           [{ type    => 'alternation',
-#              content =>
-#                [{ type     => 'concatenation',
-#                   label    => Nil, 
-#                   options  => [ ],
-#                   commands => [ 'channel' => 'HIDDEN' ],
-#                   content  =>
-#                     [{ type         => 'character class',
-#                        content      => [ '0-9' ],
-#                        modifier     => Nil,
-#                        greedy       => False,
-#                        complemented => False }] }] }] }] },
-#  'grammar with single channeled rule';
+is_deeply
+  $g.parse(
+    q{lexer grammar Name; number : [0-9] -> channel(HIDDEN) ;},
+    :actions($a) ).ast,
+  { name    => 'Name',
+    type    => 'lexer',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    actions => [ ],
+    rules   =>
+      [{ name     => 'number',
+         modifier => [ ],
+         action   => Nil,
+         returns  => Nil,
+         throws   => [ ],
+         locals   => Nil,
+         options  => [ ],
+         content  =>
+           [{ type    => 'alternation',
+              content =>
+                [{ type     => 'concatenation',
+                   label    => Nil, 
+                   options  => [ ],
+                   commands => [ 'channel' => 'HIDDEN' ],
+                   content  =>
+                     [{ type         => 'character class',
+                        content      => [ '0-9' ],
+                        modifier     => Nil,
+                        greedy       => False,
+                        complemented => False }] }] }] }] },
+  'grammar with single channeled rule';
 
 is_deeply
   $g.parse(

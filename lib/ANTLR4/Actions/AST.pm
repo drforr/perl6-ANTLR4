@@ -470,14 +470,19 @@ method lexerAlt($/)
 
 method lexerElement($/)
 	{
+say $/;
 	make
 		{
-		type => $/<lexerAtom><notSet><setElement><terminal><STRING_LITERAL>
+		type => $/<lexerAtom><LEXER_CHAR_SET>
+			?? 'character class'
+			!! $/<lexerAtom><notSet><setElement><terminal><STRING_LITERAL>
 			?? 'terminal'
 			!! $/<lexerAtom><terminal><STRING_LITERAL>
 			?? 'terminal'
 			!! 'nonterminal',
-                content => $/<lexerAtom><terminal><scalar>
+                content => $/<lexerAtom><LEXER_CHAR_SET>
+			?? $/<lexerAtom><LEXER_CHAR_SET>.ast
+			!! $/<lexerAtom><terminal><scalar>
 			?? $/<lexerAtom><terminal><scalar>.ast
 			!! $/<lexerAtom><notSet><setElement><terminal><scalar>.ast,
 		greedy => $/<ebnf><ebnfSuffix>
