@@ -347,9 +347,6 @@ rule lexerRuleSpec
 	<COMMENTS>?
  	}
  
-#
-# XXX The null alternative here is fugly.
-#
 rule lexerAltList
 	{
 	<lexerAlt>+ %% '|'

@@ -184,7 +184,7 @@ method STRING_LITERAL($/)
 
 method grammarType($/)
 	{
-	make ~$/[0]
+	make $/[0] ?? ~$/[0] !! Nil
 	}
 
 method localsSpec($/)
@@ -470,17 +470,20 @@ method lexerAlt($/)
 
 method lexerElement($/)
 	{
-say $/;
 	make
 		{
-		type => $/<lexerAtom><LEXER_CHAR_SET>
+		type => $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>
+			?? 'character class'
+			!! $/<lexerAtom><LEXER_CHAR_SET>
 			?? 'character class'
 			!! $/<lexerAtom><notSet><setElement><terminal><STRING_LITERAL>
 			?? 'terminal'
 			!! $/<lexerAtom><terminal><STRING_LITERAL>
 			?? 'terminal'
 			!! 'nonterminal',
-                content => $/<lexerAtom><LEXER_CHAR_SET>
+		content => $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>
+			?? $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>.ast
+                	!! $/<lexerAtom><LEXER_CHAR_SET>
 			?? $/<lexerAtom><LEXER_CHAR_SET>.ast
 			!! $/<lexerAtom><terminal><scalar>
 			?? $/<lexerAtom><terminal><scalar>.ast
@@ -490,7 +493,9 @@ say $/;
 			!! $/<ebnfSuffix>
 			?? $/<ebnfSuffix>.ast.<greedy>
 			!! False,
-		modifier => ~$/<ebnfSuffix><MODIFIER> || Nil,
+		modifier => $/<ebnfSuffix><MODIFIER>
+			?? ~$/<ebnfSuffix><MODIFIER>
+			!! Nil,
 		complemented => $/<lexerAtom><notSet>.defined,
 		}
 	}

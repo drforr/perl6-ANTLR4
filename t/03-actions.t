@@ -4,7 +4,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 use Test;
 
-plan 33;
+plan 30;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -36,78 +36,79 @@ is_deeply
   my $parsed;
   $parsed = $g.parse(
     q{lexer grammar Name;}, :actions($a) ).ast;
-  is $parsed.<type>, 'lexer';
+  is $parsed.<type>, 'lexer',
+    q{Optional 'lexer' term};
 }
 
-{
+subtest sub {
   my $parsed;
   $parsed = $g.parse(
-    q{lexer grammar Name; options {a=2;}}, :actions($a) ).ast;
-  is_deeply $parsed.<options>, [ a => 2 ];
-  $parsed = $g.parse(
-    q{lexer grammar Name; options {a='foo';}}, :actions($a) ).ast;
-  is_deeply $parsed.<options>, [ a => 'foo' ];
-  $parsed = $g.parse(
-    q{lexer grammar Name; options {a=b,c;}}, :actions($a) ).ast;
-  is_deeply $parsed.<options>, [ a => [ 'b', 'c' ] ];
-  $parsed = $g.parse(
-    q{lexer grammar Name; options {a=b,c;de=3;}}, :actions($a) ).ast;
-  is_deeply $parsed.<options>, [ a => [ 'b', 'c' ], de => 3 ];
-}
+    q{grammar Name; options {a=2;}}, :actions($a) ).ast;
+  is_deeply $parsed.<options>, [ a => 2 ],
+    q{Numeric option};
 
-{
+  $parsed = $g.parse(
+    q{grammar Name; options {a='foo';}}, :actions($a) ).ast;
+  is_deeply $parsed.<options>, [ a => 'foo' ],
+    q{String option};
+
+  $parsed = $g.parse(
+    q{grammar Name; options {a=b,c;}}, :actions($a) ).ast;
+  is_deeply $parsed.<options>, [ a => [ 'b', 'c' ] ],
+    q{Two identifier options};
+
+  $parsed = $g.parse(
+    q{grammar Name; options {a=b,c;de=3;}}, :actions($a) ).ast;
+  is_deeply $parsed.<options>, [ a => [ 'b', 'c' ], de => 3 ],
+    q{Two options};
+}, 'Options';
+
+subtest sub {
   my $parsed;
   $parsed = $g.parse(
-    q{lexer grammar Name; options {a=2;} import Foo;}, :actions($a) ).ast;
-  is_deeply $parsed.<import>, [ Foo => Nil ];
+    q{grammar Name; options {a=2;} import Foo;}, :actions($a) ).ast;
+  is_deeply $parsed.<import>, [ Foo => Nil ],
+    q{Import grammar};
+
   $parsed = $g.parse(
-    q{lexer grammar Name; options {a=2;} import Foo,Bar=Test;},
+    q{grammar Name; options {a=2;} import Foo,Bar=Test;},
     :actions($a) ).ast;
-  is_deeply $parsed.<import>, [ Foo => Nil, Bar => 'Test' ];
-}
+  is_deeply $parsed.<import>, [ Foo => Nil, Bar => 'Test' ],
+    q{Import grammar with alias};
+}, 'Imports';
 
-{
+subtest sub {
   my $parsed;
   $parsed = $g.parse(
-    q{lexer grammar Name;
+    q{grammar Name;
       @members { protected int curlies = 0; }}, :actions($a) ).ast;
   is_deeply $parsed.<actions>,
-    [ '@members' => '{ protected int curlies = 0; }' ];
+    [ '@members' => '{ protected int curlies = 0; }' ],
+    q{Single action};
 
   $parsed = $g.parse(
-    q{lexer grammar Name;
+    q{grammar Name;
       @members { protected int curlies = 0; }
       @sample::stuff { 1; }}, :actions($a) ).ast;
   is_deeply $parsed.<actions>,
     [ '@members' => '{ protected int curlies = 0; }',
-      '@sample::stuff' => '{ 1; }' ];
-}
+      '@sample::stuff' => '{ 1; }' ],
+    q{Two actions};
+}, 'Actions';
 
 #
 # Show off the first actual rule.
 #
 is_deeply
   $g.parse(
-    q{lexer grammar Name;
-options {a=b,c;de=3;}
-import Foo,Bar=Test;
-tokens { Foo, Bar }
-@members { protected int curlies = 0; }
-@sample::stuff { 1; }
-number : '1' ;},
+    q{grammar Name; number : '1' ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
-    options =>
-      [ a => [ 'b', 'c' ],
-        de => 3 ],
-    import  =>
-      [ Foo => Nil,
-        Bar => 'Test' ],
-    tokens  => [ 'Foo', 'Bar' ],
-    actions =>
-      [ '@members'       => '{ protected int curlies = 0; }',
-        '@sample::stuff' => '{ 1; }' ],
+    type    => Nil,
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    actions => [ ],
     rules   =>
       [{ name     => 'number',
          modifier => [ ],
@@ -132,19 +133,32 @@ number : '1' ;},
   'grammar with options and single simple rule';
 
 {
-  my $parsed = $g.parse(
-    q{lexer grammar Name; number : <assoc=right> '1' ;}, :actions($a) ).ast;
+  my $parsed;
 
+  $parsed = $g.parse(
+    q{grammar Name; number : <assoc=right> '1' ;}, :actions($a) ).ast;
   is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<options>,
-    [ assoc => 'right' ];
+    [ assoc => 'right' ],
+    q{Rule with option};
+
+  $parsed = $g.parse(
+    q{grammar Name; number : '1' # One ;}, :actions($a) ).ast;
+  is $parsed.<rules>[0]<content>[0]<content>[0]<label>, 'One',
+    q{Rule with label};
+
+  $parsed = $g.parse(
+    q{grammar Name; number : '1' -> channel(HIDDEN) ;}, :actions($a) ).ast;
+  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<commands>,
+    [ channel => 'HIDDEN' ],
+    q{Rule with command};
 }
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ( '1' )+? ;},
+    q{grammar Name; number : ( '1' )+? ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -179,207 +193,118 @@ is_deeply
                                   complemented => False }] }] }] }] }] }] },
   'grammar with options and single simple rule';
 
-is_deeply
-  $g.parse(
-    q{lexer grammar Name; number : '1' # One ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => 'One',
-                   options  => [ ],
-                   commands => [ ],
-                   content  =>
-                     [{ type         => 'terminal',
-                        content      => '1',
-                        modifier     => Nil,
-                        greedy       => False,
-                        complemented => False }] }] }] }] },
-  'grammar with single labeled rule';
+subtest sub {
+  my $parsed;
+
+  $parsed =
+    $g.parse( q{grammar Name; number : ~'1'+? -> channel(HIDDEN) ;},
+              :actions($a) ).ast;
+  is_deeply $parsed.<rules>[0]<content>[0]<content>[0],
+    { type     => 'concatenation',
+      label    => Nil, 
+      options  => [ ],
+      commands => [ 'channel' => 'HIDDEN' ],
+      content  =>
+        [{ type         => 'terminal',
+           content      => '1',
+           modifier     => '+',
+           greedy       => True,
+           complemented => True }] },
+    q{Channeled rule};
+
+  $parsed =
+    $g.parse( q{grammar Name; number : ~'1'+? -> channel(HIDDEN) ;},
+              :actions($a) ).ast;
+  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<content>[0],
+    { type         => 'terminal',
+       content      => '1',
+       modifier     => '+',
+       greedy       => True,
+       complemented => True },
+    q{Channeled rule with flags and modifier};
+
+  $parsed =
+    $g.parse( q{grammar Name; number : digits -> channel(HIDDEN) ;},
+              :actions($a) ).ast;
+  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<content>[0],
+    { type         => 'nonterminal',
+       content      => 'digits',
+       modifier     => Nil,
+       greedy       => False,
+       complemented => False },
+    q{Channeled rule with nonterminal};
+
+  $parsed =
+    $g.parse( q{grammar Name; number : ~digits+? -> channel(HIDDEN) ;},
+              :actions($a) ).ast,
+  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<content>[0],
+    { type         => 'nonterminal',
+       content      => 'digits',
+       modifier     => '+',
+       greedy       => True,
+       complemented => True },
+    q{Channeled rule with nonterminal};
+
+  $parsed =
+    $g.parse( q{grammar Name; number : [0-9] -> channel(HIDDEN) ;},
+              :actions($a) ).ast;
+  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<content>[0],
+    { type         => 'character class',
+       content      => [ '0-9' ],
+       modifier     => Nil,
+       greedy       => False,
+       complemented => False },
+    q{Channeled rule with nonterminal};
+
+  $parsed =
+    $g.parse( q{grammar Name; number : ~[0-9]+? -> channel(HIDDEN) ;},
+              :actions($a) ).ast;
+  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<content>[0],
+    { type         => 'character class',
+       content      => [ '0-9' ],
+       modifier     => '+',
+       greedy       => True,
+       complemented => True },
+    q{Channeled rule with nonterminal};
+}, 'command';
+
+#is_deeply
+#  $g.parse(
+#    q{grammar Name; number : 'a'..'f' -> channel(HIDDEN) ;},
+#    :actions($a) ).ast,
+#  { name    => 'Name',
+#    type    => Nil,
+#    options => [ ],
+#    import  => [ ],
+#    tokens  => [ ],
+#    actions => [ ],
+#    rules   =>
+#      [{ name     => 'number',
+#         modifier => [ ],
+#         action   => Nil,
+#         returns  => Nil,
+#         throws   => [ ],
+#         locals   => Nil,
+#         options  => [ ],
+#         content  =>
+#           [{ type    => 'alternation',
+#              content =>
+#                [{ type     => 'concatenation',
+#                   label    => Nil, 
+#                   options  => [ ],
+#                   commands => [ 'channel' => 'HIDDEN' ],
+#                   content  =>
+#                     [{ type         => 'range',
+#			content      => [{ from => 'a',
+#                                           to   => 'f' }],
+#                        modifier     => Nil,
+#                        greedy       => False,
+#                        complemented => False }] }] }] }] },
+#  'grammar with single channeled rule';
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : '1' -> channel(HIDDEN) ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => Nil, 
-                   options  => [ ],
-                   commands => [ 'channel' => 'HIDDEN' ],
-                   content  =>
-                     [{ type         => 'terminal',
-                        content      => '1',
-                        modifier     => Nil,
-                        greedy       => False,
-                        complemented => False }] }] }] }] },
-  'grammar with single channeled rule';
-
-is_deeply
-  $g.parse(
-    q{lexer grammar Name; number : ~'1'+? -> channel(HIDDEN) ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => Nil, 
-                   options  => [ ],
-                   commands => [ 'channel' => 'HIDDEN' ],
-                   content  =>
-                     [{ type         => 'terminal',
-                        content      => '1',
-                        modifier     => '+',
-                        greedy       => True,
-                        complemented => True }] }] }] }] },
-  'grammar with single channeled rule';
-
-is_deeply
-  $g.parse(
-    q{lexer grammar Name; number : digits -> channel(HIDDEN) ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => Nil, 
-                   options  => [ ],
-                   commands => [ 'channel' => 'HIDDEN' ],
-                   content  =>
-                     [{ type         => 'nonterminal',
-                        content      => 'digits',
-                        modifier     => Nil,
-                        greedy       => False,
-                        complemented => False }] }] }] }] },
-  'grammar with single channeled rule';
-
-is_deeply
-  $g.parse(
-    q{lexer grammar Name; number : ~digits+? -> channel(HIDDEN) ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => Nil, 
-                   options  => [ ],
-                   commands => [ 'channel' => 'HIDDEN' ],
-                   content  =>
-                     [{ type         => 'nonterminal',
-                        content      => 'digits',
-                        modifier     => '+',
-                        greedy       => True,
-                        complemented => True }] }] }] }] },
-  'grammar with single channeled rule and all flags';
-
-is_deeply
-  $g.parse(
-    q{lexer grammar Name; number : [0-9] -> channel(HIDDEN) ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => 'lexer',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => Nil, 
-                   options  => [ ],
-                   commands => [ 'channel' => 'HIDDEN' ],
-                   content  =>
-                     [{ type         => 'character class',
-                        content      => [ '0-9' ],
-                        modifier     => Nil,
-                        greedy       => False,
-                        complemented => False }] }] }] }] },
-  'grammar with single channeled rule';
-
-is_deeply
-  $g.parse(
-    q{lexer grammar Name;
+    q{grammar Name;
 number [int x]
        returns [int y]
        throws XFoo
@@ -388,7 +313,7 @@ number [int x]
   : '1' # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -418,10 +343,10 @@ number [int x]
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : '1'+ # One ;},
+    q{grammar Name; number : '1'+ # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -451,10 +376,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : '1'+? # One ;},
+    q{grammar Name; number : '1'+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -484,10 +409,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ~'1'+? # One ;},
+    q{grammar Name; number : ~'1'+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -517,10 +442,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ~[]+? # One ;},
+    q{grammar Name; number : ~[]+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -550,10 +475,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ~[0]+? # One ;},
+    q{grammar Name; number : ~[0]+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -583,10 +508,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ~[0-9]+? # One ;},
+    q{grammar Name; number : ~[0-9]+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -616,10 +541,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ~[-0-9]+? # One ;},
+    q{grammar Name; number : ~[-0-9]+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -649,10 +574,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ~[-0-9\f\u000d]+? # One ;},
+    q{grammar Name; number : ~[-0-9\f\u000d]+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -682,10 +607,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ~non_digits+? # One ;},
+    q{grammar Name; number : ~non_digits+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -715,10 +640,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : 'a'..'z'+? # One ;},
+    q{grammar Name; number : 'a'..'z'+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -749,10 +674,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ~non_digits+? ~[-0-9\f\u000d]+? # One ;},
+    q{grammar Name; number : ~non_digits+? ~[-0-9\f\u000d]+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -787,10 +712,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; number : ~non_digits+? | ~[-0-9\f\u000d]+? # One ;},
+    q{grammar Name; number : ~non_digits+? | ~[-0-9\f\u000d]+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
@@ -830,10 +755,10 @@ is_deeply
 
 is_deeply
   $g.parse(
-    q{lexer grammar Name; protected number : ~non_digits+? | ~[-0-9\f\u000d]+? # One ;},
+    q{grammar Name; protected number : ~non_digits+? | ~[-0-9\f\u000d]+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
-    type    => 'lexer',
+    type    => Nil,
     options => [ ],
     import  => [ ],
     tokens  => [ ],
