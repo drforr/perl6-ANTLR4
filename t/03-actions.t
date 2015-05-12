@@ -4,7 +4,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 use Test;
 
-plan 30;
+plan 23;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -23,7 +23,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   => [ ] },
+    content => [ ] },
   'Minimal grammar';
 
 #
@@ -109,7 +109,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -137,18 +137,18 @@ is_deeply
 
   $parsed = $g.parse(
     q{grammar Name; number : <assoc=right> '1' ;}, :actions($a) ).ast;
-  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<options>,
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0]<options>,
     [ assoc => 'right' ],
     q{Rule with option};
 
   $parsed = $g.parse(
     q{grammar Name; number : '1' # One ;}, :actions($a) ).ast;
-  is $parsed.<rules>[0]<content>[0]<content>[0]<label>, 'One',
+  is $parsed.<content>[0]<content>[0]<content>[0]<label>, 'One',
     q{Rule with label};
 
   $parsed = $g.parse(
     q{grammar Name; number : '1' -> channel(HIDDEN) ;}, :actions($a) ).ast;
-  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<commands>,
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0]<commands>,
     [ channel => 'HIDDEN' ],
     q{Rule with command};
 }
@@ -163,7 +163,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -199,7 +199,7 @@ subtest sub {
   $parsed =
     $g.parse( q{grammar Name; number : ~'1'+? -> channel(HIDDEN) ;},
               :actions($a) ).ast;
-  is_deeply $parsed.<rules>[0]<content>[0]<content>[0],
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0],
     { type     => 'concatenation',
       label    => Nil, 
       options  => [ ],
@@ -215,7 +215,7 @@ subtest sub {
   $parsed =
     $g.parse( q{grammar Name; number : ~'1'+? -> channel(HIDDEN) ;},
               :actions($a) ).ast;
-  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<content>[0],
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
     { type         => 'terminal',
        content      => '1',
        modifier     => '+',
@@ -226,7 +226,7 @@ subtest sub {
   $parsed =
     $g.parse( q{grammar Name; number : digits -> channel(HIDDEN) ;},
               :actions($a) ).ast;
-  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<content>[0],
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
     { type         => 'nonterminal',
        content      => 'digits',
        modifier     => Nil,
@@ -237,7 +237,7 @@ subtest sub {
   $parsed =
     $g.parse( q{grammar Name; number : ~digits+? -> channel(HIDDEN) ;},
               :actions($a) ).ast,
-  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<content>[0],
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
     { type         => 'nonterminal',
        content      => 'digits',
        modifier     => '+',
@@ -248,7 +248,7 @@ subtest sub {
   $parsed =
     $g.parse( q{grammar Name; number : [0-9] -> channel(HIDDEN) ;},
               :actions($a) ).ast;
-  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<content>[0],
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
     { type         => 'character class',
        content      => [ '0-9' ],
        modifier     => Nil,
@@ -259,48 +259,26 @@ subtest sub {
   $parsed =
     $g.parse( q{grammar Name; number : ~[0-9]+? -> channel(HIDDEN) ;},
               :actions($a) ).ast;
-  is_deeply $parsed.<rules>[0]<content>[0]<content>[0]<content>[0],
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
     { type         => 'character class',
        content      => [ '0-9' ],
        modifier     => '+',
        greedy       => True,
        complemented => True },
     q{Channeled rule with nonterminal};
-}, 'command';
 
-#is_deeply
-#  $g.parse(
-#    q{grammar Name; number : 'a'..'f' -> channel(HIDDEN) ;},
-#    :actions($a) ).ast,
-#  { name    => 'Name',
-#    type    => Nil,
-#    options => [ ],
-#    import  => [ ],
-#    tokens  => [ ],
-#    actions => [ ],
-#    rules   =>
-#      [{ name     => 'number',
-#         modifier => [ ],
-#         action   => Nil,
-#         returns  => Nil,
-#         throws   => [ ],
-#         locals   => Nil,
-#         options  => [ ],
-#         content  =>
-#           [{ type    => 'alternation',
-#              content =>
-#                [{ type     => 'concatenation',
-#                   label    => Nil, 
-#                   options  => [ ],
-#                   commands => [ 'channel' => 'HIDDEN' ],
-#                   content  =>
-#                     [{ type         => 'range',
-#			content      => [{ from => 'a',
-#                                           to   => 'f' }],
-#                        modifier     => Nil,
-#                        greedy       => False,
-#                        complemented => False }] }] }] }] },
-#  'grammar with single channeled rule';
+  $parsed =
+    $g.parse( q{grammar Name; number : 'a'..'f' -> channel(HIDDEN) ;},
+              :actions($a) ).ast;
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
+    { type         => 'range',
+       content      => [{ from => 'a',
+                          to   => 'f' }],
+       modifier     => Nil,
+       greedy       => False,
+       complemented => False },
+    q{Channeled rule with range};
+}, 'command';
 
 is_deeply
   $g.parse(
@@ -318,7 +296,7 @@ number [int x]
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => '[int x]',
@@ -343,72 +321,6 @@ number [int x]
 
 is_deeply
   $g.parse(
-    q{grammar Name; number : '1'+ # One ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => Nil,
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  => 
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => 'One',
-                   options  => [ ],
-                   commands => [ ],
-                   content  =>
-                     [{ type         => 'terminal',
-                        content      => '1',
-                        modifier     => '+',
-                        greedy       => False,
-                        complemented => False }] }] }] }] },
-  'grammar with options and labeled rule with modifier';
-
-is_deeply
-  $g.parse(
-    q{grammar Name; number : '1'+? # One ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => Nil,
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    rules   =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => 'One',
-                   options  => [ ],
-                   commands => [ ],
-                   content  =>
-                     [{ type         => 'terminal',
-                        content      => '1',
-                        modifier     => '+',
-                        greedy       => True,
-                        complemented => False }] }] }] }] },
-  'grammar with options and labeled rule with greedy modifier';
-
-is_deeply
-  $g.parse(
     q{grammar Name; number : ~'1'+? # One ;},
     :actions($a) ).ast,
   { name    => 'Name',
@@ -417,7 +329,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -450,7 +362,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -483,7 +395,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -516,7 +428,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -549,7 +461,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -582,7 +494,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -615,7 +527,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -648,7 +560,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -682,7 +594,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -720,7 +632,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ ],
          action   => Nil,
@@ -763,7 +675,7 @@ is_deeply
     import  => [ ],
     tokens  => [ ],
     actions => [ ],
-    rules   =>
+    content =>
       [{ name     => 'number',
          modifier => [ 'protected' ],
          action   => Nil,

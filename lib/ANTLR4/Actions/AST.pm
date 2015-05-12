@@ -31,7 +31,7 @@ an array reference, and usually these array references will have hash
 references inside them.
 
 The top-level keys are listed below, and contain the important stuff that can
-be gleaned from a quick perusal of the grammar file. The C<rules> key is the
+be gleaned from a quick perusal of the grammar file. The C<content> key is the
 most complex, and is described in detail at the appropriate place.
 
   =item name
@@ -73,7 +73,7 @@ most complex, and is described in detail at the appropriate place.
   Perl6 you'll need to take note of this behavior, but it's currently beyond
   the scope of this action to parse the text here.
 
-  =item rules
+  =item content
 
   To preserve ordering in case we want to round-trip ANTLR-Perl6-ANTLR, this
   is also an array reference. It's also the most complex of the data
@@ -82,10 +82,10 @@ most complex, and is described in detail at the appropriate place.
   At this juncture you may want to keep L<t/03-actions.t> open in order to
   follow along with the story.
 
-  The C<rules> key is an arrayref of hashrefs. Each of these hashrefs contains
-  a full rule, laid out in a more or less conistent fashion. All of these
-  hashrefs contain a fixed set of keys, only two of them important to Perl6
-  users in general.
+  The C<content> key is an arrayref of hashrefs. Each of these hashrefs
+  contains a full rule, laid out in a more or less conistent fashion. All of
+  these hashrefs contain a fixed set of keys, only two of them important to
+  Perl6 users in general.
 
   The C<name> and C<content> are the most important items, C<name> is the
   rule's name (go figure) and C<content> being the actual meat of the rule.
@@ -332,7 +332,7 @@ method TOP ($/)
 	make
 		{
 		%content,
-		rules =>
+		content =>
 			[
 			$/<rules>>>.ast
 			],
@@ -472,7 +472,9 @@ method lexerElement($/)
 	{
 	make
 		{
-		type => $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>
+		type => $/<lexerAtom><range>
+			?? 'range'
+			!! $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>
 			?? 'character class'
 			!! $/<lexerAtom><LEXER_CHAR_SET>
 			?? 'character class'
@@ -481,7 +483,9 @@ method lexerElement($/)
 			!! $/<lexerAtom><terminal><STRING_LITERAL>
 			?? 'terminal'
 			!! 'nonterminal',
-		content => $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>
+		content => $/<lexerAtom><range>
+			?? $/<lexerAtom><range>.ast
+			!! $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>
 			?? $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>.ast
                 	!! $/<lexerAtom><LEXER_CHAR_SET>
 			?? $/<lexerAtom><LEXER_CHAR_SET>.ast
