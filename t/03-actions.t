@@ -4,7 +4,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 use Test;
 
-plan 23;
+plan 17;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -319,270 +319,155 @@ number [int x]
                         complemented => False }] }] }] }] },
   'grammar with single labeled rule with action';
 
-is_deeply
-  $g.parse(
+subtest sub {
+  my $parsed;
+
+  $parsed = $g.parse(
     q{grammar Name; number : ~'1'+? # One ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => Nil,
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    content =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => 'One',
-                   options  => [ ],
-                   commands => [ ],
-                   content  =>
-                     [{ type         => 'terminal',
-                        content      => '1',
-                        modifier     => '+',
-                        greedy       => True,
-                        complemented => True }] }] }] }] },
-  'grammar, rule with complemented terminal';
+    :actions($a) ).ast;
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0],
+    { type     => 'concatenation',
+      label    => 'One',
+      options  => [ ],
+      commands => [ ],
+      content  =>
+        [{ type         => 'terminal',
+           content      => '1',
+           modifier     => '+',
+           greedy       => True,
+           complemented => True }] },
+  'rule with flags';
 
-is_deeply
-  $g.parse(
+  $parsed = $g.parse(
     q{grammar Name; number : ~[]+? # One ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => Nil,
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    content =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => 'One',
-                   options  => [ ],
-                   commands => [ ],
-                   content  =>
-                     [{ type         => 'character class',
-                        content      => [ ],
-                        modifier     => '+',
-                        greedy       => True,
-                        complemented => True }] }] }] }] },
-  'grammar, rule with empty character class';
+    :actions($a) ).ast;
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0],
+    { type     => 'concatenation',
+      label    => 'One',
+      options  => [ ],
+      commands => [ ],
+      content  =>
+        [{ type         => 'character class',
+           content      => [ ],
+           modifier     => '+',
+           greedy       => True,
+           complemented => True }] },
+  'character class with flags';
 
-is_deeply
-  $g.parse(
+  $parsed = $g.parse(
     q{grammar Name; number : ~[0]+? # One ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => Nil,
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    content =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => 'One',
-                   options  => [ ],
-                   commands => [ ],
-                   content  =>
-                     [{ type         => 'character class',
-                        content      => [ '0' ],
-                        modifier     => '+',
-                        greedy       => True,
-                        complemented => True }] }] }] }] },
-  'grammar, rule with character class';
+    :actions($a) ).ast;
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0],
+    { type     => 'concatenation',
+      label    => 'One',
+      options  => [ ],
+      commands => [ ],
+      content  =>
+        [{ type         => 'character class',
+           content      => [ '0' ],
+           modifier     => '+',
+           greedy       => True,
+           complemented => True }] },
+  'character class with flags';
 
-is_deeply
-  $g.parse(
+  $parsed = $g.parse(
     q{grammar Name; number : ~[0-9]+? # One ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => Nil,
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    content =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => 'One',
-                   options  => [ ],
-                   commands => [ ],
-                   content  =>
-                     [{ type         => 'character class',
-                        content      => [ '0-9' ],
-                        modifier     => '+',
-                        greedy       => True,
-                        complemented => True }] }] }] }] },
-  'grammar, rule with hyphenated character class';
+    :actions($a) ).ast;
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0],
+    { type     => 'concatenation',
+      label    => 'One',
+      options  => [ ],
+      commands => [ ],
+      content  =>
+        [{ type         => 'character class',
+           content      => [ '0-9' ],
+           modifier     => '+',
+           greedy       => True,
+           complemented => True }] },
+  'character class with flags';
 
-is_deeply
-  $g.parse(
+  $parsed = $g.parse(
     q{grammar Name; number : ~[-0-9]+? # One ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => Nil,
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    content =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => 'One',
-                   options  => [ ],
-                   commands => [ ],
-                   content  =>
-                     [{ type         => 'character class',
-                        content      => [ '-', '0-9' ],
-                        modifier     => '+',
-                        greedy       => True,
-                        complemented => True }] }] }] }] },
-  'grammar, rule with leading hyphenated character class';
+    :actions($a) ).ast;
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0],
+    { type     => 'concatenation',
+      label    => 'One',
+      options  => [ ],
+      commands => [ ],
+      content  =>
+        [{ type         => 'character class',
+           content      => [ '-', '0-9' ],
+           modifier     => '+',
+           greedy       => True,
+           complemented => True }] },
+  'character class with lone hyphen and flags';
 
-is_deeply
-  $g.parse(
+  $parsed = $g.parse(
     q{grammar Name; number : ~[-0-9\f\u000d]+? # One ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => Nil,
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    content =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => 'One',
-                   options  => [ ],
-                   commands => [ ],
-                   content  =>
-                     [{ type         => 'character class',
-                        content      => [ '-', '0-9', '\\f', '\\u000d' ],
-                        modifier     => '+',
-                        greedy       => True,
-                        complemented => True }] }] }] }] },
-  'grammar, rule with christmas-tree character class';
+    :actions($a) ).ast;
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0],
+    { type     => 'concatenation',
+      label    => 'One',
+      options  => [ ],
+      commands => [ ],
+      content  =>
+        [{ type         => 'character class',
+           content      => [ '-', '0-9', '\\f', '\\u000d' ],
+           modifier     => '+',
+           greedy       => True,
+           complemented => True }] },
+  'character class with lone hyphen and flags';
 
-is_deeply
-  $g.parse(
+  $parsed = $g.parse(
     q{grammar Name; number : ~non_digits+? # One ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => Nil,
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    content =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => 'One',
-                   options  => [ ],
-                   commands => [ ],
-                   content  =>
-                     [{ type         => 'nonterminal',
-                        content      => 'non_digits',
-                        modifier     => '+',
-                        greedy       => True,
-                        complemented => True }] }] }] }] },
-  'grammar, rule with complemented nonterminal';
+    :actions($a) ).ast;
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0],
+    { type     => 'concatenation',
+      label    => 'One',
+      options  => [ ],
+      commands => [ ],
+      content  =>
+        [{ type         => 'nonterminal',
+           content      => 'non_digits',
+           modifier     => '+',
+           greedy       => True,
+           complemented => True }] },
+  'character class with lone hyphen and flags';
 
-is_deeply
-  $g.parse(
+  $parsed = $g.parse(
+    q{grammar Name; number : 'a'..'z' # One ;},
+    :actions($a) ).ast;
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0],
+    { type     => 'concatenation',
+      label    => 'One',
+      options  => [ ],
+      commands => [ ],
+      content  =>
+        [{ type         => 'range',
+           content      => [{ from => 'a',
+                              to   => 'z' }],
+           modifier     => Nil,
+           greedy       => False,
+           complemented => False }] },
+  'range';
+
+  $parsed = $g.parse(
     q{grammar Name; number : 'a'..'z'+? # One ;},
-    :actions($a) ).ast,
-  { name    => 'Name',
-    type    => Nil,
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    actions => [ ],
-    content =>
-      [{ name     => 'number',
-         modifier => [ ],
-         action   => Nil,
-         returns  => Nil,
-         throws   => [ ],
-         locals   => Nil,
-         options  => [ ],
-         content  =>
-           [{ type    => 'alternation',
-              content =>
-                [{ type     => 'concatenation',
-                   label    => 'One',
-                   options  => [ ],
-                   commands => [ ],
-                   content  =>
-                     [{ type         => 'range',
-			content      => [{ from => 'a',
-                                           to   => 'z' }],
-                        modifier     => '+',
-                        greedy       => True,
-                        complemented => False }] }] }] }] },
-  'grammar, rule with range literal';
+    :actions($a) ).ast;
+  is_deeply $parsed.<content>[0]<content>[0]<content>[0],
+    { type     => 'concatenation',
+      label    => 'One',
+      options  => [ ],
+      commands => [ ],
+      content  =>
+        [{ type         => 'range',
+           content      => [{ from => 'a',
+                              to   => 'z' }],
+           modifier     => '+',
+           greedy       => True,
+           complemented => False }] },
+  'range with greed';
+}, 'labeled rule';
 
 is_deeply
   $g.parse(
