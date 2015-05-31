@@ -1,6 +1,6 @@
 use v6;
 #use Grammar::Tracer;
-grammar ANTLR4::Grammar;
+grammar ANTLR4::Grammar {
 
 #
 # Not currently acted upon
@@ -383,21 +383,16 @@ rule lexerCommands
  	{
 	'->' <lexerCommand>+ % ','
  	}
- 
+
 rule lexerCommand
- 	{
-	<lexerCommandName> ['(' <lexerCommandExpr> ')']?
- 	}
- 
-rule lexerCommandName
- 	{	<ID>
- 	|	'mode'
- 	}
- 
+	{
+	<lexerCommandName=ID> <lexerCommandExpr>?
+	}
+
 rule lexerCommandExpr
- 	{	<ID>
- 	|	<DIGITS>
- 	}
+	{
+	'(' (<ID> | <DIGITS>) ')'
+	}
  
 rule altList
 	{
@@ -506,5 +501,6 @@ rule elementOption
 	{
 	<key=ID> ['=' [<value=ID> | <value=STRING_LITERAL>] ]?
 	}
+}
  
 # vim: ft=perl6

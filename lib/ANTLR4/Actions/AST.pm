@@ -130,7 +130,7 @@ most complex, and is described in detail at the appropriate place.
 =end pod
 
 use v6;
-class ANTLR4::Actions::AST;
+class ANTLR4::Actions::AST {
 
 method DIGITS($/)
 	{
@@ -172,9 +172,14 @@ method lexerCommandName($/)
 	make ~$/
 	}
 
-method lexerCommandExpr($/)
+method ACTION($/)
 	{
 	make ~$/
+	}
+
+method lexerCommandExpr($/)
+	{
+	make ~$/[0]
 	}
 
 method STRING_LITERAL($/)
@@ -194,12 +199,12 @@ method localsSpec($/)
 
 method ruleReturns($/)
 	{
-	make ~$/<ARG_ACTION>
+	make $/<ARG_ACTION>.ast
 	}
 
 method block($/)
 	{
-	make $/<altList>.ast # XXX Restore optionsSpec
+	make $/<altList>.ast
 	}
 
 method tokensSpec($/)
@@ -209,7 +214,7 @@ method tokensSpec($/)
 
 method action($/)
 	{
-	make ~$/<action_name> => ~$/<ACTION>
+	make $/<action_name>.ast => $/<ACTION>.ast
 	}
 
 method option($/)
@@ -297,10 +302,6 @@ method delegateGrammars($/)
 	}
 
 #method UNICODE_ESC($/)
-#	{
-#	}
-
-#method ACTION($/)
 #	{
 #	}
 
@@ -630,5 +631,7 @@ method range($/)
 #method terminal($/)
 #	{
 #	}
+
+}
 
 # vim: ft=perl6
