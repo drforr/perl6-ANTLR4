@@ -28,26 +28,11 @@ subtest sub {
      'actions';
 }, 'Top-level terms';
 
+is $p.parse( q{grammar Minimal; number : '1';}).perl6,
+   'grammar Minimal { rule number { ( ( '1' ) ) } }', # XXX One layer for alt, one for concat.
+   'actions';
+
 ########################################
-# 
-# subtest sub {
-#   my $parsed;
-#   $parsed = $g.parse(
-#     q{grammar Name;
-#       @members { protected int curlies = 0; }}, :actions($a) ).ast;
-#   is-deeply $parsed.<actions>,
-#     [ '@members' => '{ protected int curlies = 0; }' ],
-#     q{Single action};
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name;
-#       @members { protected int curlies = 0; }
-#       @sample::stuff { 1; }}, :actions($a) ).ast;
-#   is-deeply $parsed.<actions>,
-#     [ '@members' => '{ protected int curlies = 0; }',
-#       '@sample::stuff' => '{ 1; }' ],
-#     q{Two actions};
-# }, 'Actions';
 # 
 # #
 # # Show off the first actual rule.
