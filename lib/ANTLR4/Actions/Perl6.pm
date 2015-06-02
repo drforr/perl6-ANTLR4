@@ -22,33 +22,38 @@ just returns a hash reference with nested array references.
 =end pod
 
 use v6;
+use JSON::Tiny;
+use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 
-class ANTLR4::Actions::Perl6 is ANTLR4::Actions::AST
-	{
-	method sillywalk_TOP($x)
-		{
-		my $str = 'grammar ';
-		$str ~= $/<name>;
-		$str ~= ' { }';
-		if $/<type>
-			{
-			$str ~= "#={ type '" ~ $x.<type> ~ "' }";
-			}
+class ANTLR4::Actions::Perl6 {
+	has ANTLR4::Grammar $g = ANTLR4::Grammar.new;
+	has ANTLR4::Actions::AST $a = ANTLR4::Actions::AST.new;
 
-		if $/<tokens>
-			{
-			$str ~= '#={ tokens {' ~
-				@( $x.<tokens> ).join(',') ~
-				'} } ';
-			}
-		$str;
-		}
-
-	method TOP($/)
-		{
-		make $.sillywalk_TOP($/.ast);
-		}
+	my class ANTLR4::Actions::Perl6::Shim {
+		has $.ast;
+		has $.perl6;
 	}
+
+	method reconstruct( $ast ) {
+		my $str = qq{grammar $ast.<name> { }};
+		my $json;
+		for <type options import tokens actions> -> $key {
+			$json.{$key} = $ast.{$key} if $ast.{$key};
+		}
+		if $json {
+			$str ~= q< #=> ~ to-json($json);
+		}
+		$str;
+	}
+
+	method parse( $str ) {
+		my $ast = $!g.parse( $str, :actions($!a) ).ast;
+		ANTLR4::Actions::Perl6::Shim.new(
+			ast => $ast,
+			perl6 => self.reconstruct( $ast )
+		)
+	}
+}
 
 # vim: ft=perl6

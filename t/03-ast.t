@@ -4,7 +4,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 use Test;
 
-plan 13;
+plan 14;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -34,6 +34,7 @@ is-deeply
 #
 {
   my $parsed;
+
   $parsed = $g.parse(
     q{lexer grammar Name;}, :actions($a) ).ast;
   is $parsed.<type>, 'lexer',
@@ -42,6 +43,7 @@ is-deeply
 
 subtest sub {
   my $parsed;
+
   $parsed = $g.parse(
     q{grammar Name; options {a=2;}}, :actions($a) ).ast;
   is-deeply $parsed.<options>, [ a => 2 ],
@@ -65,6 +67,7 @@ subtest sub {
 
 subtest sub {
   my $parsed;
+
   $parsed = $g.parse(
     q{grammar Name; options {a=2;} import Foo;}, :actions($a) ).ast;
   is-deeply $parsed.<import>, [ Foo => Nil ],
@@ -76,6 +79,16 @@ subtest sub {
   is-deeply $parsed.<import>, [ Foo => Nil, Bar => 'Test' ],
     q{Import grammar with alias};
 }, 'Imports';
+
+subtest sub {
+  my $parsed;
+
+  $parsed = $g.parse(
+    q{grammar Name; tokens { INDENT, DEDENT }},
+    :actions($a) ).ast;
+  is-deeply $parsed.<tokens>, [ 'INDENT', 'DEDENT' ],
+    q{Import grammar with alias};
+}, 'tokens';
 
 subtest sub {
   my $parsed;

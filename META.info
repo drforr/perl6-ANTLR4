@@ -2,7 +2,7 @@
     "name"        : "ANTLR4::Grammar",
     "version"     : "*",
     "description" : "An ANTLR4 grammar",
-    "depends"     : [ ],
+    "depends"     : [ "JSON::Tiny" ],
     "provides"    : {
         "ANTLR4::Grammar"            : "lib/ANTLR4/Grammar.pm",
         "ANTLR4::Grammar::Actions"   : "lib/ANTLR4/Grammar/Actions.pm",
