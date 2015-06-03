@@ -35,16 +35,165 @@ class ANTLR4::Actions::Perl6 {
 		has $.perl6;
 	}
 
-	method reconstruct( $ast ) {
-		my $str = qq{grammar $ast.<name> { }};
+	method alternation( $ast ) {
+		my $terms = '';
+		$terms = join( '|', map { self.term( $_ ) },
+			       @( $ast.<content> ) )
+			if @( $ast.<content> );
+		qq{( $terms )};
+	}
+
+	method concatenation( $ast ) {
 		my $json;
-		for <type options import tokens actions> -> $key {
+		my $terms = '';
+		$terms = join( ' ', map { self.term( $_ ) },
+			       @( $ast.<content> ) )
+			if @( $ast.<content> );
+		for <commands options label> -> $key {
 			$json.{$key} = $ast.{$key} if $ast.{$key};
 		}
 		if $json {
-			$str ~= q< #=> ~ to-json($json);
+			my $json-str = to-json( $json );
+			$terms ~= qq{ #=$json-str};
 		}
-		$str;
+		qq{( $terms )};
+	}
+
+	method _modify( $ast, $term ) {
+		my $temp = $term;
+		$temp ~= $ast.<modifier> if $ast.<modifier>;
+		$temp ~= '?' if $ast.<greedy>;
+		$temp;
+	}
+
+	method terminal( $ast ) {
+		my $term = '';
+		$term ~= '!' if $ast.<complemented>;
+		$term ~= qq{'$ast.<content>'};
+		self._modify( $ast, $term );
+	}
+
+	method nonterminal( $ast ) {
+		my $term = '';
+		
+		$term ~= '<';
+		$term ~= '!' if $ast.<complemented>;
+		$term ~= $ast.<content>;
+		$term ~= '>';
+		self._modify( $ast, $term );
+	}
+
+	method range( $ast ) {
+		my $term = '';
+		
+		$term ~= '!' if $ast.<complemented>;
+		$term ~= qq{'$ast.<content>[0]<from>'};
+		$term ~= q{..};
+		$term ~= qq{'$ast.<content>[0]<to>'};
+		self._modify( $ast, $term );
+	}
+
+	method character-class( $ast ) {
+		my $term = '';
+		
+		$term ~= '<';
+		$term ~= '-' if $ast.<complemented>;
+		$term ~= '[ ';
+		$term ~= join( ' ', map {
+			if /^(.)\-(.)/ {
+				$_ = qq{$0 .. $1};
+			}
+			elsif /^\\u(....)/ {
+				$_ = qq{\\x[$0]};
+			}
+			$_
+		}, @( $ast.<content> ) );
+		$term ~= ' ]>';
+		self._modify( $ast, $term );
+	}
+
+	method capturing-group( $ast ) {
+		my $term = '';
+		
+		$term ~= '!' if $ast.<complemented>;
+		my $group = '';
+		$group = join( ' ', map { self.term( $_ ) },
+			       @( $ast.<content> ) )
+			if @( $ast.<content> );
+                $term ~= qq{( $group )};
+		self._modify( $ast, $term );
+	}
+
+	method term( $ast ) {
+		my $json;
+		my $term = '';
+
+		given $ast.<type> {
+			when 'alternation' {
+				$term = self.alternation( $ast );
+			}
+			when 'concatenation' {
+				$term = self.concatenation( $ast );
+			}
+			when 'terminal' {
+				$term = self.terminal( $ast );
+			}
+			when 'nonterminal' {
+				$term = self.nonterminal( $ast );
+			}
+			when 'range' {
+				$term = self.range( $ast );
+			}
+			when 'character class' {
+				$term = self.character-class( $ast );
+			}
+			when 'capturing group' {
+				$term = self.capturing-group( $ast );
+			}
+		}
+		$term;
+	}
+
+	method rule( $ast ) {
+		my $json;
+		my $terms = '';
+
+		$terms = join( ',', map { self.term( $_ ) },
+                               @( $ast.<content> ) )
+			if @( $ast.<content> );
+
+		# Yes, probably a fancier way to do this, but it works.
+		#
+		for <attribute action returns throws locals options> -> $key {
+			$json.{$key} = $ast.{$key} if $ast.{$key};
+		}
+		my $rule = qq{rule $ast.<name> { $terms }};
+		if $json {
+			my $json-str = to-json( $json );
+			$rule ~= qq{ #=$json-str};
+		}
+		$rule;
+	}
+
+	method reconstruct( $ast ) {
+		my $json;
+		my $rules = '';
+
+		$rules = join( ',', map { self.rule( $_ ) },
+                               @( $ast.<content> ) )
+			if @( $ast.<content> );
+
+		# Yes, probably a fancier way to do this, but it works.
+		#
+		for <type options import tokens actions> -> $key {
+			$json.{$key} = $ast.{$key} if $ast.{$key};
+		}
+		my $grammar = qq{grammar $ast.<name> { $rules }};
+		if $json {
+			my $json-str = to-json( $json );
+			$grammar ~= qq{ #=$json-str};
+		}
+		$grammar;
 	}
 
 	method parse( $str ) {

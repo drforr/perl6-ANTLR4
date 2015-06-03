@@ -267,7 +267,7 @@ rule ruleSpec
 
 rule parserRuleSpec
  	{
-	<COMMENTS>? <modifier=ruleModifier>*
+	<COMMENTS>? <attribute=ruleAttribute>*
 	<COMMENTS>? <name=ID>
 	<COMMENTS>? <action=ARG_ACTION>?
 	<COMMENTS>? <returns=ruleReturns>?
@@ -317,7 +317,7 @@ rule localsSpec
 #  to the code generation templates and may be ignored by the template
 #  if they are of no use in that language.
  
-token ruleModifier
+token ruleAttribute
  	{	'public'
  	|	'private'
  	|	'protected'

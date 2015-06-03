@@ -3,481 +3,214 @@ BEGIN { @*INC.push('lib') };
 use ANTLR4::Actions::Perl6;
 use Test;
 
-plan 1;
+plan 8;
 
 my $p = ANTLR4::Actions::Perl6.new;
 
 subtest sub {
   is $p.parse( q{grammar Minimal;} ).perl6,
-     'grammar Minimal { }',
+     'grammar Minimal {  }',
      'minimal grammar';
+
   is $p.parse( q{lexer grammar Minimal;} ).perl6,
-     'grammar Minimal { } #={ "type" : "lexer" }',
-     'type';
+     'grammar Minimal {  } #={ "type" : "lexer" }',
+     'optional type';
   is $p.parse( q{grammar Minimal; options {a=2;}} ).perl6,
-     'grammar Minimal { } #={ "options" : [ { "a" : 2 } ] }',
-     'options';
+     'grammar Minimal {  } #={ "options" : [ { "a" : 2 } ] }',
+     'optional options';
   is $p.parse( q{grammar Minimal; import Foo;} ).perl6,
-     'grammar Minimal { } #={ "import" : [ { "Foo" : null } ] }',
-     'import';
+     'grammar Minimal {  } #={ "import" : [ { "Foo" : null } ] }',
+     'optional import';
   is $p.parse( q{grammar Minimal; tokens { INDENT, DEDENT }} ).perl6,
-     'grammar Minimal { } #={ "tokens" : [ "INDENT", "DEDENT" ] }',
-     'tokens';
+     'grammar Minimal {  } #={ "tokens" : [ "INDENT", "DEDENT" ] }',
+     'optional tokens';
   is $p.parse( q{grammar Minimal; @members { int i = 0; }} ).perl6,
-     'grammar Minimal { } #={ "actions" : [ { "@members" : "{ int i = 0; }" } ] }',
-     'actions';
-}, 'Top-level terms';
+     'grammar Minimal {  } #={ "actions" : [ { "@members" : "{ int i = 0; }" } ] }',
+     'optional actions';
+}, 'Grammar and its options';
 
-is $p.parse( q{grammar Minimal; number : '1';}).perl6,
-   'grammar Minimal { rule number { ( ( '1' ) ) } }', # XXX One layer for alt, one for concat.
-   'actions';
+subtest sub {
+  is $p.parse( q{grammar Minimal; number : '1' ;}).perl6,
+     q{grammar Minimal { rule number { ( ( '1' ) ) } }},
+     'minimal rule';
 
-########################################
-# 
-# #
-# # Show off the first actual rule.
-# #
-# is-deeply
-#   $g.parse(
-#     q{grammar Name; number : '1' ;},
-#     :actions($a) ).ast,
-#   { name    => 'Name',
-#     type    => Nil,
-#     options => [ ],
-#     import  => [ ],
-#     tokens  => [ ],
-#     actions => [ ],
-#     content =>
-#       [{ name     => 'number',
-#          modifier => [ ],
-#          action   => Nil,
-#          returns  => Nil,
-#          throws   => [ ],
-#          locals   => Nil,
-#          options  => [ ],
-#          content  =>
-#            [{ type    => 'alternation',
-#               content =>
-#                 [{ type     => 'concatenation',
-#                    label    => Nil,
-#                    options  => [ ],
-#                    commands => [ ],
-#                    content  =>
-#                      [{ type         => 'terminal',
-#                         content      => '1',
-#                         modifier     => Nil,
-#                         greedy       => False,
-#                         complemented => False }] }] }] }] },
-#   'grammar with options and single simple rule';
-# 
-# #
-# # Rule-level
-# #
-# subtest sub {
-#   my $parsed;
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; protected number : '1' ;}, :actions($a) ).ast,
-#   is-deeply $parsed.<content>[0]<modifier>,
-#     [ 'protected' ],
-#     'grammar, rule with multiple alternating terms';
-# }, 'rule-level options';
-# 
-# subtest sub {
-#   my $parsed;
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : <assoc=right> '1' ;}, :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0]<options>,
-#     [ assoc => 'right' ],
-#     q{Rule with option};
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : '1' # One ;}, :actions($a) ).ast;
-#   is $parsed.<content>[0]<content>[0]<content>[0]<label>, 'One',
-#     q{Rule with label};
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : '1' -> channel(HIDDEN) ;}, :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0]<commands>,
-#     [ channel => 'HIDDEN' ],
-#     q{Rule with command};
-# }, 'Term-level flags';
-# 
-# is-deeply
-#   $g.parse(
-#     q{grammar Name; number : ( '1' )+? ;},
-#     :actions($a) ).ast,
-#   { name    => 'Name',
-#     type    => Nil,
-#     options => [ ],
-#     import  => [ ],
-#     tokens  => [ ],
-#     actions => [ ],
-#     content =>
-#       [{ name     => 'number',
-#          modifier => [ ],
-#          action   => Nil,
-#          returns  => Nil,
-#          throws   => [ ],
-#          locals   => Nil,
-#          options  => [ ],
-#          content  =>
-#            [{ type    => 'alternation',
-#               content =>
-#                 [{ type     => 'concatenation',
-#                    label    => Nil,
-#                    options  => [ ],
-#                    commands => [ ],
-#                    content  =>
-#                      [{ type         => 'capturing group',
-#                         modifier     => '+',
-#                         greedy       => True,
-#                         complemented => False,
-#                         content =>
-#                           [{ type         => 'alternation',
-#                              content      =>
-#                                [{ type         => 'terminal',
-#                                   content      => '1',
-#                                   modifier     => Nil,
-#                                   greedy       => False,
-#                                   complemented => False }] }] }] }] }] }] },
-#   'grammar with options and single simple rule';
-# 
-# subtest sub {
-#   my $parsed;
-# 
-#   $parsed =
-#     $g.parse( q{grammar Name; number : ~'1'+? -> skip ;},
-#               :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0],
-#     { type     => 'concatenation',
-#       label    => Nil, 
-#       options  => [ ],
-#       commands => [ 'skip' => Nil ],
-#       content  =>
-#         [{ type         => 'terminal',
-#            content      => '1',
-#            modifier     => '+',
-#            greedy       => True,
-#            complemented => True }] },
-#     q{Channeled rule};
-# 
-#   $parsed =
-#     $g.parse( q{grammar Name; number : ~'1'+? -> channel(HIDDEN) ;},
-#               :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
-#     { type         => 'terminal',
-#        content      => '1',
-#        modifier     => '+',
-#        greedy       => True,
-#        complemented => True },
-#     q{Channeled rule with flags and modifier};
-# 
-#   $parsed =
-#     $g.parse( q{grammar Name; number : digits -> channel(HIDDEN) ;},
-#               :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
-#     { type         => 'nonterminal',
-#        content      => 'digits',
-#        modifier     => Nil,
-#        greedy       => False,
-#        complemented => False },
-#     q{Channeled rule with nonterminal};
-# 
-#   $parsed =
-#     $g.parse( q{grammar Name; number : ~digits+? -> channel(HIDDEN) ;},
-#               :actions($a) ).ast,
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
-#     { type         => 'nonterminal',
-#        content      => 'digits',
-#        modifier     => '+',
-#        greedy       => True,
-#        complemented => True },
-#     q{Channeled rule with nonterminal};
-# 
-#   $parsed =
-#     $g.parse( q{grammar Name; number : [0-9] -> channel(HIDDEN) ;},
-#               :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
-#     { type         => 'character class',
-#        content      => [ '0-9' ],
-#        modifier     => Nil,
-#        greedy       => False,
-#        complemented => False },
-#     q{Channeled rule with nonterminal};
-# 
-#   $parsed =
-#     $g.parse( q{grammar Name; number : ~[0-9]+? -> channel(HIDDEN) ;},
-#               :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
-#     { type         => 'character class',
-#        content      => [ '0-9' ],
-#        modifier     => '+',
-#        greedy       => True,
-#        complemented => True },
-#     q{Channeled rule with nonterminal};
-# 
-#   $parsed =
-#     $g.parse( q{grammar Name; number : 'a'..'f' -> channel(HIDDEN) ;},
-#               :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
-#     { type         => 'range',
-#        content      => [{ from => 'a',
-#                           to   => 'f' }],
-#        modifier     => Nil,
-#        greedy       => False,
-#        complemented => False },
-#     q{Channeled rule with range};
-# }, 'command';
-# 
-# is-deeply
-#   $g.parse(
-#     q{grammar Name;
-# number [int x]
-#        returns [int y]
-#        throws XFoo
-#        locals [int z]
-#        options{a=2;}
-#   : '1' # One ;},
-#     :actions($a) ).ast,
-#   { name    => 'Name',
-#     type    => Nil,
-#     options => [ ],
-#     import  => [ ],
-#     tokens  => [ ],
-#     actions => [ ],
-#     content =>
-#       [{ name     => 'number',
-#          modifier => [ ],
-#          action   => '[int x]',
-#          returns  => '[int y]',
-#          throws   => [ 'XFoo' ],
-#          locals   => '[int z]',
-#          options  => [ a => 2 ],
-#          content  =>
-#            [{ type    => 'alternation',
-#               content =>
-#                 [{ type     => 'concatenation',
-#                    label    => 'One',
-#                    options  => [ ],
-#                    commands => [ ],
-#                    content  =>
-#                      [{ type         => 'terminal',
-#                         content      => '1',
-#                         modifier     => Nil,
-#                         greedy       => False,
-#                         complemented => False }] }] }] }] },
-#   'grammar with single labeled rule with action';
-# 
-# subtest sub {
-#   my $parsed;
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : ~'1'+? # One ;},
-#     :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0],
-#     { type     => 'concatenation',
-#       label    => 'One',
-#       options  => [ ],
-#       commands => [ ],
-#       content  =>
-#         [{ type         => 'terminal',
-#            content      => '1',
-#            modifier     => '+',
-#            greedy       => True,
-#            complemented => True }] },
-#   'rule with flags';
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : ~[]+? # One ;},
-#     :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0],
-#     { type     => 'concatenation',
-#       label    => 'One',
-#       options  => [ ],
-#       commands => [ ],
-#       content  =>
-#         [{ type         => 'character class',
-#            content      => [ ],
-#            modifier     => '+',
-#            greedy       => True,
-#            complemented => True }] },
-#   'character class with flags';
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : ~[0]+? # One ;},
-#     :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0],
-#     { type     => 'concatenation',
-#       label    => 'One',
-#       options  => [ ],
-#       commands => [ ],
-#       content  =>
-#         [{ type         => 'character class',
-#            content      => [ '0' ],
-#            modifier     => '+',
-#            greedy       => True,
-#            complemented => True }] },
-#   'character class with flags';
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : ~[0-9]+? # One ;},
-#     :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0],
-#     { type     => 'concatenation',
-#       label    => 'One',
-#       options  => [ ],
-#       commands => [ ],
-#       content  =>
-#         [{ type         => 'character class',
-#            content      => [ '0-9' ],
-#            modifier     => '+',
-#            greedy       => True,
-#            complemented => True }] },
-#   'character class with flags';
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : ~[-0-9]+? # One ;},
-#     :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0],
-#     { type     => 'concatenation',
-#       label    => 'One',
-#       options  => [ ],
-#       commands => [ ],
-#       content  =>
-#         [{ type         => 'character class',
-#            content      => [ '-', '0-9' ],
-#            modifier     => '+',
-#            greedy       => True,
-#            complemented => True }] },
-#   'character class with lone hyphen and flags';
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : ~[-0-9\f\u000d]+? # One ;},
-#     :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0],
-#     { type     => 'concatenation',
-#       label    => 'One',
-#       options  => [ ],
-#       commands => [ ],
-#       content  =>
-#         [{ type         => 'character class',
-#            content      => [ '-', '0-9', '\\f', '\\u000d' ],
-#            modifier     => '+',
-#            greedy       => True,
-#            complemented => True }] },
-#   'character class with lone hyphen and flags';
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : ~non_digits+? # One ;},
-#     :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0],
-#     { type     => 'concatenation',
-#       label    => 'One',
-#       options  => [ ],
-#       commands => [ ],
-#       content  =>
-#         [{ type         => 'nonterminal',
-#            content      => 'non_digits',
-#            modifier     => '+',
-#            greedy       => True,
-#            complemented => True }] },
-#   'character class with lone hyphen and flags';
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : 'a'..'z' # One ;},
-#     :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0],
-#     { type     => 'concatenation',
-#       label    => 'One',
-#       options  => [ ],
-#       commands => [ ],
-#       content  =>
-#         [{ type         => 'range',
-#            content      => [{ from => 'a',
-#                               to   => 'z' }],
-#            modifier     => Nil,
-#            greedy       => False,
-#            complemented => False }] },
-#   'range';
-# 
-#   $parsed = $g.parse(
-#     q{grammar Name; number : 'a'..'z'+? # One ;},
-#     :actions($a) ).ast;
-#   is-deeply $parsed.<content>[0]<content>[0]<content>[0],
-#     { type     => 'concatenation',
-#       label    => 'One',
-#       options  => [ ],
-#       commands => [ ],
-#       content  =>
-#         [{ type         => 'range',
-#            content      => [{ from => 'a',
-#                               to   => 'z' }],
-#            modifier     => '+',
-#            greedy       => True,
-#            complemented => False }] },
-#   'range with greed';
-# }, 'labeled rule';
-# 
-# subtest sub {
-#   my $parsed;
-# 
-#   $parsed =
-#     $g.parse(
-#       q{grammar Name; number : ~non_digits+? ~[-0-9\f\u000d]+? # One ;},
-#       :actions($a) ).ast,
-#   is-deeply $parsed.<content>[0]<content>[0],
-#     { type    => 'alternation',
-#       content =>
-#         [{ type     => 'concatenation',
-#            label    => 'One',
-#            options  => [ ],
-#            commands => [ ],
-#            content  =>
-#              [{ type         => 'nonterminal',
-#                 content      => 'non_digits',
-#                 modifier     => '+',
-#                 greedy       => True,
-#                 complemented => True },
-#               { type         => 'character class',
-#                 content      => [ '-', '0-9', '\\f', '\\u000d' ],
-#                 modifier     => '+',
-#                 greedy       => True,
-#                 complemented => True }] }] },
-#     'grammar, rule with multiple concatenated terms';
-# 
-#   $parsed =
-#     $g.parse(
-#       q{grammar Name; number : ~non_digits+? | ~[-0-9\f\u000d]+? # One ;},
-#       :actions($a) ).ast,
-#   is-deeply $parsed.<content>[0]<content>[0],
-#     { type    => 'alternation',
-#       content =>
-#         [{ type     => 'concatenation',
-#            label    => Nil,
-#            options  => [ ],
-#            commands => [ ],
-#            content  =>
-#              [{ type         => 'nonterminal',
-#                 content      => 'non_digits',
-#                 modifier     => '+',
-#                 greedy       => True,
-#                 complemented => True }] },
-#          { type     => 'concatenation',
-#            label    => 'One',
-#            options  => [ ],
-#            commands => [ ],
-#            content  =>
-#              [{ type         => 'character class',
-#                 content      => [ '-', '0-9', '\\f', '\\u000d' ],
-#                 modifier     => '+',
-#                 greedy       => True,
-#                 complemented => True }] }] },
-#     'grammar, rule with multiple alternating terms';
-# }, 'multiple terms';
-# 
-# # vim: ft=perl6
-########################################3
+  subtest sub {
+    is $p.parse( q{grammar Minimal; number : '1'* ;}).perl6,
+       q{grammar Minimal { rule number { ( ( '1'* ) ) } }},
+       'star';
+    is $p.parse( q{grammar Minimal; number : '1'+ ;}).perl6,
+       q{grammar Minimal { rule number { ( ( '1'+ ) ) } }},
+       'plus';
+    is $p.parse( q{grammar Minimal; number : ~'1' ;}).perl6,
+       q{grammar Minimal { rule number { ( ( !'1' ) ) } }},
+       'complement';
+
+    is $p.parse( q{grammar Minimal; number : '1'*? ;}).perl6,
+       q{grammar Minimal { rule number { ( ( '1'*? ) ) } }},
+       'greedy star';
+  }, 'terminal with options';
+
+  is $p.parse( q{grammar Minimal; protected number : '1';}).perl6,
+     q{grammar Minimal { rule number { ( ( '1' ) ) } #={ "attribute" : [ "protected" ] } }},
+     'rule with attribute';
+  is $p.parse( q{grammar Minimal; number [int x] : '1';}).perl6,
+     q{grammar Minimal { rule number { ( ( '1' ) ) } #={ "action" : "[int x]" } }},
+     'optional action';
+  is $p.parse( q{grammar Minimal; number returns [int x] : '1';}).perl6,
+     q{grammar Minimal { rule number { ( ( '1' ) ) } #={ "returns" : "[int x]" } }},
+     'optional return type';
+  is $p.parse( q{grammar Minimal; number throws XFoo : '1';}).perl6,
+     q{grammar Minimal { rule number { ( ( '1' ) ) } #={ "throws" : [ "XFoo" ] } }},
+   is $p.parse( q{grammar Minimal; number locals [int y] : '1';}).perl6,
+     q{grammar Minimal { rule number { ( ( '1' ) ) } #={ "locals" : "[int y]" } }},
+     'optional exception';
+  is $p.parse( q{grammar Minimal; number options{a=2;} : '1';}).perl6,
+     q{grammar Minimal { rule number { ( ( '1' ) ) } #={ "options" : [ { "a" : 2 } ] } }},
+     'optional local variables';
+}, 'Single rule and rule-level options';
+
+subtest sub {
+  is $p.parse( q{grammar Minimal; number : <assoc=right> '1' ;}).perl6,
+     q{grammar Minimal { rule number { ( ( '1' #={ "options" : [ { "assoc" : "right" } ] } ) ) } }},
+     'optional option';
+  is $p.parse( q{grammar Minimal; number : '1' # One ;}).perl6,
+     q{grammar Minimal { rule number { ( ( '1' #={ "label" : "One" } ) ) } }},
+     'optional label';
+  is $p.parse( q{grammar Minimal; number : '1' -> skip ;}).perl6,
+     q{grammar Minimal { rule number { ( ( '1' #={ "commands" : [ { "skip" : null } ] } ) ) } }},
+     'optional command';
+}, 'Single rule and term-level options';
+
+subtest sub {
+  is $p.parse( q{grammar Minimal; number : ab ;}).perl6,
+     q{grammar Minimal { rule number { ( ( <ab> ) ) } }},
+     'non-terminal';
+
+  subtest sub {
+    is $p.parse( q{grammar Minimal; number : ab* ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <ab>* ) ) } }},
+       'star';
+    is $p.parse( q{grammar Minimal; number : ab+ ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <ab>+ ) ) } }},
+       'plus';
+    is $p.parse( q{grammar Minimal; number : ~ab ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <!ab> ) ) } }},
+       'complement';
+
+    is $p.parse( q{grammar Minimal; number : ab*? ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <ab>*? ) ) } }},
+       'greedy star';
+  }, 'non-terminal modifiers';
+
+  is $p.parse( q{grammar Minimal; number : 'a'..'z' ;}).perl6,
+     q{grammar Minimal { rule number { ( ( 'a'..'z' ) ) } }},
+     'range';
+
+  subtest sub {
+    is $p.parse( q{grammar Minimal; number : 'a'..'z'* ;}).perl6,
+       q{grammar Minimal { rule number { ( ( 'a'..'z'* ) ) } }},
+       'star';
+    is $p.parse( q{grammar Minimal; number : 'a'..'z'+ ;}).perl6,
+       q{grammar Minimal { rule number { ( ( 'a'..'z'+ ) ) } }},
+       'plus';
+    #
+    # The grammar doesn't allow ~'a'..'z', so skip it.
+    #
+    #is $p.parse( q{grammar Minimal; number : ~'a'..'z' ;}).perl6,
+    #   q{grammar Minimal { rule number { ( ( !'a'..z' ) ) } }},
+    #   'complement';
+
+    is $p.parse( q{grammar Minimal; number : 'a'..'z'*? ;}).perl6,
+       q{grammar Minimal { rule number { ( ( 'a'..'z'*? ) ) } }},
+       'greedy star';
+  }, 'range modifiers';
+
+  is $p.parse( q{grammar Minimal; number : [] ;}).perl6,
+     q{grammar Minimal { rule number { ( ( <[  ]> ) ) } }},
+     'empty character class';
+
+  subtest sub {
+    is $p.parse( q{grammar Minimal; number : []* ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <[  ]>* ) ) } }},
+       'star';
+    is $p.parse( q{grammar Minimal; number : []+ ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <[  ]>+ ) ) } }},
+       'plus';
+    is $p.parse( q{grammar Minimal; number : ~[] ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <-[  ]> ) ) } }},
+       'complement';
+
+    is $p.parse( q{grammar Minimal; number : []*? ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <[  ]>*? ) ) } }},
+       'greedy star';
+  }, 'empty character class modifiers';
+
+  is $p.parse( q{grammar Minimal; number : [a] ;}).perl6,
+     q{grammar Minimal { rule number { ( ( <[ a ]> ) ) } }},
+     'character class';
+
+  subtest sub {
+    is $p.parse( q{grammar Minimal; number : [a]* ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <[ a ]>* ) ) } }},
+       'star';
+    is $p.parse( q{grammar Minimal; number : [a]+ ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <[ a ]>+ ) ) } }},
+       'plus';
+    is $p.parse( q{grammar Minimal; number : ~[a] ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <-[ a ]> ) ) } }},
+       'complement';
+
+    is $p.parse( q{grammar Minimal; number : [a]*? ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <[ a ]>*? ) ) } }},
+       'greedy star';
+  }, 'character class modifiers';
+
+  is $p.parse( q{grammar Minimal; number : [a-b] ;}).perl6,
+     q{grammar Minimal { rule number { ( ( <[ a .. b ]> ) ) } }},
+     'hyphenated character class';
+
+  is $p.parse( q{grammar Minimal; number : [-a-b] ;}).perl6,
+     q{grammar Minimal { rule number { ( ( <[ - a .. b ]> ) ) } }},
+     'hyphenated character class';
+
+  is $p.parse( q{grammar Minimal; number : [-a-b\u000d] ;}).perl6,
+     q{grammar Minimal { rule number { ( ( <[ - a .. b \\x[000d] ]> ) ) } }},
+     'Unicode character class';
+}, 'Single rule and remaining basic term types';
+
+subtest sub {
+  is $p.parse( q{grammar Minimal; number : 'a' 'b';}).perl6,
+     q{grammar Minimal { rule number { ( ( 'a' 'b' ) ) } }},
+     'two concatenated terms';
+  is $p.parse( q{grammar Minimal; number : 'a' 'b' -> skip ;}).perl6,
+     q{grammar Minimal { rule number { ( ( 'a' 'b' #={ "commands" : [ { "skip" : null } ] } ) ) } }},
+     'two concatenated terms with skipping';
+}, 'concatenation test';
+
+subtest sub {
+  is $p.parse( q{grammar Minimal; number : <assoc=right> ~'1'+? ;}).perl6,
+     q{grammar Minimal { rule number { ( ( !'1'+? #={ "options" : [ { "assoc" : "right" } ] } ) ) } }},
+     'with option';
+
+  is $p.parse( q{grammar Minimal; number : ~'1'+? # One ;}).perl6,
+     q{grammar Minimal { rule number { ( ( !'1'+? #={ "label" : "One" } ) ) } }},
+     'with label';
+}, 'concatenated options';
+
+subtest sub {
+  is $p.parse( q{grammar Minimal; number : ~'1'+? -> skip ;}).perl6,
+     q{grammar Minimal { rule number { ( ( !'1'+? #={ "commands" : [ { "skip" : null } ] } ) ) } }},
+     'with complement';
+}, 'concatenated commands';
+
+subtest sub {
+  is $p.parse( q{grammar Minimal; number : ( '1' ) ;}).perl6,
+     q{grammar Minimal { rule number { ( ( ( ( '1' ) ) ) ) } }},
+     'redundant parenthesis';
+
+#  is $p.parse( q{grammar Minimal; number : ~( '1' )+? ;}).perl6,
+#     q{grammar Minimal { rule number { ( ( ( ( '1' ) ) ) ) } }},
+#     'redundant parenthesis';
+}, 'rule with redundant parentheses';
 
 # vim: ft=perl6

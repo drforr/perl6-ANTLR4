@@ -89,7 +89,7 @@ most complex, and is described in detail at the appropriate place.
 
   The C<name> and C<content> are the most important items, C<name> is the
   rule's name (go figure) and C<content> being the actual meat of the rule.
-  C<modifier>, C<action>, C<returns> and C<throws> are useful for the Java
+  C<attribute>, C<action>, C<returns> and C<throws> are useful for the Java
   author to restrict visibiity of the rule, and add additional arguments to the
   Java method that is called by the generated parser.
   
@@ -162,7 +162,7 @@ method action_name($/)
 	make ~$/
 	}
 
-method ruleModifier($/)
+method ruleAttribute($/)
 	{
 	make ~$/
 	}
@@ -373,9 +373,9 @@ method parserRuleSpec($/)
 			[
 			$/<parserAltList>>>.ast
 			],
-		modifier =>
+		attribute =>
 			[
-			$/<modifier>>>.ast
+			$/<attribute>>>.ast
 			],
                 action   => $/<action>.ast,
                 returns  => $/<returns>.ast,
@@ -433,7 +433,7 @@ method lexerRuleSpec($/)
 			[
 			$/<lexerAltList>>>.ast
 			],
-		modifier => [ ],
+		attribute => [ ],
                 action   => Nil,
                 returns  => Nil,
                 throws   => [ ],
@@ -558,6 +558,8 @@ method element($/)
 			?? 'nonterminal'
 			!! $/<ebnf><block>
 			?? 'capturing group'
+			!! $/<atom><terminal><ID> # XXX work on this later.
+			?? 'nonterminal'
 			!! 'terminal',
 		greedy => $/<ebnf><ebnfSuffix>
 			?? $/<ebnf><ebnfSuffix>.ast.<greedy>
