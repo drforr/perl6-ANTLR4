@@ -10,6 +10,7 @@ C<ANTLR4::Actions::Perl6> generates a perl6 representation of an ANTLR4 AST.
     use ANTLR4::Grammar;
     my $p = ANTLR4::Actions::Perl6.new;
 
+    say $p.parse('grammar Minimal { identifier : [A-Z][A-Za-z]+ ; }').perl6;
     say $p.parsefile('ECMAScript.g4').perl6;
 
 =head1 Documentation
@@ -198,6 +199,14 @@ class ANTLR4::Actions::Perl6 {
 
 	method parse( $str ) {
 		my $ast = $!g.parse( $str, :actions($!a) ).ast;
+		ANTLR4::Actions::Perl6::Shim.new(
+			ast => $ast,
+			perl6 => self.reconstruct( $ast )
+		)
+	}
+
+	method parsefile( $filename ) {
+		my $ast = $!g.parsefile( $filename, :actions($!a) ).ast;
 		ANTLR4::Actions::Perl6::Shim.new(
 			ast => $ast,
 			perl6 => self.reconstruct( $ast )

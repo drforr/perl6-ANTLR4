@@ -560,6 +560,8 @@ method element($/)
 			?? 'capturing group'
 			!! $/<atom><terminal><ID> # XXX work on this later.
 			?? 'nonterminal'
+			!! ($/<atom>[0] eq '.')
+			?? 'regular expression'
 			!! 'terminal',
 		greedy => $/<ebnf><ebnfSuffix>
 			?? $/<ebnf><ebnfSuffix>.ast.<greedy>

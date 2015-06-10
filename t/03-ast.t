@@ -349,6 +349,17 @@ subtest sub {
       greedy       => False,
       complemented => False },
     q{range};
+
+  $parsed =
+    $g.parse( q{grammar Name; number : . ;},
+              :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
+    { type         => 'range',
+      content      => '.',
+      modifier     => Nil,
+      greedy       => False,
+      complemented => False },
+    q{regular expression};
 }, 'rule with single term, no options';
 
 subtest sub {

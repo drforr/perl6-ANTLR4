@@ -1,0 +1,243 @@
+#!/usr/bin/env perl6
+#use Shell::Command;
+use ANTLR4::Actions::Perl6;
+use ANTLR4::App;
+
+module ANTLR4::App {
+#use Shell::Command;
+#use Panda::Ecosystem;
+#use Panda::Project;
+
+## initialize the Panda object
+#sub make-default-ecosystem is export {
+#    my $pandadir;
+#    my $destdir = %*ENV<DESTDIR>;
+#    $destdir = "$*CWD/$destdir" if defined($destdir) && !$*DISTRO.is-win && $destdir !~~ /^ '/' /;
+#    for grep(*.defined, $destdir, %*CUSTOM_LIB<site home>) -> $prefix {
+#        $destdir  = $prefix;
+#        $pandadir = "$prefix/panda".IO;
+#        try mkpath $pandadir unless $pandadir ~~ :d;
+#        last if $pandadir.w;
+#    }
+#    unless $pandadir.w {
+#        die "Found no writable directory into which panda could be installed";
+#    }
+#
+#    my @extra-statefiles;
+#    unless $destdir eq %*CUSTOM_LIB<site> {
+#        for grep(*.defined, $destdir, %*CUSTOM_LIB<site home>) -> $prefix {
+#            unless $destdir eq $prefix {
+#                @extra-statefiles.push("$prefix/panda/state");
+#            }
+#        }
+#    }
+#
+#    # Add the path we're installing to @*INC
+#    #
+#    # If we're installing to a custom destdir or we're installing to a standard
+#    # dir that did not exist, it isn't in @*INC (which will make Build.pm
+#    # files that depend on the modules we just installed break).
+#    #
+#    # If this is already in @*INC, it doesn't harm anything to re-add it.
+#    @*INC.push("file#" ~ $destdir ~ '/lib');   # TEMPORARY !!!
+#
+#    return Panda::Ecosystem.new(
+#        statefile    => "$pandadir/state",
+#        projectsfile => "$pandadir/projects.json",
+#        extra-statefiles => @extra-statefiles
+#    );
+#}
+
+#sub listprojects($panda, :$installed, :$verbose) is export {
+#    my $es        = $panda.ecosystem;
+#    my @projects  = $es.project-list.sort(*.name);
+#       @projects .= grep({ $es.project-get-state($_) ne Panda::Project::State::absent })
+#                    if $installed;
+#    my @saved     = @projects.for({ $es.project-get-saved-meta($_) || {} });
+#    my $max-name  = @projects».name».chars.max;
+#    my $max-ver   = @projects».version».chars.max;
+#    my $max-rev   = @saved.for({ $_<source-revision> // '?'})».chars.max;
+#
+#    for @projects -> $x {
+#        my $s = do given $es.project-get-state($x) {
+#            when Panda::Project::State::installed     { '[installed]' }
+#            when Panda::Project::State::installed-dep { '-dependency-' }
+#            default                                   { '' }
+#        }
+#
+#        my $meta = $s ?? $es.project-get-saved-meta($x) !! $x.metainfo;
+#        my $url  = $meta<source-url> // $meta<repo-url> // 'UNKNOWN';
+#        my $rev  = $meta<source-revision> // '?';
+#        my $ver  = $meta<version>;
+#
+#        if ($verbose) {
+#            printf "%-{$max-name}s  %-12s  %-{$max-ver}s  %-{$max-rev}s  %s\n",
+#               $x.name, $s, $ver, $rev, $url;
+#        }
+#        else {
+#            printf "%-{$max-name}s  %-12s\n",
+#               $x.name, $s;
+#        }
+#    }
+#}
+
+#sub wrap ($str) is export {
+#    return $str.comb(/ . ** 0..40 [ << | $ ]/).grep({ .chars > 0 }).join("\n" ~ " " x 36);
+#}
+
+#sub search-projects($panda, $string) is export {
+#    for $panda.ecosystem.project-list -> $p {
+#        next unless $p.name ~~ /:i $string / || $p.metainfo<description> ~~ /:i $string /;
+#        printf "%-24s %-10s %s\n",$p.name,$p.version, wrap($p.metainfo<description>);
+#    }
+#}
+
+#sub projectinfo($panda, @args) is export {
+#    for @args -> $p {
+#        my $x = $panda.ecosystem.get-project($p);
+#        $x = $panda.project-from-local($p) unless $x;
+#        if $x {
+#            my $state = $panda.ecosystem.project-get-state($x);
+#            my $installed;
+#            if $state ~~ 'installed' {
+#                $installed = $panda.ecosystem.project-get-saved-meta($x);
+#                #note $installed.perl;
+#            }
+#            print $x.name;
+#            if $x.version ne '*' {
+#                my $foo = '';
+#                if $installed {
+#                    $foo = " available, {$installed<version>} installed"
+#                }
+#                say " (version {$x.version}$foo)";
+#            } else {
+#                say ''
+#            }
+#            if my $d =$x.metainfo.<description> {
+#               say $d
+#            }
+#            say 'Depends on: ', $x.dependencies.join(', ') if $x.dependencies;
+#            print 'State: ';
+#            given $state {
+#                when 'installed'     {
+#                    say 'installed';
+#                }
+#                when 'installed-dep' {
+#                    say 'installed as a dependency';
+#                }
+#                default {
+#                    say 'not installed'
+#                }
+#            }
+#            for $x.metainfo.kv -> $k, $v {
+#                if $k ~~ none(<version name depends description>) {
+#                    say "{$k.tc}: $v";
+#                }
+#            }
+#        } else {
+#            say "Project '$p' not found"
+#        }
+#    }
+#}
+
+#sub revdep($panda, $name, :$installed) is export {
+#    say $panda.ecosystem.revdeps($name, :$installed).join("\n");
+#}
+
+}
+
+## default opts for MAIN
+#if %*ENV<PANDA_DEFAULT_OPTS> {
+#    @*ARGS = %*ENV<PANDA_DEFAULT_OPTS> ~ (@*ARGS ?? ' ' ~ @*ARGS !! '');
+#}
+#my $panda = Panda.new(:ecosystem(make-default-ecosystem));
+#my %failed;
+
+## allow switches after positionals
+#@*ARGS = @*ARGS.grep(/^ '-'/), @*ARGS.grep(/^ <-[-]>/);
+
+##| Install the specified modules
+#multi MAIN ('install', *@modules, Bool :$notests, Bool :$nodeps) {
+#    for @modules -> $x {
+#        $panda.resolve($x, :$notests, :$nodeps, :action<install>);
+#        CATCH { when X::Panda { %failed{$x}.push($_) && say $_ } };
+#    }
+#}
+
+##| Install dependencies, but don't build the modules themselves
+#multi MAIN ('installdeps', *@modules, Bool :$notests) {
+#    for @modules -> $x {
+#        $panda.resolve($x, :$notests, :action<install-deps-only>);
+#        CATCH { when X::Panda { %failed{$x}.push($_) && say $_ } };
+#    }
+#}
+
+##| List all available modules
+#multi MAIN ('list', Bool :$installed, Bool :$verbose) {
+#    listprojects($panda, :$installed, :$verbose);
+#}
+
+##| Show reverse dependencies
+#multi MAIN ('revdep', Str $name, Bool :$installed) {
+#    revdep($panda, $name, :$installed)
+#}
+
+##| Update the module database
+#multi MAIN ('update') {
+#    $panda.ecosystem.update;
+#}
+
+##| Display information about specified modules
+#multi MAIN ('info', *@modules) {
+#    projectinfo($panda, @modules);
+#}
+
+##| Search the name/description
+#multi MAIN ('search', $pattern) {
+#    search-projects($panda, $pattern);
+#}
+
+##| Autogenerate META.info
+#multi MAIN ('gen-meta', Bool :$notests, Str :$name, Str :$auth, Str :$ver, Str :$desc) {
+#    $panda.bundler.bundle($panda, :$notests, :$name, :$auth, :$ver, :$desc);
+#}
+
+##| Test and install all known distributions
+#multi MAIN ('smoke', :$exclude = 'panda') {
+#    my @exclude = $exclude.split(',');
+#    my @projects = $panda.ecosystem.project-list;
+#    for @projects -> $p {
+#        next if $p ~~ any @exclude;
+#        @exclude.push: $p;
+#        try {
+#            $panda.resolve($p, :action<install>);
+#            CATCH {
+#                default { }
+#            }
+#        }
+#    }
+#}
+
+##| Download and unpack the distribution and then open the directory with your shell.
+#multi MAIN ('look', *@modules) {
+#    for @modules -> $x {
+#        $panda.resolve($x, :notests, :nodeps, :action<look>);
+#        CATCH { when X::Panda { %failed{$x}.push($_)  && say $_ } };
+#    }
+#}
+
+#END {
+#    rm_rf '.panda-work' if '.panda-work'.IO.e;
+#
+#    for %failed.kv -> $source,$messages {
+#        FIRST say "\nFailure Summary\n----------------";
+#        say "$source",("\n\t*$_" for $messages.list);
+#        LAST exit 1;
+#    }
+#    exit 0;
+#}
+
+my $p = ANTLR4::Actions::Perl6.new;
+say $p.parsefile( @ARGV[1] ).perl6;
+
+# vim: ft=perl6
