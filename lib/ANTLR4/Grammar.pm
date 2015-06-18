@@ -448,13 +448,18 @@ rule lexerAtom
  	|	<LEXER_CHAR_SET>
  	|	'.' <elementOptions>?
  	}
+
+token DOT
+	{
+	'.'
+	}
  
 rule atom
  	{	<range>
  	|	<terminal>
  	|	<ruleref>
  	|	<notSet>
- 	|	'.' <elementOptions>?
+ 	|	<DOT> <elementOptions>?
  	}
  
 rule notSet

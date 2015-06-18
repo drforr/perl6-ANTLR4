@@ -217,7 +217,7 @@ is-deeply
                                   modifier     => Nil,
                                   greedy       => False,
                                   complemented => False }] }] }] }] }] }] },
-  'grammar with options and single simple rule';
+  'grammar with options and capturing group';
 
 is-deeply
   $g.parse(
@@ -354,7 +354,7 @@ subtest sub {
     $g.parse( q{grammar Name; number : . ;},
               :actions($a) ).ast;
   is-deeply $parsed.<content>[0]<content>[0]<content>[0]<content>[0],
-    { type         => 'range',
+    { type         => 'regular expression',
       content      => '.',
       modifier     => Nil,
       greedy       => False,
