@@ -475,15 +475,13 @@ method lexerElement($/)
 		{
 		type => $/<lexerAtom>.ast.<type>,
 		content => $/<lexerAtom>.ast.<content>,
+		complemented => $/<lexerAtom>.ast.<complemented>,
+		modifier => $/<ebnfSuffix>.ast.<modifier>,
 		greedy => $/<ebnf><ebnfSuffix>
-			?? $/<ebnf><ebnfSuffix><greedy>.ast
+			?? $/<ebnf><ebnfSuffix>.ast.<greedy>
 			!! $/<ebnfSuffix>
 			?? $/<ebnfSuffix>.ast.<greedy>
-			!! False,
-		modifier => $/<ebnfSuffix><MODIFIER>
-			?? ~$/<ebnfSuffix><MODIFIER>
-			!! Nil,
-		complemented => $/<lexerAtom>.ast.<complemented>
+			!! False
 		}
 	}
 
@@ -580,8 +578,8 @@ method lexerAtom($/)
 		complemented => $/<notSet>.defined,
 		type => $/<range>
 			?? 'range'
-			!! $/<notSet><setElement><LEXER_CHAR_SET>
-			?? 'character class'
+#			!! $/<notSet><setElement><LEXER_CHAR_SET>
+#			?? 'character class'
 			!! $/<LEXER_CHAR_SET>
 			?? 'character class'
 			!! $/<notSet><setElement><terminal><STRING_LITERAL>
@@ -615,12 +613,7 @@ method blockSet($/)
 
 method setElement($/)
 	{
-	make
-		$/<LEXER_CHAR_SET>
-			?? $/<LEXER_CHR_SET>.ast
-			!! $/<range>
-			?? $/<range>
-			!! $/<scalar>
+	make $/<range> || $/<scalar>
 	}
 
 #method ruleref($/)
