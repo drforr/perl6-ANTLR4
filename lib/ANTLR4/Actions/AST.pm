@@ -473,26 +473,8 @@ method lexerElement($/)
 	{
 	make
 		{
-		type => $/<lexerAtom><range>
-			?? 'range'
-			!! $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>
-			?? 'character class'
-			!! $/<lexerAtom><LEXER_CHAR_SET>
-			?? 'character class'
-			!! $/<lexerAtom><notSet><setElement><terminal><STRING_LITERAL>
-			?? 'terminal'
-			!! $/<lexerAtom><terminal><STRING_LITERAL>
-			?? 'terminal'
-			!! 'nonterminal',
-		content => $/<lexerAtom><range>
-			?? $/<lexerAtom><range>.ast
-			!! $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>
-			?? $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>.ast
-                	!! $/<lexerAtom><LEXER_CHAR_SET>
-			?? $/<lexerAtom><LEXER_CHAR_SET>.ast
-			!! $/<lexerAtom><terminal><scalar>
-			?? $/<lexerAtom><terminal><scalar>.ast
-			!! $/<lexerAtom><notSet><setElement><terminal><scalar>.ast,
+		type => $/<lexerAtom>.ast.<type>,
+		content => $/<lexerAtom>.ast.<content>,
 		greedy => $/<ebnf><ebnfSuffix>
 			?? $/<ebnf><ebnfSuffix><greedy>.ast
 			!! $/<ebnfSuffix>
@@ -501,7 +483,7 @@ method lexerElement($/)
 		modifier => $/<ebnfSuffix><MODIFIER>
 			?? ~$/<ebnfSuffix><MODIFIER>
 			!! Nil,
-		complemented => $/<lexerAtom><notSet>.defined,
+		complemented => $/<lexerAtom>.ast.<complemented>
 		}
 	}
 
@@ -593,6 +575,30 @@ method ebnfSuffix($/)
 
 method lexerAtom($/)
 	{
+	make
+		{
+		complemented => $/<notSet>.defined,
+		type => $/<range>
+			?? 'range'
+			!! $/<notSet><setElement><LEXER_CHAR_SET>
+			?? 'character class'
+			!! $/<LEXER_CHAR_SET>
+			?? 'character class'
+			!! $/<notSet><setElement><terminal><STRING_LITERAL>
+			?? 'terminal'
+			!! $/<terminal><STRING_LITERAL>
+			?? 'terminal'
+			!! 'nonterminal',
+		content => $/<range>
+			?? $/<range>.ast
+			!! $/<notSet><setElement><LEXER_CHAR_SET>
+			?? $/<notSet><setElement><LEXER_CHAR_SET>.ast
+                	!! $/<LEXER_CHAR_SET>
+			?? $/<LEXER_CHAR_SET>.ast
+			!! $/<terminal><scalar>
+			?? $/<terminal><scalar>.ast
+			!! $/<notSet><setElement><terminal><scalar>.ast
+		}
 	}
 
 method atom($/)
