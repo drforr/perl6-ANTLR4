@@ -224,17 +224,17 @@ method option($/)
 
 method delegateGrammar($/)
 	{
-	make $/<key>.ast => $/<value>.ast
+	make ~$/<key> => $/<value>.ast
 	}
 
 method elementOption($/)
 	{
-	make ~$/<key> => ~$/<value> || Nil
+	make ~$/<key> => ~$/<value>
 	}
  
 method lexerCommand($/)
 	{
-	make $/<lexerCommandName>.ast => $/<lexerCommandExpr>.ast || Nil
+	make $/<lexerCommandName>.ast => $/<lexerCommandExpr>.ast
 	}
 
 method LEXER_CHAR_SET($/)
@@ -337,17 +337,15 @@ method TOP ($/)
 			[
 			$/<rules>>>.ast
 			],
-		type  => $/<type>.ast || Nil,
+		type  => $/<type>.ast,
 		name  => $/<name>.ast,
 		}
 	}
 
 method optionValue($/)
 	{
-	make
-		$/<list>
-			?? $/<list>.ast.list
-			!! $/<scalar>.ast
+	make $/<list>.ast
+		|| $/<scalar>.ast
 	}
  
 #method actionScopeName($/)
@@ -360,16 +358,16 @@ method optionValue($/)
 
 method ruleSpec($/)
 	{
-	make
-		$/<parserRuleSpec>.ast || $/<lexerRuleSpec>.ast
+	make $/<parserRuleSpec>.ast
+		|| $/<lexerRuleSpec>.ast
 	}
 
 method parserRuleSpec($/)
 	{
 	make
 		{
-		name     => $/<name>.ast,
-		content  =>
+		name      => $/<name>.ast,
+		content   =>
 			[
 			$/<parserAltList>>>.ast
 			],
@@ -377,11 +375,11 @@ method parserRuleSpec($/)
 			[
 			$/<attribute>>>.ast
 			],
-                action   => $/<action>.ast,
-                returns  => $/<returns>.ast,
-                throws   => $/<throws>.ast || [ ],
-                locals   => $/<locals>.ast,
-                options  => $/<options>.ast || [ ],
+                action    => $/<action>.ast,
+                returns   => $/<returns>.ast,
+                throws    => $/<throws>.ast || [ ],
+                locals    => $/<locals>.ast,
+                options   => $/<options>.ast || [ ],
 		}
 	}
 
@@ -414,7 +412,7 @@ method parserAlt($/)
 	make
 		{
 		type    => 'concatenation',
-		label   => $/<label>.ast || Nil,
+		label   => $/<label>.ast,
                 options => $/<parserElement><elementOptions>.ast || [ ],
 		content =>
 			[
@@ -434,11 +432,11 @@ method lexerRuleSpec($/)
 			$/<lexerAltList>>>.ast
 			],
 		attribute => [ ],
-                action   => Nil,
-                returns  => Nil,
-                throws   => [ ],
-                locals   => Nil,
-                options  => [ ],
+                action    => Nil,
+                returns   => Nil,
+                throws    => [ ],
+                locals    => Nil,
+                options   => [ ],
 		}
 	}
 
@@ -473,25 +471,23 @@ method lexerElement($/)
 	{
 	make
 		{
-		type => $/<lexerAtom>.ast.<type>,
-		content => $/<lexerAtom>.ast.<content>,
+		type         => $/<lexerAtom>.ast.<type>,
+		content      => $/<lexerAtom>.ast.<content>,
 		complemented => $/<lexerAtom>.ast.<complemented>,
-		modifier => $/<ebnfSuffix>.ast.<modifier>,
-		greedy => $/<ebnf><ebnfSuffix>
-			?? $/<ebnf><ebnfSuffix>.ast.<greedy>
-			!! $/<ebnfSuffix>
-			?? $/<ebnfSuffix>.ast.<greedy>
-			!! False
+		modifier     => $/<ebnfSuffix>.ast.<modifier>,
+		greedy       => $/<ebnf><ebnfSuffix>.ast.<greedy>
+			|| $/<ebnfSuffix>.ast.<greedy>
+			|| False
 		}
 	}
 
-method labeledLexerElement($/)
-	{
-	}
+#method labeledLexerElement($/)
+#	{
+#	}
 
-method lexerBlock($/)
-	{
-	}
+#method lexerBlock($/)
+#	{
+#	}
 
 
 method altList($/)
@@ -519,44 +515,22 @@ method element($/)
 	make
 		{
 		complemented => $/<atom><notSet>.defined,
-		content => $<atom><notSet><setElement><LEXER_CHAR_SET>
-			?? $/<atom><notSet><setElement><LEXER_CHAR_SET>.ast
-			!! $/<atom><notSet><setElement><range>
-			?? $/<atom><notSet><setElement><range>.ast
-			!! $/<atom><notSet><setElement><terminal><scalar>
-			?? $/<atom><notSet><setElement><terminal><scalar>.ast
-			!! $/<atom><range>
-			?? $/<atom><range>.ast
-			!! $/<atom><terminal><scalar>
-			?? $/<atom><terminal><scalar>.ast
+		content      => $/<atom>
+			?? $/<atom>.ast.<content>
 			!! $/<ebnf><block>.ast,
-		type => $/<atom><notSet><setElement><LEXER_CHAR_SET>
-			?? 'character class'
-			!! $/<atom><range>
-			?? 'range'
-			!! $/<atom><notSet><setElement><terminal><ID>
-			?? 'nonterminal'
-			!! $/<ebnf><block>
-			?? 'capturing group'
-			!! $/<atom><terminal><ID> # XXX work on this later.
-			?? 'nonterminal'
-			!! $/<atom><DOT>
-			?? 'regular expression'
-			!! 'terminal',
-		greedy => $/<ebnf><ebnfSuffix>
-			?? $/<ebnf><ebnfSuffix>.ast.<greedy>
-			!! $/<ebnfSuffix>
-			?? $/<ebnfSuffix>.ast.<greedy>
-			!! False,
-		modifier => $/<ebnf><ebnfSuffix>
-			?? $/<ebnf><ebnfSuffix>.ast.<modifier>
-			!! $/<ebnfSuffix>.ast.<modifier>,
+		type         => $/<atom>.ast.<type>
+			|| 'capturing group',
+		greedy       => $/<ebnf><ebnfSuffix>.ast.<greedy>
+			|| $/<ebnfSuffix>.ast.<greedy>
+			|| False,
+		modifier     => $/<ebnf><ebnfSuffix>.ast.<modifier>
+			|| $/<ebnfSuffix>.ast.<modifier>
 		}
 	}
  
-method labeledElement($/)
-	{
-	}
+#method labeledElement($/)
+#	{
+#	}
 
 #method ebnf($/)
 #	{
@@ -578,42 +552,73 @@ method lexerAtom($/)
 		complemented => $/<notSet>.defined,
 		type => $/<range>
 			?? 'range'
-#			!! $/<notSet><setElement><LEXER_CHAR_SET>
-#			?? 'character class'
-			!! $/<LEXER_CHAR_SET>
+			!! $/<notSet><setElement><LEXER_CHAR_SET>
 			?? 'character class'
 			!! $/<notSet><setElement><terminal><STRING_LITERAL>
 			?? 'terminal'
+			!! $/<LEXER_CHAR_SET>
+			?? 'character class'
 			!! $/<terminal><STRING_LITERAL>
 			?? 'terminal'
 			!! 'nonterminal',
-		content => $/<range>
-			?? $/<range>.ast
-			!! $/<notSet><setElement><LEXER_CHAR_SET>
-			?? $/<notSet><setElement><LEXER_CHAR_SET>.ast
-                	!! $/<LEXER_CHAR_SET>
-			?? $/<LEXER_CHAR_SET>.ast
-			!! $/<terminal><scalar>
-			?? $/<terminal><scalar>.ast
-			!! $/<notSet><setElement><terminal><scalar>.ast
+		content => $/<range>.ast
+			|| $/<LEXER_CHAR_SET>.ast
+			|| $/<terminal><scalar>.ast
+			|| $/<notSet>.ast.<content>
 		}
 	}
 
 method atom($/)
 	{
+	make
+		{
+		content => $/<notSet>
+			?? $/<notSet>.ast.<content>
+			!! $/<range>
+			?? $/<range>.ast
+			!! $/<DOT>
+			?? ~$/<DOT>
+			!! $/<terminal><scalar>.ast,
+		type => $/<notSet>.ast.<type>
+			?? $/<notSet>.ast.<type>
+			!! $/<range>
+			?? 'range'
+			!! $/<terminal><ID> # XXX work on this later.
+			?? 'nonterminal'
+			!! $/<DOT>
+			?? 'regular expression'
+			!! 'terminal',
+		}
 	}
 
-#method notSet($/)
+method notSet($/)
+	{
+	make
+		{
+		content => $/<setElement>.ast.<content>,
+		type    => $/<setElement>.ast.<type>,
+		}
+	}
+
+#method blockSet($/)
 #	{
 #	}
 
-method blockSet($/)
-	{
-	}
-
 method setElement($/)
 	{
-	make $/<range> || $/<scalar>
+	make
+		{
+		content => $/<LEXER_CHAR_SET>
+			?? $/<LEXER_CHAR_SET>.ast
+			!! $/<range>
+			?? $/<range>.ast
+			!! $/<terminal><scalar>.ast,
+		type => $/<LEXER_CHAR_SET>
+			?? 'character class'
+			!! $/<terminal><ID>
+			?? 'nonterminal'
+			!! Nil
+		}
 	}
 
 #method ruleref($/)

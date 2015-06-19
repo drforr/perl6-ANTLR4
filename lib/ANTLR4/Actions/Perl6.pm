@@ -125,6 +125,15 @@ class ANTLR4::Actions::Perl6 {
 		self._modify( $ast, $term );
 	}
 
+	method regular-expression( $ast ) {
+		my $term = '';
+		
+		$term ~= '!' if $ast.<complemented>;
+                $term ~= $ast.<content>
+			if $ast.<content>;
+		self._modify( $ast, $term );
+	}
+
 	method term( $ast ) {
 		my $json;
 		my $term = '';
@@ -150,6 +159,9 @@ class ANTLR4::Actions::Perl6 {
 			}
 			when 'capturing group' {
 				$term = self.capturing-group( $ast );
+			}
+			when 'regular expression' {
+				$term = self.regular-expression( $ast );
 			}
 		}
 		$term;

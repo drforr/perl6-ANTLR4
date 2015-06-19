@@ -165,17 +165,23 @@ subtest sub {
        'greedy star';
   }, 'character class modifiers';
 
-  is $p.parse( q{grammar Minimal; number : [a-b] ;}).perl6,
-     q{grammar Minimal { rule number { ( ( <[ a .. b ]> ) ) } }},
-     'hyphenated character class';
+  subtest sub {
+    is $p.parse( q{grammar Minimal; number : [a-b] ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <[ a .. b ]> ) ) } }},
+       'hyphenated character class';
+  
+    is $p.parse( q{grammar Minimal; number : [-a-b] ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <[ - a .. b ]> ) ) } }},
+       'hyphenated character class';
+  
+    is $p.parse( q{grammar Minimal; number : [-a-b\u000d] ;}).perl6,
+       q{grammar Minimal { rule number { ( ( <[ - a .. b \\x[000d] ]> ) ) } }},
+       'Unicode character class';
+  }, 'character class variants';
 
-  is $p.parse( q{grammar Minimal; number : [-a-b] ;}).perl6,
-     q{grammar Minimal { rule number { ( ( <[ - a .. b ]> ) ) } }},
-     'hyphenated character class';
-
-  is $p.parse( q{grammar Minimal; number : [-a-b\u000d] ;}).perl6,
-     q{grammar Minimal { rule number { ( ( <[ - a .. b \\x[000d] ]> ) ) } }},
-     'Unicode character class';
+  is $p.parse( q{grammar Minimal; number : . ;}).perl6,
+     q{grammar Minimal { rule number { ( ( . ) ) } }},
+     'regular expression';
 }, 'Single rule and remaining basic term types';
 
 subtest sub {
