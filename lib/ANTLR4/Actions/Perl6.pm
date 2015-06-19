@@ -38,7 +38,7 @@ class ANTLR4::Actions::Perl6 {
 
 	method alternation( $ast ) {
 		my $terms = '';
-		$terms = join( '|', map { self.term( $_ ) },
+		$terms = join( ' ', map { self.term( $_ ) },
 			       @( $ast.<content> ) )
 			if @( $ast.<content> );
 		qq{( $terms )};
@@ -118,7 +118,7 @@ class ANTLR4::Actions::Perl6 {
 		
 		$term ~= '!' if $ast.<complemented>;
 		my $group = '';
-		$group = join( ' ', map { self.term( $_ ) },
+		$group = join( ' | ', map { self.term( $_ ) },
 			       @( $ast.<content> ) )
 			if @( $ast.<content> );
                 $term ~= qq{( $group )};
@@ -171,7 +171,7 @@ class ANTLR4::Actions::Perl6 {
 		my $json;
 		my $terms = '';
 
-		$terms = join( ',', map { self.term( $_ ) },
+		$terms = join( ' ', map { self.term( $_ ) },
                                @( $ast.<content> ) )
 			if @( $ast.<content> );
 
@@ -192,7 +192,7 @@ class ANTLR4::Actions::Perl6 {
 		my $json;
 		my $rules = '';
 
-		$rules = join( ',', map { self.rule( $_ ) },
+		$rules = join( ' ', map { self.rule( $_ ) },
                                @( $ast.<content> ) )
 			if @( $ast.<content> );
 
