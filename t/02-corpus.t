@@ -3,7 +3,7 @@ BEGIN { @*INC.push('lib') };
 use ANTLR4::Grammar;
 use Test;
 
-plan 56;
+plan 55;
 
 my $g = ANTLR4::Grammar.new;
 
