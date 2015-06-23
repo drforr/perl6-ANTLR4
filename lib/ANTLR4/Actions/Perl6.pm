@@ -50,7 +50,7 @@ class ANTLR4::Actions::Perl6 {
 		$terms = join( ' ', map { self.term( $_ ) },
 			       @( $ast.<content> ) )
 			if @( $ast.<content> );
-		for <commands options label> -> $key {
+		for <command options label> -> $key {
 			$json.{$key} = $ast.{$key} if $ast.{$key};
 		}
 		if $json {

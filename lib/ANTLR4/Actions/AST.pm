@@ -418,7 +418,7 @@ method parserAlt($/)
 			[
 			$/<parserElement><element>>>.ast
 			],
-		commands => [ ],
+		command => [ ],
 		}
 	}
  
@@ -463,7 +463,7 @@ method lexerAlt($/)
 			[
 			$/<lexerElement>>>.ast
 			],
-		commands => $/<lexerCommands>.ast || [ ],
+		command => $/<lexerCommands>.ast || [ ],
 		}
 	}
 

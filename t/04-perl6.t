@@ -77,7 +77,7 @@ subtest sub {
      q{grammar Minimal { rule number { ( ( '1' #={ "label" : "One" } ) ) } }},
      'optional label';
   is $p.parse( q{grammar Minimal; number : '1' -> skip ;}).perl6,
-     q{grammar Minimal { rule number { ( ( '1' #={ "commands" : [ { "skip" : null } ] } ) ) } }},
+     q{grammar Minimal { rule number { ( ( '1' #={ "command" : [ { "skip" : null } ] } ) ) } }},
      'optional command';
 }, 'Single rule and term-level options';
 
@@ -189,7 +189,7 @@ subtest sub {
      q{grammar Minimal { rule number { ( ( 'a' 'b' ) ) } }},
      'two concatenated terms';
   is $p.parse( q{grammar Minimal; number : 'a' 'b' -> skip ;}).perl6,
-     q{grammar Minimal { rule number { ( ( 'a' 'b' #={ "commands" : [ { "skip" : null } ] } ) ) } }},
+     q{grammar Minimal { rule number { ( ( 'a' 'b' #={ "command" : [ { "skip" : null } ] } ) ) } }},
      'two concatenated terms with skipping';
 }, 'concatenation test';
 
@@ -205,7 +205,7 @@ subtest sub {
 
 subtest sub {
   is $p.parse( q{grammar Minimal; number : ~'1'+? -> skip ;}).perl6,
-     q{grammar Minimal { rule number { ( ( !'1'+? #={ "commands" : [ { "skip" : null } ] } ) ) } }},
+     q{grammar Minimal { rule number { ( ( !'1'+? #={ "command" : [ { "skip" : null } ] } ) ) } }},
      'with complement';
 }, 'concatenated commands';
 
