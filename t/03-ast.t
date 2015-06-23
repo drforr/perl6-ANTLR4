@@ -212,7 +212,7 @@ is-deeply
                         greedy       => False,
                         complemented => False,
                         content =>
-                          [{ type         => 'alternation',
+                          [{ type         => 'concatenation',
                              content      =>
                                [{ type         => 'terminal',
                                   content      => '1',
@@ -253,7 +253,7 @@ is-deeply
                         greedy       => True,
                         complemented => False,
                         content =>
-                          [{ type         => 'alternation',
+                          [{ type         => 'concatenation',
                              content      =>
                                [{ type         => 'terminal',
                                   content      => '1',

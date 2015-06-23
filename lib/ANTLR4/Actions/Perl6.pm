@@ -37,10 +37,18 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method alternation( $ast ) {
+		my $json;
 		my $terms = '';
-		$terms = join( ' ', map { self.term( $_ ) },
+		$terms = join( ' | ', map { self.term( $_ ) },
 			       @( $ast.<content> ) )
 			if @( $ast.<content> );
+		for <command options label> -> $key {
+			$json.{$key} = $ast.{$key} if $ast.{$key};
+		}
+		if $json {
+			my $json-str = to-json( $json );
+			$terms ~= qq{ #=$json-str};
+		}
 		qq{( $terms )};
 	}
 
@@ -118,7 +126,7 @@ class ANTLR4::Actions::Perl6 {
 		
 		$term ~= '!' if $ast.<complemented>;
 		my $group = '';
-		$group = join( ' | ', map { self.term( $_ ) },
+		$group = join( '3 ', map { self.term( $_ ) },
 			       @( $ast.<content> ) )
 			if @( $ast.<content> );
                 $term ~= qq{( $group )};
@@ -163,6 +171,9 @@ class ANTLR4::Actions::Perl6 {
 			when 'regular expression' {
 				$term = self.regular-expression( $ast );
 			}
+			default {
+				die "Unrecognized type '$ast.<type>' found";
+			}
 		}
 		$term;
 	}
@@ -171,7 +182,7 @@ class ANTLR4::Actions::Perl6 {
 		my $json;
 		my $terms = '';
 
-		$terms = join( ' ', map { self.term( $_ ) },
+		$terms = join( '4 ', map { self.term( $_ ) },
                                @( $ast.<content> ) )
 			if @( $ast.<content> );
 
@@ -192,7 +203,7 @@ class ANTLR4::Actions::Perl6 {
 		my $json;
 		my $rules = '';
 
-		$rules = join( ' ', map { self.rule( $_ ) },
+		$rules = join( '5 ', map { self.rule( $_ ) },
                                @( $ast.<content> ) )
 			if @( $ast.<content> );
 

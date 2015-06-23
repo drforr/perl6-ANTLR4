@@ -394,7 +394,7 @@ rule lexerCommandExpr
 	'(' (<ID> | <DIGITS>) ')'
 	}
  
-rule altList
+rule blockAltList
 	{
 	<parserElement>+ % '|'
 	}
@@ -467,9 +467,14 @@ rule notSet
 	'~' [<setElement> | <blockSet>]
  	}
  
+rule setElementAltList
+	{
+	<setElement>+ % '|'
+	}
+
 rule blockSet
 	{
-	'(' <setElement>+ % '|' ')' <COMMENTS>?
+	'(' <setElementAltList> ')' <COMMENTS>?
 	}
  
 rule setElement
@@ -480,7 +485,7 @@ rule setElement
  
 rule block
  	{
-	'(' [ <optionsSpec>? ':' ]? <altList> <COMMENTS>? ')'
+	'(' [ <optionsSpec>? ':' ]? <blockAltList> <COMMENTS>? ')'
 	}
  
 rule ruleref

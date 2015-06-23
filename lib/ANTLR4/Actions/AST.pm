@@ -204,7 +204,7 @@ method ruleReturns($/)
 
 method block($/)
 	{
-	make $/<altList>.ast
+	make $/<blockAltList>.ast
 	}
 
 method tokensSpec($/)
@@ -491,7 +491,7 @@ method lexerElement($/)
 #	}
 
 
-method altList($/)
+method blockAltList($/)
 	{
 	make
 		[
@@ -503,7 +503,7 @@ method parserElement($/)
 	{
 	make
 		{
-		type => 'alternation',
+		type => 'concatenation',
 		content =>
 			[
 			$/<element>>>.ast
@@ -513,14 +513,18 @@ method parserElement($/)
 
 method element($/)
 	{
+#say $/;
 	make
 		{
 		complemented => $/<atom><notSet>.defined,
 		content      => $/<atom>
 			?? $/<atom>.ast.<content>
 			!! $/<ebnf><block>.ast,
-		type         => $/<atom>.ast.<type>
-			|| 'capturing group',
+type => $/<ebnf><block><blockAltList>
+	?? 'capturing group'
+	!! $/<atom>.ast.<type>,
+#		type         => $/<atom>.ast.<type>
+#			|| 'capturing group',
 		greedy       => $/<ebnf><ebnfSuffix>.ast.<greedy>
 			|| $/<ebnfSuffix>.ast.<greedy>
 			|| False,

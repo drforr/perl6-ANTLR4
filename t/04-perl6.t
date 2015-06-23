@@ -3,7 +3,7 @@ BEGIN { @*INC.push('lib') };
 use ANTLR4::Actions::Perl6;
 use Test;
 
-plan 8;
+plan 9;
 
 my $p = ANTLR4::Actions::Perl6.new;
 
@@ -194,6 +194,15 @@ subtest sub {
 }, 'concatenation test';
 
 subtest sub {
+  is $p.parse( q{grammar Minimal; number : 'a' | 'b';}).perl6,
+     q{grammar Minimal { rule number { ( ( 'a' ) | ( 'b' ) ) } }},
+     'two alternated terms';
+  is $p.parse( q{grammar Minimal; number : 'a' | 'b' -> skip ;}).perl6,
+     q{grammar Minimal { rule number { ( ( 'a' ) | ( 'b' #={ "command" : [ { "skip" : null } ] } ) ) } }},
+     'two alternated terms with skipping';
+}, 'alternation test';
+
+subtest sub {
   is $p.parse( q{grammar Minimal; number : <assoc=right> ~'1'+? ;}).perl6,
      q{grammar Minimal { rule number { ( ( !'1'+? #={ "options" : [ { "assoc" : "right" } ] } ) ) } }},
      'with option';
@@ -213,6 +222,10 @@ subtest sub {
   is $p.parse( q{grammar Minimal; number : ( '1' ) ;}).perl6,
      q{grammar Minimal { rule number { ( ( ( ( '1' ) ) ) ) } }},
      'redundant parenthesis';
+
+  is $p.parse( q{grammar Minimal; number : ( '1' '2' ) ;}).perl6,
+     q{grammar Minimal { rule number { ( ( ( ( '1' '2' ) ) ) ) } }},
+     'redundant parenthesis with two terms';
 
 #  is $p.parse( q{grammar Minimal; number : ~( '1' )+? ;}).perl6,
 #     q{grammar Minimal { rule number { ( ( ( ( '1' ) ) ) ) } }},
