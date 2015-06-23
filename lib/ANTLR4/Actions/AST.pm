@@ -366,6 +366,7 @@ method parserRuleSpec($/)
 	{
 	make
 		{
+		type      => 'rule',
 		name      => $/<name>.ast,
 		content   =>
 			[

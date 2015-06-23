@@ -123,7 +123,8 @@ is-deeply
     tokens  => [ ],
     action  => [ ],
     content =>
-      [{ name      => 'number',
+      [{ type      => 'rule',
+         name      => 'number',
          attribute => [ ],
          action    => Nil,
          returns   => Nil,
@@ -190,7 +191,8 @@ is-deeply
     tokens  => [ ],
     action  => [ ],
     content =>
-      [{ name      => 'number',
+      [{ type      => 'rule',
+         name      => 'number',
          attribute => [ ],
          action    => Nil,
          returns   => Nil,
@@ -230,7 +232,8 @@ is-deeply
     tokens  => [ ],
     action  => [ ],
     content =>
-      [{ name      => 'number',
+      [{ type      => 'rule',
+         name      => 'number',
          attribute => [ ],
          action    => Nil,
          returns   => Nil,
@@ -466,7 +469,8 @@ number [int x]
     tokens  => [ ],
     action  => [ ],
     content =>
-      [{ name      => 'number',
+      [{ type      => 'rule',
+         name      => 'number',
          attribute => [ ],
          action    => '[int x]',
          returns   => '[int y]',
