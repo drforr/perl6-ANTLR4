@@ -22,7 +22,7 @@ is-deeply
     options => [ ],
     import  => [ ],
     tokens  => [ ],
-    actions => [ ],
+    action  => [ ],
     content => [ ] },
   'Minimal grammar';
 
@@ -95,7 +95,7 @@ subtest sub {
   $parsed = $g.parse(
     q{grammar Name;
       @members { protected int curlies = 0; }}, :actions($a) ).ast;
-  is-deeply $parsed.<actions>,
+  is-deeply $parsed.<action>,
     [ '@members' => '{ protected int curlies = 0; }' ],
     q{Single action};
 
@@ -103,7 +103,7 @@ subtest sub {
     q{grammar Name;
       @members { protected int curlies = 0; }
       @sample::stuff { 1; }}, :actions($a) ).ast;
-  is-deeply $parsed.<actions>,
+  is-deeply $parsed.<action>,
     [ '@members' => '{ protected int curlies = 0; }',
       '@sample::stuff' => '{ 1; }' ],
     q{Two actions};
@@ -121,7 +121,7 @@ is-deeply
     options => [ ],
     import  => [ ],
     tokens  => [ ],
-    actions => [ ],
+    action  => [ ],
     content =>
       [{ name      => 'number',
          attribute => [ ],
@@ -188,7 +188,7 @@ is-deeply
     options => [ ],
     import  => [ ],
     tokens  => [ ],
-    actions => [ ],
+    action  => [ ],
     content =>
       [{ name      => 'number',
          attribute => [ ],
@@ -228,7 +228,7 @@ is-deeply
     options => [ ],
     import  => [ ],
     tokens  => [ ],
-    actions => [ ],
+    action  => [ ],
     content =>
       [{ name      => 'number',
          attribute => [ ],
@@ -464,7 +464,7 @@ number [int x]
     options => [ ],
     import  => [ ],
     tokens  => [ ],
-    actions => [ ],
+    action  => [ ],
     content =>
       [{ name      => 'number',
          attribute => [ ],

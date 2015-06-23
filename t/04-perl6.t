@@ -25,7 +25,7 @@ subtest sub {
      'grammar Minimal {  } #={ "tokens" : [ "INDENT", "DEDENT" ] }',
      'optional tokens';
   is $p.parse( q{grammar Minimal; @members { int i = 0; }} ).perl6,
-     'grammar Minimal {  } #={ "actions" : [ { "@members" : "{ int i = 0; }" } ] }',
+     'grammar Minimal {  } #={ "action" : [ { "@members" : "{ int i = 0; }" } ] }',
      'optional actions';
 }, 'Grammar and its options';
 

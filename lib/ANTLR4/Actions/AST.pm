@@ -312,7 +312,7 @@ method TOP ($/)
 		options => [ ],
 		import  => [ ],
                 tokens  => [ ],
-                actions => [ ],
+                action  => [ ],
 		);
 
 	for @( $/<prequelConstruct> ) -> $prequel
@@ -326,9 +326,9 @@ method TOP ($/)
 		%content<import> =
 			$prequel.<import>.ast if
 			$prequel.<import>;
-		push @( %content<actions> ),
-			$prequel.<actions>.ast if
-			$prequel.<actions>;
+		push @( %content<action> ),
+			$prequel.<action>.ast if
+			$prequel.<action>;
 		}
 	make
 		{
