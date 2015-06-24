@@ -312,7 +312,7 @@ method TOP ($/)
 		options => [ ],
 		import  => [ ],
                 tokens  => [ ],
-                action  => [ ],
+                action  => [ ]
 		);
 
 	for @( $/<prequelConstruct> ) -> $prequel
@@ -333,12 +333,12 @@ method TOP ($/)
 	make
 		{
 		%content,
+		type  => $/<type>.ast,
 		content =>
 			[
 			$/<rules>>>.ast
 			],
-		type  => $/<type>.ast,
-		name  => $/<name>.ast,
+		name  => $/<name>.ast
 		}
 	}
 
@@ -380,7 +380,7 @@ method parserRuleSpec($/)
                 returns   => $/<returns>.ast,
                 throws    => $/<throws>.ast || [ ],
                 locals    => $/<locals>.ast,
-                options   => $/<options>.ast || [ ],
+                options   => $/<options>.ast || [ ]
 		}
 	}
 
@@ -401,13 +401,13 @@ method parserAltList($/)
 	make
 		{
 		type    => 'alternation',
-		label   => Nil,
-		options => [ ],
-		command => [ ],
 		content =>
 			[
 			$/<parserAlt>>>.ast
-			]
+			],
+		label   => Nil,
+		options => [ ],
+		command => [ ]
 		}
 	}
 
@@ -416,13 +416,13 @@ method parserAlt($/)
 	make
 		{
 		type    => 'concatenation',
-		label   => $/<label>.ast,
-                options => $/<parserElement><elementOptions>.ast || [ ],
 		content =>
 			[
 			$/<parserElement><element>>>.ast
 			],
-		command => [ ],
+		label   => $/<label>.ast,
+                options => $/<parserElement><elementOptions>.ast || [ ],
+		command => [ ]
 		}
 	}
  
@@ -441,7 +441,7 @@ method lexerRuleSpec($/)
                 returns   => Nil,
                 throws    => [ ],
                 locals    => Nil,
-                options   => [ ],
+                options   => [ ]
 		}
 	}
 
@@ -450,13 +450,13 @@ method lexerAltList($/)
 	make
 		{
 		type    => 'alternation',
-		label   => Nil,
-		options => [ ],
-		command => [ ],
 		content =>
 			[
 			$/<lexerAlt>>>.ast
-			]
+			],
+		label   => Nil,
+		options => [ ],
+		command => [ ]
 		}
 	}
 
@@ -465,13 +465,13 @@ method lexerAlt($/)
 	make
 		{
 		type    => 'concatenation',
-		label   => Nil,
-                options => [ ],
-		command => $/<lexerCommands>.ast || [ ],
 		content =>
 			[
 			$/<lexerElement>>>.ast
 			],
+		label   => Nil,
+                options => [ ],
+		command => $/<lexerCommands>.ast || [ ]
 		}
 	}
 
@@ -503,13 +503,13 @@ method lexerBlock($/)
 	{
 	make
 		{
-		type => 'capturing group',
-		complemented => $/[0] || False,
-		content  =>
+		type         => 'capturing group',
+		content      =>
 			[
 			$/<lexerAltList>>>.ast
 			],
-		command => [ ],
+		complemented => $/[0] || False,
+		command      => [ ]
 		}
 	}
 
@@ -527,13 +527,13 @@ method parserElement($/)
 	make
 		{
 		type    => 'concatenation',
-		label   => Nil,
-                options => [ ],
-		command => [ ],
 		content =>
 			[
 			$/<element>>>.ast
-			]
+			],
+		label   => Nil,
+                options => [ ],
+		command => [ ]
 		}
 	}
 
@@ -541,13 +541,13 @@ method element($/)
 	{
 	make
 		{
-		complemented => $/<atom><notSet>.defined,
-		content      => $/<atom>
-			?? $/<atom>.ast.<content>
-			!! $/<ebnf><block>.ast,
 		type => $/<ebnf><block><blockAltList>
 			?? 'capturing group'
 			!! $/<atom>.ast.<type>,
+		content      => $/<atom>
+			?? $/<atom>.ast.<content>
+			!! $/<ebnf><block>.ast,
+		complemented => $/<atom><notSet>.defined,
 		greedy       => $/<ebnf><ebnfSuffix>.ast.<greedy>
 			|| $/<ebnfSuffix>.ast.<greedy>
 			|| False,
@@ -577,7 +577,6 @@ method lexerAtom($/)
 	{
 	make
 		{
-		complemented => $/<notSet>.defined,
 		type => $/<range>
 			?? 'range'
 			!! $/<notSet><setElement><LEXER_CHAR_SET>
@@ -592,7 +591,8 @@ method lexerAtom($/)
 		content => $/<range>.ast
 			|| $/<LEXER_CHAR_SET>.ast
 			|| $/<terminal><scalar>.ast
-			|| $/<notSet>.ast.<content>
+			|| $/<notSet>.ast.<content>,
+		complemented => $/<notSet>.defined
 		}
 	}
 
@@ -600,13 +600,6 @@ method atom($/)
 	{
 	make
 		{
-		content => $/<notSet>
-			?? $/<notSet>.ast.<content>
-			!! $/<range>
-			?? $/<range>.ast
-			!! $/<DOT>
-			?? ~$/<DOT>
-			!! $/<terminal><scalar>.ast,
 		type => $/<notSet>.ast.<type>
 			?? $/<notSet>.ast.<type>
 			!! $/<range>
@@ -616,6 +609,13 @@ method atom($/)
 			!! $/<DOT>
 			?? 'regular expression'
 			!! 'terminal',
+		content => $/<notSet>
+			?? $/<notSet>.ast.<content>
+			!! $/<range>
+			?? $/<range>.ast
+			!! $/<DOT>
+			?? ~$/<DOT>
+			!! $/<terminal><scalar>.ast
 		}
 	}
 
@@ -623,8 +623,8 @@ method notSet($/)
 	{
 	make
 		{
-		content => $/<setElement>.ast.<content>,
 		type    => $/<setElement>.ast.<type>,
+		content => $/<setElement>.ast.<content>
 		}
 	}
 
@@ -636,16 +636,16 @@ method setElement($/)
 	{
 	make
 		{
-		content => $/<LEXER_CHAR_SET>
-			?? $/<LEXER_CHAR_SET>.ast
-			!! $/<range>
-			?? $/<range>.ast
-			!! $/<terminal><scalar>.ast,
 		type => $/<LEXER_CHAR_SET>
 			?? 'character class'
 			!! $/<terminal><ID>
 			?? 'nonterminal'
-			!! Nil
+			!! Nil,
+		content => $/<LEXER_CHAR_SET>
+			?? $/<LEXER_CHAR_SET>.ast
+			!! $/<range>
+			?? $/<range>.ast
+			!! $/<terminal><scalar>.ast
 		}
 	}
 
@@ -659,7 +659,7 @@ method range($/)
 		[
 			{
 			from => ~$/<from>[0],
-			to   => ~$/<to>[0],
+			to   => ~$/<to>[0]
 			}
 		]
 	}
