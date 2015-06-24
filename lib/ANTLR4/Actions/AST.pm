@@ -41,7 +41,7 @@ most complex, and is described in detail at the appropriate place.
   =item type
 
   The type of the grammar, either 'lexer' or 'parser' as specified in the text,
-  or '' if no type is specified.
+  or 'DEFAULT' if no type is specified.
 
   =item options
 
@@ -189,7 +189,7 @@ method STRING_LITERAL($/)
 
 method grammarType($/)
 	{
-	make $/[0] ?? ~$/[0] !! Nil
+	make $/[0] ?? ~$/[0] !! 'DEFAULT'
 	}
 
 method localsSpec($/)
@@ -519,18 +519,15 @@ method parserElement($/)
 
 method element($/)
 	{
-#say $/;
 	make
 		{
 		complemented => $/<atom><notSet>.defined,
 		content      => $/<atom>
 			?? $/<atom>.ast.<content>
 			!! $/<ebnf><block>.ast,
-type => $/<ebnf><block><blockAltList>
-	?? 'capturing group'
-	!! $/<atom>.ast.<type>,
-#		type         => $/<atom>.ast.<type>
-#			|| 'capturing group',
+		type => $/<ebnf><block><blockAltList>
+			?? 'capturing group'
+			!! $/<atom>.ast.<type>,
 		greedy       => $/<ebnf><ebnfSuffix>.ast.<greedy>
 			|| $/<ebnfSuffix>.ast.<greedy>
 			|| False,

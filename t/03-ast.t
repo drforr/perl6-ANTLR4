@@ -17,7 +17,7 @@ my $g = ANTLR4::Grammar.new;
 #
 is-deeply
   $g.parse( q{grammar Minimal;}, :actions($a) ).ast,
-  { type    => Nil,
+  { type    => 'DEFAULT',
     name    => 'Minimal',
     options => [ ],
     import  => [ ],
@@ -116,7 +116,7 @@ is-deeply
   $g.parse(
     q{grammar Name; number : '1' ;},
     :actions($a) ).ast,
-  { type    => Nil,
+  { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
     import  => [ ],
@@ -187,7 +187,7 @@ is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' ) ;},
     :actions($a) ).ast,
-  { type    => Nil,
+  { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
     import  => [ ],
@@ -234,7 +234,7 @@ is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' )+? ;},
     :actions($a) ).ast,
-  { type    => Nil,
+  { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
     import  => [ ],
@@ -477,7 +477,7 @@ number [int x]
        options{a=2;}
   : '1' # One ;},
     :actions($a) ).ast,
-  { type    => Nil,
+  { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
     import  => [ ],
