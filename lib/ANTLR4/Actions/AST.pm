@@ -430,6 +430,7 @@ method lexerRuleSpec($/)
 	{
 	make
 		{
+		type     => 'rule',
 		name     => $/<name>.ast,
 		content  =>
 			[
@@ -449,6 +450,9 @@ method lexerAltList($/)
 	make
 		{
 		type    => 'alternation',
+		label   => Nil,
+		options => [ ],
+		command => [ ],
 		content =>
 			[
 			$/<lexerAlt>>>.ast
@@ -475,9 +479,15 @@ method lexerElement($/)
 	{
 	make
 		{
-		type         => $/<lexerAtom>.ast.<type>,
-		content      => $/<lexerAtom>.ast.<content>,
-		complemented => $/<lexerAtom>.ast.<complemented>,
+		type         => $/<lexerAtom>
+			?? $/<lexerAtom>.ast.<type>
+			!! $/<lexerBlock>.ast.<type>,
+		content      => $/<lexerAtom>
+			?? $/<lexerAtom>.ast.<content>
+			!! $/<lexerBlock>.ast.<content>,
+		complemented => $/<lexerAtom>
+			?? $/<lexerAtom>.ast.<complemented>
+			!! $/<lexerBlock>.ast.<complemented>,
 		modifier     => $/<ebnfSuffix>.ast.<modifier>,
 		greedy       => $/<ebnf><ebnfSuffix>.ast.<greedy>
 			|| $/<ebnfSuffix>.ast.<greedy>
@@ -489,9 +499,19 @@ method lexerElement($/)
 #	{
 #	}
 
-#method lexerBlock($/)
-#	{
-#	}
+method lexerBlock($/)
+	{
+	make
+		{
+		type => 'capturing group',
+		complemented => $/[0] || False,
+		content  =>
+			[
+			$/<lexerAltList>>>.ast
+			],
+		command => [ ],
+		}
+	}
 
 
 method blockAltList($/)

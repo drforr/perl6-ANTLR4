@@ -4,7 +4,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 use Test;
 
-plan 16;
+plan 17;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -229,6 +229,58 @@ is-deeply
                                   greedy       => False,
                                   complemented => False }] }] }] }] }] }] },
   'grammar with options and capturing group';
+
+is-deeply
+  $g.parse(
+    q{grammar Name; number : ( '1' ) -> skip ;},
+    :actions($a) ).ast,
+  { type    => 'DEFAULT',
+    name    => 'Name',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    action  => [ ],
+    content =>
+      [{ type      => 'rule',
+         name      => 'number',
+         attribute => [ ],
+         action    => Nil,
+         returns   => Nil,
+         throws    => [ ],
+         locals    => Nil,
+         options   => [ ],
+         content   =>
+           [{ type    => 'alternation',
+              label   => Nil,
+              options => [ ],
+              command => [ ],
+              content =>
+                [{ type    => 'concatenation',
+                   label   => Nil,
+                   options => [ ],
+                   command => [ skip => Nil ],
+                   content =>
+                     [{ type         => 'capturing group',
+                        modifier     => Nil,
+                        greedy       => False,
+                        complemented => False,
+                        content =>
+                          [{ type    => 'alternation',
+                             label   => Nil,
+                             options => [ ],
+                             command => [ ],
+                             content =>
+                               [{ type    => 'concatenation',
+                                  label   => Nil,
+                                  options => [ ],
+                                  command => [ ],
+                                  content =>
+                                    [{ type         => 'terminal',
+                                       content      => '1',
+                                       modifier     => Nil,
+                                       greedy       => False,
+                                       complemented => False }] }] }] }] }] }] }] },
+  'grammar with options and skipped capturing group';
 
 is-deeply
   $g.parse(
