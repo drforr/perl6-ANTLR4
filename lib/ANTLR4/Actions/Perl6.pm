@@ -126,7 +126,7 @@ class ANTLR4::Actions::Perl6 {
 		
 		$term ~= '!' if $ast.<complemented>;
 		my $group = '';
-		$group = join( ' ', map { self.term( $_ ) },
+		$group = join( ' | ', map { self.term( $_ ) },
 			       @( $ast.<content> ) )
 			if @( $ast.<content> );
                 $term ~= qq{( $group )};

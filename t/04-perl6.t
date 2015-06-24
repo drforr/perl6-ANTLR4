@@ -227,6 +227,10 @@ subtest sub {
      q{grammar Minimal { rule number { ( ( ( ( '1' '2' ) ) ) ) } }},
      'redundant parenthesis with two terms';
 
+  is $p.parse( q{grammar Minimal; number : ( '1' | '2' ) ;}).perl6,
+     q{grammar Minimal { rule number { ( ( ( ( '1' ) | ( '2' ) ) ) ) } }},
+     'redundant parenthesis with two terms';
+
 #  is $p.parse( q{grammar Minimal; number : ~( '1' )+? ;}).perl6,
 #     q{grammar Minimal { rule number { ( ( ( ( '1' ) ) ) ) } }},
 #     'redundant parenthesis';
