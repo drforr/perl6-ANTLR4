@@ -126,7 +126,7 @@ class ANTLR4::Actions::Perl6 {
 		
 		$term ~= '!' if $ast.<complemented>;
 		my $group = '';
-		$group = join( '3 ', map { self.term( $_ ) },
+		$group = join( ' ', map { self.term( $_ ) },
 			       @( $ast.<content> ) )
 			if @( $ast.<content> );
                 $term ~= qq{( $group )};
@@ -182,7 +182,7 @@ class ANTLR4::Actions::Perl6 {
 		my $json;
 		my $terms = '';
 
-		$terms = join( '4 ', map { self.term( $_ ) },
+		$terms = join( ' ', map { self.term( $_ ) },
                                @( $ast.<content> ) )
 			if @( $ast.<content> );
 
@@ -203,7 +203,7 @@ class ANTLR4::Actions::Perl6 {
 		my $json;
 		my $rules = '';
 
-		$rules = join( '5 ', map { self.rule( $_ ) },
+		$rules = join( ' ', map { self.rule( $_ ) },
                                @( $ast.<content> ) )
 			if @( $ast.<content> );
 
