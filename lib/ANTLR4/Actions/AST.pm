@@ -401,6 +401,9 @@ method parserAltList($/)
 	make
 		{
 		type    => 'alternation',
+		label   => Nil,
+		options => [ ],
+		command => [ ],
 		content =>
 			[
 			$/<parserAlt>>>.ast

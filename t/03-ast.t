@@ -133,6 +133,9 @@ is-deeply
          options   => [ ],
          content   =>
            [{ type    => 'alternation',
+              label   => Nil,
+              options => [ ],
+              command => [ ],
               content =>
                 [{ type    => 'concatenation',
                    label   => Nil,
@@ -201,6 +204,9 @@ is-deeply
          options   => [ ],
          content   =>
            [{ type    => 'alternation',
+              label   => Nil,
+              options => [ ],
+              command => [ ],
               content =>
                 [{ type    => 'concatenation',
                    label   => Nil,
@@ -245,6 +251,9 @@ is-deeply
          options   => [ ],
          content   =>
            [{ type    => 'alternation',
+              label   => Nil,
+              options => [ ],
+              command => [ ],
               content =>
                 [{ type    => 'concatenation',
                    label   => Nil,
@@ -485,6 +494,9 @@ number [int x]
          options   => [ a => 2 ],
          content   =>
            [{ type    => 'alternation',
+              label   => Nil,
+              options => [ ],
+              command => [ ],
               content =>
                 [{ type    => 'concatenation',
                    label   => 'One',
@@ -657,6 +669,9 @@ subtest sub {
       :actions($a) ).ast,
   is-deeply $parsed.<content>[0]<content>[0],
     { type    => 'alternation',
+      label   => Nil,
+      options => [ ],
+      command => [ ],
       content =>
         [{ type    => 'concatenation',
            label   => 'One',
@@ -681,6 +696,9 @@ subtest sub {
       :actions($a) ).ast,
   is-deeply $parsed.<content>[0]<content>[0],
     { type    => 'alternation',
+      label   => Nil,
+      options => [ ],
+      command => [ ],
       content =>
         [{ type    => 'concatenation',
            label   => Nil,
