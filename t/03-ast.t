@@ -213,6 +213,9 @@ is-deeply
                         complemented => False,
                         content =>
                           [{ type         => 'concatenation',
+                             label        => Nil,
+                             options      => [ ],
+                             command      => [ ],
                              content      =>
                                [{ type         => 'terminal',
                                   content      => '1',
@@ -254,6 +257,9 @@ is-deeply
                         complemented => False,
                         content =>
                           [{ type         => 'concatenation',
+                             label        => Nil,
+                             options      => [ ],
+                             command      => [ ],
                              content      =>
                                [{ type         => 'terminal',
                                   content      => '1',

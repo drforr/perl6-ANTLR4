@@ -460,11 +460,11 @@ method lexerAlt($/)
 		type    => 'concatenation',
 		label   => Nil,
                 options => [ ],
+		command => $/<lexerCommands>.ast || [ ],
 		content =>
 			[
 			$/<lexerElement>>>.ast
 			],
-		command => $/<lexerCommands>.ast || [ ],
 		}
 	}
 
@@ -503,7 +503,10 @@ method parserElement($/)
 	{
 	make
 		{
-		type => 'concatenation',
+		type    => 'concatenation',
+		label   => Nil,
+                options => [ ],
+		command => [ ],
 		content =>
 			[
 			$/<element>>>.ast
