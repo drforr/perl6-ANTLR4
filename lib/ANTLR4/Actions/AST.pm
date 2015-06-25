@@ -623,9 +623,21 @@ method notSet($/)
 	{
 	make
 		{
-		type    => $/<setElement>.ast.<type>,
-		content => $/<setElement>.ast.<content>
+		type    => $/<blockSet>
+			?? 'capturing group'
+			!! $/<setElement>.ast.<type>,
+		content => $/<blockSet>
+			?? $/<blockSet><setElementAltList>.ast
+			!! $/<setElement>.ast.<content>
 		}
+	}
+
+method setElementAltList($/)
+	{
+	make
+		[
+		$/<setElement>>>.ast
+		]
 	}
 
 #method blockSet($/)
@@ -640,7 +652,7 @@ method setElement($/)
 			?? 'character class'
 			!! $/<terminal><ID>
 			?? 'nonterminal'
-			!! Nil,
+			!! 'terminal',
 		content => $/<LEXER_CHAR_SET>
 			?? $/<LEXER_CHAR_SET>.ast
 			!! $/<range>
