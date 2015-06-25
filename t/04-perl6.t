@@ -79,6 +79,9 @@ subtest sub {
   is $p.parse( q{grammar Minimal; number : '1' -> skip ;}).perl6,
      q{grammar Minimal { rule number { [ [ '1' #={ "command" : [ { "skip" : null } ] } ] ] } }},
      'optional command';
+  is $p.parse( q{grammar Minimal; number : {$amount = 0;} '1' ;}).perl6,
+     q{grammar Minimal { rule number { [ [  #={ "content" : "{$amount = 0;}" } '1' ] ] } }},
+     'optional action';
 }, 'Single rule and term-level options';
 
 subtest sub {

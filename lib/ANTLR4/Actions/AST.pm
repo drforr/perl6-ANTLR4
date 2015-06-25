@@ -541,10 +541,14 @@ method element($/)
 	{
 	make
 		{
-		type => $/<ebnf><block><blockAltList>
+		type => $/<ACTION>
+			?? 'action'
+			!! $/<ebnf><block><blockAltList>
 			?? 'capturing group'
 			!! $/<atom>.ast.<type>,
-		content      => $/<atom>
+		content      => $/<ACTION>
+			?? $/<ACTION>.ast
+			!! $/<atom>
 			?? $/<atom>.ast.<content>
 			!! $/<ebnf><block>.ast,
 		complemented => $/<atom><notSet>.defined,

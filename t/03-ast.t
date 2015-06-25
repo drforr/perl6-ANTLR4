@@ -4,7 +4,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 use Test;
 
-plan 19;
+plan 20;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -149,6 +149,47 @@ is-deeply
                         complemented => False }] }] }] }] },
   'grammar with options and single simple rule';
 
+is-deeply
+  $g.parse(
+    q{grammar Name; number : '1' {action++;} ;},
+    :actions($a) ).ast,
+  { type    => 'DEFAULT',
+    name    => 'Name',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    action  => [ ],
+    content =>
+      [{ type      => 'rule',
+         name      => 'number',
+         attribute => [ ],
+         action    => Nil,
+         returns   => Nil,
+         throws    => [ ],
+         locals    => Nil,
+         options   => [ ],
+         content   =>
+           [{ type    => 'alternation',
+              label   => Nil,
+              options => [ ],
+              command => [ ],
+              content =>
+                [{ type    => 'concatenation',
+                   label   => Nil,
+                   options => [ ],
+                   command => [ ],
+                   content =>
+                     [{ type         => 'terminal',
+                        content      => '1',
+                        modifier     => Nil,
+                        greedy       => False,
+                        complemented => False },
+                      { type         => 'action',
+                        content      => '{action++;}',
+                        modifier     => Nil,
+                        greedy       => False,
+                        complemented => False }] }] }] }] },
+  'grammar with options and single simple rule';
 #
 # Rule-level
 #

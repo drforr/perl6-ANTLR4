@@ -161,6 +161,12 @@ class ANTLR4::Actions::Perl6
 		self._modify( $ast, $term );
 		}
 
+	method action( $ast )
+		{
+		my $json-str = to-json( { content => $ast.<content> } );
+		qq{ #=$json-str};
+		}
+
 	method term( $ast )
 		{
 		my $json;
@@ -199,6 +205,10 @@ class ANTLR4::Actions::Perl6
 			when 'regular expression'
 				{
 				$term = self.regular-expression( $ast );
+				}
+			when 'action'
+				{
+				$term = self.action( $ast );
 				}
 			default
 				{
