@@ -118,7 +118,7 @@ class ANTLR4::Actions::Perl6
 	method character-class( $ast )
 		{
 		my $term = '';
-		
+
 		$term ~= '<';
 		$term ~= '-' if $ast.<complemented>;
 		$term ~= '[ ';
@@ -131,6 +131,10 @@ class ANTLR4::Actions::Perl6
 			elsif /^\\u(....)/
 				{
 				$_ = qq{\\x[$0]};
+				}
+			elsif /' '/
+				{
+				$_ = qq{' '};
 				}
 			$_
 			},
