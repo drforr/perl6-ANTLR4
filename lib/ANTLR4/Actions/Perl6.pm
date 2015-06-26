@@ -98,6 +98,7 @@ class ANTLR4::Actions::Perl6
 		
 		$term ~= '<';
 		$term ~= '!' if $ast.<complemented>;
+		$term ~= qq{$ast.<alias>=} if $ast.<alias>;
 		$term ~= $ast.<content>;
 		$term ~= '>';
 		self._modify( $ast, $term );

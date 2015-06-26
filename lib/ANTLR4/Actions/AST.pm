@@ -489,6 +489,9 @@ method lexerElement($/)
 			!! $/<lexerAtom>
 			?? $/<lexerAtom>.ast.<content>
 			!! $/<lexerBlock>.ast.<content>,
+		alias => $/<labeledElement>
+			?? $/<labeledElement><ID>
+			!! Nil,
 		complemented => $/<lexerAtom>
 			?? $/<lexerAtom>.ast.<complemented>
 			!! $/<lexerBlock>.ast.<complemented>,
@@ -545,12 +548,21 @@ method element($/)
 	{
 	make
 		{
-		type => $/<ACTION>
+		type => $/<labeledElement>
+			?? 'nonterminal'
+			!! $/<ACTION>
 			?? 'action'
 			!! $/<ebnf><block><blockAltList>
 			?? 'capturing group'
 			!! $/<atom>.ast.<type>,
-		content      => $/<ACTION>
+		alias => $/<labeledElement>
+			?? $/<labeledElement><ID>
+			!! Nil,
+		content      => $/<labeledElement><atom>
+			?? $/<labeledElement><atom>.ast.<content>
+			!! $/<labeledElement><block>
+			?? $/<labeledElement><block><blockAtList>.ast
+			!! $/<ACTION>
 			?? $/<ACTION>.ast
 			!! $/<atom>
 			?? $/<atom>.ast.<content>
