@@ -134,7 +134,11 @@ class ANTLR4::Actions::Perl6
 				}
 			elsif /' '/
 				{
-				$_ = qq{' '};
+				$_ = q{' '};
+				}
+			elsif /\\-/
+				{
+				$_ = q{-};
 				}
 			$_
 			},
