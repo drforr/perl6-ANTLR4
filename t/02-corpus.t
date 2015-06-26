@@ -60,6 +60,7 @@ ok $g.parsefile( 'corpus/UCBLogo.g4'             ), 'UCBLogo.g4';
 ok $g.parsefile( 'corpus/Verilog2001.g4'         ), 'Verilog2001.g4';
 ok $g.parsefile( 'corpus/vhdl.g4'                ), 'vhdl.g4';
 #ok $g.parsefile( 'corpus/VisualBasic6.g4'        ), 'VisualBasic6.g4';
+skip 'Need to fix UTF-8 issue', 1;
 ok $g.parsefile( 'corpus/WebIDL.g4'              ), 'WebIDL.g4';
 ok $g.parsefile( 'corpus/XMLLexer.g4'            ), 'XMLLexer.g4';
 ok $g.parsefile( 'corpus/XMLParser.g4'           ), 'XMLParser.g4';

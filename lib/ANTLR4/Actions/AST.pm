@@ -479,10 +479,14 @@ method lexerElement($/)
 	{
 	make
 		{
-		type         => $/<lexerAtom>
+		type         => $/<ACTION>
+			?? 'action'
+			!! $/<lexerAtom>
 			?? $/<lexerAtom>.ast.<type>
 			!! $/<lexerBlock>.ast.<type>,
-		content      => $/<lexerAtom>
+		content      => $/<ACTION>
+			?? $/<ACTION>.ast
+			!! $/<lexerAtom>
 			?? $/<lexerAtom>.ast.<content>
 			!! $/<lexerBlock>.ast.<content>,
 		complemented => $/<lexerAtom>

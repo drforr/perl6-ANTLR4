@@ -212,7 +212,14 @@ class ANTLR4::Actions::Perl6
 				}
 			default
 				{
-				die "Unrecognized type '$ast.<type>' found";
+				if $ast.<type>
+					{
+					die "Unrecognized type '$ast.<type>' found";
+					}
+				else
+					{
+					die "Missing type";
+					}
 				}
 			}
 		$term;
