@@ -337,9 +337,13 @@ rule parserAlt
 	<parserElement> <COMMENTS>? ['#' <label=ID> <COMMENTS>?]?
  	}
  
+token FRAGMENT
+	{
+	'fragment'
+	}
 rule lexerRuleSpec
  	{
-	<COMMENTS>? 'fragment'?
+	<COMMENTS>? <FRAGMENT>?
  	<COMMENTS>? <name=ID>
 	<COMMENTS>? ':'
 	<COMMENTS>? <lexerAltList>

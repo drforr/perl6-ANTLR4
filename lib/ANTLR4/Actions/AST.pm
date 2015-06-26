@@ -436,7 +436,7 @@ method lexerRuleSpec($/)
 			[
 			$/<lexerAltList>>>.ast
 			],
-		attribute => [ ],
+		attribute => $/<FRAGMENT> ?? [ ~$/<FRAGMENT> ] !! [ ],
                 action    => Nil,
                 returns   => Nil,
                 throws    => [ ],
