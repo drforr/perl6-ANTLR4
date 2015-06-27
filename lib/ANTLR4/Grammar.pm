@@ -144,7 +144,8 @@ token LEXER_CHAR_SET_ELEMENT
 	}
 
 token LEXER_CHAR_SET_ELEMENT_NO_HYPHEN
-	{	'\\' .
+	{	'\\' <-[ u ]>
+	|	'\\' <UNICODE_ESC>
 	|	<-[ - \\ \x[5d] ]>
 	}
 
