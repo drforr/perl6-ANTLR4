@@ -607,6 +607,8 @@ method lexerAtom($/)
 			?? 'character class'
 			!! $/<terminal><STRING_LITERAL>
 			?? 'terminal'
+			!! $/<notSet><blockSet>
+			?? 'capturing group'
 			!! 'nonterminal',
 		content => $/<range>.ast
 			|| $/<LEXER_CHAR_SET>.ast
@@ -647,7 +649,7 @@ method notSet($/)
 			?? 'capturing group'
 			!! $/<setElement>.ast.<type>,
 		content => $/<blockSet>
-			?? $/<blockSet><setElementAltList>.ast
+			?? $/<blockSet>.ast
 			!! $/<setElement>.ast.<content>
 		}
 	}
@@ -660,9 +662,10 @@ method setElementAltList($/)
 		]
 	}
 
-#method blockSet($/)
-#	{
-#	}
+method blockSet($/)
+	{
+	make $/<setElementAltList>.ast
+	}
 
 method setElement($/)
 	{

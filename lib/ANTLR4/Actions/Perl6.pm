@@ -136,7 +136,7 @@ class ANTLR4::Actions::Perl6
 				{
 				$_ = q{' '};
 				}
-			elsif /\\-/
+			elsif /\\\-/
 				{
 				$_ = q{-};
 				}
