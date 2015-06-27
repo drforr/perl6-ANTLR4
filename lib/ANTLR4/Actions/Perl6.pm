@@ -54,16 +54,22 @@ class ANTLR4::Actions::Perl6
 			my $json-str = to-json( $json );
 			$terms ~= qq{ #=$json-str};
 			}
-		qq{[ $terms ]};
+		$terms;
 		}
 
 	method concatenation( $ast )
 		{
 		my $json;
 		my $terms = '';
-		$terms = join( ' ', map { self.term( $_ ) },
-			       @( $ast.<content> ) )
-			if @( $ast.<content> );
+		if @( $ast.<content> )
+			{
+			$terms = join( ' ', map { self.term( $_ ) },
+				       @( $ast.<content> ) );
+			}
+		else
+			{
+			$terms = '(Nil)';
+			}
 		for <command options label> -> $key
 			{
 			$json.{$key} = $ast.{$key} if $ast.{$key};
@@ -73,7 +79,7 @@ class ANTLR4::Actions::Perl6
 			my $json-str = to-json( $json );
 			$terms ~= qq{ #=$json-str};
 			}
-		qq{[ $terms ]};
+		$terms;
 		}
 
 	method _modify( $ast, $term )
