@@ -50,6 +50,20 @@ subtest sub {
        'greedy star';
   }, 'terminal with options';
 
+  subtest sub {
+    is $p.parse( q{grammar Minimal; number : 'a' ;}).perl6,
+       q{grammar Minimal { rule number { 'a' } }},
+       'alpha terminal';
+
+    is $p.parse( q{grammar Minimal; number : 'a123b' ;}).perl6,
+       q{grammar Minimal { rule number { 'a123b' } }},
+       'mixed alphanumeric terminal';
+
+    is $p.parse( q{grammar Minimal; number : '\u263a' ;}).perl6,
+       q{grammar Minimal { rule number { '\x[263a]' } }},
+       'Unicode terminal';
+  }, 'terminal of different types';
+
   is $p.parse( q{grammar Minimal; protected number : '1';}).perl6,
      q{grammar Minimal { rule number { '1' } #={ "attribute" : [ "protected" ] } }},
      'rule with attribute';

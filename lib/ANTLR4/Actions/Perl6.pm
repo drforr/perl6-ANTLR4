@@ -93,8 +93,11 @@ class ANTLR4::Actions::Perl6
 	method terminal( $ast )
 		{
 		my $term = '';
+		my $content = $ast.<content>;
+		$content ~~ s/^\\u(....)/\\x[$0]/;
+
 		$term ~= '!' if $ast.<complemented>;
-		$term ~= qq{'$ast.<content>'};
+		$term ~= qq{'$content'};
 		self._modify( $ast, $term );
 		}
 
