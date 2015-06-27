@@ -597,7 +597,7 @@ method lexerAtom($/)
 	{
 	make
 		{
-		type => $/ eq '.'
+		type => ( $/.substr(0,1) eq '.' )
 			?? 'regular expression'
 			!! $/<range>
 			?? 'range'
@@ -612,7 +612,7 @@ method lexerAtom($/)
 			!! $/<notSet><blockSet>
 			?? 'capturing group'
 			!! 'nonterminal',
-		content => $/ eq '.'
+		content => ( $/.substr(0,1) eq '.' )
 			?? '.'
 			!! $/<range>.ast
 			|| $/<LEXER_CHAR_SET>.ast
