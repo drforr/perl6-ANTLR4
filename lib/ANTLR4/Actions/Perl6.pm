@@ -38,6 +38,13 @@ class ANTLR4::Actions::Perl6
 		has $.perl6;
 		}
 
+	method java2perl( Str $str )
+		{
+		my $copy = $str;
+		$copy ~~ s/\\u(....)/\\x[$0]/;
+		$copy
+		}
+
 	method alternation( $ast )
 		{
 		my $json;
@@ -93,8 +100,7 @@ class ANTLR4::Actions::Perl6
 	method terminal( $ast )
 		{
 		my $term = '';
-		my $content = $ast.<content>;
-		$content ~~ s/^\\u(....)/\\x[$0]/;
+		my $content = self.java2perl( $ast.<content> );
 
 		$term ~= '!' if $ast.<complemented>;
 		$term ~= qq{'$content'};
@@ -116,11 +122,13 @@ class ANTLR4::Actions::Perl6
 	method range( $ast )
 		{
 		my $term = '';
+		my $from = self.java2perl( $ast.<content>[0]<from> );
+		my $to = self.java2perl( $ast.<content>[0]<to> );
 		
 		$term ~= '!' if $ast.<complemented>;
-		$term ~= qq{'$ast.<content>[0]<from>'};
+		$term ~= qq{'$from'};
 		$term ~= q{..};
-		$term ~= qq{'$ast.<content>[0]<to>'};
+		$term ~= qq{'$to'};
 		self._modify( $ast, $term );
 		}
 

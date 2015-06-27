@@ -123,6 +123,10 @@ subtest sub {
      q{grammar Minimal { rule number { 'a'..'z' } }},
      'range';
 
+  is $p.parse( q{grammar Minimal; number : '\u263a'..'\u263f' ;}).perl6,
+     q{grammar Minimal { rule number { '\x[263a]'..'\x[263f]' } }},
+     'Unicode range';
+
   subtest sub {
     is $p.parse( q{grammar Minimal; number : 'a'..'z'* ;}).perl6,
        q{grammar Minimal { rule number { 'a'..'z'* } }},
