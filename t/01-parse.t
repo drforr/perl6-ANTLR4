@@ -1,5 +1,4 @@
 use v6;
-BEGIN { @*INC.push('lib') };
 use ANTLR4::Grammar;
 use Test;
 
