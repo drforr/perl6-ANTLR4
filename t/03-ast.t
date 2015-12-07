@@ -31,14 +31,14 @@ is-deeply
 # Earlier we determined that the overall layout has the defaults we want,
 # so just investigate each key, instead of is-deeply() on the root dataset.
 #
-{
+subtest sub {
   my $parsed;
 
   $parsed = $g.parse(
     q{lexer grammar Name;}, :actions($a) ).ast;
   is $parsed.<type>, 'lexer',
     q{Optional 'lexer' term};
-}
+}, 'lexer option';
 
 subtest sub {
   my $parsed;
@@ -122,31 +122,31 @@ is-deeply
     tokens  => [ ],
     action  => [ ],
     content =>
-      [{ type      => 'rule',
-         name      => 'number',
-         attribute => [ ],
-         action    => Nil,
-         returns   => Nil,
-         throws    => [ ],
-         locals    => Nil,
-         options   => [ ],
-         content   =>
-           [{ type    => 'alternation',
-              label   => Nil,
-              options => [ ],
-              command => [ ],
-              content =>
-                [{ type    => 'concatenation',
-                   label   => Nil,
-                   options => [ ],
-                   command => [ ],
-                   content =>
-                     [{ type         => 'terminal',
-                        content      => '1',
-                        alias        => Nil,
-                        modifier     => Nil,
-                        greedy       => False,
-                        complemented => False }] }] }] }] },
+      [${ type      => 'rule',
+          name      => 'number',
+          attribute => [ ],
+          action    => Nil,
+          returns   => Nil,
+          throws    => [ ],
+          locals    => Nil,
+          options   => [ ],
+          content   =>
+            [{ type    => 'alternation',
+               label   => Nil,
+               options => [ ],
+               command => [ ],
+               content =>
+                 [${ type    => 'concatenation',
+                     label   => Nil,
+                     options => [ ],
+                     command => [ ],
+                     content =>
+                       [${ type         => 'terminal',
+                           content      => '1',
+                           alias        => Nil,
+                           modifier     => Nil,
+                           greedy       => False,
+                           complemented => False }] }] }] }] },
   'grammar with options and single simple rule';
 
 is-deeply
@@ -160,38 +160,40 @@ is-deeply
     tokens  => [ ],
     action  => [ ],
     content =>
-      [{ type      => 'rule',
-         name      => 'number',
-         attribute => [ ],
-         action    => Nil,
-         returns   => Nil,
-         throws    => [ ],
-         locals    => Nil,
-         options   => [ ],
-         content   =>
-           [{ type    => 'alternation',
-              label   => Nil,
-              options => [ ],
-              command => [ ],
-              content =>
-                [{ type    => 'concatenation',
-                   label   => Nil,
-                   options => [ ],
-                   command => [ ],
-                   content =>
-                     [{ type         => 'terminal',
-                        content      => '1',
-                        alias        => Nil,
-                        modifier     => Nil,
-                        greedy       => False,
-                        complemented => False },
-                      { type         => 'action',
-                        content      => '{action++;}',
-                        alias        => Nil,
-                        modifier     => Nil,
-                        greedy       => False,
-                        complemented => False }] }] }] }] },
-  'grammar with options and single simple rule';
+      [${ type      => 'rule',
+          name      => 'number',
+          attribute => [ ],
+          action    => Nil,
+          returns   => Nil,
+          throws    => [ ],
+          locals    => Nil,
+          options   => [ ],
+          content   =>
+            [{ type    => 'alternation',
+               label   => Nil,
+               options => [ ],
+               command => [ ],
+               content =>
+                 [${ type    => 'concatenation',
+                     label   => Nil,
+                     options => [ ],
+                     command => [ ],
+                     content =>
+                       [{ type         => 'terminal',
+                          content      => '1',
+                          alias        => Nil,
+                          modifier     => Nil,
+                          greedy       => False,
+                          complemented => False },
+                        { type         => 'action',
+                          content      => '{action++;}',
+                          alias        => Nil,
+                          modifier     => Nil,
+                          greedy       => False,
+                          complemented => False }] }] }] }] },
+  'grammar with options and single rule with action';
+
+#`(
 #
 # Rule-level
 #
@@ -204,7 +206,9 @@ subtest sub {
     [ 'protected' ],
     'grammar, rule with multiple alternating terms';
 }, 'rule-level options';
+)
 
+#`(
 subtest sub {
   my $parsed;
 
@@ -225,7 +229,9 @@ subtest sub {
     [ channel => 'HIDDEN' ],
     q{Rule with command};
 }, 'Term-level flags';
+)
 
+#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' ) ;},
@@ -274,7 +280,9 @@ is-deeply
                                   greedy       => False,
                                   complemented => False }] }] }] }] }] }] },
   'grammar with options and capturing group';
+)
 
+#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' '2' ) -> skip ;},
@@ -334,7 +342,9 @@ is-deeply
                                        greedy       => False,
                                        complemented => False }] }] }] }] }] }] }] },
   'grammar with options and skipped capturing group';
+)
 
+#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' | '2' ) -> skip ;},
@@ -399,7 +409,9 @@ is-deeply
                                        greedy       => False,
                                        complemented => False }] }] }] }] }] }] }] },
   'grammar with options and skipped capturing group';
+)
 
+#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' ) -> skip ;},
@@ -453,7 +465,9 @@ is-deeply
                                        greedy       => False,
                                        complemented => False }] }] }] }] }] }] }] },
   'grammar with options and skipped capturing group';
+)
 
+#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' )+? ;},
@@ -502,7 +516,9 @@ is-deeply
                                   greedy       => False,
                                   complemented => False }] }] }] }] }] }] },
   'grammar with options and single simple rule';
+)
 
+#`(
 subtest sub {
   my $parsed;
 
@@ -613,7 +629,9 @@ subtest sub {
       complemented => False },
     q{regular expression};
 }, 'rule with single term, no options';
+)
 
+#`(
 subtest sub {
   my $parsed;
 
@@ -707,7 +725,9 @@ subtest sub {
       complemented => False },
     q{Channeled rule with range};
 }, 'command';
+)
 
+#`(
 is-deeply
   $g.parse(
     q{grammar Name;
@@ -751,7 +771,9 @@ number [int x]
                         greedy       => False,
                         complemented => False }] }] }] }] },
   'grammar with single labeled rule with action';
+)
 
+#`(
 subtest sub {
   my $parsed;
 
@@ -911,7 +933,9 @@ subtest sub {
            complemented => False }] },
   'range with greed';
 }, 'labeled rule';
+)
 
+#`(
 subtest sub {
   my $parsed;
 
@@ -978,5 +1002,6 @@ subtest sub {
                 complemented => True }] }] },
     'grammar, rule with multiple alternating terms';
 }, 'multiple terms';
+)
 
 # vim: ft=perl6

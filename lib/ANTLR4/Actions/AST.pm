@@ -332,14 +332,11 @@ method TOP ($/)
 		}
 	make
 		{
+		type    => $/<type>.ast,
+		name    => $/<name>.ast,
 		%content,
-		type  => $/<type>.ast,
-		content =>
-			[
-			$/<rules>>>.ast
-			],
-		name  => $/<name>.ast
-		}
+		content => @<rules>>>.ast || [ ]
+		},
 	}
 
 method optionValue($/)
@@ -368,19 +365,13 @@ method parserRuleSpec($/)
 		{
 		type      => 'rule',
 		name      => $/<name>.ast,
-		content   =>
-			[
-			$/<parserAltList>>>.ast
-			],
-		attribute =>
-			[
-			$/<attribute>>>.ast
-			],
+		content   => $/<parserAltList>.ast,
                 action    => $/<action>.ast,
                 returns   => $/<returns>.ast,
                 throws    => $/<throws>.ast || [ ],
                 locals    => $/<locals>.ast,
-                options   => $/<options>.ast || [ ]
+                options   => $/<options>.ast || [ ],
+		attribute => @<attribute>>>.ast || [ ],
 		}
 	}
 
@@ -399,16 +390,15 @@ method parserRuleSpec($/)
 method parserAltList($/)
 	{
 	make
-		{
-		type    => 'alternation',
-		content =>
-			[
-			$/<parserAlt>>>.ast
-			],
-		label   => Nil,
-		options => [ ],
-		command => [ ]
-		}
+		[
+			{
+			type    => 'alternation',
+			label   => Nil,
+			content => @<parserAlt>>>.ast,
+			command => [ ],
+			options => [ ],
+			}
+		]
 	}
 
 method parserAlt($/)
@@ -416,13 +406,10 @@ method parserAlt($/)
 	make
 		{
 		type    => 'concatenation',
-		content =>
-			[
-			$/<parserElement><element>>>.ast
-			],
-		label   => $/<label>.ast,
+		content => $/<parserElement>.ast,
                 options => $/<parserElement><elementOptions>.ast || [ ],
-		command => [ ]
+		command => [ ],
+		label   => $/<label>.ast,
 		}
 	}
  
@@ -432,10 +419,11 @@ method lexerRuleSpec($/)
 		{
 		type     => 'rule',
 		name     => $/<name>.ast,
-		content  =>
-			[
-			$/<lexerAltList>>>.ast
-			],
+content => @<lexerAltList>>>.ast,
+#		content  =>
+#			[
+#			$/<lexerAltList>>>.ast
+#			],
 		attribute => $/<FRAGMENT> ?? [ ~$/<FRAGMENT> ] !! [ ],
                 action    => Nil,
                 returns   => Nil,
@@ -450,13 +438,14 @@ method lexerAltList($/)
 	make
 		{
 		type    => 'alternation',
-		content =>
-			[
-			$/<lexerAlt>>>.ast
-			],
 		label   => Nil,
+content => @<lexerAlt>>>.ast,
+#		content =>
+#			[
+#			$/<lexerAlt>>>.ast
+#			],
+		command => [ ],
 		options => [ ],
-		command => [ ]
 		}
 	}
 
@@ -531,23 +520,13 @@ method blockAltList($/)
 
 method parserElement($/)
 	{
-	make
-		{
-		type    => 'concatenation',
-		content =>
-			[
-			$/<element>>>.ast
-			],
-		label   => Nil,
-                options => [ ],
-		command => [ ]
-		}
+	make @<element>>>.ast
 	}
 
 method element($/)
 	{
 	make
-		{
+		{ 
 		type => $/<labeledElement>
 			?? 'nonterminal'
 			!! $/<ACTION>
@@ -573,7 +552,7 @@ method element($/)
 			|| False,
 		modifier     => $/<ebnf><ebnfSuffix>.ast.<modifier>
 			|| $/<ebnfSuffix>.ast.<modifier>
-		}
+		 }
 	}
  
 #method labeledElement($/)
