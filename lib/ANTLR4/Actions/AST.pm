@@ -512,10 +512,11 @@ method lexerBlock($/)
 
 method blockAltList($/)
 	{
-	make
-		[
-		$/<parserElement>>>.ast.flat
-		]
+	make @<parserElement>>>.ast
+#	make
+#		[
+#		$/<parserElement>>>.ast.flat
+#		]
 	}
 
 method parserElement($/)
@@ -525,6 +526,7 @@ method parserElement($/)
 
 method element($/)
 	{
+#`(
 	make
 		{ 
 		type => $/<labeledElement>
@@ -553,15 +555,65 @@ method element($/)
 		modifier     => $/<ebnf><ebnfSuffix>.ast.<modifier>
 			|| $/<ebnfSuffix>.ast.<modifier>
 		 }
+)
+
+if $/<ebnf><block><blockAltList> {
+		make
+			{
+			type         => $/<ebnf>.ast.<type>,
+			alias        => $/<labeledElement><ID>,
+			modifier     => $/<ebnf>.ast.<modifier>
+				     || $/<ebnfSuffix>.ast.<modifier>,
+			greedy       => $/<ebnf>.ast.<greedy>
+				     || $/<ebnfSuffix>.ast.<greedy>
+				     || False,
+			complemented => $/<atom><notSet>.defined,
+			content      => $/<ebnf>.ast.<content>,
+			}
+}
+	elsif $/<atom>
+		{
+		make
+			{
+			type         => $/<atom>.ast.<type>,
+			content      => $/<atom>.ast.<content>,
+			alias        => $/<labeledElement><ID>,
+			modifier     => $/<ebnf>.ast.<modifier>
+					|| $/<ebnfSuffix>.ast.<modifier>,
+			greedy       => $/<ebnf>.ast.<greedy>
+					|| $/<ebnfSuffix>.ast.<greedy>
+					|| False,
+			complemented => $/<atom><notSet>.defined
+			}
+		}
 	}
  
-#method labeledElement($/)
-#	{
-#	}
+method labeledElement($/)
+	{
+	make
+		{
+		type => 'nonterminal',
+		}
+	}
 
-#method ebnf($/)
-#	{
-#	}
+method ebnf($/)
+	{
+my @x = $/<block><blockAltList><parserElement>;
+my @foo = @x>>.ast;
+	make
+		{
+		type     => 'capturing group',
+		modifier => $/<ebnfSuffix>.ast.<modifier>,
+		greedy   => $/<ebnfSuffix>.ast.<greedy>,
+		content  =>
+			[{ type    => 'concatenation',
+			label   => Nil,
+			options => [ ],
+			command => [ ],
+			content => @foo[0], # XXX
+			}]
+		}
+	}
 
 method ebnfSuffix($/)
 	{
@@ -605,22 +657,23 @@ method atom($/)
 	{
 	make
 		{
-		type => $/<notSet>.ast.<type>
-			?? $/<notSet>.ast.<type>
-			!! $/<range>
-			?? 'range'
-			!! $/<terminal><ID> # XXX work on this later.
-			?? 'nonterminal'
-			!! $/<DOT>
-			?? 'regular expression'
-			!! 'terminal',
-		content => $/<notSet>
-			?? $/<notSet>.ast.<content>
-			!! $/<range>
-			?? $/<range>.ast
-			!! $/<DOT>
-			?? ~$/<DOT>
-			!! $/<terminal><scalar>.ast
+		type         => $/<notSet>.ast.<type>
+		             ?? $/<notSet>.ast.<type>
+		             !! $/<range>
+		             ?? 'range'
+		             !! $/<terminal><ID> # XXX work on this later.
+		             ?? 'nonterminal'
+		             !! $/<DOT>
+		             ?? 'regular expression'
+		             !! 'terminal',
+		complemented => $/<notSet>.defined,
+		content      => $/<notSet>
+		             ?? $/<notSet>.ast.<content>
+		             !! $/<range>
+		             ?? $/<range>.ast
+		             !! $/<DOT>
+		             ?? ~$/<DOT>
+		             !! $/<terminal><scalar>.ast
 		}
 	}
 

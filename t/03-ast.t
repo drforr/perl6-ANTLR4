@@ -193,7 +193,6 @@ is-deeply
                           complemented => False }] }] }] }] },
   'grammar with options and single rule with action';
 
-#`(
 #
 # Rule-level
 #
@@ -206,7 +205,6 @@ subtest sub {
     [ 'protected' ],
     'grammar, rule with multiple alternating terms';
 }, 'rule-level options';
-)
 
 #`(
 subtest sub {
@@ -231,7 +229,6 @@ subtest sub {
 }, 'Term-level flags';
 )
 
-#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' ) ;},
@@ -243,44 +240,43 @@ is-deeply
     tokens  => [ ],
     action  => [ ],
     content =>
-      [{ type      => 'rule',
-         name      => 'number',
-         attribute => [ ],
-         action    => Nil,
-         returns   => Nil,
-         throws    => [ ],
-         locals    => Nil,
-         options   => [ ],
-         content   =>
-           [{ type    => 'alternation',
-              label   => Nil,
-              options => [ ],
-              command => [ ],
-              content =>
-                [{ type    => 'concatenation',
-                   label   => Nil,
-                   options => [ ],
-                   command => [ ],
-                   content =>
-                     [{ type         => 'capturing group',
-                        alias        => Nil,
-                        modifier     => Nil,
-                        greedy       => False,
-                        complemented => False,
-                        content =>
-                          [{ type         => 'concatenation',
-                             label        => Nil,
-                             options      => [ ],
-                             command      => [ ],
-                             content      =>
-                               [{ type         => 'terminal',
-                                  content      => '1',
-                                  alias        => Nil,
-                                  modifier     => Nil,
-                                  greedy       => False,
-                                  complemented => False }] }] }] }] }] }] },
-  'grammar with options and capturing group';
-)
+      [${ type      => 'rule',
+          name      => 'number',
+          attribute => [ ],
+          action    => Nil,
+          returns   => Nil,
+          throws    => [ ],
+          locals    => Nil,
+          options   => [ ],
+          content   =>
+            [{ type    => 'alternation',
+               label   => Nil,
+               options => [ ],
+               command => [ ],
+               content =>
+                 [${ type    => 'concatenation',
+                     label   => Nil,
+                     options => [ ],
+                     command => [ ],
+                     content =>
+                       [${ type         => 'capturing group',
+                           alias        => Nil,
+                           modifier     => Nil,
+                           greedy       => False,
+                           complemented => False,
+                           content =>
+                             [{ type         => 'concatenation',
+                                label        => Nil,
+                                options      => [ ],
+                                command      => [ ],
+                                content      =>
+                                  [{ type         => 'terminal',
+                                     content      => '1',
+                                     alias        => Nil,
+                                     modifier     => Nil,
+                                     greedy       => False,
+                                     complemented => False }] }] }] }] }] }] },
+  'grammar with options  and capturing group';
 
 #`(
 is-deeply
