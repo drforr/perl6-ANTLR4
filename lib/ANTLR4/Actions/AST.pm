@@ -280,9 +280,10 @@ method throwsSpec($/)
 method lexerCommands($/)
 	{
 	make
-		[
-		$/<lexerCommand>>>.ast
-		]
+@<lexerCommand>>>.ast
+#		[
+#		$/<lexerCommand>>>.ast
+#		]
 	}
 
 method elementOptions($/)
@@ -365,7 +366,10 @@ method parserRuleSpec($/)
 		{
 		type      => 'rule',
 		name      => $/<name>.ast,
-		content   => $/<parserAltList>.ast,
+		content   =>
+			[
+			$/<parserAltList>.ast
+			],
                 action    => $/<action>.ast,
                 returns   => $/<returns>.ast,
                 throws    => $/<throws>.ast || [ ],
@@ -390,15 +394,13 @@ method parserRuleSpec($/)
 method parserAltList($/)
 	{
 	make
-		[
-			{
-			type    => 'alternation',
-			label   => Nil,
-			content => @<parserAlt>>>.ast,
-			command => [ ],
-			options => [ ],
-			}
-		]
+		{
+		type    => 'alternation',
+		label   => Nil,
+		content => @<parserAlt>>>.ast,
+		command => [ ],
+		options => [ ],
+		}
 	}
 
 method parserAlt($/)
@@ -419,11 +421,10 @@ method lexerRuleSpec($/)
 		{
 		type     => 'rule',
 		name     => $/<name>.ast,
-content => @<lexerAltList>>>.ast,
-#		content  =>
-#			[
-#			$/<lexerAltList>>>.ast
-#			],
+		content  =>
+			[
+			$/<lexerAltList>.ast
+			],
 		attribute => $/<FRAGMENT> ?? [ ~$/<FRAGMENT> ] !! [ ],
                 action    => Nil,
                 returns   => Nil,
@@ -439,7 +440,7 @@ method lexerAltList($/)
 		{
 		type    => 'alternation',
 		label   => Nil,
-content => @<lexerAlt>>>.ast,
+#content => @<lexerAlt>>>.ast,
 #		content =>
 #			[
 #			$/<lexerAlt>>>.ast
@@ -454,13 +455,14 @@ method lexerAlt($/)
 	make
 		{
 		type    => 'concatenation',
-		content =>
-			[
-			$/<lexerElement>>>.ast
-			],
+		content => @<lexerElement>>>.ast,
+#			[
+#			$/<lexerElement>>>.ast
+#			],
 		label   => Nil,
                 options => [ ],
-		command => $/<lexerCommands>.ast || [ ]
+#		command => $/<lexerCommands>.ast || [ ]
+command => [channel=>'HIDDEN']
 		}
 	}
 
@@ -557,7 +559,8 @@ method element($/)
 		 }
 )
 
-if $/<ebnf><block><blockAltList> {
+	if $/<ebnf><block><blockAltList>
+		{
 		make
 			{
 			type         => $/<ebnf>.ast.<type>,
@@ -570,20 +573,35 @@ if $/<ebnf><block><blockAltList> {
 			complemented => $/<atom><notSet>.defined,
 			content      => $/<ebnf>.ast.<content>,
 			}
-}
+		}
 	elsif $/<atom>
 		{
 		make
 			{
 			type         => $/<atom>.ast.<type>,
-			content      => $/<atom>.ast.<content>,
 			alias        => $/<labeledElement><ID>,
 			modifier     => $/<ebnf>.ast.<modifier>
 					|| $/<ebnfSuffix>.ast.<modifier>,
 			greedy       => $/<ebnf>.ast.<greedy>
 					|| $/<ebnfSuffix>.ast.<greedy>
 					|| False,
-			complemented => $/<atom><notSet>.defined
+			complemented => $/<atom><notSet>.defined,
+			content      => $/<atom>.ast.<content>,
+			}
+		}
+	elsif $/<ACTION>
+		{
+		make
+			{
+			type         => 'action',
+			alias        => $/<labeledElement><ID>,
+			modifier     => $/<ebnf>.ast.<modifier>
+					|| $/<ebnfSuffix>.ast.<modifier>,
+			greedy       => $/<ebnf>.ast.<greedy>
+					|| $/<ebnfSuffix>.ast.<greedy>
+					|| False,
+			complemented => $/<atom><notSet>.defined,
+			content      => $/<ACTION>.ast,
 			}
 		}
 	}
@@ -606,12 +624,15 @@ my @foo = @x>>.ast;
 		modifier => $/<ebnfSuffix>.ast.<modifier>,
 		greedy   => $/<ebnfSuffix>.ast.<greedy>,
 		content  =>
-			[{ type    => 'concatenation',
-			label   => Nil,
-			options => [ ],
-			command => [ ],
-			content => @foo[0], # XXX
-			}]
+			[
+				{
+				type    => 'concatenation',
+				label   => Nil,
+				options => [ ],
+				command => [ ],
+				content => @foo[0], # XXX
+				}
+			]
 		}
 	}
 
