@@ -283,7 +283,6 @@ is-deeply
                                       complemented => False }] }] }] }] }] }] },
   'grammar with options  and capturing group';
 
-#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' '2' ) -> skip ;},
@@ -295,57 +294,55 @@ is-deeply
     tokens  => [ ],
     action  => [ ],
     content =>
-      [{ type      => 'rule',
-         name      => 'number',
-         attribute => [ ],
-         action    => Nil,
-         returns   => Nil,
-         throws    => [ ],
-         locals    => Nil,
-         options   => [ ],
-         content   =>
-           [{ type    => 'alternation',
-              label   => Nil,
-              options => [ ],
-              command => [ ],
-              content =>
-                [{ type    => 'concatenation',
-                   label   => Nil,
-                   options => [ ],
-                   command => [ skip => Nil ],
-                   content =>
-                     [{ type         => 'capturing group',
-                        alias        => Nil,
-                        modifier     => Nil,
-                        greedy       => False,
-                        complemented => False,
-                        content =>
-                          [{ type    => 'alternation',
-                             label   => Nil,
-                             options => [ ],
-                             command => [ ],
-                             content =>
-                               [{ type    => 'concatenation',
-                                  label   => Nil,
-                                  options => [ ],
-                                  command => [ ],
-                                  content =>
-                                    [{ type         => 'terminal',
-                                       content      => '1',
-                                       alias        => Nil,
-                                       modifier     => Nil,
-                                       greedy       => False,
-                                       complemented => False },
-                                     { type         => 'terminal',
-                                       content      => '2',
-                                       alias        => Nil,
-                                       modifier     => Nil,
-                                       greedy       => False,
-                                       complemented => False }] }] }] }] }] }] }] },
+      [${ type      => 'rule',
+          name      => 'number',
+          attribute => [ ],
+          action    => Nil,
+          returns   => Nil,
+          throws    => [ ],
+          locals    => Nil,
+          options   => [ ],
+          content   =>
+            [{ type    => 'alternation',
+               label   => Nil,
+               options => [ ],
+               command => [ ],
+               content =>
+                 [{ type    => 'concatenation',
+                    label   => Nil,
+                    options => [ ],
+                    command => [ skip => Nil ],
+                    content =>
+                      [{ type         => 'capturing group',
+                         alias        => Nil,
+                         modifier     => Nil,
+                         greedy       => False,
+                         complemented => False,
+                         content =>
+                           [{ type    => 'alternation',
+                              label   => Nil,
+                              options => [ ],
+                              command => [ ],
+                              content =>
+                                [{ type    => 'concatenation',
+                                   label   => Nil,
+                                   options => [ ],
+                                   command => [ ],
+                                   content =>
+                                     [{ type         => 'terminal',
+                                        content      => '1',
+                                        alias        => Nil,
+                                        modifier     => Nil,
+                                        greedy       => False,
+                                        complemented => False },
+                                      { type         => 'terminal',
+                                        content      => '2',
+                                        alias        => Nil,
+                                        modifier     => Nil,
+                                        greedy       => False,
+                                        complemented => False }] }] }] }] }] }] }] },
   'grammar with options and skipped capturing group';
-)
 
-#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' | '2' ) -> skip ;},
@@ -410,7 +407,6 @@ is-deeply
                                        greedy       => False,
                                        complemented => False }] }] }] }] }] }] }] },
   'grammar with options and skipped capturing group';
-)
 
 #`(
 is-deeply
