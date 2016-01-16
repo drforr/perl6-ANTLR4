@@ -293,7 +293,6 @@ is-deeply
                                          complemented => False }] }] }] }] }] }] },
   'grammar with options and capturing group';
 
-#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' '2' ) -> skip ;},
@@ -319,12 +318,12 @@ is-deeply
                options => [ ],
                command => [ ],
                content =>
-                 [${ type    => 'concatenation',
+                 [{ type    => 'concatenation',
                      label   => Nil,
                      options => [ ],
                      command => [ skip => Nil ],
                      content =>
-                       [${ type         => 'capturing group',
+                       [{ type         => 'capturing group',
                            alias        => Nil,
                            modifier     => Nil,
                            greedy       => False,
@@ -353,7 +352,6 @@ is-deeply
                                           greedy       => False,
                                           complemented => False }] }] }] }] }] }] }] },
   'grammar with options and skipped capturing group';
-)
 
 #`(
 is-deeply
@@ -367,7 +365,7 @@ is-deeply
     tokens  => [ ],
     action  => [ ],
     content =>
-      [${ type      => 'rule',
+      [{ type      => 'rule',
           name      => 'number',
           attribute => [ ],
           action    => Nil,
@@ -381,7 +379,7 @@ is-deeply
                options => [ ],
                command => [ ],
                content =>
-                 [${ type    => 'concatenation',
+                 [{ type    => 'concatenation',
                      label   => Nil,
                      options => [ ],
                      command => [ skip => Nil ],
@@ -448,7 +446,7 @@ is-deeply
               options => [ ],
               command => [ ],
               content =>
-                [{ type    => 'concatenation',
+                [${ type    => 'concatenation',
                    label   => Nil,
                    options => [ ],
                    command => [ skip => Nil ],
@@ -478,7 +476,6 @@ is-deeply
   'grammar with options and skipped capturing group';
 )
 
-#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' )+? ;},
@@ -499,42 +496,40 @@ is-deeply
           locals    => Nil,
           options   => [ ],
           content   =>
-            [{ type    => 'alternation',
-               label   => Nil,
-               options => [ ],
-               command => [ ],
-               content =>
-                 [${ type    => 'concatenation',
-                     label   => Nil,
-                     options => [ ],
-                     command => [ ],
-                     content =>
-                       [${ type         => 'capturing group',
-                           alias        => Nil,
-                           modifier     => '+',
-                           greedy       => True,
-                           complemented => False,
-                           content =>
-                             [{ type         => 'concatenation',
-                                label        => Nil,
-                                options      => [ ],
-                                command      => [ ],
-                                content      =>
-                                  [${ type         => 'terminal',
-                                      content      => '1',
-                                      alias        => Nil,
-                                      modifier     => Nil,
-                                      greedy       => False,
-                                      complemented => False }] }] }] }] }] }] },
+            [${ type    => 'alternation',
+                label   => Nil,
+                options => [ ],
+                command => [ ],
+                content =>
+                  [${ type    => 'concatenation',
+                      label   => Nil,
+                      options => [ ],
+                      command => [ ],
+                      content =>
+                        [${ type         => 'capturing group',
+                            alias        => Nil,
+                            modifier     => '+',
+                            greedy       => True,
+                            complemented => False,
+                            content =>
+                              [{ type         => 'concatenation',
+                                 label        => Nil,
+                                 options      => [ ],
+                                 command      => [ ],
+                                 content      =>
+                                   [${ type         => 'terminal',
+                                       content      => '1',
+                                       alias        => Nil,
+                                       modifier     => Nil,
+                                       greedy       => False,
+                                       complemented => False }] }] }] }] }] }] },
   'grammar with options and single simple rule';
-)
 
 subtest sub {
   my $parsed;
 
   plan 8;
 
-#`(
   $parsed =
     $g.parse( q{grammar Name; number : '1' ;},
               :actions($a) ).ast;
@@ -544,16 +539,14 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type         => 'terminal',
-           content      => '1',
-           alias        => Nil,
-           modifier     => Nil,
-           greedy       => False,
-           complemented => False }] },
+        [${ type         => 'terminal',
+            content      => '1',
+            alias        => Nil,
+            modifier     => Nil,
+            greedy       => False,
+            complemented => False }] },
     q{terminal};
-) 
 
-#`(
   $parsed =
     $g.parse( q{grammar Name; number : ~'1'+? ;},
               :actions($a) ).ast;
@@ -563,16 +556,14 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type         => 'terminal',
-           content      => '1',
-           alias        => Nil,
-           modifier     => '+',
-           greedy       => True,
-           complemented => True }] },
+        [${ type         => 'terminal',
+            content      => '1',
+            alias        => Nil,
+            modifier     => '+',
+            greedy       => True,
+            complemented => True }] },
     q{terminal with options};
-)
 
-#`(
   $parsed =
     $g.parse( q{grammar Name; number : digits ;},
               :actions($a) ).ast;
@@ -584,7 +575,6 @@ subtest sub {
       greedy       => False,
       complemented => False },
     q{nonterminal};
-)
 
 #`(
   $parsed =
