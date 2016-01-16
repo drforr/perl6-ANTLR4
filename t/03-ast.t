@@ -36,6 +36,7 @@ subtest sub {
 
   $parsed = $g.parse(
     q{lexer grammar Name;}, :actions($a) ).ast;
+say $parsed.perl;
   is $parsed.<type>, 'lexer',
     q{Optional 'lexer' term};
 }, 'lexer option';

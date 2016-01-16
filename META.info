@@ -1,14 +1,14 @@
 {
-	"name"        : "ANTLR4",
-	"version"     : "*",
-	"description" : "ANTLR4 to Perl6 conversion tool",
-	"depends"     : [
+	"name"         : "ANTLR4",
+	"version"      : "*",
+	"description"  : "ANTLR4 to Perl6 conversion tool",
+	"test-depends" : [
 		"JSON::Tiny"
 	],
-	"provides"    : {
+	"provides"     : {
 		"ANTLR4::Grammar"        : "lib/ANTLR4/Grammar.pm",
 		"ANTLR4::Actions::AST"   : "lib/ANTLR4/Actions/AST.pm",
 		"ANTLR4::Actions::Perl6" : "lib/ANTLR4/Actions/Perl6.pm"
 	},
-	"source-url"  : "git://github.com/drforr/perl6-ANTLR4.git"
+	"source-url"   : "git://github.com/drforr/perl6-ANTLR4.git"
 }
