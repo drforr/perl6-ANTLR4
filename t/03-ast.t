@@ -961,7 +961,6 @@ subtest sub {
 
   plan 2;
 
-#`(
   $parsed =
     $g.parse(
       q{grammar Name; number : ~non_digits+? ~[-0-9\f\u000d]+? # One ;},
@@ -972,27 +971,25 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type    => 'concatenation',
-           label   => 'One',
-           options => [ ],
-           command => [ ],
-           content =>
-             [{ type         => 'nonterminal',
-                content      => 'non_digits',
-                alias        => Nil,
-                modifier     => '+',
-                greedy       => True,
-                complemented => True },
-              { type         => 'character class',
-                content      => [ '-', '0-9', '\\f', '\\u000d' ],
-                alias        => Nil,
-                modifier     => '+',
-                greedy       => True,
-                complemented => True }] }] },
+        [${ type    => 'concatenation',
+            label   => 'One',
+            options => [ ],
+            command => [ ],
+            content =>
+              [{ type         => 'nonterminal',
+                 content      => 'non_digits',
+                 alias        => Nil,
+                 modifier     => '+',
+                 greedy       => True,
+                 complemented => True },
+               { type         => 'character class',
+                 content      => [ '-', '0-9', '\\f', '\\u000d' ],
+                 alias        => Nil,
+                 modifier     => '+',
+                 greedy       => True,
+                 complemented => True }] }] },
     'grammar, rule with multiple concatenated terms';
-)
 
-#`(
   $parsed =
     $g.parse(
       q{grammar Name; number : ~non_digits+? | ~[-0-9\f\u000d]+? # One ;},
@@ -1008,25 +1005,24 @@ subtest sub {
            options => [ ],
            command => [ ],
            content =>
-             [{ type         => 'nonterminal',
-                content      => 'non_digits',
-                alias        => Nil,
-                modifier     => '+',
-                greedy       => True,
-                complemented => True }] },
+             [${ type         => 'nonterminal',
+                 content      => 'non_digits',
+                 alias        => Nil,
+                 modifier     => '+',
+                 greedy       => True,
+                 complemented => True }] },
          { type    => 'concatenation',
            label   => 'One',
            options => [ ],
            command => [ ],
            content =>
-             [{ type         => 'character class',
-                content      => [ '-', '0-9', '\\f', '\\u000d' ],
-                alias        => Nil,
-                modifier     => '+',
-                greedy       => True,
-                complemented => True }] }] },
+             [${ type         => 'character class',
+                 content      => [ '-', '0-9', '\\f', '\\u000d' ],
+                 alias        => Nil,
+                 modifier     => '+',
+                 greedy       => True,
+                 complemented => True }] }] },
     'grammar, rule with multiple alternating terms';
-)
 }, 'multiple terms';
 
 # vim: ft=perl6
