@@ -34,15 +34,18 @@ is-deeply
 subtest sub {
   my $parsed;
 
+  plan 1;
+
   $parsed = $g.parse(
     q{lexer grammar Name;}, :actions($a) ).ast;
-say $parsed.perl;
   is $parsed.<type>, 'lexer',
     q{Optional 'lexer' term};
 }, 'lexer option';
 
 subtest sub {
   my $parsed;
+
+  plan 4;
 
   $parsed = $g.parse(
     q{grammar Name; options {a=2;}}, :actions($a) ).ast;
@@ -68,6 +71,8 @@ subtest sub {
 subtest sub {
   my $parsed;
 
+  plan 2;
+
   $parsed = $g.parse(
     q{grammar Name; options {a=2;} import Foo;}, :actions($a) ).ast;
   is-deeply $parsed.<import>, [ Foo => Nil ],
@@ -83,6 +88,8 @@ subtest sub {
 subtest sub {
   my $parsed;
 
+  plan 1;
+
   $parsed = $g.parse(
     q{grammar Name; tokens { INDENT, DEDENT }},
     :actions($a) ).ast;
@@ -92,6 +99,9 @@ subtest sub {
 
 subtest sub {
   my $parsed;
+
+  plan 2;
+
   $parsed = $g.parse(
     q{grammar Name;
       @members { protected int curlies = 0; }}, :actions($a) ).ast;
@@ -200,6 +210,8 @@ is-deeply
 subtest sub {
   my $parsed;
 
+  plan 1;
+
   $parsed = $g.parse(
     q{grammar Name; protected number : '1' ;}, :actions($a) ).ast,
   is-deeply $parsed.<content>[0]<attribute>,
@@ -210,18 +222,18 @@ subtest sub {
 subtest sub {
   my $parsed;
 
+  plan 3;
+
   $parsed = $g.parse(
     q{grammar Name; number : <assoc=right> '1' ;}, :actions($a) ).ast;
   is-deeply $parsed.<content>[0]<content>[0]<content>[0]<options>,
     [ assoc => 'right' ],
     q{Rule with option};
 
-#`(
   $parsed = $g.parse(
     q{grammar Name; number : '1' # One ;}, :actions($a) ).ast;
   is $parsed.<content>[0]<content>[0]<content>[0]<label>, 'One',
     q{Rule with label};
-)
 
 #`(
   $parsed = $g.parse(
@@ -231,8 +243,10 @@ subtest sub {
     q{Rule with command};
 )
 }, 'Term-level flags';
-exit;
 
+#exit; # XXX break out of tests early.
+
+#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' ) ;},
@@ -244,7 +258,7 @@ is-deeply
     tokens  => [ ],
     action  => [ ],
     content =>
-      [${ type      => 'rule',
+      [{ type      => 'rule',
           name      => 'number',
           attribute => [ ],
           action    => Nil,
@@ -258,12 +272,12 @@ is-deeply
                options => [ ],
                command => [ ],
                content =>
-                 [${ type    => 'concatenation',
+                 [{ type    => 'concatenation',
                      label   => Nil,
                      options => [ ],
                      command => [ ],
                      content =>
-                       [${ type         => 'capturing group',
+                       [{ type         => 'capturing group',
                            alias        => Nil,
                            modifier     => Nil,
                            greedy       => False,
@@ -274,14 +288,16 @@ is-deeply
                                 options      => [ ],
                                 command      => [ ],
                                 content      =>
-                                  [${ type         => 'terminal',
+                                  [{ type         => 'terminal',
                                       content      => '1',
                                       alias        => Nil,
                                       modifier     => Nil,
                                       greedy       => False,
                                       complemented => False }] }] }] }] }] }] },
   'grammar with options  and capturing group';
+)
 
+#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' '2' ) -> skip ;},
@@ -341,7 +357,9 @@ is-deeply
                                           greedy       => False,
                                           complemented => False }] }] }] }] }] }] }] },
   'grammar with options and skipped capturing group';
+)
 
+#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' | '2' ) -> skip ;},
@@ -406,6 +424,7 @@ is-deeply
                                          greedy       => False,
                                          complemented => False }] }] }] }] }] }] }] },
   'grammar with options and skipped capturing group';
+)
 
 #`(
 is-deeply
@@ -463,6 +482,7 @@ is-deeply
   'grammar with options and skipped capturing group';
 )
 
+#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' )+? ;},
@@ -511,9 +531,12 @@ is-deeply
                                       greedy       => False,
                                       complemented => False }] }] }] }] }] }] },
   'grammar with options and single simple rule';
+)
 
 subtest sub {
   my $parsed;
+
+  plan 8;
 
 #`(
   $parsed =
@@ -641,6 +664,8 @@ subtest sub {
 
 subtest sub {
   my $parsed;
+
+  plan 7;
 
 #`(
   $parsed =
@@ -773,7 +798,7 @@ number [int x]
           locals    => '[int z]',
           options   => [ a => 2 ],
           content   =>
-            [{ type    => 'alternation',
+            [${ type    => 'alternation',
                label   => Nil,
                options => [ ],
                command => [ ],
@@ -793,6 +818,8 @@ number [int x]
 
 subtest sub {
   my $parsed;
+
+  plan 9; # from outer space
 
 #`(
   $parsed = $g.parse(
@@ -971,6 +998,8 @@ subtest sub {
 
 subtest sub {
   my $parsed;
+
+  plan 2;
 
 #`(
   $parsed =
