@@ -576,7 +576,6 @@ subtest sub {
       complemented => False },
     q{nonterminal};
 
-#`(
   $parsed =
     $g.parse( q{grammar Name; number : ~digits+? ;},
               :actions($a) ).ast,
@@ -588,7 +587,6 @@ subtest sub {
       greedy       => True,
       complemented => True },
     q{nonterminal with all flags};
-)
 
 #`(
   $parsed =
@@ -604,7 +602,6 @@ subtest sub {
     q{character class};
 )
 
-#`(
   $parsed =
     $g.parse( q{grammar Name; number : ~[0-9]+? ;},
               :actions($a) ).ast;
@@ -616,9 +613,7 @@ subtest sub {
       greedy       => True,
       complemented => True },
     q{character class with all flags};
-)
 
-#`(
   $parsed =
     $g.parse( q{grammar Name; number : 'a'..'f' ;},
               :actions($a) ).ast;
@@ -631,9 +626,7 @@ subtest sub {
       greedy       => False,
       complemented => False },
     q{range};
-)
 
-#`(
   $parsed =
     $g.parse( q{grammar Name; number : . ;},
               :actions($a) ).ast;
@@ -645,7 +638,6 @@ subtest sub {
       greedy       => False,
       complemented => False },
     q{regular expression};
-)
 }, 'rule with single term, no options';
 
 subtest sub {
@@ -807,7 +799,6 @@ subtest sub {
 
   plan 9; # from outer space
 
-#`(
   $parsed = $g.parse(
     q{grammar Name; number : ~'1'+? # One ;},
     :actions($a) ).ast;
@@ -817,17 +808,15 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type         => 'terminal',
-           content      => '1',
-           alias        => Nil,
-           alias        => Nil,
-           modifier     => '+',
-           greedy       => True,
-           complemented => True }] },
+        [${ type         => 'terminal',
+            content      => '1',
+            alias        => Nil,
+            alias        => Nil,
+            modifier     => '+',
+            greedy       => True,
+            complemented => True }] },
   'rule with flags';
-)
 
-#`(
   $parsed = $g.parse(
     q{grammar Name; number : ~[]+? # One ;},
     :actions($a) ).ast;
@@ -837,16 +826,14 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type         => 'character class',
-           content      => [ ],
-           alias        => Nil,
-           modifier     => '+',
-           greedy       => True,
-           complemented => True }] },
+        [${ type         => 'character class',
+            content      => [ ],
+            alias        => Nil,
+            modifier     => '+',
+            greedy       => True,
+            complemented => True }] },
   'character class with flags';
-)
 
-#`(
   $parsed = $g.parse(
     q{grammar Name; number : ~[0]+? # One ;},
     :actions($a) ).ast;
@@ -856,16 +843,14 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type         => 'character class',
-           content      => [ '0' ],
-           alias        => Nil,
-           modifier     => '+',
-           greedy       => True,
-           complemented => True }] },
+        [${ type         => 'character class',
+            content      => [ '0' ],
+            alias        => Nil,
+            modifier     => '+',
+            greedy       => True,
+            complemented => True }] },
   'character class with flags';
-)
 
-#`(
   $parsed = $g.parse(
     q{grammar Name; number : ~[0-9]+? # One ;},
     :actions($a) ).ast;
@@ -875,16 +860,14 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type         => 'character class',
-           content      => [ '0-9' ],
-           alias        => Nil,
-           modifier     => '+',
-           greedy       => True,
-           complemented => True }] },
+        [${ type         => 'character class',
+            content      => [ '0-9' ],
+            alias        => Nil,
+            modifier     => '+',
+            greedy       => True,
+            complemented => True }] },
   'character class with flags';
-)
 
-#`(
   $parsed = $g.parse(
     q{grammar Name; number : ~[-0-9]+? # One ;},
     :actions($a) ).ast;
@@ -894,16 +877,14 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type         => 'character class',
-           content      => [ '-', '0-9' ],
-           alias        => Nil,
-           modifier     => '+',
-           greedy       => True,
-           complemented => True }] },
+        [${ type         => 'character class',
+            content      => [ '-', '0-9' ],
+            alias        => Nil,
+            modifier     => '+',
+            greedy       => True,
+            complemented => True }] },
   'character class with lone hyphen and flags';
-)
 
-#`(
   $parsed = $g.parse(
     q{grammar Name; number : ~[-0-9\f\u000d]+? # One ;},
     :actions($a) ).ast;
@@ -913,16 +894,14 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type         => 'character class',
-           content      => [ '-', '0-9', '\\f', '\\u000d' ],
-           alias        => Nil,
-           modifier     => '+',
-           greedy       => True,
-           complemented => True }] },
+        [${ type         => 'character class',
+            content      => [ '-', '0-9', '\\f', '\\u000d' ],
+            alias        => Nil,
+            modifier     => '+',
+            greedy       => True,
+            complemented => True }] },
   'character class with lone hyphen and flags';
-)
 
-#`(
   $parsed = $g.parse(
     q{grammar Name; number : ~non_digits+? # One ;},
     :actions($a) ).ast;
@@ -932,16 +911,14 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type         => 'nonterminal',
-           content      => 'non_digits',
-           alias        => Nil,
-           modifier     => '+',
-           greedy       => True,
-           complemented => True }] },
+        [${ type         => 'nonterminal',
+            content      => 'non_digits',
+            alias        => Nil,
+            modifier     => '+',
+            greedy       => True,
+            complemented => True }] },
   'character class with lone hyphen and flags';
-)
 
-#`(
   $parsed = $g.parse(
     q{grammar Name; number : 'a'..'z' # One ;},
     :actions($a) ).ast;
@@ -951,17 +928,15 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type         => 'range',
-           content      => [{ from => 'a',
-                              to   => 'z' }],
-           alias        => Nil,
-           modifier     => Nil,
-           greedy       => False,
-           complemented => False }] },
+        [${ type         => 'range',
+            content      => [{ from => 'a',
+                               to   => 'z' }],
+            alias        => Nil,
+            modifier     => Nil,
+            greedy       => False,
+            complemented => False }] },
   'range';
-)
 
-#`(
   $parsed = $g.parse(
     q{grammar Name; number : 'a'..'z'+? # One ;},
     :actions($a) ).ast;
@@ -971,15 +946,14 @@ subtest sub {
       options => [ ],
       command => [ ],
       content =>
-        [{ type         => 'range',
-           content      => [{ from => 'a',
-                              to   => 'z' }],
-           alias        => Nil,
-           modifier     => '+',
-           greedy       => True,
-           complemented => False }] },
+        [${ type         => 'range',
+            content      => [{ from => 'a',
+                               to   => 'z' }],
+            alias        => Nil,
+            modifier     => '+',
+            greedy       => True,
+            complemented => False }] },
   'range with greed';
-)
 }, 'labeled rule';
 
 subtest sub {
