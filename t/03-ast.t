@@ -23,7 +23,7 @@ is-deeply
     tokens  => [ ],
     action  => [ ],
     content => [ ] },
-  'Minimal grammar';
+  q{Minimal grammar};
 
 #
 # Now check the individual keys of the current layer.
@@ -31,16 +31,9 @@ is-deeply
 # Earlier we determined that the overall layout has the defaults we want,
 # so just investigate each key, instead of is-deeply() on the root dataset.
 #
-subtest sub {
-  my $parsed;
-
-  plan 1;
-
-  $parsed = $g.parse(
-    q{lexer grammar Name;}, :actions($a) ).ast;
-  is $parsed.<type>, 'lexer',
-    q{Optional 'lexer' term};
-}, 'lexer option';
+is $g.parse( q{lexer grammar Name;}, :actions($a) ).ast.<type>,
+  'lexer',
+   q{Optional 'lexer' term};
 
 subtest sub {
   my $parsed;
@@ -60,13 +53,13 @@ subtest sub {
   $parsed = $g.parse(
     q{grammar Name; options {a=b,c;}}, :actions($a) ).ast;
   is-deeply $parsed.<options>, [ a => [ 'b', 'c' ] ],
-    q{Two identifier options};
+    q{List option};
 
   $parsed = $g.parse(
     q{grammar Name; options {a=b,c;de=3;}}, :actions($a) ).ast;
   is-deeply $parsed.<options>, [ a => [ 'b', 'c' ], de => 3 ],
-    q{Two options};
-}, 'Options';
+    q{Multiple options};
+}, q{Top-level options};
 
 subtest sub {
   my $parsed;
@@ -76,26 +69,21 @@ subtest sub {
   $parsed = $g.parse(
     q{grammar Name; options {a=2;} import Foo;}, :actions($a) ).ast;
   is-deeply $parsed.<import>, [ Foo => Nil ],
-    q{Import grammar};
+    q{Single grammar};
 
   $parsed = $g.parse(
     q{grammar Name; options {a=2;} import Foo,Bar=Test;},
     :actions($a) ).ast;
   is-deeply $parsed.<import>, [ Foo => Nil, Bar => 'Test' ],
-    q{Import grammar with alias};
-}, 'Imports';
+    q{Two grammars, one aliased};
+}, q{Imports};
 
-subtest sub {
-  my $parsed;
-
-  plan 1;
-
-  $parsed = $g.parse(
+is-deeply
+  $g.parse(
     q{grammar Name; tokens { INDENT, DEDENT }},
-    :actions($a) ).ast;
-  is-deeply $parsed.<tokens>, [ 'INDENT', 'DEDENT' ],
-    q{Import grammar with alias};
-}, 'tokens';
+    :actions($a) ).ast.<tokens>,
+  [ 'INDENT', 'DEDENT' ],
+  q{Multiple tokens};
 
 subtest sub {
   my $parsed;
@@ -107,7 +95,7 @@ subtest sub {
       @members { protected int curlies = 0; }}, :actions($a) ).ast;
   is-deeply $parsed.<action>,
     [ '@members' => '{ protected int curlies = 0; }' ],
-    q{Single action};
+    q{Action};
 
   $parsed = $g.parse(
     q{grammar Name;
@@ -116,8 +104,8 @@ subtest sub {
   is-deeply $parsed.<action>,
     [ '@members' => '{ protected int curlies = 0; }',
       '@sample::stuff' => '{ 1; }' ],
-    q{Two actions};
-}, 'Actions';
+    q{Multiple actions};
+}, q{Actions};
 
 #
 # Show off the first actual rule.
@@ -158,7 +146,7 @@ is-deeply
                             modifier     => Nil,
                             greedy       => False,
                             complemented => False }] }] }] }] },
-  'grammar with options and single simple rule';
+  q{Single rule};
 
 is-deeply
   $g.parse(
@@ -202,22 +190,16 @@ is-deeply
                            modifier     => Nil,
                            greedy       => False,
                            complemented => False }] }] }] }] },
-  'grammar with options and single rule with action';
+  q{Single rule with associated action};
 
 #
 # Rule-level
 #
-subtest sub {
-  my $parsed;
-
-  plan 1;
-
-  $parsed = $g.parse(
-    q{grammar Name; protected number : '1' ;}, :actions($a) ).ast,
-  is-deeply $parsed.<content>[0]<attribute>,
-    [ 'protected' ],
-    'grammar, rule with multiple alternating terms';
-}, 'rule-level options';
+is-deeply $g.parse(
+  q{grammar Name; protected number : '1' ;},
+   :actions($a) ).ast.<content>[0]<attribute>,
+  [ 'protected' ],
+  q{rule with multiple alternating terms};
 
 subtest sub {
   my $parsed;
@@ -242,7 +224,7 @@ subtest sub {
     [ channel => 'HIDDEN' ],
     q{Rule with command};
 )
-}, 'Term-level flags';
+}, q{Term-level flags};
 
 is-deeply
   $g.parse(
@@ -291,7 +273,7 @@ is-deeply
                                          modifier     => Nil,
                                          greedy       => False,
                                          complemented => False }] }] }] }] }] }] },
-  'grammar with options and capturing group';
+  q{Single rule with options and capturing group};
 
 is-deeply
   $g.parse(
@@ -351,7 +333,7 @@ is-deeply
                                           modifier     => Nil,
                                           greedy       => False,
                                           complemented => False }] }] }] }] }] }] }] },
-  'grammar with options and skipped capturing group';
+  q{Single rule with options and skipped capturing group};
 
 #`(
 is-deeply
@@ -417,7 +399,7 @@ is-deeply
                                          modifier     => Nil,
                                          greedy       => False,
                                          complemented => False }] }] }] }] }] }] }] },
-  'grammar with options and skipped capturing group';
+  q{grammar with options and skipped capturing group};
 )
 
 #`(
@@ -473,7 +455,7 @@ is-deeply
                                        modifier     => Nil,
                                        greedy       => False,
                                        complemented => False }] }] }] }] }] }] }] },
-  'grammar with options and skipped capturing group';
+  q{grammar with options and skipped capturing group};
 )
 
 is-deeply
@@ -523,7 +505,7 @@ is-deeply
                                        modifier     => Nil,
                                        greedy       => False,
                                        complemented => False }] }] }] }] }] }] },
-  'grammar with options and single simple rule';
+  q{grammar with options and single simple rule};
 
 subtest sub {
   my $parsed;
@@ -638,7 +620,7 @@ subtest sub {
       greedy       => False,
       complemented => False },
     q{regular expression};
-}, 'rule with single term, no options';
+}, q{rule with single term, no options};
 
 subtest sub {
   my $parsed;
@@ -748,7 +730,7 @@ subtest sub {
       complemented => False },
     q{Channeled rule with range};
 )
-}, 'command';
+}, q{command};
 
 is-deeply
   $g.parse(
@@ -792,7 +774,7 @@ number [int x]
                            modifier     => Nil,
                            greedy       => False,
                            complemented => False }] }] }] }] },
-  'grammar with single labeled rule with action';
+  q{grammar with single labeled rule with action};
 
 subtest sub {
   my $parsed;
@@ -815,7 +797,7 @@ subtest sub {
             modifier     => '+',
             greedy       => True,
             complemented => True }] },
-  'rule with flags';
+  q{rule with flags};
 
   $parsed = $g.parse(
     q{grammar Name; number : ~[]+? # One ;},
@@ -832,7 +814,7 @@ subtest sub {
             modifier     => '+',
             greedy       => True,
             complemented => True }] },
-  'character class with flags';
+  q{character class with flags};
 
   $parsed = $g.parse(
     q{grammar Name; number : ~[0]+? # One ;},
@@ -849,7 +831,7 @@ subtest sub {
             modifier     => '+',
             greedy       => True,
             complemented => True }] },
-  'character class with flags';
+  q{character class with flags};
 
   $parsed = $g.parse(
     q{grammar Name; number : ~[0-9]+? # One ;},
@@ -866,7 +848,7 @@ subtest sub {
             modifier     => '+',
             greedy       => True,
             complemented => True }] },
-  'character class with flags';
+  q{character class with flags};
 
   $parsed = $g.parse(
     q{grammar Name; number : ~[-0-9]+? # One ;},
@@ -883,7 +865,7 @@ subtest sub {
             modifier     => '+',
             greedy       => True,
             complemented => True }] },
-  'character class with lone hyphen and flags';
+  q{character class with lone hyphen and flags};
 
   $parsed = $g.parse(
     q{grammar Name; number : ~[-0-9\f\u000d]+? # One ;},
@@ -900,7 +882,7 @@ subtest sub {
             modifier     => '+',
             greedy       => True,
             complemented => True }] },
-  'character class with lone hyphen and flags';
+  q{character class with lone hyphen and flags};
 
   $parsed = $g.parse(
     q{grammar Name; number : ~non_digits+? # One ;},
@@ -917,7 +899,7 @@ subtest sub {
             modifier     => '+',
             greedy       => True,
             complemented => True }] },
-  'character class with lone hyphen and flags';
+  q{character class with lone hyphen and flags};
 
   $parsed = $g.parse(
     q{grammar Name; number : 'a'..'z' # One ;},
@@ -935,7 +917,7 @@ subtest sub {
             modifier     => Nil,
             greedy       => False,
             complemented => False }] },
-  'range';
+  q{range};
 
   $parsed = $g.parse(
     q{grammar Name; number : 'a'..'z'+? # One ;},
@@ -953,8 +935,8 @@ subtest sub {
             modifier     => '+',
             greedy       => True,
             complemented => False }] },
-  'range with greed';
-}, 'labeled rule';
+  q{range with greed};
+}, q{labeled rule};
 
 subtest sub {
   my $parsed;
@@ -988,7 +970,7 @@ subtest sub {
                  modifier     => '+',
                  greedy       => True,
                  complemented => True }] }] },
-    'grammar, rule with multiple concatenated terms';
+    q{rule with multiple concatenated terms};
 
   $parsed =
     $g.parse(
@@ -1022,7 +1004,7 @@ subtest sub {
                  modifier     => '+',
                  greedy       => True,
                  complemented => True }] }] },
-    'grammar, rule with multiple alternating terms';
-}, 'multiple terms';
+    q{rule with multiple alternating terms};
+}, q{multiple terms};
 
 # vim: ft=perl6
