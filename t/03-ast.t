@@ -3,7 +3,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 use Test;
 
-plan 20;
+plan 1;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -14,62 +14,118 @@ my $g = ANTLR4::Grammar.new;
 # This way we can show the nested nature of the dataset, without having to
 # continually repeat the huge data structures each time.
 #
-is-deeply
-  $g.parse( q{grammar Minimal;}, :actions($a) ).ast,
-  { type    => 'DEFAULT',
-    name    => 'Minimal',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    action  => [ ],
-    content => [ ] },
-  q{Minimal grammar};
-
-#
-# Now check the individual keys of the current layer.
-#
-# Earlier we determined that the overall layout has the defaults we want,
-# so just investigate each key, instead of is-deeply() on the root dataset.
-#
-is $g.parse( q{lexer grammar Name;}, :actions($a) ).ast.<type>,
-  'lexer',
-   q{Optional 'lexer' term};
-
 subtest sub {
-  my $parsed;
+  is-deeply
+    $g.parse( q{grammar Minimal;}, :actions($a) ).ast,
+    { type    => 'DEFAULT',
+      name    => 'Minimal',
+      options => [ ],
+      import  => [ ],
+      tokens  => [ ],
+      action  => [ ],
+      content => [ ] },
+    q{Minimal grammar};
 
-  plan 4;
+  is-deeply
+    $g.parse( q{grammar Test;}, :actions($a) ).ast,
+    { type    => 'DEFAULT',
+      name    => 'Test',
+      options => [ ],
+      import  => [ ],
+      tokens  => [ ],
+      action  => [ ],
+      content => [ ] },
+    q{Test grammar with different naee};
 
-  $parsed = $g.parse(
-    q{grammar Name; options {a=2;}}, :actions($a) ).ast;
-  is-deeply $parsed.<options>, [ a => 2 ],
-    q{Numeric option};
+  is-deeply
+    $g.parse( q{lexer grammar Lexer;}, :actions($a) ).ast,
+    { type    => 'lexer',
+      name    => 'Lexer',
+      options => [ ],
+      import  => [ ],
+      tokens  => [ ],
+      action  => [ ],
+      content => [ ] },
+    q{Lexer grammar};
 
-  $parsed = $g.parse(
-    q{grammar Name; options {a='foo';}}, :actions($a) ).ast;
-  is-deeply $parsed.<options>, [ a => 'foo' ],
-    q{String option};
+  subtest sub {
 
-  $parsed = $g.parse(
-    q{grammar Name; options {a=b,c;}}, :actions($a) ).ast;
-  is-deeply $parsed.<options>, [ a => [ 'b', 'c' ] ],
-    q{List option};
+    subtest sub {
+      my $parsed;
 
-  $parsed = $g.parse(
-    q{grammar Name; options {a=b,c;de=3;}}, :actions($a) ).ast;
-  is-deeply $parsed.<options>, [ a => [ 'b', 'c' ], de => 3 ],
-    q{Multiple options};
-}, q{Top-level options};
+      plan 3;
+
+      $parsed = $g.parse(
+        q{grammar Name; options {a=2;}}, :actions($a) ).ast;
+      is-deeply $parsed.<options>, [ a => 2 ],
+        q{Numeric option};
+
+      $parsed = $g.parse(
+        q{grammar Name; options {a='foo';}}, :actions($a) ).ast;
+      is-deeply $parsed.<options>, [ a => 'foo' ],
+        q{String option};
+
+      $parsed = $g.parse(
+        q{grammar Name; options {a=b;}}, :actions($a) ).ast;
+      is-deeply $parsed.<options>, [ a => [ 'b' ] ],
+        q{Atomic option};
+
+    }, q{Single option};
+
+    subtest sub {
+      my $parsed;
+
+      plan 2;
+
+      $parsed = $g.parse(
+        q{grammar Name; options {a=b,cde;}}, :actions($a) ).ast;
+      is-deeply $parsed.<options>, [ a => [ 'b', 'cde' ] ],
+        q{Multiple atomic options};
+
+      $parsed = $g.parse(
+        q{grammar Name; options {a=b,cde;f='foo';}}, :actions($a) ).ast;
+      is-deeply $parsed.<options>, [ a => [ 'b', 'cde' ], f => 'foo' ],
+        q{Multiple mixed options};
+    }, q{Multiple options};
+
+  }, q{Options};
+
+  subtest sub {
+    my $parsed;
+
+    plan 2;
+
+    $parsed = $g.parse(
+      q{grammar Name; options {a=2;} import Foo;}, :actions($a) ).ast;
+    is-deeply $parsed.<import>, [ Foo => Nil ],
+      q{Single import};
+
+    subtest sub {
+      my $parsed;
+     
+      plan 2;
+
+      $parsed = $g.parse(
+        q{grammar Name; options {a=2;} import Foo,Bar;},
+        :actions($a) ).ast;
+      is-deeply $parsed.<import>, [ Foo => Nil, Bar => Nil ],
+        q{Two grammars};
+
+      $parsed = $g.parse(
+        q{grammar Name; options {a=2;} import Foo,Bar=Test;},
+        :actions($a) ).ast;
+      is-deeply $parsed.<import>, [ Foo => Nil, Bar => 'Test' ],
+        q{Two grammars, last aliased};
+    }, q{Multiple imports};
+  }, q{Import};
+}, q{Top-level keys};
+
+#`(
 
 subtest sub {
   my $parsed;
 
   plan 2;
-
-  $parsed = $g.parse(
-    q{grammar Name; options {a=2;} import Foo;}, :actions($a) ).ast;
-  is-deeply $parsed.<import>, [ Foo => Nil ],
-    q{Single grammar};
 
   $parsed = $g.parse(
     q{grammar Name; options {a=2;} import Foo,Bar=Test;},
@@ -335,7 +391,6 @@ is-deeply
                                           complemented => False }] }] }] }] }] }] }] },
   q{Single rule with options and skipped capturing group};
 
-#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : ( '1' | '2' ) -> skip ;},
@@ -347,7 +402,7 @@ is-deeply
     tokens  => [ ],
     action  => [ ],
     content =>
-      [{ type      => 'rule',
+      [${ type      => 'rule',
           name      => 'number',
           attribute => [ ],
           action    => Nil,
@@ -364,7 +419,7 @@ is-deeply
                  [{ type    => 'concatenation',
                      label   => Nil,
                      options => [ ],
-                     command => [ skip => Nil ],
+                     command => $[ skip => Nil ],
                      content =>
                        [{ type         => 'capturing group',
                           alias        => Nil,
@@ -400,7 +455,6 @@ is-deeply
                                          greedy       => False,
                                          complemented => False }] }] }] }] }] }] }] },
   q{grammar with options and skipped capturing group};
-)
 
 #`(
 is-deeply
@@ -1006,5 +1060,7 @@ subtest sub {
                  complemented => True }] }] },
     q{rule with multiple alternating terms};
 }, q{multiple terms};
+
+)
 
 # vim: ft=perl6

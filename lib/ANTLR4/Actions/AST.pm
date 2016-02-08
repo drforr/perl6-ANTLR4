@@ -130,53 +130,81 @@ most complex, and is described in detail at the appropriate place.
 =end pod
 
 use v6;
-class ANTLR4::Actions::AST {
-
-method DIGITS($/)
+class ANTLR4::Actions::AST
 	{
-	make +$/
-	}
+	method grammarType($/)
+		{
+		make $/[0] ?? ~$/[0] !! 'DEFAULT'
+		}
 
-method ID($/)
-	{
-	make ~$/
-	}
+	method ID($/) { make ~$/ }
+	method ID_list($/)
+		{
+		make @<ID>>>.ast
+		}
 
-method ARG_ACTION($/)
-	{
-	make ~$/
-	}
+	method optionValue($/)
+		{
+		# XXX Should be able to be written cleaner.
+		make $/<DIGITS> ?? +$/<DIGITS>
+			!! $/<STRING_LITERAL>
+			?? ~$/<STRING_LITERAL>[0]
+			!! $/<ID_list>.ast
+		}
 
-method LEXER_CHAR_SET_RANGE($/)
-	{
-	make ~$/
-	}
+	method option($/)
+		{
+		make ~$/<key> => $/<optionValue>.ast
+		}
 
-method LEXER_CHAR_SET_ELEMENT($/)
-	{
-	make ~$/
-	}
+	method optionsSpec($/)
+		{
+		make @<option>>>.ast
+		}
 
-method action_name($/)
-	{
-	make ~$/
-	}
+	method delegateGrammar($/)
+		{
+		make ~$/<key> => $/<value>.ast
+		}
 
-method ruleAttribute($/)
-	{
-	make ~$/
-	}
+	method delegateGrammars($/)
+		{
+		make @<delegateGrammar>>>.ast
+		}
 
-method lexerCommandName($/)
-	{
-	make ~$/
-	}
+	method TOP($/)
+		{
+		my ( @options, @import );
 
-method ACTION($/)
-	{
-	make ~$/
-	}
+		# XXX Yes, I'm sure there's a nice map/grep to do this, but...
+		for $/<prequelConstruct> -> $prequel
+			{
+			next unless $prequel.<options>.ast;
+			@options = $prequel.<options>.ast;
+			last;
+			}
 
+		# XXX Yes, I'm sure there's a nice map/grep to do this, but...
+		for $/<prequelConstruct> -> $prequel
+			{
+			next unless $prequel.<import>.ast;
+			@import = $prequel.<import>.ast;
+			last;
+			}
+
+		make
+			{
+			type    => $<grammarType>.ast,
+			name    => ~$/<name>,
+			options => @options,
+			import  => @import,
+			tokens  => [ ],
+			action  => [ ],
+			content => [ ],
+			}
+		}
+
+#`(
 method lexerCommandExpr($/)
 	{
 	make ~$/[0]
@@ -442,67 +470,36 @@ method lexerAlt($/)
 		type    => 'concatenation',
 		label   => Nil,
 		options => [ ],
- command => [ skip => Nil ],
+command => [ skip => Nil ],
 content => [$<lexerElement>[0].ast],
 		}
 	}
 
 method lexerElement($/)
 	{
-#`(
 	make
 		{
 		type         => $/<ACTION>
-			?? 'action'
-			!! $/<lexerAtom>
-			?? $/<lexerAtom>.ast.<type>
-			!! $/<lexerBlock>.ast.<type>,
-		content      => $/<ACTION>
-			?? $/<ACTION>.ast
-			!! $/<lexerAtom>
-			?? $/<lexerAtom>.ast.<content>
-			!! $/<lexerBlock>.ast.<content>,
-		alias => $/<labeledElement>
-			?? $/<labeledElement><ID>
-			!! Nil,
-		complemented => $/<lexerAtom>
-			?? $/<lexerAtom>.ast.<complemented>
-			!! $/<lexerBlock>.ast.<complemented>,
+			     ?? 'action'
+			     !! $/<lexerAtom>
+			     ?? $/<lexerAtom>.ast.<type>
+			     !! $/<lexerBlock>.ast.<type>,
+		alias        => $/<labeledElement>
+			     ?? $/<labeledElement><ID>
+			     !! Nil,
 		modifier     => $/<ebnfSuffix>.ast.<modifier>,
 		greedy       => $/<ebnf><ebnfSuffix>.ast.<greedy>
-			|| $/<ebnfSuffix>.ast.<greedy>
-			|| False
+			     || $/<ebnfSuffix>.ast.<greedy>
+			     || False,
+		complemented => $/<lexerAtom>
+			     ?? $/<lexerAtom>.ast.<complemented>
+			     !! $/<lexerBlock>.ast.<complemented>,
+		content      => $/<ACTION>
+			     ?? $/<ACTION>.ast
+			     !! $/<lexerAtom>
+			     ?? $/<lexerAtom>.ast.<content>
+			     !! $/<lexerBlock>.ast.<content>,
 		}
-)
-make
-   { type         => 'capturing group',
-      alias        => Nil,
-      modifier     => Nil,
-      greedy       => False,
-      complemented => False,
-      content =>
-        [{ type    => 'alternation',
-           label   => Nil,
-           options => [ ],
-           command => [ ],
-           content =>
-             [{ type    => 'concatenation',
-                label   => Nil,
-                options => [ ],
-                command => [ ],
-                content =>
-                  [{ type         => 'terminal',
-                     content      => '1',
-                     alias        => Nil,
-                     modifier     => Nil,
-                     greedy       => False,
-                     complemented => False },
-                   { type         => 'terminal',
-                     content      => '2',
-                     alias        => Nil,
-                     modifier     => Nil,
-                     greedy       => False,
-                     complemented => False }] }] }] }
 	}
 
 #method labeledLexerElement($/)
@@ -511,6 +508,7 @@ make
 
 method lexerBlock($/)
 	{
+#`(
 	make
 		{
 		type         => 'capturing group',
@@ -518,6 +516,43 @@ method lexerBlock($/)
 		complemented => $/[0] || False,
 		command      => [ ]
 		}
+)
+
+	make
+		{
+		type         => 'capturing group',
+#		content      => @<lexeAltList>>>.ast,
+content =>
+  [{ type    => 'alternation',
+     label   => Nil,
+     options => [ ],
+     command => [ ],
+     content =>
+       [{ type    => 'concatenation',
+          label   => Nil,
+          options => [ ],
+          command => [ ],
+          content =>
+            [{ type         => 'terminal',
+               content      => '1',
+               alias        => Nil,
+               modifier     => Nil,
+               greedy       => False,
+               complemented => False }] },
+        { type    => 'concatenation',
+          label   => Nil,
+          options => [ ],
+          command => [ ],
+          content =>
+             [{ type         => 'terminal',
+                content      => '2',
+                alias        => Nil,
+                modifier     => Nil,
+                greedy       => False,
+                complemented => False }] }] }],
+complemented => $/[0] || False,
+command      => [ ]
+}
 	}
 
 
@@ -765,7 +800,8 @@ method range($/)
 #method terminal($/)
 #	{
 #	}
+)
 
-}
+	}
 
 # vim: ft=perl6
