@@ -182,11 +182,21 @@ class ANTLR4::Actions::AST
 		make $/<ID_list_trailing_comma>.ast
 		}
 
+	method action($/)
+		{
+#say ~$/<action_name>;
+#say ~$/<ACTION>;
+		make ~$/<action_name> => ~$/<ACTION>
+		}
+
 	method TOP($/)
 		{
-		my ( @options, @import, @tokens );
+		my ( @options, @import, @tokens, @action );
 
 		@options.append( $_.<options>.ast ) for $/<prequelConstruct>;
+
+		@tokens.append( $_.<tokens>.ast ) for $/<prequelConstruct>;
+		@action.append( $_.<actions>.ast ) for $/<prequelConstruct>;
 
 		# XXX Apparently the way import builds the list is mildly broken.
 		for $/<prequelConstruct> -> $prequel
@@ -196,8 +206,6 @@ class ANTLR4::Actions::AST
 			last;
 			}
 
-		@tokens.append( $_.<tokens>.ast ) for $/<prequelConstruct>;
-
 		make
 			{
 			type    => $<grammarType>.ast,
@@ -205,7 +213,7 @@ class ANTLR4::Actions::AST
 			options => @options,
 			import  => @import,
 			tokens  => @tokens,
-			action  => [ ],
+			action  => @action,
 			content => [ ],
 			}
 		}
@@ -243,7 +251,7 @@ method block($/)
 
 method action($/)
 	{
-	make $/<action_name>.ast => $/<ACTION>.ast
+	make ~$/<action_name>.ast => ~$/<ACTION>.ast
 	}
 
 method option($/)

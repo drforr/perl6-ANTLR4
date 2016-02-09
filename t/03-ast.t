@@ -156,43 +156,24 @@ subtest sub {
     $parsed = $g.parse(
       q{grammar Name; @members { protected int curlies = 0; }},
       :actions($a) ).ast;
-    is-deeply $parsed.<actions>,
+    is-deeply $parsed.<action>,
       [ '@members' => '{ protected int curlies = 0; }' ],
       q{Single action};
 
-#    $parsed = $g.parse(
-#      q{grammar Name; tokens { INDENT, DEDENT }},
-#      :actions($a) ).ast;
-#    is-deeply $parsed.<tokens>, [ 'INDENT', 'DEDENT' ],
-#      q{Multiple tokens};
-#
+    $parsed = $g.parse(
+      q{grammar Name;
+        @members { protected int curlies = 0; }
+        @sample::stuff { 1; }}, :actions($a) ).ast;
+    is-deeply $parsed.<action>,
+      [ '@members' => '{ protected int curlies = 0; }',
+        '@sample::stuff' => '{ 1; }' ],
+      q{Multiple tokens};
+
   }, q{Actions};
 
 }, q{Top-level keys};
 
 #`(
-
-subtest sub {
-  my $parsed;
-
-  plan 2;
-
-  $parsed = $g.parse(
-    q{grammar Name;
-      @members { protected int curlies = 0; }}, :actions($a) ).ast;
-  is-deeply $parsed.<action>,
-    [ '@members' => '{ protected int curlies = 0; }' ],
-    q{Action};
-
-  $parsed = $g.parse(
-    q{grammar Name;
-      @members { protected int curlies = 0; }
-      @sample::stuff { 1; }}, :actions($a) ).ast;
-  is-deeply $parsed.<action>,
-    [ '@members' => '{ protected int curlies = 0; }',
-      '@sample::stuff' => '{ 1; }' ],
-    q{Multiple actions};
-}, q{Actions};
 
 #
 # Show off the first actual rule.
