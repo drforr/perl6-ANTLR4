@@ -187,35 +187,61 @@ class ANTLR4::Actions::AST
 		make ~$/<action_name> => ~$/<ACTION>
 		}
 
-method parserRuleSpec($/)
-	{
-	make 
-      { type      => 'rule',
-          name      => 'number',
-          attribute => [ ],
-          action    => Nil,
-          returns   => Nil,
-          throws    => [ ],
-          locals    => Nil,
-          options   => [ ],
-          content   =>
-            [${ type    => 'alternation',
-                label   => Nil,
-                options => [ ],
-                command => [ ],
-                content =>
-                  [${ type    => 'concatenation',
-                      label   => Nil,
-                      options => [ ],
-                      command => [ ],
-                      content =>
-                        [${ type         => 'terminal',
-                            content      => '1',
-                            alias        => Nil,
-                            modifier     => Nil,
-                            greedy       => False,
-                            complemented => False }] }] }] }
-	}
+	method element($/)
+		{
+		make
+			{
+			type    => 'concatenation',
+			label   => Nil,
+			options => [ ],
+			command => [ ],
+			content =>
+				[${ type         => 'terminal',
+				    content      => '1',
+				    alias        => Nil,
+				    modifier     => Nil,
+				    greedy       => False,
+				    complemented => False }]
+			}
+		}
+
+	method parserElement($/)
+		{
+		make @<element>>>.ast
+		}
+
+	method parserAlt($/)
+		{
+		make
+			{
+			type    => 'alternation',
+			label   => Nil,
+			options => [ ],
+			command => [ ],
+			content => $/<parserElement>.ast
+			}
+		}
+
+	method parserAltList($/)
+		{
+		make @<parserAlt>>>.ast
+		}
+
+	method parserRuleSpec($/)
+		{
+		make 
+			{
+			type      => 'rule',
+			name      => $/<name>.ast,
+			attribute => [ ],
+			action    => Nil,
+			returns   => Nil,
+			throws    => [ ],
+			locals    => Nil,
+			options   => [ ],
+			content   => $/<parserAltList>.ast
+			}
+		}
 
 	method ruleSpec($/)
 		{
@@ -352,18 +378,6 @@ method parserRuleSpec($/)
 #method finallyClause($/)
 #	{
 #	}
-
-method parserAltList($/)
-	{
-	make
-		${
-		type    => 'alternation',
-		label   => Nil,
-		content => @<parserAlt>>>.ast,
-		command => [ ],
-		options => [ ],
-		}
-	}
 
 method parserAlt($/)
 	{
