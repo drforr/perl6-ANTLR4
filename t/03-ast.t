@@ -173,6 +173,47 @@ subtest sub {
 
 }, q{Top-level keys};
 
+#
+# Show off the first actual rule.
+#
+is-deeply
+  $g.parse(
+    q{grammar Name; number : '1' ;},
+    :actions($a) ).ast,
+  { type    => 'DEFAULT',
+    name    => 'Name',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    action  => [ ],
+    content =>
+      [${ type      => 'rule',
+          name      => 'number',
+          attribute => [ ],
+          action    => Nil,
+          returns   => Nil,
+          throws    => [ ],
+          locals    => Nil,
+          options   => [ ],
+          content   =>
+            [${ type    => 'alternation',
+                label   => Nil,
+                options => [ ],
+                command => [ ],
+                content =>
+                  [${ type    => 'concatenation',
+                      label   => Nil,
+                      options => [ ],
+                      command => [ ],
+                      content =>
+                        [${ type         => 'terminal',
+                            content      => '1',
+                            alias        => Nil,
+                            modifier     => Nil,
+                            greedy       => False,
+                            complemented => False }] }] }] }] },
+  q{Single rule};
+
 #`(
 
 #

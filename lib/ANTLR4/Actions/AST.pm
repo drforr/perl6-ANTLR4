@@ -184,9 +184,42 @@ class ANTLR4::Actions::AST
 
 	method action($/)
 		{
-#say ~$/<action_name>;
-#say ~$/<ACTION>;
 		make ~$/<action_name> => ~$/<ACTION>
+		}
+
+method parserRuleSpec($/)
+	{
+	make 
+      { type      => 'rule',
+          name      => 'number',
+          attribute => [ ],
+          action    => Nil,
+          returns   => Nil,
+          throws    => [ ],
+          locals    => Nil,
+          options   => [ ],
+          content   =>
+            [${ type    => 'alternation',
+                label   => Nil,
+                options => [ ],
+                command => [ ],
+                content =>
+                  [${ type    => 'concatenation',
+                      label   => Nil,
+                      options => [ ],
+                      command => [ ],
+                      content =>
+                        [${ type         => 'terminal',
+                            content      => '1',
+                            alias        => Nil,
+                            modifier     => Nil,
+                            greedy       => False,
+                            complemented => False }] }] }] }
+	}
+
+	method ruleSpec($/)
+		{
+		make $/<parserRuleSpec>.ast
 		}
 
 	method TOP($/)
@@ -214,7 +247,7 @@ class ANTLR4::Actions::AST
 			import  => @import,
 			tokens  => @tokens,
 			action  => @action,
-			content => [ ],
+			content => @<ruleSpec>>>.ast
 			}
 		}
 
@@ -227,11 +260,6 @@ method lexerCommandExpr($/)
 method STRING_LITERAL($/)
 	{
 	make ~$/[0]
-	}
-
-method grammarType($/)
-	{
-	make $/[0] ?? ~$/[0] !! 'DEFAULT'
 	}
 
 method localsSpec($/)
@@ -247,21 +275,6 @@ method ruleReturns($/)
 method block($/)
 	{
 	make $/<blockAltList>.ast
-	}
-
-method action($/)
-	{
-	make ~$/<action_name>.ast => ~$/<ACTION>.ast
-	}
-
-method option($/)
-	{
-	make $/<ID>.ast => $/<optionValue>.ast
-	}
-
-method delegateGrammar($/)
-	{
-	make ~$/<key> => $/<value>.ast
 	}
 
 method elementOption($/)
@@ -282,16 +295,6 @@ method LEXER_CHAR_SET($/)
 		]
 	}
 
-method ID_list_trailing_comma($/)
-	{
-	make @<ID>>>.ast
-	}
-
-method ID_list($/)
-	{
-	make @<ID>>>.ast
-	}
-
 method throwsSpec($/)
 	{
 	make @<ID>>>.ast
@@ -307,51 +310,12 @@ method elementOptions($/)
 	make @<elementOption>>>.ast
 	}
 
-method delegateGrammars($/)
-	{
-	make @<delegateGrammar>>>.ast
-	}
-
-#method UNICODE_ESC($/)
-#	{
-#	}
-
-method TOP ($/)
-	{
-	my %content =
-		(
-                action  => [ ]
-		);
-
-	for @( $/<prequelConstruct> ) -> $prequel
-		{
-		push @( %content<action> ),
-			$prequel.<action>.ast if
-			$prequel.<action>;
-		}
-	make
-		{
-		type    => $/<type>.ast,
-		name    => $/<name>.ast,
-		%content,
-		content => @<rules>>>.ast || [ ]
-		},
-	}
-
 method optionValue($/)
 	{
 	make $/<list>.ast
 		|| $/<scalar>.ast
 	}
  
-#method actionScopeName($/)
-#	{
-#	}
-
-#method modeSpec($/)
-#	{
-#	}
-
 method ruleSpec($/)
 	{
 	make $/<parserRuleSpec>.ast
