@@ -172,19 +172,23 @@ class ANTLR4::Actions::AST
 		make @<delegateGrammar>>>.ast
 		}
 
+	method ID_list_trailing_comma($/)
+		{
+		make $<ID>>>.ast
+		}
+
+	method tokensSpec($/)
+		{
+		make $/<ID_list_trailing_comma>.ast
+		}
+
 	method TOP($/)
 		{
-		my ( @options, @import );
+		my ( @options, @import, @tokens );
 
-		# XXX Yes, I'm sure there's a nice map/grep to do this, but...
-		for $/<prequelConstruct> -> $prequel
-			{
-			next unless $prequel.<options>.ast;
-			@options = $prequel.<options>.ast;
-			last;
-			}
+		@options.append( $_.<options>.ast ) for $/<prequelConstruct>;
 
-		# XXX Yes, I'm sure there's a nice map/grep to do this, but...
+		# XXX Apparently the way import builds the list is mildly broken.
 		for $/<prequelConstruct> -> $prequel
 			{
 			next unless $prequel.<import>.ast;
@@ -192,13 +196,15 @@ class ANTLR4::Actions::AST
 			last;
 			}
 
+		@tokens.append( $_.<tokens>.ast ) for $/<prequelConstruct>;
+
 		make
 			{
 			type    => $<grammarType>.ast,
 			name    => ~$/<name>,
 			options => @options,
 			import  => @import,
-			tokens  => [ ],
+			tokens  => @tokens,
 			action  => [ ],
 			content => [ ],
 			}
@@ -235,11 +241,6 @@ method block($/)
 	make $/<blockAltList>.ast
 	}
 
-method tokensSpec($/)
-	{
-	make $/<ID_list_trailing_comma>.ast
-	}
-
 method action($/)
 	{
 	make $/<action_name>.ast => $/<ACTION>.ast
@@ -271,11 +272,6 @@ method LEXER_CHAR_SET($/)
 		[
 		$/[0]>>.Str
 		]
-	}
-
-method optionsSpec($/)
-	{
-	make @<option>>>.ast
 	}
 
 method ID_list_trailing_comma($/)
@@ -316,23 +312,11 @@ method TOP ($/)
 	{
 	my %content =
 		(
-		options => [ ],
-		import  => [ ],
-                tokens  => [ ],
                 action  => [ ]
 		);
 
 	for @( $/<prequelConstruct> ) -> $prequel
 		{
-		%content<options> =
-			$prequel.<options>.ast if
-			$prequel.<options>;
-		%content<tokens> =
-			$prequel.<tokens>.ast if
-			$prequel.<tokens>;
-		%content<import> =
-			$prequel.<import>.ast if
-			$prequel.<import>;
 		push @( %content<action> ),
 			$prequel.<action>.ast if
 			$prequel.<action>;

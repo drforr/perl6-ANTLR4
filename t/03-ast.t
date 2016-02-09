@@ -49,6 +49,9 @@ subtest sub {
     q{Lexer grammar};
 
   subtest sub {
+    my $parsed;
+
+    plan 3;
 
     subtest sub {
       my $parsed;
@@ -71,6 +74,11 @@ subtest sub {
         q{Atomic option};
 
     }, q{Single option};
+
+    $parsed = $g.parse(
+      q{grammar Name; options {a=2;} options {b=3;}}, :actions($a) ).ast;
+    is-deeply $parsed.<options>, [ a => 2, b => 3 ],
+      q{Repeated single option};
 
     subtest sub {
       my $parsed;
@@ -116,30 +124,53 @@ subtest sub {
         :actions($a) ).ast;
       is-deeply $parsed.<import>, [ Foo => Nil, Bar => 'Test' ],
         q{Two grammars, last aliased};
+
     }, q{Multiple imports};
+
   }, q{Import};
+
+  subtest sub {
+    my $parsed;
+
+    plan 2;
+
+    $parsed = $g.parse(
+      q{grammar Name; tokens { INDENT }},
+      :actions($a) ).ast;
+    is-deeply $parsed.<tokens>, [ 'INDENT' ],
+      q{Single token};
+
+    $parsed = $g.parse(
+      q{grammar Name; tokens { INDENT, DEDENT }},
+      :actions($a) ).ast;
+    is-deeply $parsed.<tokens>, [ 'INDENT', 'DEDENT' ],
+      q{Multiple tokens};
+
+  }, q{Tokens};
+
+  subtest sub {
+    my $parsed;
+
+    plan 2;
+
+    $parsed = $g.parse(
+      q{grammar Name; @members { protected int curlies = 0; }},
+      :actions($a) ).ast;
+    is-deeply $parsed.<actions>,
+      [ '@members' => '{ protected int curlies = 0; }' ],
+      q{Single action};
+
+#    $parsed = $g.parse(
+#      q{grammar Name; tokens { INDENT, DEDENT }},
+#      :actions($a) ).ast;
+#    is-deeply $parsed.<tokens>, [ 'INDENT', 'DEDENT' ],
+#      q{Multiple tokens};
+#
+  }, q{Actions};
+
 }, q{Top-level keys};
 
 #`(
-
-subtest sub {
-  my $parsed;
-
-  plan 2;
-
-  $parsed = $g.parse(
-    q{grammar Name; options {a=2;} import Foo,Bar=Test;},
-    :actions($a) ).ast;
-  is-deeply $parsed.<import>, [ Foo => Nil, Bar => 'Test' ],
-    q{Two grammars, one aliased};
-}, q{Imports};
-
-is-deeply
-  $g.parse(
-    q{grammar Name; tokens { INDENT, DEDENT }},
-    :actions($a) ).ast.<tokens>,
-  [ 'INDENT', 'DEDENT' ],
-  q{Multiple tokens};
 
 subtest sub {
   my $parsed;
