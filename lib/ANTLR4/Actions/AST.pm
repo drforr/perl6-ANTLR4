@@ -215,21 +215,43 @@ class ANTLR4::Actions::AST
 			}
 		}
 
+	method elementOption($/)
+		{
+		make ~$/<key> => ~$/<value>
+		}
+ 
+	method elementOptions($/)
+		{
+		make @<elementOption>>>.ast
+		}
+
 	method parserElement($/)
 		{
-		make @<element>>>.ast
+		my @element = @<element>>>.ast;
+
+		# Add the options to the rule afterward, if there are any.
+		#
+		@element[0].<options> = $/<elementOptions>.ast
+			if $/<elementOptions>;
+
+		make @element;
 		}
 
 	method parserAlt($/)
 		{
-		make
+		my $ast =
 			{
 			type    => 'alternation',
 			label   => Nil,
 			options => [ ],
 			command => [ ],
 			content => $/<parserElement>.ast
-			}
+			};
+
+		# Add the label to the rule afterward, if there is one.
+		#
+		$ast.<content>.[0]<label> = ~$/<label> if $/<label>;
+		make $ast;
 		}
 
 	method parserAltList($/)
@@ -270,7 +292,7 @@ class ANTLR4::Actions::AST
 
 	method ruleSpec($/)
 		{
-		make $/<parserRuleSpec>.ast
+		make $/<parserRuleSpec>.ast || $/<lexerRuleSpec>.ast
 		}
 
 	method TOP($/)

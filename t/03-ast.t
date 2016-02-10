@@ -263,6 +263,43 @@ subtest sub {
 
 }, q{Rule-level keys};
 
+diag "Nothing at the second layer, apparently";
+
+subtest sub {
+  my $parsed;
+
+  plan 4;
+
+  $parsed = $g.parse(
+    q{grammar Name; number : '1' ;}, :actions($a) ).ast;
+  is $parsed.<content>[0]<content>[0]<content>[0]<type>, 'concatenation',
+    q{Type};
+
+  $parsed = $g.parse(
+    q{grammar Name; number : '1' # One ;}, :actions($a) ).ast;
+  is $parsed.<content>[0]<content>[0]<content>[0]<label>, 'One',
+    q{Label};
+
+  $parsed = $g.parse(
+    q{grammar Name; number : <assoc=right> '1' ;}, :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<content>[0]<content>[0]<options>,
+    [ assoc => 'right' ],
+    q{Options};
+
+  # This actually switches to a completely differnt branch, 'channel's are
+  # a lexer-only thing.
+  #
+#`(
+  $parsed = $g.parse(
+    q{grammar Name; number : '1' -> channel(HIDDEN) ;}, :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<content>[0]<content>[0]<command>,
+    [ channel => 'HIDDEN' ],
+    q{Command};
+)
+
+}, q{Third layer of rule};
+
+
 #`(
 
 is-deeply
@@ -309,39 +346,12 @@ is-deeply
                            complemented => False }] }] }] }] },
   q{Single rule with associated action};
 
-#
-# Rule-level
-#
-is-deeply $g.parse(
-  q{grammar Name; protected number : '1' ;},
-   :actions($a) ).ast.<content>[0]<attribute>,
-  [ 'protected' ],
-  q{rule with multiple alternating terms};
-
 subtest sub {
   my $parsed;
 
   plan 3;
 
-  $parsed = $g.parse(
-    q{grammar Name; number : <assoc=right> '1' ;}, :actions($a) ).ast;
-  is-deeply $parsed.<content>[0]<content>[0]<content>[0]<options>,
-    [ assoc => 'right' ],
-    q{Rule with option};
-
-  $parsed = $g.parse(
-    q{grammar Name; number : '1' # One ;}, :actions($a) ).ast;
-  is $parsed.<content>[0]<content>[0]<content>[0]<label>, 'One',
-    q{Rule with label};
-
 #`(
-  $parsed = $g.parse(
-    q{grammar Name; number : '1' -> channel(HIDDEN) ;}, :actions($a) ).ast;
-  is-deeply $parsed.<content>[0]<content>[0]<content>[0]<command>,
-    [ channel => 'HIDDEN' ],
-    q{Rule with command};
-)
-}, q{Term-level flags};
 
 is-deeply
   $g.parse(
@@ -847,50 +857,6 @@ subtest sub {
 )
 }, q{command};
 
-is-deeply
-  $g.parse(
-    q{grammar Name;
-number [int x]
-       returns [int y]
-       throws XFoo
-       locals [int z]
-       options{a=2;}
-  : '1' # One ;},
-    :actions($a) ).ast,
-  { type    => 'DEFAULT',
-    name    => 'Name',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    action  => [ ],
-    content =>
-      [${ type      => 'rule',
-          name      => 'number',
-          attribute => Any,
-          action    => '[int x]',
-          returns   => '[int y]',
-          throws    => [ 'XFoo' ],
-          locals    => '[int z]',
-          options   => [ a => 2 ],
-          content   =>
-            [${ type    => 'alternation',
-               label   => Nil,
-               options => [ ],
-               command => [ ],
-               content =>
-                 [${ type    => 'concatenation',
-                     label   => 'One',
-                     options => [ ],
-                     command => [ ],
-                     content =>
-                       [${ type         => 'terminal',
-                           content      => '1',
-                           alias        => Nil,
-                           modifier     => Nil,
-                           greedy       => False,
-                           complemented => False }] }] }] }] },
-  q{grammar with single labeled rule with action};
-
 subtest sub {
   my $parsed;
 
@@ -1122,6 +1088,7 @@ subtest sub {
     q{rule with multiple alternating terms};
 }, q{multiple terms};
 
+)
 )
 
 # vim: ft=perl6
