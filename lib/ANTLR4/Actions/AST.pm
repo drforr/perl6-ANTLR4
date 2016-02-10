@@ -187,6 +187,22 @@ class ANTLR4::Actions::AST
 		make ~$/<action_name> => ~$/<ACTION>
 		}
 
+	method terminal($/)
+		{
+		make
+			[${ type         => 'terminal',
+				content      => ~$/<scalar>[0],
+				alias        => Nil,
+				modifier     => Nil,
+				greedy       => False,
+				complemented => False }]
+		}
+
+	method atom($/)
+		{
+		make $/<terminal>.ast
+		}
+
 	method element($/)
 		{
 		make
@@ -195,13 +211,7 @@ class ANTLR4::Actions::AST
 			label   => Nil,
 			options => [ ],
 			command => [ ],
-			content =>
-				[${ type         => 'terminal',
-				    content      => '1',
-				    alias        => Nil,
-				    modifier     => Nil,
-				    greedy       => False,
-				    complemented => False }]
+			content => $/<atom>.ast
 			}
 		}
 
@@ -227,18 +237,33 @@ class ANTLR4::Actions::AST
 		make @<parserAlt>>>.ast
 		}
 
+	method ruleReturns($/)
+		{
+		make ~$/<ARG_ACTION>
+		}
+
+	method throwsSpec($/)
+		{
+		make @<ID>>>.ast
+		}
+
+	method localsSpec($/)
+		{
+		make ~$/<ARG_ACTION>
+		}
+
 	method parserRuleSpec($/)
 		{
 		make 
 			{
 			type      => 'rule',
 			name      => $/<name>.ast,
-			attribute => [ ],
-			action    => Nil,
-			returns   => Nil,
-			throws    => [ ],
-			locals    => Nil,
-			options   => [ ],
+			attribute => $/<attribute> ?? ~$/<attribute>  !! Any,
+			action    => $/<action>    ?? ~$/<action>     !! Any,
+			returns   => $/<returns>   ?? $/<returns>.ast !! Any,
+			throws    => $<throws>     ?? $/<throws>.ast  !! [ ],
+			locals    => $/<locals>    ?? $/<locals>.ast  !! Any,
+			options   => $<options>    ?? $/<options>.ast !! [ ],
 			content   => $/<parserAltList>.ast
 			}
 		}
@@ -288,16 +313,6 @@ method STRING_LITERAL($/)
 	make ~$/[0]
 	}
 
-method localsSpec($/)
-	{
-	make $/<ARG_ACTION>.ast
-	}
-
-method ruleReturns($/)
-	{
-	make $/<ARG_ACTION>.ast
-	}
-
 method block($/)
 	{
 	make $/<blockAltList>.ast
@@ -321,11 +336,6 @@ method LEXER_CHAR_SET($/)
 		]
 	}
 
-method throwsSpec($/)
-	{
-	make @<ID>>>.ast
-	}
-
 method lexerCommands($/)
 	{
 	make @<lexerCommand>>>.ast
@@ -336,28 +346,10 @@ method elementOptions($/)
 	make @<elementOption>>>.ast
 	}
 
-method optionValue($/)
-	{
-	make $/<list>.ast
-		|| $/<scalar>.ast
-	}
- 
-method ruleSpec($/)
-	{
-	make $/<parserRuleSpec>.ast
-		|| $/<lexerRuleSpec>.ast
-	}
-
 method parserRuleSpec($/)
 	{
 	make
 		{
-		type      => 'rule',
-		name      => $/<name>.ast,
-		content   =>
-			[
-			$/<parserAltList>.ast
-			],
                 action    => $/<action>.ast,
                 returns   => $/<returns>.ast,
                 throws    => $/<throws>.ast || [ ],
@@ -366,18 +358,6 @@ method parserRuleSpec($/)
 		attribute => @<attribute>>>.ast || [ ],
 		}
 	}
-
-#method exceptionGroup($/)
-#	{
-#	}
-
-#method exceptionHandler($/)
-#	{
-#	}
-
-#method finallyClause($/)
-#	{
-#	}
 
 method parserAlt($/)
 	{
@@ -472,10 +452,6 @@ method lexerElement($/)
 		}
 	}
 
-#method labeledLexerElement($/)
-#	{
-#	}
-
 method lexerBlock($/)
 	{
 #`(
@@ -529,11 +505,6 @@ command      => [ ]
 method blockAltList($/)
 	{
 	make @<parserElement>>>.ast
-	}
-
-method parserElement($/)
-	{
-	make @<element>>>.ast
 	}
 
 method element($/)
@@ -752,10 +723,6 @@ method setElement($/)
 		}
 	}
 
-#method ruleref($/)
-#	{
-#	}
-
 method range($/)
 	{
 	make
@@ -766,10 +733,6 @@ method range($/)
 			}
 		]
 	}
-
-#method terminal($/)
-#	{
-#	}
 )
 
 	}

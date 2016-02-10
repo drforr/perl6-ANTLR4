@@ -64,7 +64,7 @@ subtest sub {
   }, 'terminal of different types';
 
   is $p.parse( q{grammar Minimal; protected number : '1';}).perl6,
-     q{grammar Minimal { rule number { '1' } #={ "attribute" : [ "protected" ] } }},
+     q{grammar Minimal { rule number { '1' } #={ "attribute" : "protected" } }},
      'rule with attribute';
   is $p.parse( q{grammar Minimal; number [int x] : '1';}).perl6,
      q{grammar Minimal { rule number { '1' } #={ "action" : "[int x]" } }},

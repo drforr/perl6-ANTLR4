@@ -189,7 +189,7 @@ is-deeply
     content =>
       [${ type      => 'rule',
           name      => 'number',
-          attribute => [ ],
+          attribute => Nil,
           action    => Nil,
           returns   => Nil,
           throws    => [ ],
@@ -213,49 +213,57 @@ is-deeply
                             greedy       => False,
                             complemented => False }] }] }] }] },
   q{Single rule};
+
+subtest sub {
+  my $parsed;
+
+  plan 6;
+
+  $parsed = $g.parse(
+    q{grammar Name; number [int x] : '1' ;}, :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<action>, '[int x]',
+    q{Action};
+
+  $parsed = $g.parse(
+    q{grammar Name; protected number : '1' ;}, :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<attribute>, 'protected',
+    q{Attribute};
+
+  $parsed = $g.parse(
+    q{grammar Name; number returns [int x] : '1' ;}, :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<returns>, '[int x]',
+    q{Returns};
+
+  subtest sub {
+    my $parsed;
+
+    plan 2;
+
+    $parsed = $g.parse(
+      q{grammar Name; number throws XFoo : '1' ;}, :actions($a) ).ast;
+    is-deeply $parsed.<content>[0]<throws>, [ 'XFoo' ],
+      q{Single exception};
+
+    $parsed = $g.parse(
+      q{grammar Name; number throws XFoo, XBar : '1' ;}, :actions($a) ).ast;
+    is-deeply $parsed.<content>[0]<throws>, [ 'XFoo', 'XBar' ],
+      q{Multiple exceptions};
+
+  }, q{Throws};
+
+  $parsed = $g.parse(
+    q{grammar Name; number locals [int x] : '1' ;}, :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<locals>, '[int x]',
+    q{Locals};
+
+  $parsed = $g.parse(
+    q{grammar Name; number options{a=2;} : '1' ;}, :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<options>, [ a => 2 ],
+    q{Options};
+
+}, q{Rule-level keys};
 
 #`(
-
-#
-# Show off the first actual rule.
-#
-is-deeply
-  $g.parse(
-    q{grammar Name; number : '1' ;},
-    :actions($a) ).ast,
-  { type    => 'DEFAULT',
-    name    => 'Name',
-    options => [ ],
-    import  => [ ],
-    tokens  => [ ],
-    action  => [ ],
-    content =>
-      [${ type      => 'rule',
-          name      => 'number',
-          attribute => [ ],
-          action    => Nil,
-          returns   => Nil,
-          throws    => [ ],
-          locals    => Nil,
-          options   => [ ],
-          content   =>
-            [${ type    => 'alternation',
-                label   => Nil,
-                options => [ ],
-                command => [ ],
-                content =>
-                  [${ type    => 'concatenation',
-                      label   => Nil,
-                      options => [ ],
-                      command => [ ],
-                      content =>
-                        [${ type         => 'terminal',
-                            content      => '1',
-                            alias        => Nil,
-                            modifier     => Nil,
-                            greedy       => False,
-                            complemented => False }] }] }] }] },
-  q{Single rule};
 
 is-deeply
   $g.parse(
@@ -858,7 +866,7 @@ number [int x]
     content =>
       [${ type      => 'rule',
           name      => 'number',
-          attribute => [ ],
+          attribute => Any,
           action    => '[int x]',
           returns   => '[int y]',
           throws    => [ 'XFoo' ],
