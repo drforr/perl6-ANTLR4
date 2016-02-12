@@ -146,7 +146,8 @@ class ANTLR4::Actions::AST
 	method optionValue($/)
 		{
 		# XXX Should be able to be written cleaner.
-		make $/<DIGITS> ?? +$/<DIGITS>
+		make $/<DIGITS>
+			?? +$/<DIGITS>
 			!! $/<STRING_LITERAL>
 			?? ~$/<STRING_LITERAL>[0]
 			!! $/<ID_list>.ast
@@ -287,6 +288,58 @@ class ANTLR4::Actions::AST
 			locals    => $/<locals>    ?? $/<locals>.ast  !! Any,
 			options   => $<options>    ?? $/<options>.ast !! [ ],
 			content   => $/<parserAltList>.ast
+			}
+		}
+
+	# And here's where we reuse the <terminal> ... er, term.
+	#
+	method lexerAtom($/)
+		{
+		make $/<terminal>.ast
+		}
+
+	method lexerElement($/)
+		{
+		make
+			{
+			type    => 'concatenation',
+			label   => Nil,
+			options => [ ],
+			command => [ channel => 'HIDDEN' ],
+			content => [ $<lexerAtom>.ast ]
+			}
+		}
+
+	method lexerAlt($/)
+		{
+		make
+			{
+			type    => 'alternation',
+			label   => Nil,
+			options => [ ],
+			command => [ ],
+			content => @<lexerElement>>>.ast
+			}
+		}
+
+	method lexerAltList($/)
+		{
+		make @<lexerAlt>>>.ast
+		}
+
+	method lexerRuleSpec($/)
+		{
+		make 
+			{
+			type      => 'rule',
+			name      => $/<name>.ast,
+			attribute => Any,
+			action    => Any,
+			returns   => Any,
+			throws    => [ ],
+			locals    => Any,
+			options   => [ ],
+			content   => $/<lexerAltList>.ast
 			}
 		}
 

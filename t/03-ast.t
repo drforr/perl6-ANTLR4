@@ -8,6 +8,17 @@ plan 1;
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
 
+is-deeply
+  $g.parse( q{grammar Minimal;}, :actions($a) ).ast,
+  { type    => 'DEFAULT',
+    name    => 'Minimal',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    action  => [ ],
+    content => [ ] },
+  q{Minimal grammar};
+
 #
 # When adding a new layer to the datastructure, do just one is-deeply() test.
 #
@@ -15,38 +26,14 @@ my $g = ANTLR4::Grammar.new;
 # continually repeat the huge data structures each time.
 #
 subtest sub {
-  is-deeply
-    $g.parse( q{grammar Minimal;}, :actions($a) ).ast,
-    { type    => 'DEFAULT',
-      name    => 'Minimal',
-      options => [ ],
-      import  => [ ],
-      tokens  => [ ],
-      action  => [ ],
-      content => [ ] },
-    q{Minimal grammar};
+  my $parsed;
 
-  is-deeply
-    $g.parse( q{grammar Test;}, :actions($a) ).ast,
-    { type    => 'DEFAULT',
-      name    => 'Test',
-      options => [ ],
-      import  => [ ],
-      tokens  => [ ],
-      action  => [ ],
-      content => [ ] },
-    q{Test grammar with different naee};
+  plan 5;
 
-  is-deeply
-    $g.parse( q{lexer grammar Lexer;}, :actions($a) ).ast,
-    { type    => 'lexer',
-      name    => 'Lexer',
-      options => [ ],
-      import  => [ ],
-      tokens  => [ ],
-      action  => [ ],
-      content => [ ] },
-    q{Lexer grammar};
+  $parsed = $g.parse(
+    q{lexer grammar Name;}, :actions($a) ).ast;
+  is $parsed.<type>, 'lexer',
+    q{Lexer};
 
   subtest sub {
     my $parsed;
@@ -173,9 +160,6 @@ subtest sub {
 
 }, q{Top-level keys};
 
-#
-# Show off the first actual rule.
-#
 is-deeply
   $g.parse(
     q{grammar Name; number : '1' ;},
@@ -268,7 +252,7 @@ diag "Nothing at the second layer, apparently";
 subtest sub {
   my $parsed;
 
-  plan 4;
+  plan 3;
 
   $parsed = $g.parse(
     q{grammar Name; number : '1' ;}, :actions($a) ).ast;
@@ -286,19 +270,105 @@ subtest sub {
     [ assoc => 'right' ],
     q{Options};
 
-  # This actually switches to a completely differnt branch, 'channel's are
-  # a lexer-only thing.
-  #
-#`(
-  $parsed = $g.parse(
-    q{grammar Name; number : '1' -> channel(HIDDEN) ;}, :actions($a) ).ast;
-  is-deeply $parsed.<content>[0]<content>[0]<content>[0]<command>,
-    [ channel => 'HIDDEN' ],
-    q{Command};
-)
+  diag "Testing the command actually changes top-level stuff";
 
 }, q{Third layer of rule};
 
+is-deeply
+  $g.parse(
+    q{grammar Name; number : '1' -> channel(HIDDEN) ;},
+    :actions($a) ).ast,
+  { type    => 'DEFAULT',
+    name    => 'Name',
+    options => [ ],
+    import  => [ ],
+    tokens  => [ ],
+    action  => [ ],
+    content =>
+      [${ type      => 'rule',
+          name      => 'number',
+          attribute => Nil,
+          action    => Nil,
+          returns   => Nil,
+          throws    => [ ],
+          locals    => Nil,
+          options   => [ ],
+          content   =>
+            [${ type    => 'alternation',
+                label   => Nil,
+                options => [ ],
+                command => [ ],
+                content =>
+                  [${ type    => 'concatenation',
+                      label   => Nil,
+                      options => [ ],
+                      command => [ channel => 'HIDDEN' ],
+                      content =>
+                        [${ type         => 'terminal',
+                            content      => '1',
+                            alias        => Nil,
+                            modifier     => Nil,
+                            greedy       => False,
+                            complemented => False }] }] }] }] },
+  q{Single lexer rule};
+
+#`(
+subtest sub {
+  my $parsed;
+
+  plan 6;
+
+  $parsed = $g.parse(
+    q{grammar Name; number [int x] : '1' -> channel(HIDDEN) ;},
+    :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<action>, '[int x]',
+    q{Action};
+
+  $parsed = $g.parse(
+    q{grammar Name; protected number : '1' -> channel(HIDDEN) ;},
+    :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<attribute>, 'protected',
+    q{Attribute};
+
+  $parsed = $g.parse(
+    q{grammar Name; number returns [int x] : '1' -> channel(HIDDEN) ;},
+    :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<returns>, '[int x]',
+    q{Returns};
+
+  subtest sub {
+    my $parsed;
+
+    plan 2;
+
+    $parsed = $g.parse(
+      q{grammar Name; number throws XFoo : '1' -> channel(HIDDEN) ;},
+    :actions($a) ).ast;
+    is-deeply $parsed.<content>[0]<throws>, [ 'XFoo' ],
+      q{Single exception};
+
+    $parsed = $g.parse(
+      q{grammar Name; number throws XFoo, XBar : '1' -> channel(HIDDEN) ;},
+    :actions($a) ).ast;
+    is-deeply $parsed.<content>[0]<throws>, [ 'XFoo', 'XBar' ],
+      q{Multiple exceptions};
+
+  }, q{Throws};
+
+  $parsed = $g.parse(
+    q{grammar Name; number locals [int x] : '1' -> channel(HIDDEN) ;},
+    :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<locals>, '[int x]',
+    q{Locals};
+
+  $parsed = $g.parse(
+    q{grammar Name; number options{a=2;} : '1' -> channel(HIDDEN) ;},
+    :actions($a) ).ast;
+  is-deeply $parsed.<content>[0]<options>, [ a => 2 ],
+    q{Options};
+
+}, q{Rule-level keys for lexer grammar};
+)
 
 #`(
 
