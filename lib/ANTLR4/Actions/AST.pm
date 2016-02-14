@@ -386,13 +386,13 @@ class ANTLR4::Actions::AST
 
 		make
 			{
-			type    => $<grammarType>.ast,
-			name    => ~$/<name>,
-			options => @options,
-			imports => @imports,
-			tokens  => @tokens,
-			actions => @action,
-			content => @<ruleSpec>>>.ast
+			type     => $<grammarType>.ast,
+			name     => ~$/<name>,
+			options  => @options,
+			imports  => @imports,
+			tokens   => @tokens,
+			actions  => @action,
+			contents => @<ruleSpec>>>.ast
 			}
 		}
 
