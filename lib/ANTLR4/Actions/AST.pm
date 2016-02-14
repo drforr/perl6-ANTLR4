@@ -285,11 +285,11 @@ class ANTLR4::Actions::AST
 			{
 			type      => 'rule',
 			name      => $/<name>.ast,
-			attribute => $/<attribute> ?? ~$/<attribute>  !! Any,
-			action    => $/<action>    ?? ~$/<action>     !! Any,
-			returns   => $/<returns>   ?? $/<returns>.ast !! Any,
+			attribute => $/<attribute> ?? ~$/<attribute>  !! Nil,
+			action    => $/<action>    ?? ~$/<action>     !! Nil,
+			returns   => $/<returns>   ?? $/<returns>.ast !! Nil,
 			throws    => $<throws>     ?? $/<throws>.ast  !! [ ],
-			locals    => $/<locals>    ?? $/<locals>.ast  !! Any,
+			locals    => $/<locals>    ?? $/<locals>.ast  !! Nil,
 			options   => $<options>    ?? $/<options>.ast !! [ ],
 			content   => $/<parserAltList>.ast
 			}
@@ -352,11 +352,11 @@ class ANTLR4::Actions::AST
 			{
 			type      => 'rule',
 			name      => $/<name>.ast,
-			attribute => Any,
-			action    => Any,
-			returns   => Any,
+			attribute => Nil,
+			action    => Nil,
+			returns   => Nil,
 			throws    => [ ],
-			locals    => Any,
+			locals    => Nil,
 			options   => [ ],
 			content   => $/<lexerAltList>.ast
 			}
@@ -397,106 +397,6 @@ class ANTLR4::Actions::AST
 		}
 
 #`(
-method lexerCommandExpr($/)
-	{
-	make ~$/[0]
-	}
-
-method STRING_LITERAL($/)
-	{
-	make ~$/[0]
-	}
-
-method block($/)
-	{
-	make $/<blockAltList>.ast
-	}
-
-method elementOption($/)
-	{
-	make ~$/<key> => ~$/<value>
-	}
- 
-method lexerCommand($/)
-	{
-	make $/<lexerCommandName>.ast => $/<lexerCommandExpr>.ast
-	}
-
-method LEXER_CHAR_SET($/)
-	{
-	make
-		[
-		$/[0]>>.Str
-		]
-	}
-
-method lexerCommands($/)
-	{
-	make @<lexerCommand>>>.ast
-	}
-
-method elementOptions($/)
-	{
-	make @<elementOption>>>.ast
-	}
-
-method parserRuleSpec($/)
-	{
-	make
-		{
-                action    => $/<action>.ast,
-                returns   => $/<returns>.ast,
-                throws    => $/<throws>.ast || [ ],
-                locals    => $/<locals>.ast,
-                options   => $/<options>.ast || [ ],
-		attribute => @<attribute>>>.ast || [ ],
-		}
-	}
-
-method parserAlt($/)
-	{
-	make
-		{
-		type    => 'concatenation',
-		content => $/<parserElement>.ast,
-                options => $/<parserElement><elementOptions>.ast || [ ],
-		command => [ ],
-		label   => $/<label>.ast,
-		}
-	}
- 
-method lexerRuleSpec($/)
-	{
-	make
-		{
-		type     => 'rule',
-		name     => $/<name>.ast,
-		content  =>
-			[
-			$/<lexerAltList>.ast
-			],
-		attribute => $/<FRAGMENT> ?? [ ~$/<FRAGMENT> ] !! [ ],
-                action    => Nil,
-                returns   => Nil,
-                throws    => [ ],
-                locals    => Nil,
-                options   => [ ]
-		}
-	}
-
-method lexerAltList($/)
-	{
-	make
-		{
-		type    => 'alternation',
-		label   => Nil,
-#content => @<lexerAlt>>>.ast,
-content => [$/<lexerAlt>[0].ast],
-		command => [ ],
-		options => [ ],
-		}
-	}
-
 method lexerAlt($/)
 	{
 #`(
@@ -596,11 +496,6 @@ command      => [ ]
 	}
 
 
-method blockAltList($/)
-	{
-	make @<parserElement>>>.ast
-	}
-
 method element($/)
 	{
 #`(
@@ -681,14 +576,6 @@ method element($/)
 		}
 	}
  
-method labeledElement($/)
-	{
-	make
-		{
-		type => 'nonterminal',
-		}
-	}
-
 method ebnf($/)
 	{
 my @x = $/<block><blockAltList><parserElement>;
@@ -790,16 +677,6 @@ method notSet($/)
 		}
 	}
 
-method setElementAltList($/)
-	{
-	make @<setElement>>>.ast
-	}
-
-method blockSet($/)
-	{
-	make $/<setElementAltList>.ast
-	}
-
 method setElement($/)
 	{
 	make
@@ -815,17 +692,6 @@ method setElement($/)
 			?? $/<range>.ast
 			!! $/<terminal><scalar>.ast
 		}
-	}
-
-method range($/)
-	{
-	make
-		[
-			{
-			from => ~$/<from>[0],
-			to   => ~$/<to>[0]
-			}
-		]
 	}
 )
 
