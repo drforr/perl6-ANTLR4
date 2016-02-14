@@ -177,7 +177,7 @@ is-deeply
           action    => Nil,
           return    => Nil,
           throws    => [ ],
-          locals    => Nil,
+          local     => Nil,
           options   => [ ],
           content   =>
             [${ type    => 'alternation',
@@ -237,7 +237,7 @@ subtest sub {
 
   $parsed = $g.parse(
     q{grammar Name; number locals [int x] : '1' ;}, :actions($a) ).ast;
-  is-deeply $parsed.<contents>[0]<locals>, '[int x]',
+  is-deeply $parsed.<contents>[0]<local>, '[int x]',
     q{Locals};
 
   $parsed = $g.parse(
@@ -291,7 +291,7 @@ is-deeply
           action    => Nil,
           return    => Nil,
           throws    => [ ],
-          locals    => Nil,
+          local     => Nil,
           options   => [ ],
           content   =>
             [${ type    => 'alternation',
@@ -330,7 +330,7 @@ is-deeply
           action    => Nil,
           return    => Nil,
           throws    => [ ],
-          locals    => Nil,
+          local     => Nil,
           options   => [ ],
           content   =>
             [${ type    => 'alternation',
@@ -381,7 +381,7 @@ is-deeply
           action    => Nil,
           return    => Nil,
           throws    => [ ],
-          locals    => Nil,
+          local     => Nil,
           options   => [ ],
           content   =>
             [${ type    => 'alternation',
@@ -430,7 +430,7 @@ is-deeply
           action    => Nil,
           return    => Nil,
           throws    => [ ],
-          locals    => Nil,
+          local     => Nil,
           options   => [ ],
           content   =>
             [{ type    => 'alternation',
@@ -490,7 +490,7 @@ is-deeply
           action    => Nil,
           return    => Nil,
           throws    => [ ],
-          locals    => Nil,
+          local     => Nil,
           options   => [ ],
           content   =>
             [{ type    => 'alternation',
@@ -556,7 +556,7 @@ is-deeply
          action    => Nil,
          return    => Nil,
          throws    => [ ],
-         locals    => Nil,
+         local     => Nil,
          options   => [ ],
          content   =>
            [{ type    => 'alternation',
@@ -611,7 +611,7 @@ is-deeply
           action    => Nil,
           return    => Nil,
           throws    => [ ],
-          locals    => Nil,
+          local     => Nil,
           options   => [ ],
           content   =>
             [${ type    => 'alternation',

@@ -289,7 +289,7 @@ class ANTLR4::Actions::AST
 			action    => $/<action>    ?? ~$/<action>     !! Nil,
 			return    => $/<returns>   ?? $/<returns>.ast !! Nil,
 			throws    => $<throws>     ?? $/<throws>.ast  !! [ ],
-			locals    => $/<locals>    ?? $/<locals>.ast  !! Nil,
+			local     => $/<locals>    ?? $/<locals>.ast  !! Nil,
 			options   => $<options>    ?? $/<options>.ast !! [ ],
 			content   => $/<parserAltList>.ast
 			}
@@ -356,7 +356,7 @@ class ANTLR4::Actions::AST
 			action    => Nil,
 			return    => Nil,
 			throws    => [ ],
-			locals    => Nil,
+			local     => Nil,
 			options   => [ ],
 			content   => $/<lexerAltList>.ast
 			}
