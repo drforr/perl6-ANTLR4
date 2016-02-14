@@ -89,7 +89,7 @@ most complex, and is described in detail at the appropriate place.
 
   The C<name> and C<content> are the most important items, C<name> is the
   rule's name (go figure) and C<content> being the actual meat of the rule.
-  C<attribute>, C<action>, C<returns> and C<throws> are useful for the Java
+  C<attribute>, C<action>, C<return> and C<throws> are useful for the Java
   author to restrict visibiity of the rule, and add additional arguments to the
   Java method that is called by the generated parser.
   
@@ -287,7 +287,7 @@ class ANTLR4::Actions::AST
 			name      => $/<name>.ast,
 			attribute => $/<attribute> ?? ~$/<attribute>  !! Nil,
 			action    => $/<action>    ?? ~$/<action>     !! Nil,
-			returns   => $/<returns>   ?? $/<returns>.ast !! Nil,
+			return    => $/<returns>   ?? $/<returns>.ast !! Nil,
 			throws    => $<throws>     ?? $/<throws>.ast  !! [ ],
 			locals    => $/<locals>    ?? $/<locals>.ast  !! Nil,
 			options   => $<options>    ?? $/<options>.ast !! [ ],
@@ -354,7 +354,7 @@ class ANTLR4::Actions::AST
 			name      => $/<name>.ast,
 			attribute => Nil,
 			action    => Nil,
-			returns   => Nil,
+			return    => Nil,
 			throws    => [ ],
 			locals    => Nil,
 			options   => [ ],
