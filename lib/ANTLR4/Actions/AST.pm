@@ -212,11 +212,11 @@ class ANTLR4::Actions::AST
 		{
 		make
 			{
-			type    => 'concatenation',
-			label   => Nil,
-			options => [ ],
-			command => [ ],
-			content => $/<atom>.ast
+			type     => 'concatenation',
+			label    => Nil,
+			options  => [ ],
+			commands => [ ],
+			content  => $/<atom>.ast
 			}
 		}
 
@@ -306,11 +306,11 @@ class ANTLR4::Actions::AST
 		{
 		make
 			{
-			type    => 'concatenation',
-			label   => Nil,
-			options => [ ],
-			command => [ ], # XXX Filled in by the next layer up
-			content => [ $<lexerAtom>.ast ]
+			type     => 'concatenation',
+			label    => Nil,
+			options  => [ ],
+			commands => [ ], # XXX Filled in by the next layer up
+			content  => [ $<lexerAtom>.ast ]
 			}
 		}
 
@@ -330,7 +330,7 @@ class ANTLR4::Actions::AST
 
 		# Add the command to the lexer element afterward, if any.
 		#
-		@lexerElement[0]<command> = [ $/<lexerCommands>.ast ];
+		@lexerElement[0]<commands> = [ $/<lexerCommands>.ast ];
 		make
 			{
 			type     => 'alternation',
@@ -402,11 +402,11 @@ method lexerAlt($/)
 #`(
 	make
 		{
-		type    => 'concatenation',
-		content => @<lexerElement>>>.ast,
-		label   => Nil,
-                options => [ ],
-		command => $/<lexerCommands>.ast || [ ],
+		type     => 'concatenation',
+		content  => @<lexerElement>>>.ast,
+		label    => Nil,
+                options  => [ ],
+		commands => $/<lexerCommands>.ast || [ ],
 		}
 )
 	make
@@ -414,8 +414,8 @@ method lexerAlt($/)
 		type    => 'concatenation',
 		label   => Nil,
 		options => [ ],
-command => [ skip => Nil ],
-content => [$<lexerElement>[0].ast],
+commands => [ skip => Nil ],
+content  => [$<lexerElement>[0].ast],
 		}
 	}
 
@@ -454,7 +454,7 @@ method lexerBlock($/)
 		type         => 'capturing group',
 		content      => @<lexeAltList>>>.ast,
 		complemented => $/[0] || False,
-		command      => [ ]
+		commands     => [ ]
 		}
 )
 
@@ -463,27 +463,27 @@ method lexerBlock($/)
 		type         => 'capturing group',
 #		content      => @<lexeAltList>>>.ast,
 content =>
-  [{ type    => 'alternation',
-     label   => Nil,
-     options => [ ],
+  [{ type     => 'alternation',
+     label    => Nil,
+     options  => [ ],
      commands => [ ],
      contents =>
-       [{ type    => 'concatenation',
-          label   => Nil,
-          options => [ ],
-          command => [ ],
-          content =>
+       [{ type     => 'concatenation',
+          label    => Nil,
+          options  => [ ],
+          commands => [ ],
+          content  =>
             [{ type         => 'terminal',
                content      => '1',
                alias        => Nil,
                modifier     => Nil,
                greedy       => False,
                complemented => False }] },
-        { type    => 'concatenation',
-          label   => Nil,
-          options => [ ],
-          command => [ ],
-          content =>
+        { type     => 'concatenation',
+          label    => Nil,
+          options  => [ ],
+          commands => [ ],
+          content  =>
              [{ type         => 'terminal',
                 content      => '2',
                 alias        => Nil,
@@ -588,11 +588,11 @@ my @foo = @x>>.ast;
 		content  =>
 			[
 				{
-				type    => 'concatenation',
-				label   => Nil,
-				options => [ ],
-				command => [ ],
-				content => @foo[0], # XXX
+				type     => 'concatenation',
+				label    => Nil,
+				options  => [ ],
+				commands => [ ],
+				content  => @foo[0], # XXX
 				}
 			]
 		}
