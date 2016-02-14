@@ -73,7 +73,7 @@ most complex, and is described in detail at the appropriate place.
   Perl6 you'll need to take note of this behavior, but it's currently beyond
   the scope of this action to parse the text here.
 
-  =item content
+  =item contents
 
   To preserve ordering in case we want to round-trip ANTLR-Perl6-ANTLR, this
   is also an array reference. It's also the most complex of the data
@@ -82,18 +82,18 @@ most complex, and is described in detail at the appropriate place.
   At this juncture you may want to keep L<t/03-actions.t> open in order to
   follow along with the story.
 
-  The C<content> key is an arrayref of hashrefs. Each of these hashrefs
+  The C<contents> key is an arrayref of hashrefs. Each of these hashrefs
   contains a full rule, laid out in a more or less conistent fashion. All of
   these hashrefs contain a fixed set of keys, only two of them important to
   Perl6 users in general.
 
-  The C<name> and C<content> are the most important items, C<name> is the
-  rule's name (go figure) and C<content> being the actual meat of the rule.
+  The C<name> and C<contents> are the most important items, C<name> is the
+  rule's name (go figure) and C<contents> being the actual meat of the rule.
   C<attribute>, C<action>, C<return> and C<throws> are useful for the Java
   author to restrict visibiity of the rule, and add additional arguments to the
   Java method that is called by the generated parser.
   
-  The real fun begins inside the C<content> key. Even a simple ANTLR4 rule
+  The real fun begins inside the C<contents> key. Even a simple ANTLR4 rule
   such as C<number : digits ;> will have several layers of what looks like
   redundant nesting. This is mostly for consistency's sake, and might change
   later on, especially for single-term rules where you wouldn't expect the
@@ -109,16 +109,16 @@ most complex, and is described in detail at the appropriate place.
   concatenation implicit in C<number : sign? digits ;>. Explicit groups are
   those that override ANTLR4's assumptions, such as C<number : sign? (a b)?>.
 
-  Groups will always be a hashref, with a C<type> and C<content> key. The type
-  is one of C<alternation>, C<concatenation> or C<capturing>. The content
+  Groups will always be a hashref, with a C<type> and C<contents> key. The type
+  is one of C<alternation>, C<concatenation> or C<capturing>. The contents
   will always be an arrayref of either groups or terms.
 
   Terms are the basics of the grammar, such as C<'foo'>, C<[0-9]+> or
-  C<digits>. Each term has a C<type>, C<content>, C<modifier>, C<greedy> and
+  C<digits>. Each term has a C<type>, C<contents>, C<modifier>, C<greedy> and
   C<complemented> key.
 
   The C<type> is one of C<terminal>, C<nonterminal> or C<character class>. 
-  The content is the actual text of the term (such as C<foo> if the term is
+  The contents is the actual text of the term (such as C<foo> if the term is
   C<'foo'>, or the individual "characters" of the character class.
 
   The C<modifier> is the C<+>, C<*> or C<?> modifier at the end of the term,
@@ -216,7 +216,7 @@ class ANTLR4::Actions::AST
 			label    => Nil,
 			options  => [ ],
 			commands => [ ],
-			content  => $/<atom>.ast
+			contents => $/<atom>.ast
 			}
 		}
 
@@ -255,7 +255,7 @@ class ANTLR4::Actions::AST
 
 		# Add the label to the rule afterward, if there is one.
 		#
-		$ast.<content>.[0]<label> = ~$/<label> if $/<label>;
+		$ast.<contents>[0]<label> = ~$/<label> if $/<label>;
 		make $ast;
 		}
 
@@ -310,7 +310,7 @@ class ANTLR4::Actions::AST
 			label    => Nil,
 			options  => [ ],
 			commands => [ ], # XXX Filled in by the next layer up
-			content  => [ $<lexerAtom>.ast ]
+			contents => [ $<lexerAtom>.ast ]
 			}
 		}
 
@@ -403,7 +403,7 @@ method lexerAlt($/)
 	make
 		{
 		type     => 'concatenation',
-		content  => @<lexerElement>>>.ast,
+		contents => @<lexerElement>>>.ast,
 		label    => Nil,
                 options  => [ ],
 		commands => $/<lexerCommands>.ast || [ ],
@@ -415,7 +415,7 @@ method lexerAlt($/)
 		label   => Nil,
 		options => [ ],
 commands => [ skip => Nil ],
-content  => [$<lexerElement>[0].ast],
+contents => [$<lexerElement>[0].ast],
 		}
 	}
 
@@ -452,7 +452,7 @@ method lexerBlock($/)
 	make
 		{
 		type         => 'capturing group',
-		content      => @<lexeAltList>>>.ast,
+		contents     => @<lexeAltList>>>.ast,
 		complemented => $/[0] || False,
 		commands     => [ ]
 		}
@@ -461,8 +461,8 @@ method lexerBlock($/)
 	make
 		{
 		type         => 'capturing group',
-#		content      => @<lexeAltList>>>.ast,
-content =>
+#		contents     => @<lexeAltList>>>.ast,
+contents =>
   [{ type     => 'alternation',
      label    => Nil,
      options  => [ ],
@@ -472,7 +472,7 @@ content =>
           label    => Nil,
           options  => [ ],
           commands => [ ],
-          content  =>
+          contents  =>
             [{ type         => 'terminal',
                content      => '1',
                alias        => Nil,
@@ -483,7 +483,7 @@ content =>
           label    => Nil,
           options  => [ ],
           commands => [ ],
-          content  =>
+          contents  =>
              [{ type         => 'terminal',
                 content      => '2',
                 alias        => Nil,
