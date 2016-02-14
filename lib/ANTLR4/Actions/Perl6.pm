@@ -289,7 +289,7 @@ class ANTLR4::Actions::Perl6
 
 		# Yes, probably a fancier way to do this, but it works.
 		#
-		for <type options import tokens action> -> $key
+		for <type options imports tokens action> -> $key
 			{
 			next if $key eq 'type' and $ast.<type> eq 'DEFAULT';
 			$json.{$key} = $ast.{$key} if $ast.{$key};

@@ -49,7 +49,7 @@ most complex, and is described in detail at the appropriate place.
   option is 'tokenVocab', which would appear as
   C<options => [ tokenVocab => 'ECMAScriptLexer' ]>.
 
-  =item import
+  =item imports
 
   An array reference of grammar files the current file imports, and their
   optional aliases. This action doesn't load imported files, but feel free
@@ -58,7 +58,7 @@ most complex, and is described in detail at the appropriate place.
   =item tokens
 
   An array reference of token names predefined in other grammar files, such as
-  the files in the C<import> key. While tokens may be defined in other files,
+  the files in the C<imports> key. While tokens may be defined in other files,
   they're beyond the scope of this action.
 
   =item action
@@ -369,18 +369,18 @@ class ANTLR4::Actions::AST
 
 	method TOP($/)
 		{
-		my ( @options, @import, @tokens, @action );
+		my ( @options, @imports, @tokens, @action );
 
 		@options.append( $_.<options>.ast ) for $/<prequelConstruct>;
 
 		@tokens.append( $_.<tokens>.ast ) for $/<prequelConstruct>;
 		@action.append( $_.<actions>.ast ) for $/<prequelConstruct>;
 
-		# XXX Apparently the way import builds the list is mildly broken.
+		# XXX Apparently the way imports builds the list is mildly broken.
 		for $/<prequelConstruct> -> $prequel
 			{
-			next unless $prequel.<import>.ast;
-			@import = $prequel.<import>.ast;
+			next unless $prequel.<imports>.ast;
+			@imports = $prequel.<imports>.ast;
 			last;
 			}
 
@@ -389,7 +389,7 @@ class ANTLR4::Actions::AST
 			type    => $<grammarType>.ast,
 			name    => ~$/<name>,
 			options => @options,
-			import  => @import,
+			imports => @imports,
 			tokens  => @tokens,
 			action  => @action,
 			content => @<ruleSpec>>>.ast

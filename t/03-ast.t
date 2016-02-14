@@ -13,7 +13,7 @@ is-deeply
   { type    => 'DEFAULT',
     name    => 'Minimal',
     options => [ ],
-    import  => [ ],
+    imports => [ ],
     tokens  => [ ],
     action  => [ ],
     content => [ ] },
@@ -92,7 +92,7 @@ subtest sub {
 
     $parsed = $g.parse(
       q{grammar Name; options {a=2;} import Foo;}, :actions($a) ).ast;
-    is-deeply $parsed.<import>, [ Foo => Nil ],
+    is-deeply $parsed.<imports>, [ Foo => Nil ],
       q{Single import};
 
     subtest sub {
@@ -103,13 +103,13 @@ subtest sub {
       $parsed = $g.parse(
         q{grammar Name; options {a=2;} import Foo,Bar;},
         :actions($a) ).ast;
-      is-deeply $parsed.<import>, [ Foo => Nil, Bar => Nil ],
+      is-deeply $parsed.<imports>, [ Foo => Nil, Bar => Nil ],
         q{Two grammars};
 
       $parsed = $g.parse(
         q{grammar Name; options {a=2;} import Foo,Bar=Test;},
         :actions($a) ).ast;
-      is-deeply $parsed.<import>, [ Foo => Nil, Bar => 'Test' ],
+      is-deeply $parsed.<imports>, [ Foo => Nil, Bar => 'Test' ],
         q{Two grammars, last aliased};
 
     }, q{Multiple imports};
@@ -167,7 +167,7 @@ is-deeply
   { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
-    import  => [ ],
+    imports => [ ],
     tokens  => [ ],
     action  => [ ],
     content =>
@@ -281,7 +281,7 @@ is-deeply
   { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
-    import  => [ ],
+    imports => [ ],
     tokens  => [ ],
     action  => [ ],
     content =>
@@ -320,7 +320,7 @@ is-deeply
   { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
-    import  => [ ],
+    imports => [ ],
     tokens  => [ ],
     action  => [ ],
     content =>
@@ -371,7 +371,7 @@ is-deeply
   { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
-    import  => [ ],
+    imports => [ ],
     tokens  => [ ],
     action  => [ ],
     content =>
@@ -420,7 +420,7 @@ is-deeply
   { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
-    import  => [ ],
+    imports => [ ],
     tokens  => [ ],
     action  => [ ],
     content =>
@@ -480,7 +480,7 @@ is-deeply
   { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
-    import  => [ ],
+    imports => [ ],
     tokens  => [ ],
     action  => [ ],
     content =>
@@ -546,7 +546,7 @@ is-deeply
   { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
-    import  => [ ],
+    imports => [ ],
     tokens  => [ ],
     action  => [ ],
     content =>
@@ -601,7 +601,7 @@ is-deeply
   { type    => 'DEFAULT',
     name    => 'Name',
     options => [ ],
-    import  => [ ],
+    imports => [ ],
     tokens  => [ ],
     action  => [ ],
     content =>

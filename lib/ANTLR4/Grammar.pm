@@ -182,7 +182,7 @@ rule grammarType
 
 rule prequelConstruct
  	{	<options=optionsSpec>
-	|	<import=delegateGrammars>
+	|	<imports=delegateGrammars>
 	|	<tokens=tokensSpec>
 	|	<actions=action>
  	}
