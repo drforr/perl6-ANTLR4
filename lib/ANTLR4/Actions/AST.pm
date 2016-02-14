@@ -291,7 +291,7 @@ class ANTLR4::Actions::AST
 			throws    => $<throws>     ?? $/<throws>.ast  !! [ ],
 			local     => $/<locals>    ?? $/<locals>.ast  !! Nil,
 			options   => $<options>    ?? $/<options>.ast !! [ ],
-			content   => $/<parserAltList>.ast
+			contents  => $/<parserAltList>.ast
 			}
 		}
 
@@ -358,7 +358,7 @@ class ANTLR4::Actions::AST
 			throws    => [ ],
 			local     => Nil,
 			options   => [ ],
-			content   => $/<lexerAltList>.ast
+			contents  => $/<lexerAltList>.ast
 			}
 		}
 
