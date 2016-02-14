@@ -15,7 +15,7 @@ is-deeply
     options => [ ],
     imports => [ ],
     tokens  => [ ],
-    action  => [ ],
+    actions => [ ],
     content => [ ] },
   q{Minimal grammar};
 
@@ -143,7 +143,7 @@ subtest sub {
     $parsed = $g.parse(
       q{grammar Name; @members { protected int curlies = 0; }},
       :actions($a) ).ast;
-    is-deeply $parsed.<action>,
+    is-deeply $parsed.<actions>,
       [ '@members' => '{ protected int curlies = 0; }' ],
       q{Single action};
 
@@ -151,7 +151,7 @@ subtest sub {
       q{grammar Name;
         @members { protected int curlies = 0; }
         @sample::stuff { 1; }}, :actions($a) ).ast;
-    is-deeply $parsed.<action>,
+    is-deeply $parsed.<actions>,
       [ '@members' => '{ protected int curlies = 0; }',
         '@sample::stuff' => '{ 1; }' ],
       q{Multiple tokens};
@@ -169,7 +169,7 @@ is-deeply
     options => [ ],
     imports => [ ],
     tokens  => [ ],
-    action  => [ ],
+    actions => [ ],
     content =>
       [${ type      => 'rule',
           name      => 'number',
@@ -283,7 +283,7 @@ is-deeply
     options => [ ],
     imports => [ ],
     tokens  => [ ],
-    action  => [ ],
+    actions => [ ],
     content =>
       [${ type      => 'rule',
           name      => 'number',
@@ -322,7 +322,7 @@ is-deeply
     options => [ ],
     imports => [ ],
     tokens  => [ ],
-    action  => [ ],
+    actions => [ ],
     content =>
       [${ type      => 'rule',
           name      => 'number',
@@ -373,7 +373,7 @@ is-deeply
     options => [ ],
     imports => [ ],
     tokens  => [ ],
-    action  => [ ],
+    actions => [ ],
     content =>
       [${ type      => 'rule',
           name      => 'number',
@@ -422,7 +422,7 @@ is-deeply
     options => [ ],
     imports => [ ],
     tokens  => [ ],
-    action  => [ ],
+    actions => [ ],
     content =>
       [${ type      => 'rule',
           name      => 'number',
@@ -482,7 +482,7 @@ is-deeply
     options => [ ],
     imports => [ ],
     tokens  => [ ],
-    action  => [ ],
+    actions => [ ],
     content =>
       [${ type      => 'rule',
           name      => 'number',
@@ -548,7 +548,7 @@ is-deeply
     options => [ ],
     imports => [ ],
     tokens  => [ ],
-    action  => [ ],
+    actions => [ ],
     content =>
       [{ type      => 'rule',
          name      => 'number',
@@ -603,7 +603,7 @@ is-deeply
     options => [ ],
     imports => [ ],
     tokens  => [ ],
-    action  => [ ],
+    actions => [ ],
     content =>
       [${ type      => 'rule',
           name      => 'number',

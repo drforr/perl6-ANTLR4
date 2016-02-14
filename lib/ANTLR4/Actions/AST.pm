@@ -61,9 +61,9 @@ most complex, and is described in detail at the appropriate place.
   the files in the C<imports> key. While tokens may be defined in other files,
   they're beyond the scope of this action.
 
-  =item action
+  =item actions
 
-  An array reference consisting of the action performed by the top level of the
+  An array reference consisting of the actions performed by the top level of the
   grammar. It's just a reference to a single pair, even though the grammar
   doesn't seem to support multiple actions at the top level. Again, an array
   reference just for consistency's sake.
@@ -391,7 +391,7 @@ class ANTLR4::Actions::AST
 			options => @options,
 			imports => @imports,
 			tokens  => @tokens,
-			action  => @action,
+			actions => @action,
 			content => @<ruleSpec>>>.ast
 			}
 		}
