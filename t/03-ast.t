@@ -313,65 +313,6 @@ is-deeply
   q{Single lexer rule};
 
 #`(
-subtest sub {
-  my $parsed;
-
-  plan 6;
-
-  $parsed = $g.parse(
-    q{grammar Name; number [int x] : '1' -> channel(HIDDEN) ;},
-    :actions($a) ).ast;
-  is-deeply $parsed.<content>[0]<action>, '[int x]',
-    q{Action};
-
-  $parsed = $g.parse(
-    q{grammar Name; protected number : '1' -> channel(HIDDEN) ;},
-    :actions($a) ).ast;
-  is-deeply $parsed.<content>[0]<attribute>, 'protected',
-    q{Attribute};
-
-  $parsed = $g.parse(
-    q{grammar Name; number returns [int x] : '1' -> channel(HIDDEN) ;},
-    :actions($a) ).ast;
-  is-deeply $parsed.<content>[0]<returns>, '[int x]',
-    q{Returns};
-
-  subtest sub {
-    my $parsed;
-
-    plan 2;
-
-    $parsed = $g.parse(
-      q{grammar Name; number throws XFoo : '1' -> channel(HIDDEN) ;},
-    :actions($a) ).ast;
-    is-deeply $parsed.<content>[0]<throws>, [ 'XFoo' ],
-      q{Single exception};
-
-    $parsed = $g.parse(
-      q{grammar Name; number throws XFoo, XBar : '1' -> channel(HIDDEN) ;},
-    :actions($a) ).ast;
-    is-deeply $parsed.<content>[0]<throws>, [ 'XFoo', 'XBar' ],
-      q{Multiple exceptions};
-
-  }, q{Throws};
-
-  $parsed = $g.parse(
-    q{grammar Name; number locals [int x] : '1' -> channel(HIDDEN) ;},
-    :actions($a) ).ast;
-  is-deeply $parsed.<content>[0]<locals>, '[int x]',
-    q{Locals};
-
-  $parsed = $g.parse(
-    q{grammar Name; number options{a=2;} : '1' -> channel(HIDDEN) ;},
-    :actions($a) ).ast;
-  is-deeply $parsed.<content>[0]<options>, [ a => 2 ],
-    q{Options};
-
-}, q{Rule-level keys for lexer grammar};
-)
-
-#`(
-
 is-deeply
   $g.parse(
     q{grammar Name; number : '1' {action++;} ;},

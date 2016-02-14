@@ -137,7 +137,11 @@ class ANTLR4::Actions::AST
 		make $/[0] ?? ~$/[0] !! 'DEFAULT'
 		}
 
-	method ID($/) { make ~$/ }
+	method ID($/)
+		{
+		make ~$/
+		}
+
 	method ID_list($/)
 		{
 		make @<ID>>>.ast
@@ -298,27 +302,42 @@ class ANTLR4::Actions::AST
 		make $/<terminal>.ast
 		}
 
-	method lexerElement($/)
+	method lexerElement($/) # 'channel' not in this term.
 		{
 		make
 			{
 			type    => 'concatenation',
 			label   => Nil,
 			options => [ ],
-			command => [ channel => 'HIDDEN' ],
+			command => [ ], # XXX Filled in by the next layer up
 			content => [ $<lexerAtom>.ast ]
 			}
 		}
 
+	method lexerCommand($/)
+		{
+		make ~$/<lexerCommandName> => ~$/<lexerCommandExpr>[0]
+		}
+
+	method lexerCommands($/)
+		{
+		make @<lexerCommand>>>.ast
+		}
+
 	method lexerAlt($/)
 		{
+		my @lexerElement = @<lexerElement>>>.ast;
+
+		# Add the command to the lexer element afterward, if any.
+		#
+		@lexerElement[0]<command> = [ $/<lexerCommands>.ast ];
 		make
 			{
 			type    => 'alternation',
 			label   => Nil,
 			options => [ ],
 			command => [ ],
-			content => @<lexerElement>>>.ast
+			content => @lexerElement
 			}
 		}
 
