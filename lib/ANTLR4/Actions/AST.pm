@@ -250,7 +250,7 @@ class ANTLR4::Actions::AST
 			label    => Nil,
 			options  => [ ],
 			commands => [ ],
-			content  => $/<parserElement>.ast
+			contents => $/<parserElement>.ast
 			};
 
 		# Add the label to the rule afterward, if there is one.
@@ -337,7 +337,7 @@ class ANTLR4::Actions::AST
 			label    => Nil,
 			options  => [ ],
 			commands => [ ],
-			content  => @lexerElement
+			contents => @lexerElement
 			}
 		}
 
@@ -466,8 +466,8 @@ content =>
   [{ type    => 'alternation',
      label   => Nil,
      options => [ ],
-     command => [ ],
-     content =>
+     commands => [ ],
+     contents =>
        [{ type    => 'concatenation',
           label   => Nil,
           options => [ ],

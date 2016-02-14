@@ -184,7 +184,7 @@ is-deeply
                 label    => Nil,
                 options  => [ ],
                 commands => [ ],
-                content =>
+                contents =>
                   [${ type    => 'concatenation',
                       label   => Nil,
                       options => [ ],
@@ -256,7 +256,7 @@ subtest sub {
 
   $parsed = $g.parse(
     q{grammar Name; number : '1' ;}, :actions($a) ).ast;
-  is $parsed.<contents>[0]<contents>[0]<content>[0]<type>, 'concatenation',
+  is $parsed.<contents>[0]<contents>[0]<contents>[0]<type>, 'concatenation',
     q{Type};
 
   $parsed = $g.parse(
@@ -266,7 +266,7 @@ subtest sub {
 
   $parsed = $g.parse(
     q{grammar Name; number : <assoc=right> '1' ;}, :actions($a) ).ast;
-  is-deeply $parsed.<contents>[0]<contents>[0]<content>[0]<options>,
+  is-deeply $parsed.<contents>[0]<contents>[0]<contents>[0]<options>,
     [ assoc => 'right' ],
     q{Options};
 
@@ -298,7 +298,7 @@ is-deeply
                 label    => Nil,
                 options  => [ ],
                 commands => [ ],
-                content =>
+                contents =>
                   [${ type    => 'concatenation',
                       label   => Nil,
                       options => [ ],
@@ -337,7 +337,7 @@ is-deeply
                 label    => Nil,
                 options  => [ ],
                 commands => [ ],
-                content =>
+                contents =>
                   [${ type    => 'concatenation',
                       label   => Nil,
                       options => [ ],
@@ -388,7 +388,7 @@ is-deeply
                 label    => Nil,
                 options  => [ ],
                 commands => [ ],
-                content =>
+                contents =>
                   [${ type    => 'concatenation',
                        label   => Nil,
                        options => [ ],
@@ -437,7 +437,7 @@ is-deeply
                label    => Nil,
                options  => [ ],
                commands => [ ],
-               content =>
+               contents =>
                  [{ type    => 'concatenation',
                      label   => Nil,
                      options => [ ],
@@ -453,7 +453,7 @@ is-deeply
                                 label   => Nil,
                                 options => [ ],
                                 command => [ ],
-                                content =>
+                                contents =>
                                   [{ type    => 'concatenation',
                                      label   => Nil,
                                      options => [ ],
@@ -497,7 +497,7 @@ is-deeply
                label    => Nil,
                options  => [ ],
                commands => [ ],
-               content =>
+               contents =>
                  [{ type    => 'concatenation',
                      label   => Nil,
                      options => [ ],
@@ -513,7 +513,7 @@ is-deeply
                                label   => Nil,
                                options => [ ],
                                command => [ ],
-                               content =>
+                               contents =>
                                  [{ type    => 'concatenation',
                                     label   => Nil,
                                     options => [ ],
@@ -563,7 +563,7 @@ is-deeply
               label    => Nil,
               options  => [ ],
               commands => [ ],
-              content =>
+              contents =>
                 [${ type    => 'concatenation',
                    label   => Nil,
                    options => [ ],
@@ -579,7 +579,7 @@ is-deeply
                              label   => Nil,
                              options => [ ],
                              command => [ ],
-                             content =>
+                             contents =>
                                [{ type    => 'concatenation',
                                   label   => Nil,
                                   options => [ ],
@@ -618,7 +618,7 @@ is-deeply
                 label    => Nil,
                 options  => [ ],
                 commands => [ ],
-                content =>
+                contents =>
                   [${ type    => 'concatenation',
                       label   => Nil,
                       options => [ ],
@@ -1044,7 +1044,7 @@ subtest sub {
       label    => Nil,
       options  => [ ],
       commands => [ ],
-      content =>
+      contents =>
         [${ type     => 'concatenation',
             label    => 'One',
             options  => [ ],
@@ -1073,7 +1073,7 @@ subtest sub {
       label    => Nil,
       options  => [ ],
       commands => [ ],
-      content =>
+      contents =>
         [{ type     => 'concatenation',
            label    => Nil,
            options  => [ ],
