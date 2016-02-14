@@ -246,11 +246,11 @@ class ANTLR4::Actions::AST
 		{
 		my $ast =
 			{
-			type    => 'alternation',
-			label   => Nil,
-			options => [ ],
-			command => [ ],
-			content => $/<parserElement>.ast
+			type     => 'alternation',
+			label    => Nil,
+			options  => [ ],
+			commands => [ ],
+			content  => $/<parserElement>.ast
 			};
 
 		# Add the label to the rule afterward, if there is one.
@@ -333,11 +333,11 @@ class ANTLR4::Actions::AST
 		@lexerElement[0]<command> = [ $/<lexerCommands>.ast ];
 		make
 			{
-			type    => 'alternation',
-			label   => Nil,
-			options => [ ],
-			command => [ ],
-			content => @lexerElement
+			type     => 'alternation',
+			label    => Nil,
+			options  => [ ],
+			commands => [ ],
+			content  => @lexerElement
 			}
 		}
 
