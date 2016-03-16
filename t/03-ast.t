@@ -8,6 +8,10 @@ plan 1;
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
 
+#
+# A brief reminder is in order - Arrayref keys should all be plural, everything
+#                                else should be singular.
+#
 is-deeply
   $g.parse( q{grammar Minimal;}, :actions($a) ).ast,
   { type     => 'DEFAULT',
@@ -312,7 +316,6 @@ is-deeply
                             complemented => False }] }] }] }] },
   q{Single lexer rule};
 
-#`(
 is-deeply
   $g.parse(
     q{grammar Name; number : '1' {action++;} ;},
@@ -326,7 +329,7 @@ is-deeply
     contents =>
       [${ type      => 'rule',
           name      => 'number',
-          attribute => [ ],
+          attribute => Nil,
           action    => Nil,
           return    => Nil,
           throws    => [ ],
@@ -357,6 +360,7 @@ is-deeply
                            complemented => False }] }] }] }] },
   q{Single rule with associated action};
 
+#`(
 subtest sub {
   my $parsed;
 
