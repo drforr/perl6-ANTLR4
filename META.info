@@ -1,4 +1,5 @@
 {
+	"perl"         : "6.*",
 	"name"         : "ANTLR4",
 	"version"      : "*",
 	"description"  : "ANTLR4 to Perl6 conversion tool",
