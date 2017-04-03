@@ -1,0 +1,40 @@
+{
+   "meta6" : "0",
+   "tags" : [
+		"ANTLR",
+		"ANTLR4",
+		"Grammar",
+		"Transform",
+		"Languages",
+		"parse",
+		"parser",
+		"parsing"
+   ],
+   "provides" : {
+      "ANTLR4::Grammar" : "lib/ANTLR4/Grammar.pm6",
+      "ANTLR4::Actions::AST" : "lib/ANTLR4/Actions/AST.pm6"
+      "ANTLR4::Actions::Perl6" : "lib/ANTLR4/Actions/Perl6.pm6"
+   },
+   "test-depends" : [
+      "Test"
+   ],
+   "support" : {
+      "source" : "https://github.com/drforr/perl6-ANTLR4"
+   },
+   "perl" : "6.c",
+   "build-depends" : [],
+   "test-depends" : [
+       "JSON::Tiny"
+   ],
+   "auth" : "github:drforr",
+   "source-url" : "https://github.com/drforr/perl6-ANTLR4.git",
+   "depends" : [
+   ],
+   "name" : "ANTLR4",
+   "authors" : [
+      "Jeffrey Goff <drforr@pobox.com>"
+   ],
+   "version" : "0.0.5",
+   "license" : "Artistic",
+   "description" : "Turn ANTLR4 Grammarb into Perl 6 Grammars"
+}
