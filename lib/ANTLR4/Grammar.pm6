@@ -165,15 +165,16 @@ token LEXER_CHAR_SET
 rule TOP 
 	{
 	<BLANK_LINE>*
-	<type=grammarType> <name=ID> ';'
+	<grammarType> <ID> ';'
 	<prequelConstruct>*
-	<rules=ruleSpec>*
+	<ruleSpec>*
 	<modeSpec>*
 	}
 
 rule grammarType
 	{
-	<COMMENTS>? ( :!sigspace 'lexer' | 'parser' )? <COMMENTS>? 'grammar'
+	<COMMENTS>?  ( :!sigspace 'lexer' | 'parser' )?
+	<COMMENTS>? 'grammar'
 	}
 
 #  This is the list of all constructs that can be declared before
@@ -181,10 +182,10 @@ rule grammarType
 #  times by the grammarPrequel rule.
 
 rule prequelConstruct
- 	{	<options=optionsSpec>
-	|	<imports=delegateGrammars>
-	|	<tokens=tokensSpec>
-	|	<actions=action>
+ 	{	<optionsSpec>
+	|	<delegateGrammars>
+	|	<tokensSpec>
+	|	<action>
  	}
  
 #  A list of options that affect analysis and/or code generation
