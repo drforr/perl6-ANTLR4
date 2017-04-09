@@ -271,7 +271,7 @@ rule parserRuleSpec
  	{
 	# XXX 'protected fragment' doesn't happen
 	<COMMENTS>? <attribute=ruleAttribute>?
-	<COMMENTS>? <name=ID>
+	<COMMENTS>? <ID>
 	<COMMENTS>? <action=ARG_ACTION>?
 	<COMMENTS>? <returns=ruleReturns>?
 	<COMMENTS>? <throws=throwsSpec>?

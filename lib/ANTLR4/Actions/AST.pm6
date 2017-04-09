@@ -131,31 +131,28 @@ most complex, and is described in detail at the appropriate place.
 
 use v6;
 class ANTLR4::Actions::AST {
-	method grammarType( $/ ) {
-		make $/[0] ?? $/[0].Str !! Any;
-	}
 	method TOP( $/ ) {
 		make [ (
 			type         => Q{grammar},
-			variant      => $/<grammarType>.ast,
+			variant      => Any,
 			name         => $/<ID>.Str,
-			modifier     => Any, # Constant
-			greedy       => Any, # Constant
-			lexerCommand => Any, # Constant
+			modifier     => Any,
+			greedy       => Any,
+			lexerCommand => Any,
 			content      => [ (
 				type         => Q{options},
-				variant      => Any, # Constant
-				name         => Any, # Constant
-				modifier     => Any, # Constant
-				greedy       => Any, # Constant
-				lexerCommand => Any, # Constant
+				variant      => Any,
+				name         => Any,
+				modifier     => Any,
+				greedy       => Any,
+				lexerCommand => Any,
 				content  => [ (
 					type         => Q{option},
 					variant      => Any,
 					name => $/<prequelConstruct>[0]<optionsSpec><option>[0]<key>.Str,
-					modifier     => Any, # Constant
-					greedy       => Any, # Constant
-					lexerCommand => Any, # Constant
+					modifier     => Any,
+					greedy       => Any,
+					lexerCommand => Any,
 					content => $/<prequelConstruct>[0]<optionsSpec><option>[0]<optionValue>.Str,
 				) ]
 			), (
@@ -176,7 +173,6 @@ class ANTLR4::Actions::AST {
 				), (
 					type         => Q{import},
 					variant      => Any,
-					#name         => Q{MinimalLexer},
 					name         => $/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>[1]<key>.Str,
 					modifier     => Any,
 					greedy       => Any,
@@ -241,7 +237,7 @@ class ANTLR4::Actions::AST {
 				content      => [ (
 					type         => Q{rule},
 					variant      => Any,
-					name         => Q{DOC_COMMENT},
+					name         => $/<ruleSpec>[0]<parserRuleSpec><ID>.Str,
 					modifier     => Any,
 					greedy       => Any,
 					lexerCommand => Any,
@@ -265,15 +261,47 @@ class ANTLR4::Actions::AST {
 								modifier     => Any,
 								greedy       => Any,
 								lexerCommand => Any,
-								content => Q{/**}
+								content      => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[0]<atom><terminal><scalar>[0].Str,
 							), (
-								type         => Q{dot},
+								type         => Q{metachar},
 								variant      => Any,
 								name         => Any,
-								modifier     => Q{*},
+								modifier      => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[1]<ebnfSuffix><MODIFIER>.Str,
+								greedy      => ?$/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[1]<ebnfSuffix><GREED>,
+								lexerCommand => Any,
+								content      => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[1]<atom><DOT>.Str,
+							), (
+								type         => Q{capturing group},
+								variant      => Any,
+								name         => Any,
+								modifier     => Any,
 								greedy       => True,
 								lexerCommand => Any,
-								content      => Any
+								content      => [ (
+									type => Q{alternation},
+									variant => Any,
+									name => Any,
+									modifier => Any,
+									greedy => Any,
+									lexerCommand => Any,
+									content => [ (
+										type => Q{literal},
+										variant => Any,
+										name => Any,
+										modifier => Any,
+										greedy => False,
+										lexerCommand => Any,
+										content => Q{*/}
+									), (
+										type => Q{EOF},
+										variant => Any,
+										name => Any,
+										modifier => Any,
+										greedy => False,
+										lexerCommand => Any,
+										content => Any
+									) ]
+								) ]
 							) ]
 						) ]
 					) ]

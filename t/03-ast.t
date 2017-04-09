@@ -77,9 +77,15 @@ subtest {
 $parsed = $g.parse(
 	Q:to{END},
 grammar Minimal;
-options { Type=Foo; }
+options {
+	Type=Foo;
+}
 import MinimalParser, MinimalLexer=Lexer;
-tokens { TOKEN_REF, RULE_REF, LEXER_CHAR_SET }
+tokens {
+	TOKEN_REF,
+	RULE_REF,
+	LEXER_CHAR_SET
+}
 @members {
 	/** Track whether we are inside of a rule and whether it is lexical parser.
 	 */
@@ -87,26 +93,15 @@ tokens { TOKEN_REF, RULE_REF, LEXER_CHAR_SET }
 		this._currentRuleType = ruleType;
 	}
 }
-DOC_COMMENT
-	:	'/**' .*? ('*/' | EOF)
-	;
+DOC_COMMENT : '/**' .*? ( '*/' | EOF )? ;
 
 mode LexerCharSet;
 
-	LEXER_CHAR_SET_BODY
-		:	(	~[\]\\]
-			|	'\\' .
-			)+
-                                        -> more
-		;
+LEXER_CHAR_SET_BODY : (	~[\]\\] | '\\' . )+ -> more ;
 
-	LEXER_CHAR_SET
-		:   ']'                         -> popMode
-		;
+LEXER_CHAR_SET : ']' -> popMode ;
 
-	UNTERMINATED_CHAR_SET
-		:	EOF							-> popMode
-		;
+UNTERMINATED_CHAR_SET :	EOF -> popMode ;
 
 END
 	:actions($a)
@@ -115,99 +110,99 @@ END
 #say $parsed;
 
 is-deeply $parsed, [ (
-			type => Q{grammar},
-			variant => Any,
-			name => Q{Minimal},
+	type         => Q{grammar},
+	variant      => Any,
+	name         => Q{Minimal},
+	modifier     => Any,
+	greedy       => Any,
+	lexerCommand => Any,
+	content      => [ (
+		type         => Q{options},
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		greedy       => Any,
+		lexerCommand => Any,
+		content  => [ (
+			type         => Q{option},
+			variant      => Any,
+			name         => Q{Type},
 			modifier     => Any,
 			greedy       => Any,
 			lexerCommand => Any,
-			content      => [ (
-				type         => Q{options},
-				variant      => Any,
-				name         => Any,
-				modifier     => Any,
-				greedy       => Any,
-				lexerCommand => Any,
-				content  => [ (
-					type         => Q{option},
-					variant      => Any,
-					name         => Q{Type},
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Q{Foo}
-				) ]
-			), (
-				type         => Q{imports},
-				variant      => Any,
-				name         => Any,
-				modifier     => Any,
-				greedy       => Any,
-				lexerCommand => Any,
-				content  => [ (
-					type         => Q{import},
-					variant      => Any,
-					name         => Q{MinimalParser},
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Any,
-				), (
-					type         => Q{import},
-					variant      => Any,
-					name         => Q{MinimalLexer},
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Q{Lexer}
-				) ]
-			), (
-				type         => Q{tokens},
-				variant      => Any,
-				name         => Any,
-				modifier     => Any,
-				greedy       => Any,
-				lexerCommand => Any,
-				content      => [ (
-					type         => Q{token},
-					variant      => Any,
-					name         => Q{TOKEN_REF},
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Any
-				), (
-					type         => Q{token},
-					variant      => Any,
-					name         => Q{RULE_REF},
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Any
-				), (
-					type         => Q{token},
-					variant      => Any,
-					name         => Q{LEXER_CHAR_SET},
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Any
-				) ]
-			), (
-				type         => Q{actions},
-				variant      => Any,
-				name         => Any,
-				modifier     => Any,
-				greedy       => Any,
-				lexerCommand => Any,
-				content  => [ (
-					type         => Q{action},
-					variant      => Any,
-					name         => Q{members},
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Q:to{END}.chomp,
+			content      => Q{Foo}
+		) ]
+	), (
+		type         => Q{imports},
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		greedy       => Any,
+		lexerCommand => Any,
+		content  => [ (
+			type         => Q{import},
+			variant      => Any,
+			name         => Q{MinimalParser},
+			modifier     => Any,
+			greedy       => Any,
+			lexerCommand => Any,
+			content      => Any,
+		), (
+			type         => Q{import},
+			variant      => Any,
+			name         => Q{MinimalLexer},
+			modifier     => Any,
+			greedy       => Any,
+			lexerCommand => Any,
+			content      => Q{Lexer}
+		) ]
+	), (
+		type         => Q{tokens},
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		greedy       => Any,
+		lexerCommand => Any,
+		content      => [ (
+			type         => Q{token},
+			variant      => Any,
+			name         => Q{TOKEN_REF},
+			modifier     => Any,
+			greedy       => Any,
+			lexerCommand => Any,
+			content      => Any
+		), (
+			type         => Q{token},
+			variant      => Any,
+			name         => Q{RULE_REF},
+			modifier     => Any,
+			greedy       => Any,
+			lexerCommand => Any,
+			content      => Any
+		), (
+			type         => Q{token},
+			variant      => Any,
+			name         => Q{LEXER_CHAR_SET},
+			modifier     => Any,
+			greedy       => Any,
+			lexerCommand => Any,
+			content      => Any
+		) ]
+	), (
+		type         => Q{actions},
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		greedy       => Any,
+		lexerCommand => Any,
+		content  => [ (
+			type         => Q{action},
+			variant      => Any,
+			name         => Q{members},
+			modifier     => Any,
+			greedy       => Any,
+			lexerCommand => Any,
+			content      => Q:to{END}.chomp,
 {
 	/** Track whether we are inside of a rule and whether it is lexical parser.
 	 */
@@ -216,63 +211,95 @@ is-deeply $parsed, [ (
 	}
 }
 END
-				) ]
-			), (
-				type         => Q{rules},
+		) ]
+	), (
+		type         => Q{rules},
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		greedy       => Any,
+		lexerCommand => Any,
+		content      => [ (
+			type         => Q{rule},
+			variant      => Any,
+			name         => Q{DOC_COMMENT},
+			modifier     => Any,
+			greedy       => Any,
+			lexerCommand => Any,
+			content => [ (
+				type         => Q{alternation},
 				variant      => Any,
 				name         => Any,
 				modifier     => Any,
 				greedy       => Any,
 				lexerCommand => Any,
-				content      => [ (
-					type         => Q{rule},
+				content  => [ (
+					type         => Q{concatenation},
 					variant      => Any,
-					name         => Q{DOC_COMMENT},
+					name         => Any,
 					modifier     => Any,
 					greedy       => Any,
-					lexerCommand => Any,
-					content => [ (
-						type         => Q{alternation},
+					content      => [ (
+						type         => Q{literal},
 						variant      => Any,
 						name         => Any,
 						modifier     => Any,
 						greedy       => Any,
 						lexerCommand => Any,
-						content  => [ (
-							type         => Q{concatenation},
-							variant      => Any,
-							name         => Any,
-							modifier     => Any,
-							greedy       => Any,
-							content      => [ (
-								type         => Q{literal},
-								variant      => Any,
-								name         => Any,
-								modifier     => Any,
-								greedy       => Any,
+						content => Q{/**}
+					), (
+						type         => Q{metachar},
+						variant      => Any,
+						name         => Any,
+						modifier     => Q{*},
+						greedy       => True,
+						lexerCommand => Any,
+						content      => Q{.}
+					), (
+						type         => Q{capturing group},
+						variant      => Any,
+						name         => Any,
+						modifier     => Any,
+						greedy       => True,
+						lexerCommand => Any,
+						content      => [ (
+							type => Q{alternation},
+							variant => Any,
+							name => Any,
+							modifier => Any,
+							greedy => Any,
+							lexerCommand => Any,
+							content => [ (
+								type => Q{literal},
+								variant => Any,
+								name => Any,
+								modifier => Any,
+								greedy => False,
 								lexerCommand => Any,
-								content => Q{/**}
+								content => Q{*/}
 							), (
-								type         => Q{dot},
-								variant      => Any,
-								name         => Any,
-								modifier     => Q{*},
-								greedy       => True,
+								type => Q{EOF},
+								variant => Any,
+								name => Any,
+								modifier => Any,
+								greedy => False,
 								lexerCommand => Any,
-								content      => Any
+								content => Any
 							) ]
 						) ]
 					) ]
-				), (
-					type         => Q{rule},
-					variant      => Q{LexerCharSet},
-					name         => Q{LEXER_CHAR_SET_BODY},
-					modifier     => Q{*},
-					greedy       => True,
-					lexerCommand => Q{more},
-					content      => Any # ...
 				) ]
 			) ]
+		), (
+			type         => Q{rule},
+			variant      => Q{LexerCharSet},
+			name         => Q{LEXER_CHAR_SET_BODY},
+			modifier     => Q{*},
+			greedy       => True,
+			lexerCommand => Q{more},
+			content      => Any # ...
+		) ]
+	) ]
 ) ], Q{christmas};
 
 # vim: ft=perl6
