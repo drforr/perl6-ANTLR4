@@ -207,12 +207,14 @@ is-deeply $parsed, [ (
 					modifier     => Any,
 					greedy       => Any,
 					lexerCommand => Any,
-					content      => Q:to{END},
+					content      => Q:to{END}.chomp,
+{
 	/** Track whether we are inside of a rule and whether it is lexical parser.
 	 */
 	public void setCurrentRuleType(int ruleType) {
 		this._currentRuleType = ruleType;
 	}
+}
 END
 				) ]
 			), (

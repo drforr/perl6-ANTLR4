@@ -131,29 +131,32 @@ most complex, and is described in detail at the appropriate place.
 
 use v6;
 class ANTLR4::Actions::AST {
+	method grammarType( $/ ) {
+		make $/[0] ?? $/[0].Str !! Any;
+	}
 	method TOP( $/ ) {
 		make [ (
-			type => Q{grammar},
-			variant => Any,
-			name => Q{Minimal},
-			modifier     => Any,
-			greedy       => Any,
-			lexerCommand => Any,
+			type         => Q{grammar},
+			variant      => $/<grammarType>.ast,
+			name         => $/<ID>.Str,
+			modifier     => Any, # Constant
+			greedy       => Any, # Constant
+			lexerCommand => Any, # Constant
 			content      => [ (
 				type         => Q{options},
-				variant      => Any,
-				name         => Any,
-				modifier     => Any,
-				greedy       => Any,
-				lexerCommand => Any,
+				variant      => Any, # Constant
+				name         => Any, # Constant
+				modifier     => Any, # Constant
+				greedy       => Any, # Constant
+				lexerCommand => Any, # Constant
 				content  => [ (
 					type         => Q{option},
 					variant      => Any,
-					name         => Q{Type},
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Q{Foo}
+					name => $/<prequelConstruct>[0]<optionsSpec><option>[0]<key>.Str,
+					modifier     => Any, # Constant
+					greedy       => Any, # Constant
+					lexerCommand => Any, # Constant
+					content => $/<prequelConstruct>[0]<optionsSpec><option>[0]<optionValue>.Str,
 				) ]
 			), (
 				type         => Q{imports},
@@ -165,7 +168,7 @@ class ANTLR4::Actions::AST {
 				content  => [ (
 					type         => Q{import},
 					variant      => Any,
-					name         => Q{MinimalParser},
+					name         => $/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>[0]<key>.Str,
 					modifier     => Any,
 					greedy       => Any,
 					lexerCommand => Any,
@@ -173,11 +176,12 @@ class ANTLR4::Actions::AST {
 				), (
 					type         => Q{import},
 					variant      => Any,
-					name         => Q{MinimalLexer},
+					#name         => Q{MinimalLexer},
+					name         => $/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>[1]<key>.Str,
 					modifier     => Any,
 					greedy       => Any,
 					lexerCommand => Any,
-					content      => Q{Lexer}
+					content         => $/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>[1]<value>.Str,
 				) ]
 			), (
 				type         => Q{tokens},
@@ -189,7 +193,7 @@ class ANTLR4::Actions::AST {
 				content      => [ (
 					type         => Q{token},
 					variant      => Any,
-					name         => Q{TOKEN_REF},
+					name         => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>[0].Str,
 					modifier     => Any,
 					greedy       => Any,
 					lexerCommand => Any,
@@ -197,7 +201,7 @@ class ANTLR4::Actions::AST {
 				), (
 					type         => Q{token},
 					variant      => Any,
-					name         => Q{RULE_REF},
+					name         => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>[1].Str,
 					modifier     => Any,
 					greedy       => Any,
 					lexerCommand => Any,
@@ -205,7 +209,7 @@ class ANTLR4::Actions::AST {
 				), (
 					type         => Q{token},
 					variant      => Any,
-					name         => Q{LEXER_CHAR_SET},
+					name         => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>[2].Str,
 					modifier     => Any,
 					greedy       => Any,
 					lexerCommand => Any,
@@ -221,17 +225,11 @@ class ANTLR4::Actions::AST {
 				content  => [ (
 					type         => Q{action},
 					variant      => Any,
-					name         => Q{members},
+					name         => $/<prequelConstruct>[3]<action><action_name><ID>.Str,
 					modifier     => Any,
 					greedy       => Any,
 					lexerCommand => Any,
-					content      => Q:to{END}
-	/** Track whether we are inside of a rule and whether it is lexical parser.
-	 */
-	public void setCurrentRuleType(int ruleType) {
-		this._currentRuleType = ruleType;
-	}
-END
+					content      => $/<prequelConstruct>[3]<action><ACTION>.Str,
 				) ]
 			), (
 				type         => Q{rules},
