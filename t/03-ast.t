@@ -270,21 +270,21 @@ END
 							greedy => Any,
 							lexerCommand => Any,
 							content => [ (
-								type => Q{literal},
-								variant => Any,
-								name => Any,
-								modifier => Any,
-								greedy => False,
+								type         => Q{literal},
+								variant      => Any,
+								name         => Any,
+								modifier     => Any,
+								greedy       => Any,
 								lexerCommand => Any,
-								content => Q{*/}
+								content      => Q{*/}
 							), (
-								type => Q{EOF},
-								variant => Any,
-								name => Any,
-								modifier => Any,
-								greedy => False,
+								type         => Q{EOF},
+								variant      => Any,
+								name         => Any,
+								modifier     => Any,
+								greedy       => Any,
 								lexerCommand => Any,
-								content => Any
+								content      => Any
 							) ]
 						) ]
 					) ]

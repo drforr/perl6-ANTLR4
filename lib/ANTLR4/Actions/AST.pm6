@@ -130,7 +130,76 @@ most complex, and is described in detail at the appropriate place.
 =end pod
 
 use v6;
+
 class ANTLR4::Actions::AST {
+	method make-option( :$match ) {
+		type         => Q{option},
+		variant      => Any,
+		name         => $match<key>.Str,
+		modifier     => Any,
+		greedy       => Any,
+		lexerCommand => Any,
+		content      => $match<optionValue>.Str
+	}
+	method make-token( :$match ) {
+		type         => Q{token},
+		variant      => Any,
+		name         => $match.Str,
+		modifier     => Any,
+		greedy       => Any,
+		lexerCommand => Any,
+		content      => Any
+	}
+	method make-action( :$match ) {
+		type         => Q{action},
+		variant      => Any,
+		name         => $match<action_name><ID>.Str,
+		modifier     => Any,
+		greedy       => Any,
+		lexerCommand => Any,
+		content      => $match<ACTION>.Str
+	}
+	method make-literal( :$match ) {
+		type         => Q{literal},
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		greedy       => Any,
+		lexerCommand => Any,
+		content      => $match.Str
+	}
+	method make-EOF {
+		type         => Q{EOF},
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		greedy       => Any,
+		lexerCommand => Any,
+		content      => Any
+	}
+	method make-metacharacter( :$match ) {
+		type         => Q{metachar},
+		variant      => Any,
+		name         => Any,
+		modifier     => $match<ebnfSuffix><MODIFIER>.Str,
+		greedy       => ?$match<ebnfSuffix><GREED>,
+		lexerCommand => Any,
+		content      => $match<atom><DOT>.Str
+	}
+
+	method delegateGrammar( $/ ) {
+		make (
+			type         => Q{import},
+			variant      => Any,
+			name         => $/<key>.Str,
+			modifier     => Any,
+			greedy       => Any,
+			lexerCommand => Any,
+			content      => $/<value> ??
+					$/<value>.Str !!
+					Any
+		)
+	}
 	method TOP( $/ ) {
 		make [ (
 			type         => Q{grammar},
@@ -147,13 +216,9 @@ class ANTLR4::Actions::AST {
 				greedy       => Any,
 				lexerCommand => Any,
 				content  => [ (
-					type         => Q{option},
-					variant      => Any,
-					name => $/<prequelConstruct>[0]<optionsSpec><option>[0]<key>.Str,
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content => $/<prequelConstruct>[0]<optionsSpec><option>[0]<optionValue>.Str,
+					self.make-option(
+						match => $/<prequelConstruct>[0]<optionsSpec><option>[0]
+					)
 				) ]
 			), (
 				type         => Q{imports},
@@ -162,23 +227,9 @@ class ANTLR4::Actions::AST {
 				modifier     => Any,
 				greedy       => Any,
 				lexerCommand => Any,
-				content  => [ (
-					type         => Q{import},
-					variant      => Any,
-					name         => $/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>[0]<key>.Str,
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Any
-				), (
-					type         => Q{import},
-					variant      => Any,
-					name         => $/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>[1]<key>.Str,
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content         => $/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>[1]<value>.Str,
-				) ]
+				content  => [
+					$/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>>>.ast
+				]
 			), (
 				type         => Q{tokens},
 				variant      => Any,
@@ -187,29 +238,17 @@ class ANTLR4::Actions::AST {
 				greedy       => Any,
 				lexerCommand => Any,
 				content      => [ (
-					type         => Q{token},
-					variant      => Any,
-					name         => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>[0].Str,
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Any
+					self.make-token(
+						match => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>[0]
+					)
 				), (
-					type         => Q{token},
-					variant      => Any,
-					name         => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>[1].Str,
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Any
+					self.make-token(
+						match => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>[1]
+					)
 				), (
-					type         => Q{token},
-					variant      => Any,
-					name         => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>[2].Str,
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => Any
+					self.make-token(
+						match => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>[2]
+					)
 				) ]
 			), (
 				type         => Q{actions},
@@ -219,13 +258,9 @@ class ANTLR4::Actions::AST {
 				greedy       => Any,
 				lexerCommand => Any,
 				content  => [ (
-					type         => Q{action},
-					variant      => Any,
-					name         => $/<prequelConstruct>[3]<action><action_name><ID>.Str,
-					modifier     => Any,
-					greedy       => Any,
-					lexerCommand => Any,
-					content      => $/<prequelConstruct>[3]<action><ACTION>.Str,
+					self.make-action( 
+						match => $/<prequelConstruct>[3]<action>
+					)
 				) ]
 			), (
 				type         => Q{rules},
@@ -255,21 +290,13 @@ class ANTLR4::Actions::AST {
 							modifier     => Any,
 							greedy       => Any,
 							content      => [ (
-								type         => Q{literal},
-								variant      => Any,
-								name         => Any,
-								modifier     => Any,
-								greedy       => Any,
-								lexerCommand => Any,
-								content      => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[0]<atom><terminal><scalar>[0].Str,
+								self.make-literal(
+									match      => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[0]<atom><terminal><scalar>[0]
+								)
 							), (
-								type         => Q{metachar},
-								variant      => Any,
-								name         => Any,
-								modifier      => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[1]<ebnfSuffix><MODIFIER>.Str,
-								greedy      => ?$/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[1]<ebnfSuffix><GREED>,
-								lexerCommand => Any,
-								content      => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[1]<atom><DOT>.Str,
+								self.make-metacharacter(
+									match      => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[1],
+								)
 							), (
 								type         => Q{capturing group},
 								variant      => Any,
@@ -278,28 +305,18 @@ class ANTLR4::Actions::AST {
 								greedy       => True,
 								lexerCommand => Any,
 								content      => [ (
-									type => Q{alternation},
-									variant => Any,
-									name => Any,
-									modifier => Any,
-									greedy => Any,
+									type         => Q{alternation},
+									variant      => Any,
+									name         => Any,
+									modifier     => Any,
+									greedy       => Any,
 									lexerCommand => Any,
-									content => [ (
-										type => Q{literal},
-										variant => Any,
-										name => Any,
-										modifier => Any,
-										greedy => False,
-										lexerCommand => Any,
-										content => Q{*/}
+									content      => [ (
+										self.make-literal(
+											match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><block><blockAltList><parserElement>[0]<element>[0]<atom><terminal><scalar>[0]
+										)
 									), (
-										type => Q{EOF},
-										variant => Any,
-										name => Any,
-										modifier => Any,
-										greedy => False,
-										lexerCommand => Any,
-										content => Any
+										self.make-EOF
 									) ]
 								) ]
 							) ]
