@@ -138,8 +138,6 @@ class ANTLR4::Actions::AST {
 		variant      => Any,
 		name         => $match<key>.Str,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content      => $match<optionValue>.Str
 	}
@@ -149,8 +147,6 @@ class ANTLR4::Actions::AST {
 		variant      => Any,
 		name         => $match<key>.Str,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content      => $match<value> ??
 				$match<value>.Str !!
@@ -162,8 +158,6 @@ class ANTLR4::Actions::AST {
 		variant      => Any,
 		name         => $match.Str,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content      => Any
 	}
@@ -173,8 +167,6 @@ class ANTLR4::Actions::AST {
 		variant      => Any,
 		name         => $match<action_name><ID>.Str,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content      => $match<ACTION>.Str
 	}
@@ -183,9 +175,11 @@ class ANTLR4::Actions::AST {
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
-		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
+		modifier     => (
+			intensifier  => Any,
+			greedy       => False,
+			complemented => False,
+		),
 		lexerCommand => Any,
 		content      => $match.Str
 	}
@@ -194,9 +188,11 @@ class ANTLR4::Actions::AST {
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
-		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
+		modifier     => (
+			intensifier  => Any,
+			greedy       => False,
+			complemented => False,
+		),
 		lexerCommand => Any,
 		content      => Any
 	}
@@ -205,9 +201,11 @@ class ANTLR4::Actions::AST {
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
-		modifier     => $match<ebnfSuffix><MODIFIER>.Str,
-		greedy       => ?$match<ebnfSuffix><GREED>,
-		complemented => Any,
+		modifier     => (
+			intensifier  => $match<ebnfSuffix><MODIFIER>.Str,
+			greedy       => ?$match<ebnfSuffix><GREED>,
+			complemented => False,
+		),
 		lexerCommand => Any,
 		content      => $match<atom><DOT>.Str
 	}
@@ -217,8 +215,6 @@ class ANTLR4::Actions::AST {
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content  => [
 			self.make-import( match => $match[0] ),
@@ -231,8 +227,6 @@ class ANTLR4::Actions::AST {
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content  => [
 			self.make-option( match => $match[0] )
@@ -244,8 +238,6 @@ class ANTLR4::Actions::AST {
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content      => [
 			self.make-token( match => $match[0] ),
@@ -259,8 +251,6 @@ class ANTLR4::Actions::AST {
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content  => [
 			self.make-action( match => $match )
@@ -272,8 +262,6 @@ class ANTLR4::Actions::AST {
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content      => [
 			self.make-literal(
@@ -287,9 +275,11 @@ class ANTLR4::Actions::AST {
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
-		modifier     => Any,
-		greedy       => True,
-		complemented => Any,
+		modifier     => (
+			intensifier  => Any,
+			greedy       => True,
+			complemented => False,
+		),
 		lexerCommand => Any,
 		content      => [
 			self.make-alternation( match => $match )
@@ -301,8 +291,6 @@ class ANTLR4::Actions::AST {
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		content      => [
 			self.make-literal(
 				match => $match<parserAltList><parserAlt>[0]<parserElement><element>[0]<atom><terminal><scalar>[0]
@@ -316,15 +304,13 @@ class ANTLR4::Actions::AST {
 		]
 	}
 	method TOP( $/ ) {
-say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList>.Str ~ ']';
+#say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList>.Str ~ ']';
 		make [ (
 			type         => Q{grammar},
 			mode         => Any,
 			variant      => Any,
 			name         => $/<ID>.Str,
 			modifier     => Any,
-			greedy       => Any,
-			complemented => Any,
 			lexerCommand => Any,
 			content      => [
 				self.make-options(
@@ -345,8 +331,6 @@ say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElem
 				variant      => Any,
 				name         => Any,
 				modifier     => Any,
-				greedy       => Any,
-				complemented => Any,
 				lexerCommand => Any,
 				content      => [ (
 					type         => Q{rule},
@@ -354,8 +338,6 @@ say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElem
 					variant      => Any,
 					name         => $/<ruleSpec>[0]<parserRuleSpec><ID>.Str,
 					modifier     => Any,
-					greedy       => Any,
-					complemented => Any,
 					lexerCommand => Any,
 					content => [ (
 						type         => Q{alternation},
@@ -363,8 +345,6 @@ say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElem
 						variant      => Any,
 						name         => Any,
 						modifier     => Any,
-						greedy       => Any,
-						complemented => Any,
 						lexerCommand => Any,
 						content      => [ (
 							self.make-concatenation(
@@ -378,8 +358,6 @@ say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElem
 					variant      => $/<modeSpec>[0]<lexerRuleSpec>[0]<FRAGMENT>.Str,
 					name         => $/<modeSpec>[0]<lexerRuleSpec>[0]<ID>.Str,
 					modifier     => Any,
-					greedy       => Any,
-					complemented => Any,
 					lexerCommand => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerCommands><lexerCommand>[0]<ID>.Str,
 					content      => [ (
 						type         => Q{alternation},
@@ -387,17 +365,17 @@ say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElem
 						variant      => Any,
 						name         => Any,
 						modifier     => Any,
-						greedy       => Any,
-						complemented => Any,
 						lexerCommand => Any,
 						content      => [ (
 							type         => Q{capturing group},
 							mode         => Any,
 							variant      => Any,
 							name         => Any,
-							modifier     => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<ebnfSuffix>.Str,
-							greedy       => Any,
-							complemented => Any,
+							modifier     => (
+								intensifier => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<ebnfSuffix>.Str,
+								greedy       => False,
+								complemented => False,
+							),
 							lexerCommand => Any,
 							content      => [ (
 							) ]

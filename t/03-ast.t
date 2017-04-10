@@ -115,8 +115,6 @@ is-deeply $parsed, [ (
 	variant      => Any,
 	name         => Q{Minimal},
 	modifier     => Any,
-	greedy       => Any,
-	complemented => Any,
 	lexerCommand => Any,
 	content      => [ (
 		type         => Q{options},
@@ -124,8 +122,6 @@ is-deeply $parsed, [ (
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content  => [ (
 			type         => Q{option},
@@ -133,8 +129,6 @@ is-deeply $parsed, [ (
 			variant      => Any,
 			name         => Q{Type},
 			modifier     => Any,
-			greedy       => Any,
-			complemented => Any,
 			lexerCommand => Any,
 			content      => Q{Foo}
 		) ]
@@ -144,8 +138,6 @@ is-deeply $parsed, [ (
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content  => [ (
 			type         => Q{import},
@@ -153,8 +145,6 @@ is-deeply $parsed, [ (
 			variant      => Any,
 			name         => Q{MinimalParser},
 			modifier     => Any,
-			greedy       => Any,
-			complemented => Any,
 			lexerCommand => Any,
 			content      => Any,
 		), (
@@ -163,8 +153,6 @@ is-deeply $parsed, [ (
 			variant      => Any,
 			name         => Q{MinimalLexer},
 			modifier     => Any,
-			greedy       => Any,
-			complemented => Any,
 			lexerCommand => Any,
 			content      => Q{Lexer}
 		) ]
@@ -174,8 +162,6 @@ is-deeply $parsed, [ (
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content      => [ (
 			type         => Q{token},
@@ -183,8 +169,6 @@ is-deeply $parsed, [ (
 			variant      => Any,
 			name         => Q{TOKEN_REF},
 			modifier     => Any,
-			greedy       => Any,
-			complemented => Any,
 			lexerCommand => Any,
 			content      => Any
 		), (
@@ -193,8 +177,6 @@ is-deeply $parsed, [ (
 			variant      => Any,
 			name         => Q{RULE_REF},
 			modifier     => Any,
-			greedy       => Any,
-			complemented => Any,
 			lexerCommand => Any,
 			content      => Any
 		), (
@@ -203,8 +185,6 @@ is-deeply $parsed, [ (
 			variant      => Any,
 			name         => Q{LEXER_CHAR_SET},
 			modifier     => Any,
-			greedy       => Any,
-			complemented => Any,
 			lexerCommand => Any,
 			content      => Any
 		) ]
@@ -214,8 +194,6 @@ is-deeply $parsed, [ (
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content  => [ (
 			type         => Q{action},
@@ -223,8 +201,6 @@ is-deeply $parsed, [ (
 			variant      => Any,
 			name         => Q{members},
 			modifier     => Any,
-			greedy       => Any,
-			complemented => Any,
 			lexerCommand => Any,
 			content      => Q:to{END}.chomp,
 {
@@ -242,8 +218,6 @@ END
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
-		greedy       => Any,
-		complemented => Any,
 		lexerCommand => Any,
 		content      => [ (
 			type         => Q{rule},
@@ -251,8 +225,6 @@ END
 			variant      => Any,
 			name         => Q{DOC_COMMENT},
 			modifier     => Any,
-			greedy       => Any,
-			complemented => Any,
 			lexerCommand => Any,
 			content => [ (
 				type         => Q{alternation},
@@ -260,8 +232,6 @@ END
 				variant      => Any,
 				name         => Any,
 				modifier     => Any,
-				greedy       => Any,
-				complemented => Any,
 				lexerCommand => Any,
 				content  => [ (
 					type         => Q{concatenation},
@@ -269,16 +239,16 @@ END
 					variant      => Any,
 					name         => Any,
 					modifier     => Any,
-					greedy       => Any,
-					complemented => Any,
 					content      => [ (
 						type         => Q{literal},
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => Any,
-						greedy       => Any,
-						complemented => Any,
+						modifier     => (
+							intensifier  => Any,
+							greedy       => False,
+							complemented => False,
+						),
 						lexerCommand => Any,
 						content      => Q{/**}
 					), (
@@ -286,9 +256,11 @@ END
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => Q{*},
-						greedy       => True,
-						complemented => Any,
+						modifier     => (
+							intensifier  => Q{*},
+							greedy       => True,
+							complemented => False,
+						),
 						lexerCommand => Any,
 						content      => Q{.}
 					), (
@@ -296,9 +268,11 @@ END
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => Any,
-						greedy       => True,
-						complemented => Any,
+						modifier     => (
+							intensifier  => Any,
+							greedy       => True,
+							complemented => False,
+						),
 						lexerCommand => Any,
 						content      => [ (
 							type         => Q{alternation},
@@ -306,17 +280,17 @@ END
 							variant      => Any,
 							name         => Any,
 							modifier     => Any,
-							greedy       => Any,
-							complemented => Any,
 							lexerCommand => Any,
 							content      => [ (
 								type         => Q{literal},
 								mode         => Any,
 								variant      => Any,
 								name         => Any,
-								modifier     => Any,
-								greedy       => Any,
-								complemented => Any,
+								modifier     => (
+									intensifier  => Any,
+									greedy       => False,
+									complemented => False,
+								),
 								lexerCommand => Any,
 								content      => Q{*/}
 							), (
@@ -324,9 +298,11 @@ END
 								mode         => Any,
 								variant      => Any,
 								name         => Any,
-								modifier     => Any,
-								greedy       => Any,
-								complemented => Any,
+								modifier     => (
+									intensifier  => Any,
+									greedy       => False,
+									complemented => False,
+								),
 								lexerCommand => Any,
 								content      => Any
 							) ]
@@ -340,8 +316,6 @@ END
 			variant      => Q{fragment},
 			name         => Q{LEXER_CHAR_SET_BODY},
 			modifier     => Any,
-			greedy       => Any,
-			complemented => Any,
 			lexerCommand => Q{more},
 			content      => [ (
 				type         => Q{alternation},
@@ -349,17 +323,17 @@ END
 				variant      => Any,
 				name         => Any,
 				modifier     => Any,
-				greedy       => Any,
-				complemented => Any,
 				lexerCommand => Any,
 				content      => [ (
 					type         => Q{capturing group},
 					mode         => Any,
 					variant      => Any,
 					name         => Any,
-					modifier     => Q{+},
-					greedy       => Any,
-					complemented => Any,
+					modifier     => (
+						intensifier  => Q{+},
+						greedy       => False,
+						complemented => False,
+					),
 					lexerCommand => Any,
 					content      => [ (
 					) ]
