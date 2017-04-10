@@ -134,6 +134,7 @@ use v6;
 class ANTLR4::Actions::AST {
 	method make-option( :$match ) {
 		type         => Q{option},
+		mode         => Any,
 		variant      => Any,
 		name         => $match<key>.Str,
 		modifier     => Any,
@@ -143,6 +144,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-import( :$match ) {
 		type         => Q{import},
+		mode         => Any,
 		variant      => Any,
 		name         => $match<key>.Str,
 		modifier     => Any,
@@ -154,6 +156,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-token( :$match ) {
 		type         => Q{token},
+		mode         => Any,
 		variant      => Any,
 		name         => $match.Str,
 		modifier     => Any,
@@ -163,6 +166,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-action( :$match ) {
 		type         => Q{action},
+		mode         => Any,
 		variant      => Any,
 		name         => $match<action_name><ID>.Str,
 		modifier     => Any,
@@ -172,6 +176,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-literal( :$match ) {
 		type         => Q{literal},
+		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
@@ -181,6 +186,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-EOF {
 		type         => Q{EOF},
+		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
@@ -190,6 +196,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-metacharacter( :$match ) {
 		type         => Q{metachar},
+		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => $match<ebnfSuffix><MODIFIER>.Str,
@@ -199,6 +206,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-imports( :$match ) {
 		type         => Q{imports},
+		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
@@ -211,6 +219,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-options( :$match ) {
 		type         => Q{options},
+		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
@@ -222,6 +231,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-tokens( :$match ) {
 		type         => Q{tokens},
+		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
@@ -235,6 +245,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-actions( :$match ) {
 		type         => Q{actions},
+		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
@@ -246,6 +257,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-alternation( :$match ) {
 		type         => Q{alternation},
+		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
@@ -260,6 +272,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-capturing-group( :$match ) {
 		type         => Q{capturing group},
+		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
@@ -271,6 +284,7 @@ class ANTLR4::Actions::AST {
 	}
 	method make-concatenation( :$match ) {
 		type         => Q{concatenation},
+		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
@@ -288,9 +302,10 @@ class ANTLR4::Actions::AST {
 		]
 	}
 	method TOP( $/ ) {
-#say $/<modeSpec>[0]<lexerRuleSpec>[0].Str;
+#say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerCommands><lexerCommand>[0]<ID>.Str ~ ']';
 		make [ (
 			type         => Q{grammar},
+			mode         => Any,
 			variant      => Any,
 			name         => $/<ID>.Str,
 			modifier     => Any,
@@ -311,6 +326,7 @@ class ANTLR4::Actions::AST {
 				),
 			(
 				type         => Q{rules},
+				mode         => Any,
 				variant      => Any,
 				name         => Any,
 				modifier     => Any,
@@ -318,6 +334,7 @@ class ANTLR4::Actions::AST {
 				lexerCommand => Any,
 				content      => [ (
 					type         => Q{rule},
+					mode         => Any,
 					variant      => Any,
 					name         => $/<ruleSpec>[0]<parserRuleSpec><ID>.Str,
 					modifier     => Any,
@@ -325,6 +342,7 @@ class ANTLR4::Actions::AST {
 					lexerCommand => Any,
 					content => [ (
 						type         => Q{alternation},
+						mode         => Any,
 						variant      => Any,
 						name         => Any,
 						modifier     => Any,
@@ -338,12 +356,23 @@ class ANTLR4::Actions::AST {
 					) ]
 				), (
 					type         => Q{rule},
-					variant      => $/<modeSpec>[0]<ID>.Str,
+					mode         => $/<modeSpec>[0]<ID>.Str,
+					variant      => $/<modeSpec>[0]<lexerRuleSpec>[0]<FRAGMENT>.Str,
 					name         => $/<modeSpec>[0]<lexerRuleSpec>[0]<ID>.Str,
 					modifier     => Any,
 					greedy       => Any,
-					lexerCommand => Q{more},
-					content      => Any # ...
+					lexerCommand => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerCommands><lexerCommand>[0]<ID>.Str,
+					content      => [ (
+						type         => Q{alternation},
+						mode         => Any,
+						variant      => Any,
+						name         => Any,
+						modifier     => Any,
+						greedy       => Any,
+						lexerCommand => Any,
+						content      => [ (
+						) ]
+					) ]
 				) ]
 			) ]
 		) ];

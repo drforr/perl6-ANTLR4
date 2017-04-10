@@ -393,7 +393,7 @@ rule lexerCommands
 
 rule lexerCommand
 	{
-	<lexerCommandName=ID> <lexerCommandExpr>?
+	<ID> <lexerCommandExpr>?
 	}
 
 rule lexerCommandExpr
