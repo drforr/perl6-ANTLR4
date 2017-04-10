@@ -347,7 +347,7 @@ token FRAGMENT
 rule lexerRuleSpec
  	{
 	<COMMENTS>? <FRAGMENT>?
- 	<COMMENTS>? <name=ID>
+ 	<COMMENTS>? <ID>
 	<COMMENTS>? ':'
 	<COMMENTS>? <lexerAltList>
 	<COMMENTS>? ';'

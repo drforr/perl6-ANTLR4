@@ -97,7 +97,7 @@ DOC_COMMENT : '/**' .*? ( '*/' | EOF )? ;
 
 mode LexerCharSet;
 
-LEXER_CHAR_SET_BODY : (	~[\]\\] | '\\' . )+ -> more ;
+fragment LEXER_CHAR_SET_BODY : ( ~[\]\\] | '\\' . )+ -> more ;
 
 LEXER_CHAR_SET : ']' -> popMode ;
 
@@ -294,8 +294,8 @@ END
 			type         => Q{rule},
 			variant      => Q{LexerCharSet},
 			name         => Q{LEXER_CHAR_SET_BODY},
-			modifier     => Q{*},
-			greedy       => True,
+			modifier     => Any,
+			greedy       => Any,
 			lexerCommand => Q{more},
 			content      => Any # ...
 		) ]
