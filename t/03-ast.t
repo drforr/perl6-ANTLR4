@@ -105,7 +105,7 @@ END
 
 #say $parsed;
 
-is-deeply $parsed, [ (
+is-deeply $parsed, [ {
 	type         => Q{grammar},
 	mode         => Any,
 	variant      => Any,
@@ -208,28 +208,28 @@ is-deeply $parsed, [ (
 }
 END
 		} ]
-	}, (
+	}, {
 		type         => Q{rules},
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
 		lexerCommand => Any,
-		content      => [ ( # DOC_COMMENT : '/**' .*? ( '*/' | EOF )? ;
+		content      => [ { # DOC_COMMENT : '/**' .*? ( '*/' | EOF )? ;
 			type         => Q{rule},
 			mode         => Any,
 			variant      => Any,
 			name         => Q{DOC_COMMENT},
 			modifier     => Any,
 			lexerCommand => Any,
-			content => [ (
+			content => [ {
 				type         => Q{alternation},
 				mode         => Any,
 				variant      => Any,
 				name         => Any,
 				modifier     => Any,
 				lexerCommand => Any,
-				content  => [ (
+				content  => [ {
 					type         => Q{concatenation},
 					mode         => Any,
 					variant      => Any,
@@ -240,11 +240,11 @@ END
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => (
+						modifier     => {
 							intensifier  => Any,
 							greedy       => False,
 							complemented => False,
-						),
+						},
 						lexerCommand => Any,
 						content      => Q{/**}
 					}, { # .*?
@@ -252,25 +252,25 @@ END
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => (
+						modifier     => {
 							intensifier  => Q{*},
 							greedy       => True,
 							complemented => False,
-						),
+						},
 						lexerCommand => Any,
 						content      => Q{.}
-					}, ( # ( '*/' | EOF )?
+					}, { # ( '*/' | EOF )?
 						type         => Q{capturing group},
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => (
+						modifier     => {
 							intensifier  => Any,
 							greedy       => True,
 							complemented => False,
-						),
+						},
 						lexerCommand => Any,
-						content      => [ ( # '*/'
+						content      => [ { # '*/'
 							type         => Q{alternation},
 							mode         => Any,
 							variant      => Any,
@@ -282,11 +282,11 @@ END
 								mode         => Any,
 								variant      => Any,
 								name         => Any,
-								modifier     => (
+								modifier     => {
 									intensifier  => Any,
 									greedy       => False,
 									complemented => False,
-								),
+								},
 								lexerCommand => Any,
 								content      => Q{*/}
 							}, { # EOF
@@ -294,64 +294,64 @@ END
 								mode         => Any,
 								variant      => Any,
 								name         => Any,
-								modifier     => (
+								modifier     => {
 									intensifier  => Any,
 									greedy       => False,
 									complemented => False,
-								),
+								},
 								lexerCommand => Any,
 								content      => Any
 							} ]
-						) ]
-					) ]
-				) ]
-			) ]
-		), ( # fragment LEXER_CHAR_SET_BODY : ~( ~[\]\\] | '\\' . )+ -> more ;
+						} ]
+					} ]
+				} ]
+			} ]
+		}, { # fragment LEXER_CHAR_SET_BODY : ~( ~[\]\\] | '\\' . )+ -> more ;
 			type         => Q{rule},
 			mode         => Q{LexerCharSet},
 			variant      => Q{fragment},
 			name         => Q{LEXER_CHAR_SET_BODY},
 			modifier     => Any,
 			lexerCommand => Q{more},
-			content      => [ ( # ~( ~[\]\\] | '\\' . )+
+			content      => [ { # ~( ~[\]\\] | '\\' . )+
 				type         => Q{alternation},
 				mode         => Any,
 				variant      => Any,
 				name         => Any,
 				modifier     => Any,
 				lexerCommand => Any,
-				content      => [ ( # ~( ~[\]\\] | '\\' . )+
+				content      => [ { # ~( ~[\]\\] | '\\' . )+
 					type         => Q{capturing group},
 					mode         => Any,
 					variant      => Any,
 					name         => Any,
-					modifier     => (
+					modifier     => {
 						intensifier  => Q{+},
 						greedy       => False,
 						complemented => True,
-					),
+					},
 					lexerCommand => Any,
-					content      => [ ( # ~[\]\\]
+					content      => [ { # ~[\]\\]
 						type         => Q{character class},
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => (
+						modifier     => {
 							intensifier  => Any,
 							greedy       => False,
 							complemented => True,
-						),
+						},
 						lexerCommand => Any,
 						content      => [ { # \]
 							type         => Q{literal},
 							mode         => Any,
 							variant      => Any,
 							name         => Any,
-							modifier     => (
+							modifier     => {
 								intensifier  => Any,
 								greedy       => False,
 								complemented => False,
-							),
+							},
 							lexerCommand => Any,
 							content      => Q{\]}
 						}, { # \\
@@ -359,16 +359,16 @@ END
 							mode         => Any,
 							variant      => Any,
 							name         => Any,
-							modifier     => (
+							modifier     => {
 								intensifier  => Any,
 								greedy       => False,
 								complemented => False,
-							),
+							},
 							lexerCommand => Any,
 							content      => Q{\\}
 						} ]
-					) ]
-				), ( # '\\' .
+					} ]
+				}, { # '\\' .
 					type         => Q{concatenation},
 					mode         => Any,
 					variant      => Any,
@@ -380,11 +380,11 @@ END
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => (
+						modifier     => {
 							intensifier  => Any,
 							greedy       => False,
 							complemented => False,
-						),
+						},
 						lexerCommand => Any,
 						content      => Q{\\}
 					}, { # .
@@ -392,18 +392,18 @@ END
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => (
+						modifier     => {
 							intensifier  => Any,
 							greedy       => False,
 							complemented => False,
-						),
+						},
 						lexerCommand => Any,
 						content      => Q{.}
 					} ]
-				) ]
-			) ]
-		) ]
-	) ]
-) ], Q{christmas};
+				} ]
+			} ]
+		} ]
+	} ]
+} ], Q{christmas};
 
 # vim: ft=perl6

@@ -134,7 +134,7 @@ use v6;
 class ANTLR4::Actions::AST {
 	method make-option( :$match ) { {
 		type         => Q{option},
-		name         => $match<key>.Str,
+		name         => $match<key>.ast,
 		mode         => Any,
 		variant      => Any,
 		modifier     => Any,
@@ -143,9 +143,9 @@ class ANTLR4::Actions::AST {
 	} }
 	method make-import( :$match ) { {
 		type         => Q{import},
+		name         => $match<key>.ast,
 		mode         => Any,
 		variant      => Any,
-		name         => $match<key>.Str,
 		modifier     => Any,
 		lexerCommand => Any,
 		content      => $match<value> ??
@@ -165,7 +165,7 @@ class ANTLR4::Actions::AST {
 		type         => Q{action},
 		mode         => Any,
 		variant      => Any,
-		name         => $match<action_name><ID>.Str,
+		name         => $match<action_name><ID>.ast,
 		modifier     => Any,
 		lexerCommand => Any,
 		content      => $match<ACTION>.Str
@@ -175,11 +175,11 @@ class ANTLR4::Actions::AST {
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
-		modifier     => (
+		modifier     => {
 			intensifier  => Any,
 			greedy       => False,
 			complemented => False,
-		),
+		},
 		lexerCommand => Any,
 		content      => $match.Str
 	} }
@@ -188,11 +188,11 @@ class ANTLR4::Actions::AST {
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
-		modifier     => (
+		modifier     => {
 			intensifier  => Any,
 			greedy       => False,
 			complemented => False,
-		),
+		},
 		lexerCommand => Any,
 		content      => Any
 	} }
@@ -201,11 +201,11 @@ class ANTLR4::Actions::AST {
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
-		modifier     => (
-			intensifier  => $match<ebnfSuffix><MODIFIER>.Str,
-			greedy       => ?$match<ebnfSuffix><GREED>,
+		modifier     => {
+			intensifier  => $match<ebnfSuffix><MODIFIER>.ast,
+			greedy       => ?{$match<ebnfSuffix>:defined(<GREED>)},
 			complemented => False,
-		),
+		},
 		lexerCommand => Any,
 		content      => $match<atom><DOT>.Str
 	} }
@@ -217,13 +217,14 @@ class ANTLR4::Actions::AST {
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
-		modifier     => (
+		modifier     => {
 			intensifier  => Any,
 			greedy       => False,
+			#greedy       => ?{$match<ebnf><ebnfSuffix>:defined(<GREED>)},
 			complemented => False,
-		),
+		},
 		lexerCommand => Any,
-		content      => $match.Str
+		content      => $match<lexerAtom>[0].Str
 	} }
 	method make-imports( :$match ) { {
 		type         => Q{imports},
@@ -272,14 +273,21 @@ class ANTLR4::Actions::AST {
 			self.make-action( match => $match )
 		]
 	} }
-	method TOP( $/ ) {
-#say '[' ~ $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><ebnfSuffix><MODIFIER>.Str ~ ']';
 
-my $made = [ (
+	method key( $/ ) { make $/.Str }
+	method ID( $/ ) { make $/.Str }
+	method MODIFIER( $/ ) { make $/.Str }
+
+	method TOP( $/ ) {
+#say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[1] ~ ']';
+#say '[' ~ $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><block><blockAltList><parserElement>[1] ~ ']';
+#say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]<lexerElement>[1].keys ~ ']';
+
+my $made = [ {
 	type         => Q{grammar},
 	mode         => Any,
 	variant      => Any,
-	name         => $/<ID>.Str,
+	name         => $/<ID>.ast,
 	modifier     => Any,
 	lexerCommand => Any,
 	content      => [
@@ -290,33 +298,33 @@ my $made = [ (
 			match => $/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>
 		),
 		self.make-tokens(
-			match => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>
+			match => $/<prequelConstruct>[2]<tokensSpec><token_list_trailing_comma><ID>
 		),
 		self.make-actions(
 			match => $/<prequelConstruct>[3]<action>
 		),
-	(
+	{
 		type         => Q{rules},
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
 		lexerCommand => Any,
-		content      => [ (
+		content      => [ {
 			type         => Q{rule},
 			mode         => Any,
 			variant      => Any,
-			name         => $/<ruleSpec>[0]<parserRuleSpec><ID>.Str,
+			name         => $/<ruleSpec>[0]<parserRuleSpec><ID>.ast,
 			modifier     => Any,
 			lexerCommand => Any,
-			content => [ (
+			content => [ {
 				type         => Q{alternation},
 				mode         => Any,
 				variant      => Any,
 				name         => Any,
 				modifier     => Any,
 				lexerCommand => Any,
-				content      => [ (
+				content      => [ {
 					type         => Q{concatenation},
 					mode         => Any,
 					variant      => Any,
@@ -329,18 +337,18 @@ my $made = [ (
 						self.make-metacharacter(
 							match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[1],
 						),
-					(
+					{
 						type         => Q{capturing group},
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => (
+						modifier     => {
 							intensifier  => Any,
-							greedy       => ?$/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><ebnfSuffix><MODIFIER>,
+							greedy       => ?{$/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><ebnfSuffix>:defined(<GREED>)},
 							complemented => False,
-						),
+						},
 						lexerCommand => Any,
-						content      => [ (
+						content      => [ {
 							type         => Q{alternation},
 							mode         => Any,
 							variant      => Any,
@@ -351,54 +359,57 @@ my $made = [ (
 								self.make-literal(
 									match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><block><blockAltList><parserElement>[0]<element>[0]<atom><terminal><scalar>[0]
 								),
-								self.make-EOF
+								# EOF doesn't need arguments, but this is a reminder of where the parserElement breaks down.
+								self.make-EOF(
+									match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><block><blockAltList><parserElement>[1]
+								)
 							]
-						) ]
-					) ]
-				) ]
-			) ]
-		), (
+						} ]
+					} ]
+				} ]
+			} ]
+		}, {
 			type         => Q{rule},
-			mode         => $/<modeSpec>[0]<ID>.Str,
+			mode         => $/<modeSpec>[0]<ID>.ast,
 			variant      => $/<modeSpec>[0]<lexerRuleSpec>[0]<FRAGMENT>.Str,
-			name         => $/<modeSpec>[0]<lexerRuleSpec>[0]<ID>.Str,
+			name         => $/<modeSpec>[0]<lexerRuleSpec>[0]<ID>.ast,
 			modifier     => Any,
-			lexerCommand => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerCommands><lexerCommand>[0]<ID>.Str,
-			content      => [ (
+			lexerCommand => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerCommands><lexerCommand>[0]<ID>.ast,
+			content      => [ {
 				type         => Q{alternation},
 				mode         => Any,
 				variant      => Any,
 				name         => Any,
 				modifier     => Any,
 				lexerCommand => Any,
-				content      => [ (
+				content      => [ {
 					type         => Q{capturing group},
 					mode         => Any,
 					variant      => Any,
 					name         => Any,
-					modifier     => (
-						intensifier => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<ebnfSuffix>.Str,
+					modifier     => {
+						intensifier => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<ebnfSuffix><MODIFIER>.ast,
 						greedy       => False,
 						complemented => ?$/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet>
-					),
+					},
 					lexerCommand => Any,
-					content      => [ (
+					content      => [ {
 						type         => Q{character class},
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => (
+						modifier     => {
 							intensifier  => Any,
 							greedy       => False,
 							complemented => ?$/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock>[0]
-						),
+						},
 						lexerCommand => Any,
 						content      => [
 							self.make-literal( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet><setElement><LEXER_CHAR_SET>[0][0]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT> ),
 							self.make-literal( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet><setElement><LEXER_CHAR_SET>[0][1]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT> )
 						]
-					) ]
-				), (
+					} ]
+				}, {
 					type         => Q{concatenation},
 					mode         => Any,
 					variant      => Any,
@@ -407,13 +418,13 @@ my $made = [ (
 					lexerCommand => Any,
 					content      => [
 						self.make-literal( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]<lexerElement>[0]<lexerAtom><terminal><scalar>[0] ),
-						self.make-lexer-metacharacter( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]<lexerElement>[1]<lexerAtom>[0] )
+						self.make-lexer-metacharacter( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]<lexerElement>[1] )
 					]
-				) ]
-			) ]
-		) ]
-	) ]
-) ];
+				} ]
+			} ]
+		} ]
+	} ]
+} ];
 		make $made;
 	}
 }

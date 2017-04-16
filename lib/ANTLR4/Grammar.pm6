@@ -226,14 +226,14 @@ rule delegateGrammar
 	<key=ID> ['=' <value=ID>]?
  	}
  
-rule ID_list_trailing_comma
+rule token_list_trailing_comma
 	{
 	<ID>+ %% ','
 	}
 
 rule tokensSpec
  	{
-	<COMMENTS>? 'tokens' '{' <ID_list_trailing_comma> '}'
+	<COMMENTS>? 'tokens' '{' <token_list_trailing_comma> '}'
  	}
  
 #  Match stuff like @parser::members {int i;}
