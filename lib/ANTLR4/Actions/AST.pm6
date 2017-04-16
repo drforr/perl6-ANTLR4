@@ -132,15 +132,17 @@ most complex, and is described in detail at the appropriate place.
 use v6;
 
 class ANTLR4::Actions::AST {
-	method make-option( :$match ) { {
-		type         => Q{option},
-		name         => $match<key>.ast,
-		mode         => Any,
-		variant      => Any,
-		modifier     => Any,
-		lexerCommand => Any,
-		content      => $match<optionValue>.Str
-	} }
+	method option( $/ ) {
+		make {
+			type         => Q{option},
+			name         => $/<key>.ast,
+			mode         => Any,
+			variant      => Any,
+			modifier     => Any,
+			lexerCommand => Any,
+			content      => $/<optionValue>.ast
+		}
+	}
 
 	method delegateGrammar( $/ ) {
 		make {
@@ -156,15 +158,17 @@ class ANTLR4::Actions::AST {
 		}
 	}
 
-	method make-token( :$match ) { {
-		type         => Q{token},
-		mode         => Any,
-		variant      => Any,
-		name         => $match.Str,
-		modifier     => Any,
-		lexerCommand => Any,
-		content      => Any
-	} }
+	method tokenName( $/ ) {
+		make {
+			type         => Q{token},
+			mode         => Any,
+			variant      => Any,
+			name         => $/.Str,
+			modifier     => Any,
+			lexerCommand => Any,
+			content      => Any
+		}
+	}
 
 	# The top-level action can only occur once.
 	#
@@ -176,11 +180,26 @@ class ANTLR4::Actions::AST {
 			name         => $/<action_name><ID>.ast,
 			modifier     => Any,
 			lexerCommand => Any,
-			content      => $/<ACTION>.Str
+			content      => $/<ACTION>.ast
 		}
 	}
 
 	method make-literal( :$match ) { {
+		type         => Q{literal},
+		mode         => Any,
+		variant      => Any,
+		name         => Any,
+		modifier     => {
+			intensifier  => Any,
+			greedy       => False,
+			complemented => False,
+		},
+		lexerCommand => Any,
+		content      =>
+			$match<element>[0]<atom><terminal><scalar>[0].Str
+	} }
+
+	method make-lexer-literal( :$match ) { {
 		type         => Q{literal},
 		mode         => Any,
 		variant      => Any,
@@ -243,10 +262,7 @@ class ANTLR4::Actions::AST {
 		name         => Any,
 		modifier     => Any,
 		lexerCommand => Any,
-		content  => [
-			$match<delegateGrammar>[0].ast,
-			$match<delegateGrammar>[1].ast
-		]
+		content      => $match<delegateGrammar>>>.ast
 	} }
 	method make-options( :$match ) { {
 		type         => Q{options},
@@ -256,7 +272,7 @@ class ANTLR4::Actions::AST {
 		modifier     => Any,
 		lexerCommand => Any,
 		content  => [
-			self.make-option( match => $match<option>[0] )
+			$match<option>[0].ast
 		]
 	} }
 	method make-tokens( :$match ) { {
@@ -266,11 +282,7 @@ class ANTLR4::Actions::AST {
 		name         => Any,
 		modifier     => Any,
 		lexerCommand => Any,
-		content      => [
-			self.make-token( match => $match<ID>[0] ),
-			self.make-token( match => $match<ID>[1] ),
-			self.make-token( match => $match<ID>[2] )
-		]
+		content      => $match<tokenName>>>.ast
 	} }
 	method make-actions( :$match ) { {
 		type         => Q{actions},
@@ -284,14 +296,157 @@ class ANTLR4::Actions::AST {
 		]
 	} }
 
+	method make-lexer-concatenation( :$match ) { {
+		type         => Q{concatenation},
+		mode         => Any,
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		lexerCommand => Any,
+		content      => [
+			self.make-lexer-literal(
+				match => $match<lexerElement>[0]<lexerAtom><terminal><scalar>[0]
+			),
+			self.make-lexer-metacharacter(
+				match => $match<lexerElement>[1]
+			)
+		]
+	} }
+
+	method make-lexer-character-class( :$match ) { {
+		type         => Q{character class},
+		mode         => Any,
+		variant      => Any,
+		name         => Any,
+		modifier     => {
+			intensifier  => Any,
+			greedy       => False,
+			complemented => ?{$match<lexerBlock>:defined(<complement>)}
+		},
+		lexerCommand => Any,
+		content      => [
+			self.make-lexer-literal(
+				match => $match<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet><setElement><LEXER_CHAR_SET>[0][0]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT>
+			),
+			self.make-lexer-literal(
+				match => $match<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet><setElement><LEXER_CHAR_SET>[0][1]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT>
+			)
+		]
+	} }
+
+	method make-lexer-capturing-group( :$match ) { {
+		type         => Q{capturing group},
+		mode         => Any,
+		variant      => Any,
+		name         => Any,
+		modifier     => {
+			intensifier => $match<lexerElement>[0]<ebnfSuffix><MODIFIER>.ast,
+			greedy       => False,
+			complemented => ?$match<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet>
+		},
+		lexerCommand => Any,
+		content      => [
+			self.make-lexer-character-class(
+				match => $match<lexerElement>[0]
+			)
+		]
+	} }
+
+	method make-lexer-alternation( :$match ) { {
+		type         => Q{alternation},
+		mode         => Any,
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		lexerCommand => Any,
+		content      => [
+			self.make-lexer-capturing-group(
+				match => $match<lexerAlt>[0]
+			),
+			self.make-lexer-concatenation(
+				match => $match<lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]
+			)
+		]
+	} }
+
+	method make-alternation( :$match ) { {
+		type         => Q{alternation},
+		mode         => Any,
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		lexerCommand => Any,
+		content      => [
+			self.make-literal(
+				match => $match<element>[2]<ebnf><block><blockAltList><parserElement>[0]
+			),
+			self.make-EOF(
+				match => $match<element>[2]<ebnf><block><blockAltList><parserElement>[1]
+			)
+		]
+	} }
+
+	method make-capturing-group( :$match ) { {
+		type         => Q{capturing group},
+		mode         => Any,
+		variant      => Any,
+		name         => Any,
+		modifier     => {
+			intensifier  => Any,
+			greedy       => ?{$match<parserElement><element>[2]<ebnf><ebnfSuffix>:defined(<GREED>)},
+			complemented => False,
+		},
+		lexerCommand => Any,
+		content      => [
+			self.make-alternation(
+				match => $match<parserElement>
+			)
+		]
+	} }
+	method make-concatenation( :$match ) { {
+		type         => Q{concatenation},
+		mode         => Any,
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		content      => [
+			self.make-literal(
+				match => $match<parserAlt>[0]<parserElement>
+			),
+			self.make-metacharacter(
+				match => $match<parserAlt>[0]<parserElement><element>[1],
+			),
+			self.make-capturing-group(
+				match => $match<parserAlt>[0]
+			)
+		]
+	} }
+
+	method make-lexer-rule( :$match, :$mode ) { {
+		type         => Q{rule},
+		mode         => $mode.ast,
+		variant      => $match<FRAGMENT>.Str,
+		name         => $match<ID>.ast,
+		modifier     => Any,
+		lexerCommand => $match<lexerAltList><lexerAlt>[0]<lexerCommands><lexerCommand>[0]<ID>.ast,
+		content      => [
+			self.make-lexer-alternation(
+				match => $match<lexerAltList>
+			)
+		]
+	} }
+
+	method optionValue( $/ ) { make $/.Str }
 	method key( $/ ) { make $/.Str }
 	method ID( $/ ) { make $/.Str }
 	method MODIFIER( $/ ) { make $/.Str }
+	method ACTION( $/ ) { make $/.Str }
 
 	method TOP( $/ ) {
 #say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[1] ~ ']';
 #say '[' ~ $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><block><blockAltList><parserElement>[1] ~ ']';
 #say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]<lexerElement>[1].keys ~ ']';
+#say '[' ~ $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><block><blockAltList><parserElement>[0]<element>[0]<ebnfSuffix><MODIFIER> ~ ']';
 
 my $made = [ {
 	type         => Q{grammar},
@@ -334,105 +489,18 @@ my $made = [ {
 				name         => Any,
 				modifier     => Any,
 				lexerCommand => Any,
-				content      => [ {
-					type         => Q{concatenation},
-					mode         => Any,
-					variant      => Any,
-					name         => Any,
-					modifier     => Any,
-					content      => [
-						self.make-literal(
-							match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[0]<atom><terminal><scalar>[0]
-						),
-						self.make-metacharacter(
-							match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[1],
-						),
-					{
-						type         => Q{capturing group},
-						mode         => Any,
-						variant      => Any,
-						name         => Any,
-						modifier     => {
-							intensifier  => Any,
-							greedy       => ?{$/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><ebnfSuffix>:defined(<GREED>)},
-							complemented => False,
-						},
-						lexerCommand => Any,
-						content      => [ {
-							type         => Q{alternation},
-							mode         => Any,
-							variant      => Any,
-							name         => Any,
-							modifier     => Any,
-							lexerCommand => Any,
-							content      => [
-								self.make-literal(
-									match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><block><blockAltList><parserElement>[0]<element>[0]<atom><terminal><scalar>[0]
-								),
-								# EOF doesn't need arguments, but this is a reminder of where the parserElement breaks down.
-								self.make-EOF(
-									match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><block><blockAltList><parserElement>[1]
-								)
-							]
-						} ]
-					} ]
-				} ]
+				content      => [
+					self.make-concatenation(
+						match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList>
+					)
+				]
 			} ]
-		}, {
-			type         => Q{rule},
-			mode         => $/<modeSpec>[0]<ID>.ast,
-			variant      => $/<modeSpec>[0]<lexerRuleSpec>[0]<FRAGMENT>.Str,
-			name         => $/<modeSpec>[0]<lexerRuleSpec>[0]<ID>.ast,
-			modifier     => Any,
-			lexerCommand => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerCommands><lexerCommand>[0]<ID>.ast,
-			content      => [ {
-				type         => Q{alternation},
-				mode         => Any,
-				variant      => Any,
-				name         => Any,
-				modifier     => Any,
-				lexerCommand => Any,
-				content      => [ {
-					type         => Q{capturing group},
-					mode         => Any,
-					variant      => Any,
-					name         => Any,
-					modifier     => {
-						intensifier => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<ebnfSuffix><MODIFIER>.ast,
-						greedy       => False,
-						complemented => ?$/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet>
-					},
-					lexerCommand => Any,
-					content      => [ {
-						type         => Q{character class},
-						mode         => Any,
-						variant      => Any,
-						name         => Any,
-						modifier     => {
-							intensifier  => Any,
-							greedy       => False,
-							complemented => ?$/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock>[0]
-						},
-						lexerCommand => Any,
-						content      => [
-							self.make-literal( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet><setElement><LEXER_CHAR_SET>[0][0]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT> ),
-							self.make-literal( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet><setElement><LEXER_CHAR_SET>[0][1]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT> )
-						]
-					} ]
-				}, {
-					type         => Q{concatenation},
-					mode         => Any,
-					variant      => Any,
-					name         => Any,
-					modifier     => Any,
-					lexerCommand => Any,
-					content      => [
-						self.make-literal( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]<lexerElement>[0]<lexerAtom><terminal><scalar>[0] ),
-						self.make-lexer-metacharacter( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]<lexerElement>[1] )
-					]
-				} ]
-			} ]
-		} ]
+		},
+			self.make-lexer-rule(
+				mode => $/<modeSpec>[0]<ID>,
+				match => $/<modeSpec>[0]<lexerRuleSpec>[0]
+			)
+		]
 	} ]
 } ];
 		make $made;

@@ -283,7 +283,7 @@ END
 								variant      => Any,
 								name         => Any,
 								modifier     => {
-									intensifier  => Any,
+									intensifier  => Any,#Q{?},
 									greedy       => False,
 									complemented => False,
 								},

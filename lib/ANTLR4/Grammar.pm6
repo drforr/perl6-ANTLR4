@@ -226,9 +226,16 @@ rule delegateGrammar
 	<key=ID> ['=' <value=ID>]?
  	}
  
+# Concede a bit to Perl 6's grammar here.
+#
+# In the official ANTLR grammar, this is (probably) <ID> straight up.
+# But, if we have an explicit <tokenName> rather than a generic <ID>, that can
+# be given its own AST method and generate the simple block we want.
+#
+token tokenName { <ID> }
 rule token_list_trailing_comma
 	{
-	<ID>+ %% ','
+	<tokenName>+ %% ','
 	}
 
 rule tokensSpec
@@ -378,10 +385,12 @@ rule labeledLexerElement
  		|	<block>
  		]
  	}
+
+token complement { '~' }
  
 rule lexerBlock
  	{
-	('~'?) '(' <COMMENTS>? <lexerAltList>? ')'
+	<complement>? '(' <COMMENTS>? <lexerAltList>? ')'
  	}
  
 #  E.g., channel(HIDDEN), skip, more, mode(INSIDE), push(INSIDE), pop
@@ -471,7 +480,7 @@ rule atom
  
 rule notSet
  	{
-	'~' [<setElement> | <blockSet>]
+	<complement> [<setElement> | <blockSet>]
  	}
  
 rule setElementAltList
