@@ -161,15 +161,21 @@ class ANTLR4::Actions::AST {
 		lexerCommand => Any,
 		content      => Any
 	} }
-	method make-action( :$match ) { {
-		type         => Q{action},
-		mode         => Any,
-		variant      => Any,
-		name         => $match<action_name><ID>.ast,
-		modifier     => Any,
-		lexerCommand => Any,
-		content      => $match<ACTION>.Str
-	} }
+
+	# The top-level action can only occur once.
+	#
+	method action( $/ ) {
+		make {
+			type         => Q{action},
+			mode         => Any,
+			variant      => Any,
+			name         => $/<action_name><ID>.ast,
+			modifier     => Any,
+			lexerCommand => Any,
+			content      => $/<ACTION>.Str
+		}
+	}
+
 	method make-literal( :$match ) { {
 		type         => Q{literal},
 		mode         => Any,
@@ -270,7 +276,7 @@ class ANTLR4::Actions::AST {
 		modifier     => Any,
 		lexerCommand => Any,
 		content  => [
-			self.make-action( match => $match )
+			$match.ast
 		]
 	} }
 
