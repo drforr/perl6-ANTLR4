@@ -381,7 +381,7 @@ rule labeledLexerElement
  
 rule lexerBlock
  	{
-	'~'? '(' <COMMENTS>? <lexerAltList>? ')'
+	('~'?) '(' <COMMENTS>? <lexerAltList>? ')'
  	}
  
 #  E.g., channel(HIDDEN), skip, more, mode(INSIDE), push(INSIDE), pop
@@ -453,7 +453,7 @@ rule lexerAtom
  	|	<ID>
  	|	<notSet>
  	|	<LEXER_CHAR_SET>
- 	|	'.' <elementOptions>?
+ 	|	('.') <elementOptions>?
  	}
 
 token DOT

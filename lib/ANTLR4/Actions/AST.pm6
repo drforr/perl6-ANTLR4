@@ -132,16 +132,16 @@ most complex, and is described in detail at the appropriate place.
 use v6;
 
 class ANTLR4::Actions::AST {
-	method make-option( :$match ) {
+	method make-option( :$match ) { {
 		type         => Q{option},
+		name         => $match<key>.Str,
 		mode         => Any,
 		variant      => Any,
-		name         => $match<key>.Str,
 		modifier     => Any,
 		lexerCommand => Any,
 		content      => $match<optionValue>.Str
-	}
-	method make-import( :$match ) {
+	} }
+	method make-import( :$match ) { {
 		type         => Q{import},
 		mode         => Any,
 		variant      => Any,
@@ -151,8 +151,8 @@ class ANTLR4::Actions::AST {
 		content      => $match<value> ??
 				$match<value>.Str !!
 				Any
-	}
-	method make-token( :$match ) {
+	} }
+	method make-token( :$match ) { {
 		type         => Q{token},
 		mode         => Any,
 		variant      => Any,
@@ -160,8 +160,8 @@ class ANTLR4::Actions::AST {
 		modifier     => Any,
 		lexerCommand => Any,
 		content      => Any
-	}
-	method make-action( :$match ) {
+	} }
+	method make-action( :$match ) { {
 		type         => Q{action},
 		mode         => Any,
 		variant      => Any,
@@ -169,8 +169,8 @@ class ANTLR4::Actions::AST {
 		modifier     => Any,
 		lexerCommand => Any,
 		content      => $match<ACTION>.Str
-	}
-	method make-literal( :$match ) {
+	} }
+	method make-literal( :$match ) { {
 		type         => Q{literal},
 		mode         => Any,
 		variant      => Any,
@@ -182,8 +182,8 @@ class ANTLR4::Actions::AST {
 		),
 		lexerCommand => Any,
 		content      => $match.Str
-	}
-	method make-EOF {
+	} }
+	method make-EOF { {
 		type         => Q{EOF},
 		mode         => Any,
 		variant      => Any,
@@ -195,9 +195,9 @@ class ANTLR4::Actions::AST {
 		),
 		lexerCommand => Any,
 		content      => Any
-	}
-	method make-metacharacter( :$match ) {
-		type         => Q{metachar},
+	} }
+	method make-metacharacter( :$match ) { {
+		type         => Q{metacharacter},
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
@@ -208,8 +208,24 @@ class ANTLR4::Actions::AST {
 		),
 		lexerCommand => Any,
 		content      => $match<atom><DOT>.Str
-	}
-	method make-imports( :$match ) {
+	} }
+	# XXX sigh. The grammar has parser and lexer stuff that is completely
+	# XXX separate yet completely parallel.
+	#
+	method make-lexer-metacharacter( :$match ) { {
+		type         => Q{metacharacter},
+		mode         => Any,
+		variant      => Any,
+		name         => Any,
+		modifier     => (
+			intensifier  => Any,
+			greedy       => False,
+			complemented => False,
+		),
+		lexerCommand => Any,
+		content      => $match.Str
+	} }
+	method make-imports( :$match ) { {
 		type         => Q{imports},
 		mode         => Any,
 		variant      => Any,
@@ -220,8 +236,8 @@ class ANTLR4::Actions::AST {
 			self.make-import( match => $match[0] ),
 			self.make-import( match => $match[1] )
 		]
-	}
-	method make-options( :$match ) {
+	} }
+	method make-options( :$match ) { {
 		type         => Q{options},
 		mode         => Any,
 		variant      => Any,
@@ -231,8 +247,8 @@ class ANTLR4::Actions::AST {
 		content  => [
 			self.make-option( match => $match[0] )
 		]
-	}
-	method make-tokens( :$match ) {
+	} }
+	method make-tokens( :$match ) { {
 		type         => Q{tokens},
 		mode         => Any,
 		variant      => Any,
@@ -244,8 +260,8 @@ class ANTLR4::Actions::AST {
 			self.make-token( match => $match[1] ),
 			self.make-token( match => $match[2] )
 		]
-	}
-	method make-actions( :$match ) {
+	} }
+	method make-actions( :$match ) { {
 		type         => Q{actions},
 		mode         => Any,
 		variant      => Any,
@@ -255,135 +271,150 @@ class ANTLR4::Actions::AST {
 		content  => [
 			self.make-action( match => $match )
 		]
-	}
-	method make-alternation( :$match ) {
-		type         => Q{alternation},
-		mode         => Any,
-		variant      => Any,
-		name         => Any,
-		modifier     => Any,
-		lexerCommand => Any,
-		content      => [
-			self.make-literal(
-				match => $match<parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><block><blockAltList><parserElement>[0]<element>[0]<atom><terminal><scalar>[0]
-			),
-			self.make-EOF
-		]
-	}
-	method make-capturing-group( :$match ) {
-		type         => Q{capturing group},
-		mode         => Any,
-		variant      => Any,
-		name         => Any,
-		modifier     => (
-			intensifier  => Any,
-			greedy       => True,
-			complemented => False,
-		),
-		lexerCommand => Any,
-		content      => [
-			self.make-alternation( match => $match )
-		]
-	}
-	method make-concatenation( :$match ) {
-		type         => Q{concatenation},
-		mode         => Any,
-		variant      => Any,
-		name         => Any,
-		modifier     => Any,
-		content      => [
-			self.make-literal(
-				match => $match<parserAltList><parserAlt>[0]<parserElement><element>[0]<atom><terminal><scalar>[0]
-			),
-			self.make-metacharacter(
-				match => $match<parserAltList><parserAlt>[0]<parserElement><element>[1],
-			),
-			self.make-capturing-group(
-				match => $match
-			)
-		]
-	}
+	} }
 	method TOP( $/ ) {
-#say '[' ~ $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList>.Str ~ ']';
-		make [ (
-			type         => Q{grammar},
+#say '[' ~ $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><ebnfSuffix><MODIFIER>.Str ~ ']';
+
+my $made = [ (
+	type         => Q{grammar},
+	mode         => Any,
+	variant      => Any,
+	name         => $/<ID>.Str,
+	modifier     => Any,
+	lexerCommand => Any,
+	content      => [
+		self.make-options(
+			match => $/<prequelConstruct>[0]<optionsSpec><option>
+		),
+		self.make-imports(
+			match => $/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>
+		),
+		self.make-tokens(
+			match => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>
+		),
+		self.make-actions(
+			match => $/<prequelConstruct>[3]<action>
+		),
+	(
+		type         => Q{rules},
+		mode         => Any,
+		variant      => Any,
+		name         => Any,
+		modifier     => Any,
+		lexerCommand => Any,
+		content      => [ (
+			type         => Q{rule},
 			mode         => Any,
 			variant      => Any,
-			name         => $/<ID>.Str,
+			name         => $/<ruleSpec>[0]<parserRuleSpec><ID>.Str,
 			modifier     => Any,
 			lexerCommand => Any,
-			content      => [
-				self.make-options(
-					match => $/<prequelConstruct>[0]<optionsSpec><option>
-				),
-				self.make-imports(
-					match => $/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>
-				),
-				self.make-tokens(
-					match => $/<prequelConstruct>[2]<tokensSpec><ID_list_trailing_comma><ID>
-				),
-				self.make-actions(
-					match => $/<prequelConstruct>[3]<action>
-				),
-			(
-				type         => Q{rules},
+			content => [ (
+				type         => Q{alternation},
 				mode         => Any,
 				variant      => Any,
 				name         => Any,
 				modifier     => Any,
 				lexerCommand => Any,
 				content      => [ (
-					type         => Q{rule},
+					type         => Q{concatenation},
 					mode         => Any,
 					variant      => Any,
-					name         => $/<ruleSpec>[0]<parserRuleSpec><ID>.Str,
+					name         => Any,
 					modifier     => Any,
-					lexerCommand => Any,
-					content => [ (
-						type         => Q{alternation},
+					content      => [
+						self.make-literal(
+							match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[0]<atom><terminal><scalar>[0]
+						),
+						self.make-metacharacter(
+							match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[1],
+						),
+					(
+						type         => Q{capturing group},
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
-						modifier     => Any,
+						modifier     => (
+							intensifier  => Any,
+							greedy       => ?$/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><ebnfSuffix><MODIFIER>,
+							complemented => False,
+						),
 						lexerCommand => Any,
 						content      => [ (
-							self.make-concatenation(
-								match => $/<ruleSpec>[0]<parserRuleSpec>
-							)
-						) ]
-					) ]
-				), (
-					type         => Q{rule},
-					mode         => $/<modeSpec>[0]<ID>.Str,
-					variant      => $/<modeSpec>[0]<lexerRuleSpec>[0]<FRAGMENT>.Str,
-					name         => $/<modeSpec>[0]<lexerRuleSpec>[0]<ID>.Str,
-					modifier     => Any,
-					lexerCommand => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerCommands><lexerCommand>[0]<ID>.Str,
-					content      => [ (
-						type         => Q{alternation},
-						mode         => Any,
-						variant      => Any,
-						name         => Any,
-						modifier     => Any,
-						lexerCommand => Any,
-						content      => [ (
-							type         => Q{capturing group},
+							type         => Q{alternation},
 							mode         => Any,
 							variant      => Any,
 							name         => Any,
-							modifier     => (
-								intensifier => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<ebnfSuffix>.Str,
-								greedy       => False,
-								complemented => False,
-							),
+							modifier     => Any,
 							lexerCommand => Any,
-							content      => [ (
-							) ]
+							content      => [
+								self.make-literal(
+									match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]<parserElement><element>[2]<ebnf><block><blockAltList><parserElement>[0]<element>[0]<atom><terminal><scalar>[0]
+								),
+								self.make-EOF
+							]
 						) ]
 					) ]
 				) ]
 			) ]
-		) ];
+		), (
+			type         => Q{rule},
+			mode         => $/<modeSpec>[0]<ID>.Str,
+			variant      => $/<modeSpec>[0]<lexerRuleSpec>[0]<FRAGMENT>.Str,
+			name         => $/<modeSpec>[0]<lexerRuleSpec>[0]<ID>.Str,
+			modifier     => Any,
+			lexerCommand => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerCommands><lexerCommand>[0]<ID>.Str,
+			content      => [ (
+				type         => Q{alternation},
+				mode         => Any,
+				variant      => Any,
+				name         => Any,
+				modifier     => Any,
+				lexerCommand => Any,
+				content      => [ (
+					type         => Q{capturing group},
+					mode         => Any,
+					variant      => Any,
+					name         => Any,
+					modifier     => (
+						intensifier => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<ebnfSuffix>.Str,
+						greedy       => False,
+						complemented => ?$/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet>
+					),
+					lexerCommand => Any,
+					content      => [ (
+						type         => Q{character class},
+						mode         => Any,
+						variant      => Any,
+						name         => Any,
+						modifier     => (
+							intensifier  => Any,
+							greedy       => False,
+							complemented => ?$/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock>[0]
+						),
+						lexerCommand => Any,
+						content      => [
+							self.make-literal( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet><setElement><LEXER_CHAR_SET>[0][0]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT> ),
+							self.make-literal( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet><setElement><LEXER_CHAR_SET>[0][1]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT> )
+						]
+					) ]
+				), (
+					type         => Q{concatenation},
+					mode         => Any,
+					variant      => Any,
+					name         => Any,
+					modifier     => Any,
+					lexerCommand => Any,
+					content      => [
+						self.make-literal( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]<lexerElement>[0]<lexerAtom><terminal><scalar>[0] ),
+						self.make-lexer-metacharacter( match => $/<modeSpec>[0]<lexerRuleSpec>[0]<lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]<lexerElement>[1]<lexerAtom>[0] )
+					]
+				) ]
+			) ]
+		) ]
+	) ]
+) ];
+		make $made;
 	}
 }
 

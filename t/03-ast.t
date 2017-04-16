@@ -76,11 +76,11 @@ subtest {
 
 $parsed = $g.parse(
 	Q:to{END},
-grammar Minimal;
+grammar Christmas;
 options {
-	Type=Foo;
+	tokenVocab=Antlr;
 }
-import MinimalParser, MinimalLexer=Lexer;
+import ChristmasParser, ChristmasLexer=Alias;
 tokens {
 	TOKEN_REF,
 	RULE_REF,
@@ -97,11 +97,7 @@ DOC_COMMENT : '/**' .*? ( '*/' | EOF )? ;
 
 mode LexerCharSet;
 
-fragment LEXER_CHAR_SET_BODY : ( ~[\]\\] | '\\' . )+ -> more ;
-
-LEXER_CHAR_SET : ']' -> popMode ;
-
-UNTERMINATED_CHAR_SET :	EOF -> popMode ;
+fragment LEXER_CHAR_SET_BODY : ~( ~[\]\\] | '\\' . )+ -> more ;
 
 END
 	:actions($a)
@@ -113,57 +109,57 @@ is-deeply $parsed, [ (
 	type         => Q{grammar},
 	mode         => Any,
 	variant      => Any,
-	name         => Q{Minimal},
+	name         => Q{Christmas},
 	modifier     => Any,
 	lexerCommand => Any,
-	content      => [ (
+	content      => [ {
 		type         => Q{options},
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
 		lexerCommand => Any,
-		content  => [ (
+		content  => [ {
 			type         => Q{option},
 			mode         => Any,
 			variant      => Any,
-			name         => Q{Type},
+			name         => Q{tokenVocab},
 			modifier     => Any,
 			lexerCommand => Any,
-			content      => Q{Foo}
-		) ]
-	), (
+			content      => Q{Antlr}
+		} ]
+	}, {
 		type         => Q{imports},
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
 		lexerCommand => Any,
-		content  => [ (
+		content  => [ {
 			type         => Q{import},
 			mode         => Any,
 			variant      => Any,
-			name         => Q{MinimalParser},
+			name         => Q{ChristmasParser},
 			modifier     => Any,
 			lexerCommand => Any,
 			content      => Any,
-		), (
+		}, {
 			type         => Q{import},
 			mode         => Any,
 			variant      => Any,
-			name         => Q{MinimalLexer},
+			name         => Q{ChristmasLexer},
 			modifier     => Any,
 			lexerCommand => Any,
-			content      => Q{Lexer}
-		) ]
-	), (
+			content      => Q{Alias}
+		} ]
+	}, {
 		type         => Q{tokens},
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
 		lexerCommand => Any,
-		content      => [ (
+		content      => [ {
 			type         => Q{token},
 			mode         => Any,
 			variant      => Any,
@@ -171,7 +167,7 @@ is-deeply $parsed, [ (
 			modifier     => Any,
 			lexerCommand => Any,
 			content      => Any
-		), (
+		}, {
 			type         => Q{token},
 			mode         => Any,
 			variant      => Any,
@@ -179,7 +175,7 @@ is-deeply $parsed, [ (
 			modifier     => Any,
 			lexerCommand => Any,
 			content      => Any
-		), (
+		}, {
 			type         => Q{token},
 			mode         => Any,
 			variant      => Any,
@@ -187,15 +183,15 @@ is-deeply $parsed, [ (
 			modifier     => Any,
 			lexerCommand => Any,
 			content      => Any
-		) ]
-	), (
+		} ]
+	}, {
 		type         => Q{actions},
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
 		lexerCommand => Any,
-		content  => [ (
+		content  => [ {
 			type         => Q{action},
 			mode         => Any,
 			variant      => Any,
@@ -211,15 +207,15 @@ is-deeply $parsed, [ (
 	}
 }
 END
-		) ]
-	), (
+		} ]
+	}, (
 		type         => Q{rules},
 		mode         => Any,
 		variant      => Any,
 		name         => Any,
 		modifier     => Any,
 		lexerCommand => Any,
-		content      => [ (
+		content      => [ ( # DOC_COMMENT : '/**' .*? ( '*/' | EOF )? ;
 			type         => Q{rule},
 			mode         => Any,
 			variant      => Any,
@@ -239,7 +235,7 @@ END
 					variant      => Any,
 					name         => Any,
 					modifier     => Any,
-					content      => [ (
+					content      => [ { # '/**'
 						type         => Q{literal},
 						mode         => Any,
 						variant      => Any,
@@ -251,8 +247,8 @@ END
 						),
 						lexerCommand => Any,
 						content      => Q{/**}
-					), (
-						type         => Q{metachar},
+					}, { # .*?
+						type         => Q{metacharacter},
 						mode         => Any,
 						variant      => Any,
 						name         => Any,
@@ -263,7 +259,7 @@ END
 						),
 						lexerCommand => Any,
 						content      => Q{.}
-					), (
+					}, ( # ( '*/' | EOF )?
 						type         => Q{capturing group},
 						mode         => Any,
 						variant      => Any,
@@ -274,14 +270,14 @@ END
 							complemented => False,
 						),
 						lexerCommand => Any,
-						content      => [ (
+						content      => [ ( # '*/'
 							type         => Q{alternation},
 							mode         => Any,
 							variant      => Any,
 							name         => Any,
 							modifier     => Any,
 							lexerCommand => Any,
-							content      => [ (
+							content      => [ {
 								type         => Q{literal},
 								mode         => Any,
 								variant      => Any,
@@ -293,7 +289,7 @@ END
 								),
 								lexerCommand => Any,
 								content      => Q{*/}
-							), (
+							}, { # EOF
 								type         => Q{EOF},
 								mode         => Any,
 								variant      => Any,
@@ -305,26 +301,26 @@ END
 								),
 								lexerCommand => Any,
 								content      => Any
-							) ]
+							} ]
 						) ]
 					) ]
 				) ]
 			) ]
-		), (
+		), ( # fragment LEXER_CHAR_SET_BODY : ~( ~[\]\\] | '\\' . )+ -> more ;
 			type         => Q{rule},
 			mode         => Q{LexerCharSet},
 			variant      => Q{fragment},
 			name         => Q{LEXER_CHAR_SET_BODY},
 			modifier     => Any,
 			lexerCommand => Q{more},
-			content      => [ (
+			content      => [ ( # ~( ~[\]\\] | '\\' . )+
 				type         => Q{alternation},
 				mode         => Any,
 				variant      => Any,
 				name         => Any,
 				modifier     => Any,
 				lexerCommand => Any,
-				content      => [ (
+				content      => [ ( # ~( ~[\]\\] | '\\' . )+
 					type         => Q{capturing group},
 					mode         => Any,
 					variant      => Any,
@@ -332,11 +328,78 @@ END
 					modifier     => (
 						intensifier  => Q{+},
 						greedy       => False,
-						complemented => False,
+						complemented => True,
 					),
 					lexerCommand => Any,
-					content      => [ (
+					content      => [ ( # ~[\]\\]
+						type         => Q{character class},
+						mode         => Any,
+						variant      => Any,
+						name         => Any,
+						modifier     => (
+							intensifier  => Any,
+							greedy       => False,
+							complemented => True,
+						),
+						lexerCommand => Any,
+						content      => [ { # \]
+							type         => Q{literal},
+							mode         => Any,
+							variant      => Any,
+							name         => Any,
+							modifier     => (
+								intensifier  => Any,
+								greedy       => False,
+								complemented => False,
+							),
+							lexerCommand => Any,
+							content      => Q{\]}
+						}, { # \\
+							type         => Q{literal},
+							mode         => Any,
+							variant      => Any,
+							name         => Any,
+							modifier     => (
+								intensifier  => Any,
+								greedy       => False,
+								complemented => False,
+							),
+							lexerCommand => Any,
+							content      => Q{\\}
+						} ]
 					) ]
+				), ( # '\\' .
+					type         => Q{concatenation},
+					mode         => Any,
+					variant      => Any,
+					name         => Any,
+					modifier     => Any,
+					lexerCommand => Any,
+					content      => [ { # '\\'
+						type         => Q{literal},
+						mode         => Any,
+						variant      => Any,
+						name         => Any,
+						modifier     => (
+							intensifier  => Any,
+							greedy       => False,
+							complemented => False,
+						),
+						lexerCommand => Any,
+						content      => Q{\\}
+					}, { # .
+						type         => Q{metacharacter},
+						mode         => Any,
+						variant      => Any,
+						name         => Any,
+						modifier     => (
+							intensifier  => Any,
+							greedy       => False,
+							complemented => False,
+						),
+						lexerCommand => Any,
+						content      => Q{.}
+					} ]
 				) ]
 			) ]
 		) ]
