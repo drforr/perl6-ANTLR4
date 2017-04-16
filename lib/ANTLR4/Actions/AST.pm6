@@ -153,7 +153,7 @@ class ANTLR4::Actions::AST {
 			modifier     => Any,
 			lexerCommand => Any,
 			content      => $/<value> ??
-					$/<value>.Str !!
+					$/<value>.ast !!
 					Any
 		}
 	}
@@ -195,8 +195,7 @@ class ANTLR4::Actions::AST {
 			complemented => False,
 		},
 		lexerCommand => Any,
-		content      =>
-			$match<element>[0]<atom><terminal><scalar>[0].Str
+		content      => $match<atom><terminal><scalar>[0].Str
 	} }
 
 	method make-lexer-literal( :$match ) { {
@@ -249,7 +248,6 @@ class ANTLR4::Actions::AST {
 		modifier     => {
 			intensifier  => Any,
 			greedy       => False,
-			#greedy       => ?{$match<ebnf><ebnfSuffix>:defined(<GREED>)},
 			complemented => False,
 		},
 		lexerCommand => Any,
@@ -340,14 +338,14 @@ class ANTLR4::Actions::AST {
 		variant      => Any,
 		name         => Any,
 		modifier     => {
-			intensifier => $match<lexerElement>[0]<ebnfSuffix><MODIFIER>.ast,
+			intensifier => $match<ebnfSuffix><MODIFIER>.ast,
 			greedy       => False,
-			complemented => ?$match<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet>
+			complemented => ?$match<lexerBlock><lexerAltList><lexerAlt>[0]<lexerElement>[0]<lexerAtom><notSet>
 		},
 		lexerCommand => Any,
 		content      => [
 			self.make-lexer-character-class(
-				match => $match<lexerElement>[0]
+				match => $match
 			)
 		]
 	} }
@@ -361,10 +359,10 @@ class ANTLR4::Actions::AST {
 		lexerCommand => Any,
 		content      => [
 			self.make-lexer-capturing-group(
-				match => $match<lexerAlt>[0]
+				match => $match<lexerElement>[0]
 			),
 			self.make-lexer-concatenation(
-				match => $match<lexerAlt>[0]<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]
+				match => $match<lexerElement>[0]<lexerBlock><lexerAltList><lexerAlt>[1]
 			)
 		]
 	} }
@@ -378,7 +376,7 @@ class ANTLR4::Actions::AST {
 		lexerCommand => Any,
 		content      => [
 			self.make-literal(
-				match => $match<element>[2]<ebnf><block><blockAltList><parserElement>[0]
+				match => $match<element>[2]<ebnf><block><blockAltList><parserElement>[0]<element>[0]
 			),
 			self.make-EOF(
 				match => $match<element>[2]<ebnf><block><blockAltList><parserElement>[1]
@@ -411,13 +409,13 @@ class ANTLR4::Actions::AST {
 		modifier     => Any,
 		content      => [
 			self.make-literal(
-				match => $match<parserAlt>[0]<parserElement>
+				match => $match<parserElement><element>[0]
 			),
 			self.make-metacharacter(
-				match => $match<parserAlt>[0]<parserElement><element>[1],
+				match => $match<parserElement><element>[1],
 			),
 			self.make-capturing-group(
-				match => $match<parserAlt>[0]
+				match => $match
 			)
 		]
 	} }
@@ -431,13 +429,14 @@ class ANTLR4::Actions::AST {
 		lexerCommand => $match<lexerAltList><lexerAlt>[0]<lexerCommands><lexerCommand>[0]<ID>.ast,
 		content      => [
 			self.make-lexer-alternation(
-				match => $match<lexerAltList>
+				match => $match<lexerAltList><lexerAlt>[0]
 			)
 		]
 	} }
 
 	method optionValue( $/ ) { make $/.Str }
 	method key( $/ ) { make $/.Str }
+	method value( $/ ) { make $/.Str }
 	method ID( $/ ) { make $/.Str }
 	method MODIFIER( $/ ) { make $/.Str }
 	method ACTION( $/ ) { make $/.Str }
@@ -491,7 +490,7 @@ my $made = [ {
 				lexerCommand => Any,
 				content      => [
 					self.make-concatenation(
-						match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList>
+						match => $/<ruleSpec>[0]<parserRuleSpec><parserAltList><parserAlt>[0]
 					)
 				]
 			} ]
