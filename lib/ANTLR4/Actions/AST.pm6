@@ -141,17 +141,21 @@ class ANTLR4::Actions::AST {
 		lexerCommand => Any,
 		content      => $match<optionValue>.Str
 	} }
-	method make-import( :$match ) { {
-		type         => Q{import},
-		name         => $match<key>.ast,
-		mode         => Any,
-		variant      => Any,
-		modifier     => Any,
-		lexerCommand => Any,
-		content      => $match<value> ??
-				$match<value>.Str !!
-				Any
-	} }
+
+	method delegateGrammar( $/ ) {
+		make {
+			type         => Q{import},
+			name         => $/<key>.ast,
+			mode         => Any,
+			variant      => Any,
+			modifier     => Any,
+			lexerCommand => Any,
+			content      => $/<value> ??
+					$/<value>.Str !!
+					Any
+		}
+	}
+
 	method make-token( :$match ) { {
 		type         => Q{token},
 		mode         => Any,
@@ -240,8 +244,8 @@ class ANTLR4::Actions::AST {
 		modifier     => Any,
 		lexerCommand => Any,
 		content  => [
-			self.make-import( match => $match[0] ),
-			self.make-import( match => $match[1] )
+			$match<delegateGrammar>[0].ast,
+			$match<delegateGrammar>[1].ast
 		]
 	} }
 	method make-options( :$match ) { {
@@ -252,7 +256,7 @@ class ANTLR4::Actions::AST {
 		modifier     => Any,
 		lexerCommand => Any,
 		content  => [
-			self.make-option( match => $match[0] )
+			self.make-option( match => $match<option>[0] )
 		]
 	} }
 	method make-tokens( :$match ) { {
@@ -263,9 +267,9 @@ class ANTLR4::Actions::AST {
 		modifier     => Any,
 		lexerCommand => Any,
 		content      => [
-			self.make-token( match => $match[0] ),
-			self.make-token( match => $match[1] ),
-			self.make-token( match => $match[2] )
+			self.make-token( match => $match<ID>[0] ),
+			self.make-token( match => $match<ID>[1] ),
+			self.make-token( match => $match<ID>[2] )
 		]
 	} }
 	method make-actions( :$match ) { {
@@ -298,13 +302,13 @@ my $made = [ {
 	lexerCommand => Any,
 	content      => [
 		self.make-options(
-			match => $/<prequelConstruct>[0]<optionsSpec><option>
+			match => $/<prequelConstruct>[0]<optionsSpec>
 		),
 		self.make-imports(
-			match => $/<prequelConstruct>[1]<delegateGrammars><delegateGrammar>
+			match => $/<prequelConstruct>[1]<delegateGrammars>
 		),
 		self.make-tokens(
-			match => $/<prequelConstruct>[2]<tokensSpec><token_list_trailing_comma><ID>
+			match => $/<prequelConstruct>[2]<tokensSpec><token_list_trailing_comma>
 		),
 		self.make-actions(
 			match => $/<prequelConstruct>[3]<action>
