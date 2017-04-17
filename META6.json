@@ -29,6 +29,7 @@
    "auth" : "github:drforr",
    "source-url" : "https://github.com/drforr/perl6-ANTLR4.git",
    "depends" : [
+       "Test::META"
    ],
    "name" : "ANTLR4",
    "authors" : [
