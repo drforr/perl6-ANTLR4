@@ -3,7 +3,7 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 use Test;
 
-plan 4;
+plan 6;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -33,12 +33,15 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		name         => Q{Christmas},
-		variant      => Any,
-		option       => { },
-		import       => { },
-		token        => { },
-		action       => { }
+		name     => Q{Christmas},
+		type     => Any,
+		option   => { },
+		import   => { },
+		token    => { },
+		action   => { },
+		rule     => { },
+		fragment => { },
+		mode     => { }
 	}, Q{default grammar};
 
 	$parsed = $g.parse(
@@ -49,12 +52,15 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		variant      => Q{lexer},
-		name         => Q{Christmas},
-		option       => { },
-		import       => { },
-		token        => { },
-		action       => { }
+		type     => Q{lexer},
+		name     => Q{Christmas},
+		option   => { },
+		import   => { },
+		token    => { },
+		action   => { },
+		rule     => { },
+		fragment => { },
+		mode     => { }
 	}, Q{lexer grammar};
 
 	$parsed = $g.parse(
@@ -65,12 +71,15 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		variant      => Q{parser},
-		name         => Q{Christmas},
-		option       => { },
-		import       => { },
-		token        => { },
-		action       => { }
+		type     => Q{parser},
+		name     => Q{Christmas},
+		option   => { },
+		import   => { },
+		token    => { },
+		action   => { },
+		rule     => { },
+		fragment => { },
+		mode     => { }
 	}, Q{parser grammar};
 
 	done-testing;
@@ -86,12 +95,15 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		variant      => Q{parser},
-		name         => Q{Christmas},
-		option       => { },
-		import       => { },
-		token        => { },
-		action       => { }
+		type     => Q{parser},
+		name     => Q{Christmas},
+		option   => { },
+		import   => { },
+		token    => { },
+		action   => { },
+		rule     => { },
+		fragment => { },
+		mode     => { }
 	}, Q{empty options};
 
 	$parsed = $g.parse(
@@ -103,18 +115,47 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		variant      => Q{parser},
-		name         => Q{Christmas},
-		option       => {
+		type     => Q{parser},
+		name     => Q{Christmas},
+		option   => {
 			tokenVocab => Q{Antlr}
 		},
-		import       => { },
-		token        => { },
-		action       => { }
+		import   => { },
+		token    => { },
+		action   => { },
+		rule     => { },
+		fragment => { },
+		mode     => { }
 	}, Q{single option};
 
 	done-testing;
 }, Q{options};
+
+subtest {
+	$parsed = $g.parse(
+		Q:to{END},
+parser grammar Christmas;
+tokens { INDENT }
+END
+		:actions($a)
+	);
+
+	is-deeply $parsed.ast, {
+		type     => Q{parser},
+		name     => Q{Christmas},
+		option   => { },
+		import   => { },
+		token    => {
+			INDENT => Any
+		},
+		action   => { },
+		rule     => { },
+		fragment => { },
+		mode     => { }
+	}, Q{single token};
+
+	done-testing;
+}, Q{token};
 
 subtest {
 	$parsed = $g.parse(
@@ -126,15 +167,18 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		variant      => Q{parser},
-		name         => Q{Christmas},
-		option       => { },
-		import       => {
+		type     => Q{parser},
+		name     => Q{Christmas},
+		option   => { },
+		import   => {
 			ChristmasParser => Any,
 			ChristmasLexer => 'Alias'
 		},
-		token        => { },
-		action       => { }
+		token    => { },
+		action   => { },
+		rule     => { },
+		fragment => { },
+		mode     => { }
 	}, Q{single import};
 
 	done-testing;
@@ -156,12 +200,12 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		variant      => Q{parser},
-		name         => Q{Christmas},
-		option       => { },
-		import       => { },
-		token        => { },
-		action       => {
+		type     => Q{parser},
+		name     => Q{Christmas},
+		option   => { },
+		import   => { },
+		token    => { },
+		action   => {
 			name    => 'members',
 			content => Q:to{END}.chomp
 {
@@ -172,10 +216,61 @@ END
 	}
 }
 END
-		}
+		},
+		rule     => { },
+		fragment => { },
+		mode     => { }
 	}, Q{action};
 
 	done-testing;
 }, Q{action};
+
+subtest {
+#`(
+	$parsed = $g.parse(
+		Q:to{END},
+parser grammar Christmas;
+fragment exponent : <assoc=right> term {doStuff();} ;
+Literal : 'term' -> more, channel(HIDDEN) ;
+END
+		:actions($a)
+	);
+
+	is-deeply $parsed.ast, {
+		type     => Q{parser},
+		name     => Q{Christmas},
+		option   => { },
+		import   => { },
+		token    => { },
+		action   => { },
+		rule     => {
+			Literal => {
+				lexerCommand => {
+					more    => Any,
+					channel => 'HIDDEN'
+				},
+				concatenation => [ {
+					type    => 'literal',
+					content => 'term',
+				} ]
+			}
+		},
+		fragment => {
+			test => {
+				concatenation => [ {
+					type    => 'term',
+					content => 'exponent',
+					action  => '{doStuff();}',
+					option  => {
+						assoc => 'right'
+					}
+				} ]
+			}
+		},
+		mode     => { }
+	}, Q{single import};
+)
+	done-testing;
+}, Q{rule};
 
 # vim: ft=perl6

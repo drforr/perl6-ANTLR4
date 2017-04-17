@@ -27,88 +27,74 @@ use JSON::Tiny;
 use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 
-class ANTLR4::Actions::Perl6
-	{
+class ANTLR4::Actions::Perl6 {
 	has ANTLR4::Grammar $g = ANTLR4::Grammar.new;
 	has ANTLR4::Actions::AST $a = ANTLR4::Actions::AST.new;
 
-	my class ANTLR4::Actions::Perl6::Shim
-		{
+	my class ANTLR4::Actions::Perl6::Shim {
 		has $.ast;
 		has $.perl6;
-		}
+	}
 
-	method java2perl( Str $str )
-		{
+	sub java2perl( Str $str ) {
 		my $copy = $str;
 		$copy ~~ s/\\u(....)/\\x[$0]/;
 		$copy
-		}
-
-	method alternation( $ast )
-		{
+	}
+#`(
+	method alternation( $ast ) {
 		my $json;
 		my $terms = '';
 		$terms = join( ' | ', map { self.term( $_ ) },
 			       @( $ast.<content> ) )
 			if @( $ast.<content> );
-		for <command options label> -> $key
-			{
+		for <command options label> -> $key {
 			$json.{$key} = $ast.{$key} if $ast.{$key};
-			}
-		if $json
-			{
+		}
+		if $json {
 			my $json-str = to-json( $json );
 			$terms ~= qq{ #=$json-str};
-			}
-		$terms;
 		}
+		$terms;
+	}
 
-	method concatenation( $ast )
-		{
+	method concatenation( $ast ) {
 		my $json;
 		my $terms = '';
-		if @( $ast.<content> )
-			{
+		if @( $ast.<content> ) {
 			$terms = join( ' ', map { self.term( $_ ) },
 				       @( $ast.<content> ) );
-			}
-		else
-			{
+		}
+		else {
 			$terms = '(Nil)';
-			}
-		for <command options label> -> $key
-			{
+		}
+		for <command options label> -> $key {
 			$json.{$key} = $ast.{$key} if $ast.{$key};
-			}
-		if $json
-			{
+		}
+		if $json {
 			my $json-str = to-json( $json );
 			$terms ~= qq{ #=$json-str};
-			}
-		$terms;
 		}
+		$terms;
+	}
 
-	method _modify( $ast, $term )
-		{
+	method _modify( $ast, $term ) {
 		my $temp = $term;
 		$temp ~= $ast.<modifier> if $ast.<modifier>;
 		$temp ~= '?' if $ast.<greedy>;
 		$temp;
-		}
+	}
 
-	method terminal( $ast )
-		{
+	method terminal( $ast ) {
 		my $term = '';
 		my $content = self.java2perl( $ast.<content> );
 
 		$term ~= '!' if $ast.<complemented>;
 		$term ~= qq{'$content'};
 		self._modify( $ast, $term );
-		}
+	}
 
-	method nonterminal( $ast )
-		{
+	method nonterminal( $ast ) {
 		my $term = '';
 		
 		$term ~= '<';
@@ -117,10 +103,9 @@ class ANTLR4::Actions::Perl6
 		$term ~= $ast.<content>;
 		$term ~= '>';
 		self._modify( $ast, $term );
-		}
+	}
 
-	method range( $ast )
-		{
+	method range( $ast ) {
 		my $term = '';
 		my $from = self.java2perl( $ast.<content>[0]<from> );
 		my $to = self.java2perl( $ast.<content>[0]<to> );
@@ -130,46 +115,37 @@ class ANTLR4::Actions::Perl6
 		$term ~= q{..};
 		$term ~= qq{'$to'};
 		self._modify( $ast, $term );
-		}
+	}
 
-	method character-class( $ast )
-		{
+	method character-class( $ast ) {
 		my $term = '';
 
 		$term ~= '<';
 		$term ~= '-' if $ast.<complemented>;
 		$term ~= '[ ';
-		$term ~= join( ' ', map
-			{
-			if /^(.) '-' (.)/
-				{
+		$term ~= join( ' ', map {
+			if /^(.) '-' (.)/ {
 				$_ = qq{$0 .. $1};
-				}
-			elsif /^\\u(....) '-' \\u(....)/
-				{
+			}
+			elsif /^\\u(....) '-' \\u(....)/ {
 				$_ = qq{\\x[$0] .. \\x[$1]};
-				}
-			elsif /^\\u(....)/
-				{
+			}
+			elsif /^\\u(....)/ {
 				$_ = qq{\\x[$0]};
-				}
-			elsif /' '/
-				{
+			}
+			elsif /' '/ {
 				$_ = q{' '};
-				}
-			elsif /\\\-/
-				{
+			}
+			elsif /\\\-/ {
 				$_ = q{-};
-				}
+			}
 			$_
-			},
-			@( $ast.<content> ) );
+		}, @( $ast.<content> ) );
 		$term ~= ' ]>';
 		self._modify( $ast, $term );
-		}
+	}
 
-	method capturing-group( $ast )
-		{
+	method capturing-group( $ast ) {
 		my $term = '';
 		
 		$term ~= '!' if $ast.<complemented>;
@@ -179,84 +155,67 @@ class ANTLR4::Actions::Perl6
 			if @( $ast.<content> );
                 $term ~= qq{( $group )};
 		self._modify( $ast, $term );
-		}
+	}
 
-	method regular-expression( $ast )
-		{
+	method regular-expression( $ast ) {
 		my $term = '';
 		
 		$term ~= '!' if $ast.<complemented>;
                 $term ~= $ast.<content>
 			if $ast.<content>;
 		self._modify( $ast, $term );
-		}
+	}
 
-	method action( $ast )
-		{
+	method action( $ast ) {
 		my $json-str = to-json( { content => $ast.<content> } );
 		qq{ #=$json-str};
-		}
+	}
 
-	method term( $ast )
-		{
+	method term( $ast ) {
 		my $json;
 		my $term = '';
 
-		given $ast.<type>
-			{
-			when 'alternation'
-				{
+		given $ast.<type> {
+			when 'alternation' {
 				$term = self.alternation( $ast );
-				}
-			when 'concatenation'
-				{
+			}
+			when 'concatenation' {
 				$term = self.concatenation( $ast );
-				}
-			when 'terminal'
-				{
+			}
+			when 'terminal' {
 				$term = self.terminal( $ast );
-				}
-			when 'nonterminal'
-				{
+			}
+			when 'nonterminal' {
 				$term = self.nonterminal( $ast );
-				}
-			when 'range'
-				{
+			}
+			when 'range' {
 				$term = self.range( $ast );
-				}
-			when 'character class'
-				{
+			}
+			when 'character class' {
 				$term = self.character-class( $ast );
-				}
-			when 'capturing group'
-				{
+			}
+			when 'capturing group' {
 				$term = self.capturing-group( $ast );
-				}
-			when 'regular expression'
-				{
+			}
+			when 'regular expression' {
 				$term = self.regular-expression( $ast );
-				}
-			when 'action'
-				{
+			}
+			when 'action' {
 				$term = self.action( $ast );
-				}
-			default
-				{
-				if $ast.<type>
-					{
+			}
+			default {
+				if $ast.<type> {
 					die "Unrecognized type '$ast.<type>' found";
-					}
-				else
-					{
+				}
+				else {
 					die "Missing type";
-					}
 				}
 			}
-		$term;
 		}
+		$term;
+	}
 
-	method rule( $ast )
-		{
+	method rule( $ast ) {
 		my $json;
 		my $terms = '';
 
@@ -270,54 +229,52 @@ class ANTLR4::Actions::Perl6
 			$json.{$key} = $ast.{$key} if $ast.{$key};
 		}
 		my $rule = qq{rule $ast.<name> { $terms }};
-		if $json
-			{
+		if $json {
 			my $json-str = to-json( $json );
 			$rule ~= qq{ #=$json-str};
-			}
+		}
 		$rule;
-		}
-
-	method reconstruct( $ast )
-		{
+	}
+)
+	method reconstruct( $ast ) {
+		my $variant = '';
+		my $token = '';
 		my $json;
-		my $rules = '';
-
-		$rules = join( ' ', map { self.rule( $_ ) },
-                               @( $ast.<content> ) )
-			if @( $ast.<content> );
-
-		# Yes, probably a fancier way to do this, but it works.
-		#
-		for <type options imports tokens action> -> $key
-			{
-			next if $key eq 'type' and $ast.<type> eq 'DEFAULT';
+		for <type option import action> -> $key {
 			$json.{$key} = $ast.{$key} if $ast.{$key};
-			}
-		my $grammar = qq{grammar $ast.<name> { $rules }};
-		if $json
-			{
+		}
+		if $json {
 			my $json-str = to-json( $json );
-			$grammar ~= qq{ #=$json-str};
-			}
-		$grammar;
+			$variant ~= qq{ #=$json-str};
+		}
+		if $ast.<token> {
+			my @token = map {
+				my $lc = lc $_;
+				qq{\ttoken $_ \{ '$lc' \}}
+			}, $ast.<token>.keys.sort;
+			$token = @token.join("\n") ~ "\n";
 		}
 
-	method parse( $str )
-		{
+		my $grammar = qq:to{END};
+grammar $ast.<name> \{$variant
+$token\}
+END
+		$grammar;
+	}
+
+	method parse( Str $str ) {
 		my $ast = $!g.parse( $str, :actions($!a) ).ast;
 		ANTLR4::Actions::Perl6::Shim.new(
 			ast => $ast,
 			perl6 => self.reconstruct( $ast ) )
-		}
+	}
 
-	method parsefile( $filename )
-		{
+	method parsefile( Str $filename ) {
 		my $ast = $!g.parsefile( $filename, :actions($!a) ).ast;
 		ANTLR4::Actions::Perl6::Shim.new(
 			ast => $ast,
 			perl6 => self.reconstruct( $ast ) )
-		}
 	}
+}
 
 # vim: ft=perl6

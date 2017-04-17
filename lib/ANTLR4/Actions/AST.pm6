@@ -135,6 +135,9 @@ class ANTLR4::Actions::AST {
 	method ACTION( $/ ) { make $/.Str }
 	method ID( $/ ) { make $/.Str }
 	method optionValue( $/ ) { make $/.Str }
+	method tokenName( $/ ) { make $/.Str }
+	method grammarType( $/ ) { make $/[0] ?? $/[0].Str !! Any }
+	method value( $/ ) { make $/ ?? $/.Str !! Any }
 	method option( $/ ) {
 		make {
 			name    => $/<ID>.ast,
@@ -144,10 +147,8 @@ class ANTLR4::Actions::AST {
 
 	method delegateGrammar( $/ ) {
 		make {
-			name         => $/<key>.ast,
-			content      => $/<value> ??
-					$/<value>.ast !!
-					Any
+			name    => $/<key>.ast,
+			content => $/<value>.ast
 		}
 	}
 
@@ -159,10 +160,10 @@ class ANTLR4::Actions::AST {
 	}
 
 	method TOP( $/ ) {
-		my %option;
-		my %import;
-		my %token;
-		my %action;
+		my (
+			%option, %import, %token, %action,
+			%rule, %fragment, %mode
+		);
 		for $/<prequelConstruct> {
 			when $_<optionsSpec><option> {
 				for $_<optionsSpec><option> {
@@ -176,23 +177,29 @@ class ANTLR4::Actions::AST {
 						$_.ast.<content>;
 				}
 			}
+			when $_<tokensSpec> {
+				for $_<tokensSpec><token_list_trailing_comma><tokenName>>>.ast {
+					%token{$_.Str} = Any;
+				}
+			}
 			when $_<action> {
 				%action =
-					name => $_<action>.ast.<name>,
+					name    => $_<action>.ast.<name>,
 					content => $_<action>.ast.<content>
 				;
 				
 			}
 		}
 		make {
-			variant      => $/<grammarType>[0] ??
-					$/<grammarType>[0].Str !!
-					Any,
-			name         => $/<ID>.ast,
-			option       => %option,
-			import       => %import,
-			token        => %token,
-			action       => %action
+			type     => $/<grammarType>.ast,
+			name     => $/<ID>.ast,
+			option   => %option,
+			import   => %import,
+			token    => %token,
+			action   => %action,
+			rule     => %rule,
+			fragment => %fragment,
+			mode     => %mode
 		}
 	}
 }
