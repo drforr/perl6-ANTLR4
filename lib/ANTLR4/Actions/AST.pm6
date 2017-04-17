@@ -162,7 +162,7 @@ class ANTLR4::Actions::AST {
 	method TOP( $/ ) {
 		my (
 			%option, %import, %token, %action,
-			%rule, %fragment, %mode
+			%rule, %mode
 		);
 		for $/<prequelConstruct> {
 			when $_<optionsSpec><option> {
@@ -190,16 +190,32 @@ class ANTLR4::Actions::AST {
 				
 			}
 		}
+		for $/<ruleSpec> {
+			when $_<parserRuleSpec> {
+				%rule{$_<parserRuleSpec><ID>.Str} = {
+				}
+			}
+			when $_<lexerRuleSpec> {
+				%rule{$_<lexerRuleSpec><ID>.Str} = {
+				}
+			}
+		}
+		for $/<modeSpec> {
+			my $curMode = $_<ID>.Str;
+			for $_<lexerRuleSpec> {
+				%mode{$curMode}{$_<ID>.Str} = {
+				}
+			}
+		}
 		make {
-			type     => $/<grammarType>.ast,
-			name     => $/<ID>.ast,
-			option   => %option,
-			import   => %import,
-			token    => %token,
-			action   => %action,
-			rule     => %rule,
-			fragment => %fragment,
-			mode     => %mode
+			type      => $/<grammarType>.ast,
+			name      => $/<ID>.ast,
+			option    => %option,
+			import    => %import,
+			token     => %token,
+			action    => %action,
+			rule      => %rule,
+			mode      => %mode
 		}
 	}
 }

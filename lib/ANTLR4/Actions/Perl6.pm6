@@ -28,15 +28,17 @@ use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 
 class ANTLR4::Actions::Perl6 {
-	has ANTLR4::Grammar $g = ANTLR4::Grammar.new;
-	has ANTLR4::Actions::AST $a = ANTLR4::Actions::AST.new;
+	has ANTLR4::Grammar $g =
+		ANTLR4::Grammar.new;
+	has ANTLR4::Actions::AST $a =
+		ANTLR4::Actions::AST.new;
 
 	my class ANTLR4::Actions::Perl6::Shim {
 		has $.ast;
 		has $.perl6;
 	}
 
-	sub java2perl( Str $str ) {
+	sub translate-unicode( Str $str ) {
 		my $copy = $str;
 		$copy ~~ s/\\u(....)/\\x[$0]/;
 		$copy
@@ -83,15 +85,6 @@ class ANTLR4::Actions::Perl6 {
 		$temp ~= $ast.<modifier> if $ast.<modifier>;
 		$temp ~= '?' if $ast.<greedy>;
 		$temp;
-	}
-
-	method terminal( $ast ) {
-		my $term = '';
-		my $content = self.java2perl( $ast.<content> );
-
-		$term ~= '!' if $ast.<complemented>;
-		$term ~= qq{'$content'};
-		self._modify( $ast, $term );
 	}
 
 	method nonterminal( $ast ) {
@@ -236,17 +229,9 @@ class ANTLR4::Actions::Perl6 {
 		$rule;
 	}
 )
-	method reconstruct( $ast ) {
-		my $variant = '';
+
+	method build-tokens( $ast ) {
 		my $token = '';
-		my $json;
-		for <type option import action> -> $key {
-			$json.{$key} = $ast.{$key} if $ast.{$key};
-		}
-		if $json {
-			my $json-str = to-json( $json );
-			$variant ~= qq{ #=$json-str};
-		}
 		if $ast.<token> {
 			my @token = map {
 				my $lc = lc $_;
@@ -254,10 +239,30 @@ class ANTLR4::Actions::Perl6 {
 			}, $ast.<token>.keys.sort;
 			$token = @token.join("\n") ~ "\n";
 		}
+		$token;
+	}
 
+	method build-outer-json( $ast ) {
+		my $variant = '';
+		my $json;
+		for <type option import action> -> $key {
+			$json.{$key} = $ast.{$key} if $ast.{$key};
+		}
+		if $json {
+			my $json-str = to-json( $json );
+			$variant = qq{ #=$json-str};
+		}
+		$variant;
+	}
+
+	method build-rules( $ast ) {
+		my $rules = '';
+	}
+
+	method reconstruct( $ast ) {
 		my $grammar = qq:to{END};
-grammar $ast.<name> \{$variant
-$token\}
+grammar $ast.<name> \{{self.build-outer-json( $ast )}
+{self.build-tokens( $ast )}\}
 END
 		$grammar;
 	}

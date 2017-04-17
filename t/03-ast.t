@@ -33,15 +33,14 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		name     => Q{Christmas},
-		type     => Any,
-		option   => { },
-		import   => { },
-		token    => { },
-		action   => { },
-		rule     => { },
-		fragment => { },
-		mode     => { }
+		name      => Q{Christmas},
+		type      => Any,
+		option    => { },
+		import    => { },
+		token     => { },
+		action    => { },
+		rule      => { },
+		mode      => { }
 	}, Q{default grammar};
 
 	$parsed = $g.parse(
@@ -52,15 +51,14 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		type     => Q{lexer},
-		name     => Q{Christmas},
-		option   => { },
-		import   => { },
-		token    => { },
-		action   => { },
-		rule     => { },
-		fragment => { },
-		mode     => { }
+		type      => Q{lexer},
+		name      => Q{Christmas},
+		option    => { },
+		import    => { },
+		token     => { },
+		action    => { },
+		rule      => { },
+		mode      => { }
 	}, Q{lexer grammar};
 
 	$parsed = $g.parse(
@@ -71,15 +69,14 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		type     => Q{parser},
-		name     => Q{Christmas},
-		option   => { },
-		import   => { },
-		token    => { },
-		action   => { },
-		rule     => { },
-		fragment => { },
-		mode     => { }
+		type      => Q{parser},
+		name      => Q{Christmas},
+		option    => { },
+		import    => { },
+		token     => { },
+		action    => { },
+		rule      => { },
+		mode      => { }
 	}, Q{parser grammar};
 
 	done-testing;
@@ -95,15 +92,14 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		type     => Q{parser},
-		name     => Q{Christmas},
-		option   => { },
-		import   => { },
-		token    => { },
-		action   => { },
-		rule     => { },
-		fragment => { },
-		mode     => { }
+		type      => Q{parser},
+		name      => Q{Christmas},
+		option    => { },
+		import    => { },
+		token     => { },
+		action    => { },
+		rule      => { },
+		mode      => { }
 	}, Q{empty options};
 
 	$parsed = $g.parse(
@@ -115,17 +111,16 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		type     => Q{parser},
-		name     => Q{Christmas},
-		option   => {
+		type      => Q{parser},
+		name      => Q{Christmas},
+		option    => {
 			tokenVocab => Q{Antlr}
 		},
-		import   => { },
-		token    => { },
-		action   => { },
-		rule     => { },
-		fragment => { },
-		mode     => { }
+		import    => { },
+		token     => { },
+		action    => { },
+		rule      => { },
+		mode      => { }
 	}, Q{single option};
 
 	done-testing;
@@ -141,17 +136,16 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		type     => Q{parser},
-		name     => Q{Christmas},
-		option   => { },
-		import   => { },
-		token    => {
+		type      => Q{parser},
+		name      => Q{Christmas},
+		option    => { },
+		import    => { },
+		token     => {
 			INDENT => Any
 		},
-		action   => { },
-		rule     => { },
-		fragment => { },
-		mode     => { }
+		action    => { },
+		rule      => { },
+		mode      => { }
 	}, Q{single token};
 
 	done-testing;
@@ -167,18 +161,17 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		type     => Q{parser},
-		name     => Q{Christmas},
-		option   => { },
-		import   => {
+		type      => Q{parser},
+		name      => Q{Christmas},
+		option    => { },
+		import    => {
 			ChristmasParser => Any,
 			ChristmasLexer => 'Alias'
 		},
-		token    => { },
-		action   => { },
-		rule     => { },
-		fragment => { },
-		mode     => { }
+		token     => { },
+		action    => { },
+		rule      => { },
+		mode      => { }
 	}, Q{single import};
 
 	done-testing;
@@ -217,21 +210,29 @@ END
 }
 END
 		},
-		rule     => { },
-		fragment => { },
-		mode     => { }
+		rule      => { },
+		mode      => { }
 	}, Q{action};
 
 	done-testing;
 }, Q{action};
 
 subtest {
-#`(
 	$parsed = $g.parse(
 		Q:to{END},
 parser grammar Christmas;
-fragment exponent : <assoc=right> term {doStuff();} ;
+fragment exponent throws XFoo : <assoc=right> term {doStuff();}? ;
 Literal : 'term' -> more, channel(HIDDEN) ;
+parametrized[String name, int total] returns [int amount] : foo ;
+parametrized_literal : foo[$NAME.getText()] ;
+public test_locals locals[int n = 0] : 'foo' ;
+test_options options{I=1;} : 'bar' ;
+test_catching : 'bar' ; catch [int amount] {amount++} finally {amount=1}
+mode Remainder;
+lexer_stuff : 'blah' ;
+mode SkipThis;
+mode YetAnother;
+more_lexer_stuff : 'blah' ;
 END
 		:actions($a)
 	);
@@ -244,32 +245,56 @@ END
 		token    => { },
 		action   => { },
 		rule     => {
+			test_options => {
+			},
+			test_catching => {
+			},
+			test_locals => {
+			},
+			parametrized => {
+			},
 			Literal => {
-				lexerCommand => {
-					more    => Any,
-					channel => 'HIDDEN'
-				},
-				concatenation => [ {
-					type    => 'literal',
-					content => 'term',
-				} ]
+#				return       => Any,
+#				lexerCommand => {
+#					more    => Any,
+#					channel => 'HIDDEN'
+#				},
+#				concatenation => [ {
+#					type    => 'literal',
+#					content => 'term',
+#				} ]
+			},
+			parametrized_literal => {
+#				return       => '[int amount]',
+			},
+			exponent => {
+#				throws        => 'XFoo',
+#				concatenation => [ {
+#					type            => 'term',
+#					content         => 'exponent',
+#					action          => '{doStuff();}',
+#					action-modifier => Q{?},
+#					option          => {
+#						assoc => 'right'
+#					}
+#				} ]
 			}
 		},
-		fragment => {
-			test => {
-				concatenation => [ {
-					type    => 'term',
-					content => 'exponent',
-					action  => '{doStuff();}',
-					option  => {
-						assoc => 'right'
-					}
-				} ]
+		mode      => {
+			Remainder => {
+				lexer_stuff => {
+				}
+			},
+			# Skip SkipThis because it contains no rules, and
+			# without rules it'd just be a comment.
+			#
+			YetAnother => {
+				more_lexer_stuff => {
+				}
 			}
-		},
-		mode     => { }
+		}
 	}, Q{single import};
-)
+
 	done-testing;
 }, Q{rule};
 

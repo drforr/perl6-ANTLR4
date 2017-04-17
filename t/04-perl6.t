@@ -47,7 +47,7 @@ END
 
 	$parsed = $p.parse( q{grammar Minimal; @members { int i = 0; }} );
 
-	is $parsed.perl6, Q:to{END}, Q{token};
+	is $parsed.perl6, Q:to{END}, Q{action};
 grammar Minimal { #={ "action" : { "name" : "members", "content" : "{ int i = 0; }" } }
 }
 END
