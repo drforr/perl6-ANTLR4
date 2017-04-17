@@ -12,7 +12,7 @@
    ],
    "provides" : {
       "ANTLR4::Grammar" : "lib/ANTLR4/Grammar.pm6",
-      "ANTLR4::Actions::AST" : "lib/ANTLR4/Actions/AST.pm6"
+      "ANTLR4::Actions::AST" : "lib/ANTLR4/Actions/AST.pm6",
       "ANTLR4::Actions::Perl6" : "lib/ANTLR4/Actions/Perl6.pm6"
    },
    "test-depends" : [
