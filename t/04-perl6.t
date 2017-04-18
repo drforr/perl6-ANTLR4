@@ -55,11 +55,15 @@ END
 }, 'Grammar and its top-level options';
 
 subtest {
-#`(
-	is $p.parse( q{grammar Minimal; number : '1' ;}).perl6,
-		q{grammar Minimal { rule number { '1' } }},
-		'minimal rule';
-)
+	$parsed = $p.parse( q{grammar Minimal; number : '1' ;} );
+
+	is $parsed.perl6, Q:to{END}, Q{action};
+grammar Minimal {
+	rule number {
+	}
+}
+END
+
 
 	subtest {
 #`(

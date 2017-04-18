@@ -257,12 +257,19 @@ class ANTLR4::Actions::Perl6 {
 
 	method build-rules( $ast ) {
 		my $rules = '';
+		if $ast.<rule> {
+			my @rules = map {
+				qq{\trule $_ \{\n\t\}}
+			}, $ast.<rule>.keys.sort;
+			$rules = @rules.join( "\n" ) ~ "\n";
+		}
+		$rules;
 	}
 
 	method reconstruct( $ast ) {
 		my $grammar = qq:to{END};
 grammar $ast.<name> \{{self.build-outer-json( $ast )}
-{self.build-tokens( $ast )}\}
+{self.build-tokens( $ast )}{self.build-rules( $ast )}\}
 END
 		$grammar;
 	}

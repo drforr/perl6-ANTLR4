@@ -135,9 +135,9 @@ class ANTLR4::Actions::AST {
 	method ACTION( $/ ) { make $/.Str }
 	method ID( $/ ) { make $/.Str }
 	method optionValue( $/ ) { make $/.Str }
+	method ruleAttribute( $/ ) { make $/.Str }
 	method tokenName( $/ ) { make $/.Str }
 	method grammarType( $/ ) { make $/[0] ?? $/[0].Str !! Any }
-	method value( $/ ) { make $/ ?? $/.Str !! Any }
 	method option( $/ ) {
 		make {
 			name    => $/<ID>.ast,
@@ -159,51 +159,60 @@ class ANTLR4::Actions::AST {
 		}
 	}
 
+	method lexerRuleSpec( $/ ) {
+		make {
+			name    => $/<ID>.ast,
+			type    => $/<FRAGMENT> ?? $/<FRAGMENT>.Str !! Any
+		}
+	}
+
 	method TOP( $/ ) {
 		my (
 			%option, %import, %token, %action,
 			%rule, %mode
 		);
-		for $/<prequelConstruct> {
-			when $_<optionsSpec><option> {
-				for $_<optionsSpec><option> {
+		for $/<prequelConstruct> -> $prequel {
+			when $prequel.<optionsSpec> {
+				for $prequel.<optionsSpec><option> {
 					%option{$_.ast.<name>} =
 						$_.ast.<content>;
 				}
 			}
-			when $_<delegateGrammars><delegateGrammar> {
-				for $_<delegateGrammars><delegateGrammar> {
+			when $prequel.<delegateGrammars> {
+				for $prequel.<delegateGrammars><delegateGrammar> {
 					%import{$_.ast.<name>} =
 						$_.ast.<content>;
 				}
 			}
-			when $_<tokensSpec> {
-				for $_<tokensSpec><token_list_trailing_comma><tokenName>>>.ast {
-					%token{$_.Str} = Any;
+			when $prequel.<tokensSpec> {
+				for $prequel.<tokensSpec><token_list_trailing_comma><tokenName> {
+					%token{$_.ast} = Any;
 				}
 			}
-			when $_<action> {
+			when $prequel.<action> {
 				%action =
-					name    => $_<action>.ast.<name>,
-					content => $_<action>.ast.<content>
+					name    => $prequel.<action>.ast.<name>,
+					content => $prequel.<action>.ast.<content>
 				;
-				
 			}
 		}
-		for $/<ruleSpec> {
-			when $_<parserRuleSpec> {
-				%rule{$_<parserRuleSpec><ID>.Str} = {
+		for $/<ruleSpec> -> $ruleSpec {
+			when $ruleSpec.<parserRuleSpec> {
+				%rule{$ruleSpec.<parserRuleSpec><ID>.ast} = {
+					type => Any
 				}
 			}
-			when $_<lexerRuleSpec> {
-				%rule{$_<lexerRuleSpec><ID>.Str} = {
+			when $ruleSpec.<lexerRuleSpec> {
+				%rule{$ruleSpec.<lexerRuleSpec>.ast.<name>} = {
+					type => $ruleSpec.<lexerRuleSpec>.ast<type>
 				}
 			}
 		}
-		for $/<modeSpec> {
-			my $curMode = $_<ID>.Str;
-			for $_<lexerRuleSpec> {
-				%mode{$curMode}{$_<ID>.Str} = {
+		for $/<modeSpec> -> $modeSpec {
+			my $curMode = $modeSpec<ID>.ast;
+			for $modeSpec<lexerRuleSpec> -> $rule {
+				%mode{$curMode}{$rule.ast.<name>} = {
+					type => $rule.ast<type>
 				}
 			}
 		}

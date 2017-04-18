@@ -224,7 +224,7 @@ parser grammar Christmas;
 fragment exponent throws XFoo : <assoc=right> term {doStuff();}? ;
 Literal : 'term' -> more, channel(HIDDEN) ;
 parametrized[String name, int total] returns [int amount] : foo ;
-parametrized_literal : foo[$NAME.getText()] ;
+fragment parametrized_literal : foo[$NAME.getText()] ;
 public test_locals locals[int n = 0] : 'foo' ;
 test_options options{I=1;} : 'bar' ;
 test_catching : 'bar' ; catch [int amount] {amount++} finally {amount=1}
@@ -232,7 +232,7 @@ mode Remainder;
 lexer_stuff : 'blah' ;
 mode SkipThis;
 mode YetAnother;
-more_lexer_stuff : 'blah' ;
+fragment more_lexer_stuff : 'blah' ;
 END
 		:actions($a)
 	);
@@ -246,14 +246,19 @@ END
 		action   => { },
 		rule     => {
 			test_options => {
+				type => Any,
 			},
 			test_catching => {
+				type => Any,
 			},
 			test_locals => {
+				type => Any,
 			},
 			parametrized => {
+				type => Any,
 			},
 			Literal => {
+				type => Any,
 #				return       => Any,
 #				lexerCommand => {
 #					more    => Any,
@@ -265,9 +270,11 @@ END
 #				} ]
 			},
 			parametrized_literal => {
+				type => 'fragment'
 #				return       => '[int amount]',
 			},
 			exponent => {
+				type => Any,
 #				throws        => 'XFoo',
 #				concatenation => [ {
 #					type            => 'term',
@@ -283,6 +290,7 @@ END
 		mode      => {
 			Remainder => {
 				lexer_stuff => {
+					type => Any
 				}
 			},
 			# Skip SkipThis because it contains no rules, and
@@ -290,6 +298,7 @@ END
 			#
 			YetAnother => {
 				more_lexer_stuff => {
+					type => 'fragment'
 				}
 			}
 		}
