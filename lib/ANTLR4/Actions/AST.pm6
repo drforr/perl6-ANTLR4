@@ -214,9 +214,16 @@ class ANTLR4::Actions::AST {
 		for $/<ruleSpec> -> $ruleSpec {
 			when $ruleSpec.<parserRuleSpec> {
 				my $throw = Any;
+				my $option = Any;
 				if $ruleSpec.<parserRuleSpec><throwsSpec> {
 					for $ruleSpec.<parserRuleSpec><throwsSpec><ID> -> $name {
 						$throw.{$name.Str} = Any;
+					}
+				}
+				if $ruleSpec.<parserRuleSpec><optionsSpec> {
+					for $ruleSpec.<parserRuleSpec><optionsSpec><option> {
+						$option.{$_.ast.<name>} =
+							$_.ast.<content>;
 					}
 				}
 				%rule{$ruleSpec.<parserRuleSpec><ID>.ast} = {
@@ -224,7 +231,8 @@ class ANTLR4::Actions::AST {
 					throw  => $throw,
 					return => $ruleSpec.<parserRuleSpec>.ast<return>,
 					action => $ruleSpec.<parserRuleSpec>.ast<action>,
-					local => $ruleSpec.<parserRuleSpec>.ast<local>
+					local => $ruleSpec.<parserRuleSpec>.ast<local>,
+					option => $option
 				}
 			}
 			when $ruleSpec.<lexerRuleSpec> {
@@ -233,7 +241,8 @@ class ANTLR4::Actions::AST {
 					throw  => Any,
 					return => Any,
 					action => Any,
-					local  => Any
+					local  => Any,
+					option => Any
 				}
 			}
 		}
@@ -245,7 +254,8 @@ class ANTLR4::Actions::AST {
 					throw  => Any,
 					return => Any,
 					action => Any,
-					local  => Any
+					local  => Any,
+					option => Any
 				}
 			}
 		}
