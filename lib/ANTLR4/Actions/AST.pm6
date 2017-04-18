@@ -135,9 +135,11 @@ class ANTLR4::Actions::AST {
 	method ACTION( $/ ) { make $/.Str }
 	method ID( $/ ) { make $/.Str }
 	method optionValue( $/ ) { make $/.Str }
-	method ruleAttribute( $/ ) { make $/.Str }
 	method tokenName( $/ ) { make $/.Str }
+	method ruleAttribute( $/ ) { make $/ ?? $/.Str !! Any }
+	method FRAGMENT( $/ ) { make $/ ?? $/.Str !! Any }
 	method grammarType( $/ ) { make $/[0] ?? $/[0].Str !! Any }
+
 	method option( $/ ) {
 		make {
 			name    => $/<ID>.ast,
@@ -162,14 +164,14 @@ class ANTLR4::Actions::AST {
 	method parserRuleSpec( $/ ) {
 		make {
 			name    => $/<ID>.ast,
-			type    => $/<ruleAttribute> ?? $/<ruleAttribute>.Str !! Any
+			type    => $/<ruleAttribute>.ast
 		}
 	}
 
 	method lexerRuleSpec( $/ ) {
 		make {
 			name    => $/<ID>.ast,
-			type    => $/<FRAGMENT> ?? $/<FRAGMENT>.Str !! Any
+			type    => $/<FRAGMENT>.ast
 		}
 	}
 
@@ -205,14 +207,21 @@ class ANTLR4::Actions::AST {
 		}
 		for $/<ruleSpec> -> $ruleSpec {
 			when $ruleSpec.<parserRuleSpec> {
+				my $throw = Any;
+				if $ruleSpec.<parserRuleSpec><throwsSpec> {
+					for $ruleSpec.<parserRuleSpec><throwsSpec><ID> -> $name {
+						$throw.{$name.Str} = Any;
+					}
+				}
 				%rule{$ruleSpec.<parserRuleSpec><ID>.ast} = {
-					#type => Any
-					type => $ruleSpec.<parserRuleSpec>.ast<type>
+					type => $ruleSpec.<parserRuleSpec>.ast<type>,
+					throw => $throw
 				}
 			}
 			when $ruleSpec.<lexerRuleSpec> {
 				%rule{$ruleSpec.<lexerRuleSpec>.ast.<name>} = {
-					type => $ruleSpec.<lexerRuleSpec>.ast<type>
+					type  => $ruleSpec.<lexerRuleSpec>.ast<type>,
+					throw => Any
 				}
 			}
 		}
@@ -220,7 +229,8 @@ class ANTLR4::Actions::AST {
 			my $curMode = $modeSpec<ID>.ast;
 			for $modeSpec<lexerRuleSpec> -> $rule {
 				%mode{$curMode}{$rule.ast.<name>} = {
-					type => $rule.ast<type>
+					type  => $rule.ast<type>,
+					throw => Any
 				}
 			}
 		}

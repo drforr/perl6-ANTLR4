@@ -279,11 +279,11 @@ rule parserRuleSpec
 	# XXX 'protected fragment' doesn't happen
 	<COMMENTS>? <ruleAttribute>?
 	<COMMENTS>? <ID>
-	<COMMENTS>? <action=ARG_ACTION>?
-	<COMMENTS>? <returns=ruleReturns>?
-	<COMMENTS>? <throws=throwsSpec>?
-	<COMMENTS>? <locals=localsSpec>?
-	<COMMENTS>? <options=optionsSpec>? # XXX This was <optionsSpec>*
+	<COMMENTS>? <ARG_ACTION>?
+	<COMMENTS>? <ruleReturns>?
+	<COMMENTS>? <throwsSpec>?
+	<COMMENTS>? <localsSpec>?
+	<COMMENTS>? <optionsSpec>? # XXX This was <optionsSpec>*
 	':'
 	<COMMENTS>? <parserAltList>
 	';'

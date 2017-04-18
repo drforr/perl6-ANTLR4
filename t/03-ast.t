@@ -246,19 +246,24 @@ END
 		action   => { },
 		rule     => {
 			test_options => {
-				type => Any,
+				type  => Any,
+				throw => Any
 			},
 			test_catching => {
-				type => Any,
+				type  => Any,
+				throw => Any
 			},
 			test_locals => {
-				type => 'public',
+				type  => 'public',
+				throw => Any
 			},
 			parametrized => {
-				type => Any,
+				type  => Any,
+				throw => Any
 			},
 			Literal => {
-				type => Any,
+				type  => Any,
+				throw => Any
 #				return       => Any,
 #				lexerCommand => {
 #					more    => Any,
@@ -270,27 +275,21 @@ END
 #				} ]
 			},
 			parametrized_literal => {
-				type => 'fragment'
-#				return       => '[int amount]',
+				type  => 'fragment',
+				throw => Any
 			},
 			exponent => {
-				type => 'fragment',
-#				throws        => 'XFoo',
-#				concatenation => [ {
-#					type            => 'term',
-#					content         => 'exponent',
-#					action          => '{doStuff();}',
-#					action-modifier => Q{?},
-#					option          => {
-#						assoc => 'right'
-#					}
-#				} ]
+				type  => 'fragment',
+				throw => {
+					XFoo => Any
+				}
 			}
 		},
 		mode      => {
 			Remainder => {
 				lexer_stuff => {
-					type => Any
+					type  => Any,
+					throw => Any
 				}
 			},
 			# Skip SkipThis because it contains no rules, and
@@ -298,7 +297,8 @@ END
 			#
 			YetAnother => {
 				more_lexer_stuff => {
-					type => 'fragment'
+					type  => 'fragment',
+					throw => Any
 				}
 			}
 		}
