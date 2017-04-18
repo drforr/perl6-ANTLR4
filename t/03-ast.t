@@ -249,31 +249,36 @@ END
 				type   => Any,
 				throw  => Any,
 				return => Any,
-				action => Any
+				action => Any,
+				local  => Any
 			},
 			test_catching => {
 				type   => Any,
 				throw  => Any,
 				return => Any,
-				action => Any
+				action => Any,
+				local  => Any
 			},
 			test_locals => {
 				type   => 'public',
 				throw  => Any,
 				return => Any,
-				action => Any
+				action => Any,
+				local  => '[int n = 0]'
 			},
 			parametrized => {
 				type   => Any,
 				throw  => Any,
 				return => '[int amount]',
-				action => '[String name, int total]'
+				action => '[String name, int total]',
+				local  => Any
 			},
 			Literal => {
 				type   => Any,
 				throw  => Any,
 				return => Any,
-				action => Any
+				action => Any,
+				local  => Any
 #				lexerCommand => {
 #					more    => Any,
 #					channel => 'HIDDEN'
@@ -287,7 +292,8 @@ END
 				type   => 'fragment',
 				throw  => Any,
 				return => Any,
-				action => Any
+				action => Any,
+				local  => Any
 			},
 			exponent => {
 				type   => 'fragment',
@@ -295,7 +301,8 @@ END
 					XFoo => Any
 				},
 				return => Any,
-				action => Any
+				action => Any,
+				local  => Any
 			}
 		},
 		mode      => {
@@ -304,7 +311,8 @@ END
 					type   => Any,
 					throw  => Any,
 					return => Any,
-					action => Any
+					action => Any,
+					local  => Any
 				}
 			},
 			# Skip SkipThis because it contains no rules, and
@@ -315,7 +323,8 @@ END
 					type   => 'fragment',
 					throw  => Any,
 					return => Any,
-					action => Any
+					action => Any,
+					local  => Any
 				}
 			}
 		}

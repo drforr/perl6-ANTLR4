@@ -141,6 +141,7 @@ class ANTLR4::Actions::AST {
 	method ARG_ACTION( $/ ) { make $/ ?? $/.Str !! Any }
 	method grammarType( $/ ) { make $/[0] ?? $/[0].Str !! Any }
 	method ruleReturns( $/ ) { make $/<ARG_ACTION> ?? $/<ARG_ACTION>.Str !! Any }
+	method localsSpec( $/ ) { make $/<ARG_ACTION> ?? $/<ARG_ACTION>.Str !! Any }
 
 	method option( $/ ) {
 		make {
@@ -168,7 +169,8 @@ class ANTLR4::Actions::AST {
 			name   => $/<ID>.ast,
 			type   => $/<ruleAttribute>.ast,
 			return => $/<ruleReturns>.ast,
-			action => $/<ARG_ACTION>.ast
+			action => $/<ARG_ACTION>.ast,
+			local  => $/<localsSpec>.ast
 		}
 	}
 
@@ -221,7 +223,8 @@ class ANTLR4::Actions::AST {
 					type   => $ruleSpec.<parserRuleSpec>.ast<type>,
 					throw  => $throw,
 					return => $ruleSpec.<parserRuleSpec>.ast<return>,
-					action => $ruleSpec.<parserRuleSpec>.ast<action>
+					action => $ruleSpec.<parserRuleSpec>.ast<action>,
+					local => $ruleSpec.<parserRuleSpec>.ast<local>
 				}
 			}
 			when $ruleSpec.<lexerRuleSpec> {
@@ -229,7 +232,8 @@ class ANTLR4::Actions::AST {
 					type   => $ruleSpec.<lexerRuleSpec>.ast<type>,
 					throw  => Any,
 					return => Any,
-					action => Any
+					action => Any,
+					local  => Any
 				}
 			}
 		}
@@ -240,7 +244,8 @@ class ANTLR4::Actions::AST {
 					type   => $rule.ast<type>,
 					throw  => Any,
 					return => Any,
-					action => Any
+					action => Any,
+					local  => Any
 				}
 			}
 		}
