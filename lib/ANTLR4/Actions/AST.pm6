@@ -159,6 +159,13 @@ class ANTLR4::Actions::AST {
 		}
 	}
 
+	method parserRuleSpec( $/ ) {
+		make {
+			name    => $/<ID>.ast,
+			type    => $/<ruleAttribute> ?? $/<ruleAttribute>.Str !! Any
+		}
+	}
+
 	method lexerRuleSpec( $/ ) {
 		make {
 			name    => $/<ID>.ast,
@@ -199,7 +206,8 @@ class ANTLR4::Actions::AST {
 		for $/<ruleSpec> -> $ruleSpec {
 			when $ruleSpec.<parserRuleSpec> {
 				%rule{$ruleSpec.<parserRuleSpec><ID>.ast} = {
-					type => Any
+					#type => Any
+					type => $ruleSpec.<parserRuleSpec>.ast<type>
 				}
 			}
 			when $ruleSpec.<lexerRuleSpec> {

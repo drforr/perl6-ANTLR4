@@ -252,7 +252,7 @@ END
 				type => Any,
 			},
 			test_locals => {
-				type => Any,
+				type => 'public',
 			},
 			parametrized => {
 				type => Any,
@@ -274,7 +274,7 @@ END
 #				return       => '[int amount]',
 			},
 			exponent => {
-				type => Any,
+				type => 'fragment',
 #				throws        => 'XFoo',
 #				concatenation => [ {
 #					type            => 'term',
