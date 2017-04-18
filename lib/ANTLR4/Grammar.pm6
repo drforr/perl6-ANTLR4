@@ -276,7 +276,6 @@ rule ruleSpec
 
 rule parserRuleSpec
  	{
-	# XXX 'protected fragment' doesn't happen
 	<COMMENTS>? <ruleAttribute>?
 	<COMMENTS>? <ID>
 	<COMMENTS>? <ARG_ACTION>?

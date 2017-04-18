@@ -246,25 +246,29 @@ END
 		action   => { },
 		rule     => {
 			test_options => {
-				type  => Any,
-				throw => Any
+				type   => Any,
+				throw  => Any,
+				return => Any
 			},
 			test_catching => {
-				type  => Any,
-				throw => Any
+				type   => Any,
+				throw  => Any,
+				return => Any
 			},
 			test_locals => {
-				type  => 'public',
-				throw => Any
+				type   => 'public',
+				throw  => Any,
+				return => Any
 			},
 			parametrized => {
-				type  => Any,
-				throw => Any
+				type   => Any,
+				throw  => Any,
+				return => '[int amount]'
 			},
 			Literal => {
-				type  => Any,
-				throw => Any
-#				return       => Any,
+				type   => Any,
+				throw  => Any,
+				return => Any
 #				lexerCommand => {
 #					more    => Any,
 #					channel => 'HIDDEN'
@@ -275,21 +279,24 @@ END
 #				} ]
 			},
 			parametrized_literal => {
-				type  => 'fragment',
-				throw => Any
+				type   => 'fragment',
+				throw  => Any,
+				return => Any
 			},
 			exponent => {
-				type  => 'fragment',
-				throw => {
+				type   => 'fragment',
+				throw  => {
 					XFoo => Any
-				}
+				},
+				return => Any
 			}
 		},
 		mode      => {
 			Remainder => {
 				lexer_stuff => {
-					type  => Any,
-					throw => Any
+					type   => Any,
+					throw  => Any,
+					return => Any
 				}
 			},
 			# Skip SkipThis because it contains no rules, and
@@ -297,8 +304,9 @@ END
 			#
 			YetAnother => {
 				more_lexer_stuff => {
-					type  => 'fragment',
-					throw => Any
+					type   => 'fragment',
+					throw  => Any,
+					return => Any
 				}
 			}
 		}

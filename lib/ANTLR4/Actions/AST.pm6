@@ -139,6 +139,7 @@ class ANTLR4::Actions::AST {
 	method ruleAttribute( $/ ) { make $/ ?? $/.Str !! Any }
 	method FRAGMENT( $/ ) { make $/ ?? $/.Str !! Any }
 	method grammarType( $/ ) { make $/[0] ?? $/[0].Str !! Any }
+	method ruleReturns( $/ ) { make $/<ARG_ACTION> ?? $/<ARG_ACTION>.Str !! Any }
 
 	method option( $/ ) {
 		make {
@@ -163,8 +164,9 @@ class ANTLR4::Actions::AST {
 
 	method parserRuleSpec( $/ ) {
 		make {
-			name    => $/<ID>.ast,
-			type    => $/<ruleAttribute>.ast
+			name   => $/<ID>.ast,
+			type   => $/<ruleAttribute>.ast,
+			return => $/<ruleReturns>.ast
 		}
 	}
 
@@ -214,14 +216,16 @@ class ANTLR4::Actions::AST {
 					}
 				}
 				%rule{$ruleSpec.<parserRuleSpec><ID>.ast} = {
-					type => $ruleSpec.<parserRuleSpec>.ast<type>,
-					throw => $throw
+					type   => $ruleSpec.<parserRuleSpec>.ast<type>,
+					throw  => $throw,
+					return => $ruleSpec.<parserRuleSpec>.ast<return>
 				}
 			}
 			when $ruleSpec.<lexerRuleSpec> {
 				%rule{$ruleSpec.<lexerRuleSpec>.ast.<name>} = {
-					type  => $ruleSpec.<lexerRuleSpec>.ast<type>,
-					throw => Any
+					type   => $ruleSpec.<lexerRuleSpec>.ast<type>,
+					throw  => Any,
+					return => Any
 				}
 			}
 		}
@@ -229,8 +233,9 @@ class ANTLR4::Actions::AST {
 			my $curMode = $modeSpec<ID>.ast;
 			for $modeSpec<lexerRuleSpec> -> $rule {
 				%mode{$curMode}{$rule.ast.<name>} = {
-					type  => $rule.ast<type>,
-					throw => Any
+					type   => $rule.ast<type>,
+					throw  => Any,
+					return => Any
 				}
 			}
 		}
