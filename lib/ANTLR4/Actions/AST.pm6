@@ -156,6 +156,22 @@ class ANTLR4::Actions::AST {
 			content => $/<value>.ast
 		}
 	}
+	method delegateGrammars( $/ ) {
+		my %import;
+		for $/<delegateGrammar> {
+			%import{$_.ast.<name>} =
+				$_.ast.<content>;
+		}
+		make %import;
+	}
+
+	method tokensSpec( $/ ) {
+		my %token;
+		for $/<token_list_trailing_comma><tokenName> {
+			%token{$_.ast} = Any;
+		}
+		make %token;
+	}
 
 	method action( $/ ) {
 		make {
@@ -194,21 +210,19 @@ class ANTLR4::Actions::AST {
 				}
 			}
 			when $prequel.<delegateGrammars> {
-				for $prequel.<delegateGrammars><delegateGrammar> {
-					%import{$_.ast.<name>} =
-						$_.ast.<content>;
-				}
+				# Don't forget, imports can happen anywhere.
+				# They really don't have an effect on Perl, but
+				# I'm collecting them for the sake of form.
+				#
+				%import =
+					%import,
+					$prequel.<delegateGrammars>.ast;
 			}
 			when $prequel.<tokensSpec> {
-				for $prequel.<tokensSpec><token_list_trailing_comma><tokenName> {
-					%token{$_.ast} = Any;
-				}
+				%token = %token, $prequel.<tokensSpec>.ast;
 			}
 			when $prequel.<action> {
-				%action =
-					name    => $prequel.<action>.ast.<name>,
-					content => $prequel.<action>.ast.<content>
-				;
+				%action = $prequel.<action>.ast;
 			}
 		}
 		for $/<ruleSpec> -> $ruleSpec {
