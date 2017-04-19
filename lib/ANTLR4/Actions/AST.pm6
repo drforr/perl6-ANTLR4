@@ -144,6 +144,9 @@ class ANTLR4::Actions::AST {
 	method tokenName( $/ ) {
 		make $/.Str
 	}
+	method action_name( $/ ) {
+		make $/.Str
+	}
 	method ruleAttribute( $/ ) {
 		make $/.Str
 	}
@@ -163,24 +166,16 @@ class ANTLR4::Actions::AST {
 		make $/<ARG_ACTION>.Str
 	}
 
-	method option( $/ ) {
-		make {
-			name    => $/<ID>.ast,
-			content => $/<optionValue>.ast
-		}
-	}
-
+	# Return just the content, let the upper layer figure out what key
+	# to use.
+	#
 	method delegateGrammar( $/ ) {
-		make {
-			name    => $/<key>.ast,
-			content => $/<value>.ast
-		}
+		make $/<value>.ast;
 	}
 	method delegateGrammars( $/ ) {
 		my %import;
 		for $/<delegateGrammar> {
-			%import{$_.ast.<name>} =
-				$_.ast.<content>;
+			%import{$_.<key>.ast} = $_.ast;
 		}
 		make %import;
 	}
@@ -199,36 +194,56 @@ class ANTLR4::Actions::AST {
 		}
 		make %throw;
 	}
+
+	# Return just the content, let the upper layer figure out what key
+	# to use.
+	#
+	method option( $/ ) {
+		make $/<optionValue>.ast;
+	}
 	method optionsSpec( $/ ) {
 		my %option;
 		for $/<option> {
-			%option{$_.ast.<name>} =
-				$_.ast.<content>;
+			%option{$_.<ID>.ast} = $_.ast;
 		}
 		make %option;
 	}
 
+	# Although like optionsSpec, it's a name/value pair that we don't really
+	# need the <name> as part of the body, I'll just leave it this way
+	# because there's only ever going to be one of these...
+	#
 	method action( $/ ) {
 		make {
-			name    => $/<action_name><ID>.ast,
+			name    => $/<action_name>.ast,
 			content => $/<ACTION>.ast
 		}
 	}
 
+	# <name> isn't really necessary at this point.
+	#
 	method parserRuleSpec( $/ ) {
 		make {
-			name   => $/<ID>.ast,
 			type   => $/<ruleAttribute>.ast,
+			throw  => $/<throwsSpec>.ast,
 			return => $/<ruleReturns>.ast,
 			action => $/<ARG_ACTION>.ast,
-			local  => $/<localsSpec>.ast
+			local  => $/<localsSpec>.ast,
+			throw  => $/<throwsSpec>.ast,
+			option => $/<optionsSpec>.ast
 		}
 	}
 
+	# <name> isn't really necessary at this point.
+	#
 	method lexerRuleSpec( $/ ) {
 		make {
-			name    => $/<ID>.ast,
-			type    => $/<FRAGMENT>.ast
+			type   => $/<FRAGMENT>.ast,
+			throw  => Any,
+			return => Any,
+			action => Any,
+			local  => Any,
+			option => Any
 		}
 	}
 
@@ -261,47 +276,18 @@ class ANTLR4::Actions::AST {
 		}
 		for $/<ruleSpec> -> $ruleSpec {
 			when $ruleSpec.<parserRuleSpec> {
-				my $throw = Any;
-				my $option = Any;
-				if $ruleSpec.<parserRuleSpec><throwsSpec> {
-					$throw =
-						$ruleSpec<parserRuleSpec><throwsSpec>.ast;
-				}
-				if $ruleSpec.<parserRuleSpec><optionsSpec> {
-					$option =
-						$ruleSpec.<parserRuleSpec><optionsSpec>.ast;
-				}
-				%rule{$ruleSpec.<parserRuleSpec><ID>.ast} = {
-					type   => $ruleSpec.<parserRuleSpec>.ast<type>,
-					throw  => $throw,
-					return => $ruleSpec.<parserRuleSpec>.ast<return>,
-					action => $ruleSpec.<parserRuleSpec>.ast<action>,
-					local => $ruleSpec.<parserRuleSpec>.ast<local>,
-					option => $option
-				}
+				%rule{$ruleSpec.<parserRuleSpec><ID>.ast} = 
+					$ruleSpec.<parserRuleSpec>.ast;
 			}
 			when $ruleSpec.<lexerRuleSpec> {
-				%rule{$ruleSpec.<lexerRuleSpec>.ast.<name>} = {
-					type   => $ruleSpec.<lexerRuleSpec>.ast<type>,
-					throw  => Any,
-					return => Any,
-					action => Any,
-					local  => Any,
-					option => Any
-				}
+				%rule{$ruleSpec.<lexerRuleSpec><ID>.ast} = 
+					$ruleSpec.<lexerRuleSpec>.ast;
 			}
 		}
 		for $/<modeSpec> -> $modeSpec {
 			my $curMode = $modeSpec<ID>.ast;
 			for $modeSpec<lexerRuleSpec> -> $rule {
-				%mode{$curMode}{$rule.ast.<name>} = {
-					type   => $rule.ast<type>,
-					throw  => Any,
-					return => Any,
-					action => Any,
-					local  => Any,
-					option => Any
-				}
+				%mode{$curMode}{$rule.<ID>.ast} = $rule.ast;
 			}
 		}
 		make {

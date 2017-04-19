@@ -199,7 +199,7 @@ END
 		import   => { },
 		token    => { },
 		action   => {
-			name    => 'members',
+			name    => '@members',
 			content => Q:to{END}.chomp
 {
 	/** Track whether we are inside of a rule and whether it is lexical parser.
