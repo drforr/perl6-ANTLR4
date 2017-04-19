@@ -132,16 +132,36 @@ most complex, and is described in detail at the appropriate place.
 use v6;
 
 class ANTLR4::Actions::AST {
-	method ACTION( $/ ) { make $/.Str }
-	method ID( $/ ) { make $/.Str }
-	method optionValue( $/ ) { make $/.Str }
-	method tokenName( $/ ) { make $/.Str }
-	method ruleAttribute( $/ ) { make $/ ?? $/.Str !! Any }
-	method FRAGMENT( $/ ) { make $/ ?? $/.Str !! Any }
-	method ARG_ACTION( $/ ) { make $/ ?? $/.Str !! Any }
-	method grammarType( $/ ) { make $/[0] ?? $/[0].Str !! Any }
-	method ruleReturns( $/ ) { make $/<ARG_ACTION> ?? $/<ARG_ACTION>.Str !! Any }
-	method localsSpec( $/ ) { make $/<ARG_ACTION> ?? $/<ARG_ACTION>.Str !! Any }
+	method ACTION( $/ ) {
+		make $/.Str
+	}
+	method ID( $/ ) {
+		make $/.Str
+	}
+	method optionValue( $/ ) {
+		make $/.Str
+	}
+	method tokenName( $/ ) {
+		make $/.Str
+	}
+	method ruleAttribute( $/ ) {
+		make $/.Str
+	}
+	method FRAGMENT( $/ ) {
+		make $/.Str
+	}
+	method ARG_ACTION( $/ ) {
+		make $/.Str
+	}
+	method grammarType( $/ ) {
+		make $/[0] ?? $/[0].Str !! Any
+	}
+	method ruleReturns( $/ ) {
+		make $/<ARG_ACTION>.Str
+	}
+	method localsSpec( $/ ) {
+		make $/<ARG_ACTION>.Str
+	}
 
 	method option( $/ ) {
 		make {
