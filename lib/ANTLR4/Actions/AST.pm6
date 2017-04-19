@@ -223,9 +223,20 @@ class ANTLR4::Actions::AST {
 		}
 	}
 
+	method exceptionHandler( $/ ) {
+		make {
+			argument => $/<ARG_ACTION>.Str,
+			action   => $/<ACTION>.ast
+		};
+	}
+
 	# <name> isn't really necessary at this point.
 	#
 	method parserRuleSpec( $/ ) {
+		my @catch;
+		for $/<exceptionGroup><exceptionHandler> -> $exception {
+			@catch.append( $exception.ast );
+		}
 		make {
 			type    => $/<ruleAttribute>.ast,
 			throw   => $/<throwsSpec>.ast,
@@ -234,6 +245,7 @@ class ANTLR4::Actions::AST {
 			local   => $/<localsSpec>.ast,
 			throw   => $/<throwsSpec>.ast,
 			option  => $/<optionsSpec>.ast,
+			catch   => @catch.elems ?? @catch !! Any,
 			finally => $/<exceptionGroup><finallyClause>.ast
 		}
 	}
@@ -248,6 +260,7 @@ class ANTLR4::Actions::AST {
 			action  => Any,
 			local   => Any,
 			option  => Any,
+			catch   => Any,
 			finally => Any
 		}
 	}

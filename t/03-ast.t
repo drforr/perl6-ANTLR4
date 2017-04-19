@@ -1,7 +1,7 @@
 use v6;
+use Test;
 use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
-use Test;
 
 plan 6;
 
@@ -255,6 +255,7 @@ END
 				option  => {
 					I => '1'
 				},
+				catch   => Any,
 				finally => Any
 			},
 			test_catching => {
@@ -264,6 +265,10 @@ END
 				action  => Any,
 				local   => Any,
 				option  => Any,
+				catch   => [ {
+					argument => '[int amount]',
+					action   => '{amount++}'
+				} ],
 				finally => '{amount=1}'
 			},
 			test_locals => {
@@ -273,6 +278,7 @@ END
 				action  => Any,
 				local   => '[int n = 0]',
 				option  => Any,
+				catch   => Any,
 				finally => Any
 			},
 			parametrized => {
@@ -282,6 +288,7 @@ END
 				action  => '[String name, int total]',
 				local   => Any,
 				option  => Any,
+				catch   => Any,
 				finally => Any
 			},
 			Literal => {
@@ -291,15 +298,8 @@ END
 				action  => Any,
 				local   => Any,
 				option  => Any,
+				catch   => Any,
 				finally => Any
-#				lexerCommand => {
-#					more    => Any,
-#					channel => 'HIDDEN'
-#				},
-#				concatenation => [ {
-#					type    => 'literal',
-#					content => 'term',
-#				} ]
 			},
 			parametrized_literal => {
 				type    => 'fragment',
@@ -308,6 +308,7 @@ END
 				action  => Any,
 				local   => Any,
 				option  => Any,
+				catch   => Any,
 				finally => Any
 			},
 			exponent => {
@@ -319,6 +320,7 @@ END
 				action  => Any,
 				local   => Any,
 				option  => Any,
+				catch   => Any,
 				finally => Any
 			}
 		},
@@ -331,6 +333,7 @@ END
 					action  => Any,
 					local   => Any,
 					option  => Any,
+					catch   => Any,
 					finally => Any
 				}
 			},
@@ -345,6 +348,7 @@ END
 					action  => Any,
 					local   => Any,
 					option  => Any,
+					catch   => Any,
 					finally => Any
 				}
 			}
