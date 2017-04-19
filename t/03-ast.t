@@ -217,6 +217,7 @@ END
 	done-testing;
 }, Q{action};
 
+# '-> more' &c are per-alternative, not at the rule level.
 subtest {
 	$parsed = $g.parse(
 		Q:to{END},
@@ -246,46 +247,51 @@ END
 		action   => { },
 		rule     => {
 			test_options => {
-				type   => Any,
-				throw  => Any,
-				return => Any,
-				action => Any,
-				local  => Any,
-				option => {
+				type    => Any,
+				throw   => Any,
+				return  => Any,
+				action  => Any,
+				local   => Any,
+				option  => {
 					I => '1'
-				}
+				},
+				finally => Any
 			},
 			test_catching => {
-				type   => Any,
-				throw  => Any,
-				return => Any,
-				action => Any,
-				local  => Any,
-				option => Any
+				type    => Any,
+				throw   => Any,
+				return  => Any,
+				action  => Any,
+				local   => Any,
+				option  => Any,
+				finally => '{amount=1}'
 			},
 			test_locals => {
-				type   => 'public',
-				throw  => Any,
-				return => Any,
-				action => Any,
-				local  => '[int n = 0]',
-				option => Any
+				type    => 'public',
+				throw   => Any,
+				return  => Any,
+				action  => Any,
+				local   => '[int n = 0]',
+				option  => Any,
+				finally => Any
 			},
 			parametrized => {
-				type   => Any,
-				throw  => Any,
-				return => '[int amount]',
-				action => '[String name, int total]',
-				local  => Any,
-				option => Any
+				type    => Any,
+				throw   => Any,
+				return  => '[int amount]',
+				action  => '[String name, int total]',
+				local   => Any,
+				option  => Any,
+				finally => Any
 			},
 			Literal => {
-				type   => Any,
-				throw  => Any,
-				return => Any,
-				action => Any,
-				local  => Any,
-				option => Any
+				type    => Any,
+				throw   => Any,
+				return  => Any,
+				action  => Any,
+				local   => Any,
+				option  => Any,
+				finally => Any
 #				lexerCommand => {
 #					more    => Any,
 #					channel => 'HIDDEN'
@@ -296,33 +302,36 @@ END
 #				} ]
 			},
 			parametrized_literal => {
-				type   => 'fragment',
-				throw  => Any,
-				return => Any,
-				action => Any,
-				local  => Any,
-				option => Any
+				type    => 'fragment',
+				throw   => Any,
+				return  => Any,
+				action  => Any,
+				local   => Any,
+				option  => Any,
+				finally => Any
 			},
 			exponent => {
-				type   => 'fragment',
-				throw  => {
+				type    => 'fragment',
+				throw   => {
 					XFoo => Any
 				},
-				return => Any,
-				action => Any,
-				local  => Any,
-				option => Any
+				return  => Any,
+				action  => Any,
+				local   => Any,
+				option  => Any,
+				finally => Any
 			}
 		},
 		mode      => {
 			Remainder => {
 				lexer_stuff => {
-					type   => Any,
-					throw  => Any,
-					return => Any,
-					action => Any,
-					local  => Any,
-					option => Any
+					type    => Any,
+					throw   => Any,
+					return  => Any,
+					action  => Any,
+					local   => Any,
+					option  => Any,
+					finally => Any
 				}
 			},
 			# Skip SkipThis because it contains no rules, and
@@ -330,12 +339,13 @@ END
 			#
 			YetAnother => {
 				more_lexer_stuff => {
-					type   => 'fragment',
-					throw  => Any,
-					return => Any,
-					action => Any,
-					local  => Any,
-					option => Any
+					type    => 'fragment',
+					throw   => Any,
+					return  => Any,
+					action  => Any,
+					local   => Any,
+					option  => Any,
+					finally => Any
 				}
 			}
 		}

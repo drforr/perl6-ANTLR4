@@ -165,6 +165,9 @@ class ANTLR4::Actions::AST {
 	method localsSpec( $/ ) {
 		make $/<ARG_ACTION>.Str
 	}
+	method finallyClause( $/ ) {
+		make $/<ACTION>.ast;
+	}
 
 	# Return just the content, let the upper layer figure out what key
 	# to use.
@@ -224,13 +227,14 @@ class ANTLR4::Actions::AST {
 	#
 	method parserRuleSpec( $/ ) {
 		make {
-			type   => $/<ruleAttribute>.ast,
-			throw  => $/<throwsSpec>.ast,
-			return => $/<ruleReturns>.ast,
-			action => $/<ARG_ACTION>.ast,
-			local  => $/<localsSpec>.ast,
-			throw  => $/<throwsSpec>.ast,
-			option => $/<optionsSpec>.ast
+			type    => $/<ruleAttribute>.ast,
+			throw   => $/<throwsSpec>.ast,
+			return  => $/<ruleReturns>.ast,
+			action  => $/<ARG_ACTION>.ast,
+			local   => $/<localsSpec>.ast,
+			throw   => $/<throwsSpec>.ast,
+			option  => $/<optionsSpec>.ast,
+			finally => $/<exceptionGroup><finallyClause>.ast
 		}
 	}
 
@@ -238,12 +242,13 @@ class ANTLR4::Actions::AST {
 	#
 	method lexerRuleSpec( $/ ) {
 		make {
-			type   => $/<FRAGMENT>.ast,
-			throw  => Any,
-			return => Any,
-			action => Any,
-			local  => Any,
-			option => Any
+			type    => $/<FRAGMENT>.ast,
+			throw   => Any,
+			return  => Any,
+			action  => Any,
+			local   => Any,
+			option  => Any,
+			finally => Any
 		}
 	}
 
