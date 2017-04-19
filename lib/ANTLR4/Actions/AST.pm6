@@ -172,6 +172,21 @@ class ANTLR4::Actions::AST {
 		}
 		make %token;
 	}
+	method throwsSpec( $/ ) {
+		my %throw;
+		for $/<ID> {
+			%throw{$_.ast} = Any;
+		}
+		make %throw;
+	}
+	method optionsSpec( $/ ) {
+		my %option;
+		for $/<option> {
+			%option{$_.ast.<name>} =
+				$_.ast.<content>;
+		}
+		make %option;
+	}
 
 	method action( $/ ) {
 		make {
@@ -204,10 +219,9 @@ class ANTLR4::Actions::AST {
 		);
 		for $/<prequelConstruct> -> $prequel {
 			when $prequel.<optionsSpec> {
-				for $prequel.<optionsSpec><option> {
-					%option{$_.ast.<name>} =
-						$_.ast.<content>;
-				}
+				%option =
+					%option,
+					$prequel.<optionsSpec>.ast;
 			}
 			when $prequel.<delegateGrammars> {
 				# Don't forget, imports can happen anywhere.
@@ -230,15 +244,12 @@ class ANTLR4::Actions::AST {
 				my $throw = Any;
 				my $option = Any;
 				if $ruleSpec.<parserRuleSpec><throwsSpec> {
-					for $ruleSpec.<parserRuleSpec><throwsSpec><ID> -> $name {
-						$throw.{$name.Str} = Any;
-					}
+					$throw =
+						$ruleSpec<parserRuleSpec><throwsSpec>.ast;
 				}
 				if $ruleSpec.<parserRuleSpec><optionsSpec> {
-					for $ruleSpec.<parserRuleSpec><optionsSpec><option> {
-						$option.{$_.ast.<name>} =
-							$_.ast.<content>;
-					}
+					$option =
+						$ruleSpec.<parserRuleSpec><optionsSpec>.ast;
 				}
 				%rule{$ruleSpec.<parserRuleSpec><ID>.ast} = {
 					type   => $ruleSpec.<parserRuleSpec>.ast<type>,
