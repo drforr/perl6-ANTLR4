@@ -216,24 +216,23 @@ END
 
 	done-testing;
 }, Q{action};
+#Literal : 'term' -> more, channel(HIDDEN) ;
 
 # '-> more' &c are per-alternative, not at the rule level.
 subtest {
 	$parsed = $g.parse(
 		Q:to{END},
 parser grammar Christmas;
-fragment exponent throws XFoo : <assoc=right> term {doStuff();}? ;
-Literal : 'term' -> more, channel(HIDDEN) ;
-parametrized[String name, int total] returns [int amount] : foo ;
-fragment parametrized_literal : foo[$NAME.getText()] ;
-public test_locals locals[int n = 0] : 'foo' ;
-test_options options{I=1;} : 'bar' ;
-test_catching : 'bar' ; catch [int amount] {amount++} finally {amount=1}
+fragment exponent throws XFoo : <assoc=right> {doStuff();}? ;
+parametrized[String name, int total] returns [int amount] : ;
+fragment parametrized_literal : [$NAME.getText()] ;
+test_options options{I=1;} : ;
+public test_catch_locals locals[int n = 0] : ; catch [int amount] {amount++} finally {amount=1}
 mode Remainder;
-lexer_stuff : 'blah' ;
+lexer_stuff : ;
 mode SkipThis;
 mode YetAnother;
-fragment more_lexer_stuff : 'blah' ;
+fragment more_lexer_stuff : ;
 END
 		:actions($a)
 	);
@@ -258,12 +257,12 @@ END
 				catch   => Any,
 				finally => Any
 			},
-			test_catching => {
-				type    => Any,
+			test_catch_locals => {
+				type    => 'public',
 				throw   => Any,
 				return  => Any,
 				action  => Any,
-				local   => Any,
+				local   => '[int n = 0]',
 				option  => Any,
 				catch   => [ {
 					argument => '[int amount]',
@@ -271,31 +270,11 @@ END
 				} ],
 				finally => '{amount=1}'
 			},
-			test_locals => {
-				type    => 'public',
-				throw   => Any,
-				return  => Any,
-				action  => Any,
-				local   => '[int n = 0]',
-				option  => Any,
-				catch   => Any,
-				finally => Any
-			},
 			parametrized => {
 				type    => Any,
 				throw   => Any,
 				return  => '[int amount]',
 				action  => '[String name, int total]',
-				local   => Any,
-				option  => Any,
-				catch   => Any,
-				finally => Any
-			},
-			Literal => {
-				type    => Any,
-				throw   => Any,
-				return  => Any,
-				action  => Any,
 				local   => Any,
 				option  => Any,
 				catch   => Any,
@@ -353,7 +332,7 @@ END
 				}
 			}
 		}
-	}, Q{single import};
+	}, Q{single import, no rule bodies where possible};
 
 	done-testing;
 }, Q{rule};
