@@ -219,20 +219,20 @@ END
 #Literal : 'term' -> more, channel(HIDDEN) ;
 
 # '-> more' &c are per-alternative, not at the rule level.
+# '<assoc=right> are also per-alternative.
 subtest {
 	$parsed = $g.parse(
 		Q:to{END},
 parser grammar Christmas;
-fragment exponent throws XFoo : <assoc=right> {doStuff();}? ;
-parametrized[String name, int total] returns [int amount] : ;
-fragment parametrized_literal : [$NAME.getText()] ;
-test_options options{I=1;} : ;
-public test_catch_locals locals[int n = 0] : ; catch [int amount] {amount++} finally {amount=1}
+fragment parametrized[String name, int total]
+         returns [int amount] throws XFoo options{I=1;} : ;
+public test_catch_locals locals[int n = 0] : ;
+                         catch [int amount] {amount++} finally {amount=1}
 mode Remainder;
-lexer_stuff : ;
+	lexer_stuff : ;
 mode SkipThis;
 mode YetAnother;
-fragment more_lexer_stuff : ;
+	fragment more_lexer_stuff : ;
 END
 		:actions($a)
 	);
@@ -245,18 +245,6 @@ END
 		token    => { },
 		action   => { },
 		rule     => {
-			test_options => {
-				type    => Any,
-				throw   => Any,
-				return  => Any,
-				action  => Any,
-				local   => Any,
-				option  => {
-					I => '1'
-				},
-				catch   => Any,
-				finally => Any
-			},
 			test_catch_locals => {
 				type    => 'public',
 				throw   => Any,
@@ -271,37 +259,19 @@ END
 				finally => '{amount=1}'
 			},
 			parametrized => {
-				type    => Any,
-				throw   => Any,
-				return  => '[int amount]',
-				action  => '[String name, int total]',
-				local   => Any,
-				option  => Any,
-				catch   => Any,
-				finally => Any
-			},
-			parametrized_literal => {
-				type    => 'fragment',
-				throw   => Any,
-				return  => Any,
-				action  => Any,
-				local   => Any,
-				option  => Any,
-				catch   => Any,
-				finally => Any
-			},
-			exponent => {
 				type    => 'fragment',
 				throw   => {
 					XFoo => Any
 				},
-				return  => Any,
-				action  => Any,
+				return  => '[int amount]',
+				action  => '[String name, int total]',
 				local   => Any,
-				option  => Any,
+				option  => {
+					I => '1'
+				},
 				catch   => Any,
 				finally => Any
-			}
+			},
 		},
 		mode      => {
 			Remainder => {
