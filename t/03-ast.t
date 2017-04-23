@@ -3,7 +3,7 @@ use Test;
 use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 
-plan 3;
+plan 4;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -244,7 +244,8 @@ END
 				local   => Any,
 				option  => Any,
 				catch   => Any,
-				finally => Any
+				finally => Any,
+				content => Any
 			},
 			test_catch_locals => {
 				type    => 'public',
@@ -257,7 +258,8 @@ END
 					argument => '[int amount]',
 					action   => '{amount++}'
 				} ],
-				finally => '{amount=1}'
+				finally => '{amount=1}',
+				content => Any
 			},
 			parametrized => {
 				type    => 'fragment',
@@ -271,7 +273,8 @@ END
 					I => '1'
 				},
 				catch   => Any,
-				finally => Any
+				finally => Any,
+				content => Any
 			},
 		},
 		mode      => {
@@ -284,7 +287,8 @@ END
 					local   => Any,
 					option  => Any,
 					catch   => Any,
-					finally => Any
+					finally => Any,
+					content => Any
 				}
 			},
 			# Skip SkipThis because it contains no rules, and
@@ -299,21 +303,21 @@ END
 					local   => Any,
 					option  => Any,
 					catch   => Any,
-					finally => Any
+					finally => Any,
+					content => Any
 				}
 			}
 		}
-	}, Q{single import, no rule bodies where possible};
+	}, Q{single import, no rule bodies};
 
 	done-testing;
 }, Q{rule-level settings};
 
-#`(
 subtest {
 	$parsed = $g.parse(
 		Q:to{END},
 grammar Christmas;
-plain : 'literal' ;
+plain : 'literal' | 'another literal' ;
 END
 		:actions($a)
 	);
@@ -336,8 +340,14 @@ END
 				catch   => Any,
 				finally => Any,
 				content => [ {
-					type => 'literal',
-					content => 'literal'
+					type    => 'alternation',
+					content => [ {
+						type => 'terminal',
+						name => 'literal'
+					}, {
+						type => 'terminal',
+						name => 'another literal'
+					} ]
 				} ]
 			},
 		},
@@ -346,6 +356,5 @@ END
 
 	done-testing;
 }, Q{single literal};
-)
 
 # vim: ft=perl6

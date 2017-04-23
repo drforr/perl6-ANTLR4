@@ -237,6 +237,36 @@ class ANTLR4::Actions::AST {
 		make @catch.elems ?? @catch !! Any;
 	}
 
+	method terminal( $/ ) {
+		make {
+			type => 'terminal',
+			name => $/<STRING_LITERAL>[0].Str
+		};
+	}
+
+	method parserElement( $/ ) {
+		make $/<element> ??
+			$/<element>[0]<atom><terminal>.ast !!
+			Any;
+	}
+
+	method parserAltList( $/ ) {
+		my @alternation;
+		if $/<parserAlt>[0]<parserElement><element> {
+			my @parserElement;
+			for $/<parserAlt> -> $parserElement {
+				@parserElement.push(
+					$parserElement<parserElement>.ast
+				);
+			}
+			@alternation.append( {
+				type    => 'alternation',
+				content => @parserElement
+			} );
+		}
+		make @alternation.elems ?? @alternation !! Any
+	}
+
 	# <name> isn't really necessary at this point.
 	#
 	method parserRuleSpec( $/ ) {
@@ -249,7 +279,8 @@ class ANTLR4::Actions::AST {
 			throw   => $/<throwsSpec>.ast,
 			option  => $/<optionsSpec>.ast,
 			catch   => $/<exceptionGroup>.ast,
-			finally => $/<exceptionGroup><finallyClause>.ast
+			finally => $/<exceptionGroup><finallyClause>.ast,
+			content => $/<parserAltList>.ast,
 		}
 	}
 
@@ -264,7 +295,8 @@ class ANTLR4::Actions::AST {
 			local   => Any,
 			option  => Any,
 			catch   => Any,
-			finally => Any
+			finally => Any,
+			content => Any
 		}
 	}
 
