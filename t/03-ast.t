@@ -3,26 +3,11 @@ use Test;
 use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 
-plan 6;
+plan 3;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
 my $parsed;
-
-#`(
-$parsed = $g.parse(
-	Q:to{END},
-grammar Christmas;
-DOC_COMMENT : '/**' .*? ( '*/' | EOF )? ;
-
-mode LexerCharSet;
-
-fragment LEXER_CHAR_SET_BODY : ~( ~[\]\\] | '\\' . )+ -> more ;
-
-END
-	:actions($a)
-).ast;
-)
 
 subtest {
 	$parsed = $g.parse(
@@ -83,103 +68,104 @@ END
 }, Q{grammar types};
 
 subtest {
-	$parsed = $g.parse(
-		Q:to{END},
+	subtest {
+		$parsed = $g.parse(
+			Q:to{END},
 parser grammar Christmas;
 options { }
 END
-		:actions($a)
-	);
+			:actions($a)
+		);
 
-	is-deeply $parsed.ast, {
-		type      => Q{parser},
-		name      => Q{Christmas},
-		option    => { },
-		import    => { },
-		token     => { },
-		action    => { },
-		rule      => { },
-		mode      => { }
-	}, Q{empty options};
+		is-deeply $parsed.ast, {
+			type      => Q{parser},
+			name      => Q{Christmas},
+			option    => { },
+			import    => { },
+			token     => { },
+			action    => { },
+			rule      => { },
+			mode      => { }
+		}, Q{empty options};
 
-	$parsed = $g.parse(
-		Q:to{END},
+		$parsed = $g.parse(
+			Q:to{END},
 parser grammar Christmas;
 options { tokenVocab=Antlr; }
 END
-		:actions($a)
-	);
+			:actions($a)
+		);
 
-	is-deeply $parsed.ast, {
-		type      => Q{parser},
-		name      => Q{Christmas},
-		option    => {
-			tokenVocab => Q{Antlr}
-		},
-		import    => { },
-		token     => { },
-		action    => { },
-		rule      => { },
-		mode      => { }
-	}, Q{single option};
+		is-deeply $parsed.ast, {
+			type      => Q{parser},
+			name      => Q{Christmas},
+			option    => {
+				tokenVocab => Q{Antlr}
+			},
+			import    => { },
+			token     => { },
+			action    => { },
+			rule      => { },
+			mode      => { }
+		}, Q{single option};
 
-	done-testing;
-}, Q{options};
+		done-testing;
+	}, Q{options};
 
-subtest {
-	$parsed = $g.parse(
-		Q:to{END},
+	subtest {
+		$parsed = $g.parse(
+			Q:to{END},
 parser grammar Christmas;
 tokens { INDENT }
 END
-		:actions($a)
-	);
+			:actions($a)
+		);
 
-	is-deeply $parsed.ast, {
-		type      => Q{parser},
-		name      => Q{Christmas},
-		option    => { },
-		import    => { },
-		token     => {
-			INDENT => Any
-		},
-		action    => { },
-		rule      => { },
-		mode      => { }
-	}, Q{single token};
+		is-deeply $parsed.ast, {
+			type      => Q{parser},
+			name      => Q{Christmas},
+			option    => { },
+			import    => { },
+			token     => {
+				INDENT => Any
+			},
+			action    => { },
+			rule      => { },
+			mode      => { }
+		}, Q{single token};
 
-	done-testing;
-}, Q{token};
+		done-testing;
+	}, Q{token};
 
-subtest {
-	$parsed = $g.parse(
-		Q:to{END},
+	subtest {
+		$parsed = $g.parse(
+			Q:to{END},
 parser grammar Christmas;
 import ChristmasParser, ChristmasLexer=Alias;
 END
-		:actions($a)
-	);
+			:actions($a)
+		);
 
-	is-deeply $parsed.ast, {
-		type      => Q{parser},
-		name      => Q{Christmas},
-		option    => { },
-		import    => {
-			ChristmasParser => Any,
-			ChristmasLexer => 'Alias'
-		},
-		token     => { },
-		action    => { },
-		rule      => { },
-		mode      => { }
-	}, Q{single import};
+		is-deeply $parsed.ast, {
+			type      => Q{parser},
+			name      => Q{Christmas},
+			option    => { },
+			import    => {
+				ChristmasParser => Any,
+				ChristmasLexer => 'Alias'
+			},
+			token     => { },
+			action    => { },
+			rule      => { },
+			mode      => { }
+		}, Q{single import};
 
-	done-testing;
-}, Q{import};
+		done-testing;
+	}, Q{import};
 
-subtest {
-	$parsed = $g.parse(
-		Q:to{END},
+	subtest {
+		$parsed = $g.parse(
+			Q:to{END},
 parser grammar Christmas;
 @members {
 	/** Track whether we are inside of a rule and whether it is lexical parser.
@@ -189,18 +175,18 @@ parser grammar Christmas;
 	}
 }
 END
-		:actions($a)
-	);
+			:actions($a)
+		);
 
-	is-deeply $parsed.ast, {
-		type     => Q{parser},
-		name     => Q{Christmas},
-		option   => { },
-		import   => { },
-		token    => { },
-		action   => {
-			name    => '@members',
-			content => Q:to{END}.chomp
+		is-deeply $parsed.ast, {
+			type     => Q{parser},
+			name     => Q{Christmas},
+			option   => { },
+			import   => { },
+			token    => { },
+			action   => {
+				name    => '@members',
+				content => Q:to{END}.chomp
 {
 	/** Track whether we are inside of a rule and whether it is lexical parser.
 	 */
@@ -209,13 +195,17 @@ END
 	}
 }
 END
-		},
-		rule      => { },
-		mode      => { }
+			},
+			rule      => { },
+			mode      => { }
+		}, Q{action};
+
+		done-testing;
 	}, Q{action};
 
 	done-testing;
-}, Q{action};
+}, Q{grammar-level settings};
+
 #Literal : 'term' -> more, channel(HIDDEN) ;
 
 # '-> more' &c are per-alternative, not at the rule level.
@@ -224,6 +214,7 @@ subtest {
 	$parsed = $g.parse(
 		Q:to{END},
 parser grammar Christmas;
+plain : ;
 fragment parametrized[String name, int total]
          returns [int amount] throws XFoo options{I=1;} : ;
 public test_catch_locals locals[int n = 0] : ;
@@ -245,6 +236,16 @@ END
 		token    => { },
 		action   => { },
 		rule     => {
+			plain => {
+				type    => Any,
+				throw   => Any,
+				return  => Any,
+				action  => Any,
+				local   => Any,
+				option  => Any,
+				catch   => Any,
+				finally => Any
+			},
 			test_catch_locals => {
 				type    => 'public',
 				throw   => Any,
@@ -305,6 +306,46 @@ END
 	}, Q{single import, no rule bodies where possible};
 
 	done-testing;
-}, Q{rule};
+}, Q{rule-level settings};
+
+#`(
+subtest {
+	$parsed = $g.parse(
+		Q:to{END},
+grammar Christmas;
+plain : 'literal' ;
+END
+		:actions($a)
+	);
+
+	is-deeply $parsed.ast, {
+		type     => Any,
+		name     => Q{Christmas},
+		option   => { },
+		import   => { },
+		token    => { },
+		action   => { },
+		rule     => {
+			plain => {
+				type    => Any,
+				throw   => Any,
+				return  => Any,
+				action  => Any,
+				local   => Any,
+				option  => Any,
+				catch   => Any,
+				finally => Any,
+				content => [ {
+					type => 'literal',
+					content => 'literal'
+				} ]
+			},
+		},
+		mode      => { }
+	}, Q{single literal};
+
+	done-testing;
+}, Q{single literal};
+)
 
 # vim: ft=perl6
