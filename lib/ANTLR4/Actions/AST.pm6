@@ -251,20 +251,27 @@ class ANTLR4::Actions::AST {
 	}
 
 	method parserAltList( $/ ) {
-		my @alternation;
-		if $/<parserAlt>[0]<parserElement><element> {
+		if $/<parserAlt>.elems == 1 and
+			$/<parserAlt>[0]<parserElement><element> {
+				make [
+					$/<parserAlt>[0]<parserElement>.ast
+				]
+		}
+		elsif $/<parserAlt>.elems > 1 {
 			my @parserElement;
 			for $/<parserAlt> -> $parserElement {
 				@parserElement.push(
 					$parserElement<parserElement>.ast
 				);
 			}
-			@alternation.append( {
+			make [ {
 				type    => 'alternation',
 				content => @parserElement
-			} );
+			} ];
 		}
-		make @alternation.elems ?? @alternation !! Any
+		else {
+			make Any;
+		}
 	}
 
 	# <name> isn't really necessary at this point.

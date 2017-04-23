@@ -3,7 +3,7 @@ use Test;
 use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 
-plan 4;
+plan 5;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -317,6 +317,44 @@ subtest {
 	$parsed = $g.parse(
 		Q:to{END},
 grammar Christmas;
+plain : 'literal' ;
+END
+		:actions($a)
+	);
+
+	is-deeply $parsed.ast, {
+		type     => Any,
+		name     => Q{Christmas},
+		option   => { },
+		import   => { },
+		token    => { },
+		action   => { },
+		rule     => {
+			plain => {
+				type    => Any,
+				throw   => Any,
+				return  => Any,
+				action  => Any,
+				local   => Any,
+				option  => Any,
+				catch   => Any,
+				finally => Any,
+				content => [ {
+					type => 'terminal',
+					name => 'literal'
+				} ]
+			},
+		},
+		mode      => { }
+	}, Q{single literal};
+
+	done-testing;
+}, Q{single literal};
+
+subtest {
+	$parsed = $g.parse(
+		Q:to{END},
+grammar Christmas;
 plain : 'literal' | 'another literal' ;
 END
 		:actions($a)
@@ -352,9 +390,9 @@ END
 			},
 		},
 		mode      => { }
-	}, Q{single literal};
+	}, Q{single alternation};
 
 	done-testing;
-}, Q{single literal};
+}, Q{single alternation};
 
 # vim: ft=perl6
