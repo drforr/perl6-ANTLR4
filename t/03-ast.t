@@ -18,14 +18,14 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		name      => Q{Christmas},
-		type      => Any,
-		option    => { },
-		import    => { },
-		token     => { },
-		action    => { },
-		rule      => { },
-		mode      => { }
+		name   => Q{Christmas},
+		type   => Any,
+		option => { },
+		import => { },
+		token  => { },
+		action => { },
+		rule   => { },
+		mode   => { }
 	}, Q{default grammar};
 
 	$parsed = $g.parse(
@@ -36,14 +36,14 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		type      => Q{lexer},
-		name      => Q{Christmas},
-		option    => { },
-		import    => { },
-		token     => { },
-		action    => { },
-		rule      => { },
-		mode      => { }
+		type   => Q{lexer},
+		name   => Q{Christmas},
+		option => { },
+		import => { },
+		token  => { },
+		action => { },
+		rule   => { },
+		mode   => { }
 	}, Q{lexer grammar};
 
 	$parsed = $g.parse(
@@ -54,14 +54,14 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		type      => Q{parser},
-		name      => Q{Christmas},
-		option    => { },
-		import    => { },
-		token     => { },
-		action    => { },
-		rule      => { },
-		mode      => { }
+		type   => Q{parser},
+		name   => Q{Christmas},
+		option => { },
+		import => { },
+		token  => { },
+		action => { },
+		rule   => { },
+		mode   => { }
 	}, Q{parser grammar};
 
 	done-testing;
@@ -78,14 +78,14 @@ END
 		);
 
 		is-deeply $parsed.ast, {
-			type      => Q{parser},
-			name      => Q{Christmas},
-			option    => { },
-			import    => { },
-			token     => { },
-			action    => { },
-			rule      => { },
-			mode      => { }
+			type   => Q{parser},
+			name   => Q{Christmas},
+			option => { },
+			import => { },
+			token  => { },
+			action => { },
+			rule   => { },
+			mode   => { }
 		}, Q{empty options};
 
 		$parsed = $g.parse(
@@ -97,16 +97,16 @@ END
 		);
 
 		is-deeply $parsed.ast, {
-			type      => Q{parser},
-			name      => Q{Christmas},
-			option    => {
+			type   => Q{parser},
+			name   => Q{Christmas},
+			option => {
 				tokenVocab => Q{Antlr}
 			},
-			import    => { },
-			token     => { },
-			action    => { },
-			rule      => { },
-			mode      => { }
+			import => { },
+			token  => { },
+			action => { },
+			rule   => { },
+			mode   => { }
 		}, Q{single option};
 
 		done-testing;
@@ -122,16 +122,16 @@ END
 		);
 
 		is-deeply $parsed.ast, {
-			type      => Q{parser},
-			name      => Q{Christmas},
-			option    => { },
-			import    => { },
-			token     => {
+			type   => Q{parser},
+			name   => Q{Christmas},
+			option => { },
+			import => { },
+			token  => {
 				INDENT => Any
 			},
-			action    => { },
-			rule      => { },
-			mode      => { }
+			action => { },
+			rule   => { },
+			mode   => { }
 		}, Q{single token};
 
 		done-testing;
@@ -147,17 +147,17 @@ END
 		);
 
 		is-deeply $parsed.ast, {
-			type      => Q{parser},
-			name      => Q{Christmas},
-			option    => { },
-			import    => {
+			type   => Q{parser},
+			name   => Q{Christmas},
+			option => { },
+			import => {
 				ChristmasParser => Any,
-				ChristmasLexer => 'Alias'
+				ChristmasLexer  => 'Alias'
 			},
-			token     => { },
-			action    => { },
-			rule      => { },
-			mode      => { }
+			token  => { },
+			action => { },
+			rule   => { },
+			mode   => { }
 		}, Q{single import};
 
 		done-testing;
@@ -179,14 +179,14 @@ END
 		);
 
 		is-deeply $parsed.ast, {
-			type     => Q{parser},
-			name     => Q{Christmas},
-			option   => { },
-			import   => { },
-			token    => { },
-			action   => {
-				name    => '@members',
-				content => Q:to{END}.chomp
+			type   => Q{parser},
+			name   => Q{Christmas},
+			option => { },
+			import => { },
+			token  => { },
+			action => {
+				name => '@members',
+				body => Q:to{END}.chomp
 {
 	/** Track whether we are inside of a rule and whether it is lexical parser.
 	 */
@@ -196,8 +196,8 @@ END
 }
 END
 			},
-			rule      => { },
-			mode      => { }
+			rule   => { },
+			mode   => { }
 		}, Q{action};
 
 		done-testing;
@@ -229,13 +229,13 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		type     => Q{parser},
-		name     => Q{Christmas},
-		option   => { },
-		import   => { },
-		token    => { },
-		action   => { },
-		rule     => {
+		type   => Q{parser},
+		name   => Q{Christmas},
+		option => { },
+		import => { },
+		token  => { },
+		action => { },
+		rule   => {
 			plain => {
 				type    => Any,
 				throw   => Any,
@@ -245,7 +245,7 @@ END
 				option  => Any,
 				catch   => Any,
 				finally => Any,
-				content => Any
+				term    => Any
 			},
 			test_catch_locals => {
 				type    => 'public',
@@ -259,7 +259,7 @@ END
 					action   => '{amount++}'
 				} ],
 				finally => '{amount=1}',
-				content => Any
+				term    => Any
 			},
 			parametrized => {
 				type    => 'fragment',
@@ -274,10 +274,10 @@ END
 				},
 				catch   => Any,
 				finally => Any,
-				content => Any
+				term    => Any
 			},
 		},
-		mode      => {
+		mode    => {
 			Remainder => {
 				lexer_stuff => {
 					type    => Any,
@@ -288,7 +288,7 @@ END
 					option  => Any,
 					catch   => Any,
 					finally => Any,
-					content => Any
+					term    => Any
 				}
 			},
 			# Skip SkipThis because it contains no rules, and
@@ -304,7 +304,7 @@ END
 					option  => Any,
 					catch   => Any,
 					finally => Any,
-					content => Any
+					term    => Any
 				}
 			}
 		}
@@ -323,13 +323,13 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		type     => Any,
-		name     => Q{Christmas},
-		option   => { },
-		import   => { },
-		token    => { },
-		action   => { },
-		rule     => {
+		type   => Any,
+		name   => Q{Christmas},
+		option => { },
+		import => { },
+		token  => { },
+		action => { },
+		rule   => {
 			plain => {
 				type    => Any,
 				throw   => Any,
@@ -339,13 +339,13 @@ END
 				option  => Any,
 				catch   => Any,
 				finally => Any,
-				content => [ {
+				term    => [ {
 					type => 'terminal',
 					name => 'literal'
 				} ]
 			},
 		},
-		mode      => { }
+		mode   => { }
 	}, Q{single literal};
 
 	done-testing;
@@ -361,13 +361,13 @@ END
 	);
 
 	is-deeply $parsed.ast, {
-		type     => Any,
-		name     => Q{Christmas},
-		option   => { },
-		import   => { },
-		token    => { },
-		action   => { },
-		rule     => {
+		type   => Any,
+		name   => Q{Christmas},
+		option => { },
+		import => { },
+		token  => { },
+		action => { },
+		rule   => {
 			plain => {
 				type    => Any,
 				throw   => Any,
@@ -377,9 +377,9 @@ END
 				option  => Any,
 				catch   => Any,
 				finally => Any,
-				content => [ {
-					type    => 'alternation',
-					content => [ {
+				term    => [ {
+					type => 'alternation',
+					term => [ {
 						type => 'terminal',
 						name => 'literal'
 					}, {
@@ -389,7 +389,7 @@ END
 				} ]
 			},
 		},
-		mode      => { }
+		mode   => { }
 	}, Q{single alternation};
 
 	done-testing;

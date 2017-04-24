@@ -6,7 +6,7 @@ plan 1;
 
 #############################################################################
 
-my $csv-grammar = q{/*
+my $csv-grammar = Q{/*
  [The "BSD licence"]
  Copyright (c) 2013 Terence Parr
  All rights reserved.

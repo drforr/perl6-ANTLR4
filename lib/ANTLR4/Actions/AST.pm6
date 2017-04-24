@@ -218,8 +218,8 @@ class ANTLR4::Actions::AST {
 	#
 	method action( $/ ) {
 		make {
-			name    => $/<action_name>.ast,
-			content => $/<ACTION>.ast
+			name => $/<action_name>.ast,
+			body => $/<ACTION>.ast
 		}
 	}
 
@@ -266,7 +266,7 @@ class ANTLR4::Actions::AST {
 			}
 			make [ {
 				type    => 'alternation',
-				content => @parserElement
+				term    => @parserElement
 			} ];
 		}
 		else {
@@ -287,7 +287,7 @@ class ANTLR4::Actions::AST {
 			option  => $/<optionsSpec>.ast,
 			catch   => $/<exceptionGroup>.ast,
 			finally => $/<exceptionGroup><finallyClause>.ast,
-			content => $/<parserAltList>.ast,
+			term    => $/<parserAltList>.ast,
 		}
 	}
 
@@ -303,7 +303,7 @@ class ANTLR4::Actions::AST {
 			option  => Any,
 			catch   => Any,
 			finally => Any,
-			content => Any
+			term    => Any
 		}
 	}
 
