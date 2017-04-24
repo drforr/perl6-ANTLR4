@@ -265,8 +265,8 @@ class ANTLR4::Actions::AST {
 				);
 			}
 			make [ {
-				type    => 'alternation',
-				term    => @parserElement
+				type => 'alternation',
+				term => @parserElement
 			} ];
 		}
 		else {

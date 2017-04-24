@@ -340,8 +340,8 @@ END
 				catch   => Any,
 				finally => Any,
 				term    => [ {
-					type => 'terminal',
-					name => 'literal'
+					name => 'literal',
+					type => 'terminal'
 				} ]
 			},
 		},
@@ -380,8 +380,8 @@ END
 				term    => [ {
 					type => 'alternation',
 					term => [ {
-						type => 'terminal',
-						name => 'literal'
+						name => 'literal',
+						type => 'terminal'
 					}, {
 						type => 'terminal',
 						name => 'another literal'

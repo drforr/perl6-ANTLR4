@@ -10,35 +10,38 @@ my $parsed;
 subtest {
 	$parsed = $p.parse( q{grammar Minimal;} );
 
-	is $parsed.perl6, Q:to{END}, Q{minimal grammar};
+	is $parsed.perl6, Q:to{END}.chomp, Q{minimal grammar};
 	grammar Minimal {
 	}
 	END
 
 	$parsed = $p.parse( q{lexer grammar Minimal;} );
 
-	is $parsed.perl6, Q:to{END}, Q{lexer type};
-	grammar Minimal { #={ "type" : "lexer" }
+	is $parsed.perl6, Q:to{END}.chomp, Q{lexer type};
+	#|{ "type" : "lexer" }
+	grammar Minimal {
 	}
 	END
 
 	$parsed = $p.parse( q{grammar Minimal; options {a=2;}} );
 
-	is $parsed.perl6, Q:to{END}, Q{option};
-	grammar Minimal { #={ "option" : { "a" : "2" } }
+	is $parsed.perl6, Q:to{END}.chomp, Q{option};
+	#|{ "option" : { "a" : "2" } }
+	grammar Minimal {
 	}
 	END
 
 	$parsed = $p.parse( q{grammar Minimal; import Foo;} );
 
-	is $parsed.perl6, Q:to{END}, Q{import};
-	grammar Minimal { #={ "import" : { "Foo" : null } }
+	is $parsed.perl6, Q:to{END}.chomp, Q{import};
+	#|{ "import" : { "Foo" : null } }
+	grammar Minimal {
 	}
 	END
 
 	$parsed = $p.parse( q{grammar Minimal; tokens { INDENT, DEDENT }} );
 
-	is $parsed.perl6, Q:to{END}, Q{token};
+	is $parsed.perl6, Q:to{END}.chomp, Q{token};
 	grammar Minimal {
 		token DEDENT { 'dedent' }
 		token INDENT { 'indent' }
@@ -47,8 +50,9 @@ subtest {
 
 	$parsed = $p.parse( q{grammar Minimal; @members { int i = 0; }} );
 
-	is $parsed.perl6, Q:to{END}, Q{action};
-	grammar Minimal { #={ "action" : { "name" : "@members", "body" : "{ int i = 0; }" } }
+	is $parsed.perl6, Q:to{END}.chomp, Q{action};
+	#|{ "action" : { "name" : "@members", "body" : "{ int i = 0; }" } }
+	grammar Minimal {
 	}
 	END
 
@@ -59,18 +63,20 @@ subtest {
 subtest {
 	$parsed = $p.parse( q{grammar Minimal; fragment number : ;} );
 
-	is $parsed.perl6, Q:to{END}, Q{type};
+	is $parsed.perl6, Q:to{END}.chomp, Q{type};
 	grammar Minimal {
-		rule number { #={ "type" : "fragment" }
+		#|{ "type" : "fragment" }
+		rule number {
 		}
 	}
 	END
 
 	$parsed = $p.parse( q{grammar Minimal; number throws XFoo : ;} );
 
-	is $parsed.perl6, Q:to{END}, Q{throw};
+	is $parsed.perl6, Q:to{END}.chomp, Q{throw};
 	grammar Minimal {
-		rule number { #={ "throw" : { "XFoo" : null } }
+		#|{ "throw" : { "XFoo" : null } }
+		rule number {
 		}
 	}
 	END
@@ -79,9 +85,10 @@ subtest {
 		q{grammar Minimal; number returns [int amount] : ;}
 	);
 
-	is $parsed.perl6, Q:to{END}, Q{return};
+	is $parsed.perl6, Q:to{END}.chomp, Q{return};
 	grammar Minimal {
-		rule number { #={ "return" : "[int amount]" }
+		#|{ "return" : "[int amount]" }
+		rule number {
 		}
 	}
 	END
@@ -90,27 +97,30 @@ subtest {
 		q{grammar Minimal; number[String name, int total] : ;}
 	);
 
-	is $parsed.perl6, Q:to{END}, Q{action};
+	is $parsed.perl6, Q:to{END}.chomp, Q{action};
 	grammar Minimal {
-		rule number { #={ "action" : "[String name, int total]" }
+		#|{ "action" : "[String name, int total]" }
+		rule number {
 		}
 	}
 	END
 
 	$parsed = $p.parse( q{grammar Minimal; number locals[int n = 0] : ;} );
 
-	is $parsed.perl6, Q:to{END}, Q{local};
+	is $parsed.perl6, Q:to{END}.chomp, Q{local};
 	grammar Minimal {
-		rule number { #={ "local" : "[int n = 0]" }
+		#|{ "local" : "[int n = 0]" }
+		rule number {
 		}
 	}
 	END
 
 	$parsed = $p.parse( q{grammar Minimal; number options{I=1;} : ;} );
 
-	is $parsed.perl6, Q:to{END}, Q{option};
+	is $parsed.perl6, Q:to{END}.chomp, Q{option};
 	grammar Minimal {
-		rule number { #={ "option" : { "I" : "1" } }
+		#|{ "option" : { "I" : "1" } }
+		rule number {
 		}
 	}
 	END
@@ -119,9 +129,10 @@ subtest {
 		q{grammar Minimal; number : ; catch[int amount] {amount++} }
 	);
 
-	is $parsed.perl6, Q:to{END}, Q{catch};
+	is $parsed.perl6, Q:to{END}.chomp, Q{catch};
 	grammar Minimal {
-		rule number { #={ "catch" : [ { "argument" : "[int amount]" }, { "action" : "{amount++}" } ] }
+		#|{ "catch" : [ { "argument" : "[int amount]" }, { "action" : "{amount++}" } ] }
+		rule number {
 		}
 	}
 	END
@@ -130,9 +141,10 @@ subtest {
 		q{grammar Minimal; number : ; finally {amount=1} }
 	);
 
-	is $parsed.perl6, Q:to{END}, Q{catch};
+	is $parsed.perl6, Q:to{END}.chomp, Q{catch};
 	grammar Minimal {
-		rule number { #={ "finally" : "{amount=1}" }
+		#|{ "finally" : "{amount=1}" }
+		rule number {
 		}
 	}
 	END

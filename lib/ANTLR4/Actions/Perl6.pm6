@@ -33,6 +33,8 @@ class ANTLR4::Actions::Perl6 {
 	has ANTLR4::Actions::AST $a =
 		ANTLR4::Actions::AST.new;
 
+	has Str $.indent-char = qq{\t};
+
 	my class ANTLR4::Actions::Perl6::Shim {
 		has $.ast;
 		has $.perl6;
@@ -44,72 +46,88 @@ class ANTLR4::Actions::Perl6 {
 		$copy
 	}
 
-	method to-json-comment( $json ) {
+	method to-json-comment( $json, $indent ) {
 		my $json-str = to-json( $json );
-		return qq{ #=$json-str};
+		return qq<{"" x $indent}#|$json-str>;
 	}
 
-	method build-tokens( $ast ) {
-		my $token = '';
-		if $ast.<token> {
-			my @token = map {
-				my $lc = lc $_;
-				qq{\ttoken $_ \{ '$lc' \}}
-			}, $ast.<token>.keys.sort;
-			$token = @token.join("\n") ~ "\n";
-		}
-		$token;
-	}
-
-	method build-rule-json( $ast ) {
+	method rule-json( $ast, $indent = 1 ) {
 		my $json;
 		for <type throw return action local option catch finally> -> $key {
 			$json.{$key} = $ast.{$key} if $ast.{$key};
 		}
-		return $json ?? self.to-json-comment( $json ) !! '';
+		return $json ?? self.to-json-comment( $json, 1 ) !! '';
 	}
 
-	method build-outer-json( $ast ) {
+	method outer-json( $ast ) {
 		my $json;
 		for <type option import action> -> $key {
 			$json.{$key} = $ast.{$key} if $ast.{$key};
 		}
-		return $json ?? self.to-json-comment( $json ) !! '';
+		return $json ?? self.to-json-comment( $json, 0 ) !! '';
 	}
 
-	method build-rules( $ast ) {
-		my $rules = '';
-		if $ast.<rule> {
-			my @rules = map {
-				qq:to{END}.chomp
-	rule $_ \{{self.build-rule-json( $ast.<rule>.{$_} )}\n\t\}
-END
-			}, $ast.<rule>.keys.sort;
-			return @rules.join( "\n" ) ~ "\n";
-		}
-		'';
+	method token( $name, $indent = 1 ) {
+		my $lc = lc( $name );
+		qq<token $name \{ '{$lc}' \}>
 	}
 
-	method reconstruct( $ast ) {
-		my $grammar = qq:to{END};
-grammar $ast.<name> \{{self.build-outer-json( $ast )}
-{self.build-tokens( $ast )}{self.build-rules( $ast )}\}
-END
-		$grammar;
+	method tokens( $ast ) {
+		map { self.token( $_ ) }, $ast.keys.sort;
+	}
+
+	method indent-lines( @text, $indent = 0 ) {
+		my $indent-str = $.indent-char xx $indent;
+say "|$_|" for @text;
+		map { qq<{$indent-str}{$_}\n> }, grep { $_ ne '' }, @text;
+	}
+
+	method rule( $ast, $name, $indent = 1 ) {
+		my $json = self.rule-json( $ast.{$name}, $indent );
+		self.indent-lines( [
+			$json,
+			qq<rule $name \{>,
+			<}>,
+		], $indent
+		);
+	}
+
+	method rules( $ast ) {
+		map { self.rule( $ast, $_ ) }, $ast.keys.sort;
+	}
+
+	method grammar( $ast ) {
+#		my $tokens = self.tokens( $ast.<token> ).join( '' );
+#		my $rules  = self.rules( $ast.<rule> ).join( '' );
+#		qq<{$json}grammar $ast.<name> \{{$tokens}{$rules}\}>;
+		self.indent-lines( [
+			self.outer-json( $ast ),
+			qq<grammar $ast.<name> \{>,
+#			self.tokens( $ast.<token> ).join( '' ),
+			self.indent-lines( [
+				map { self.token( $_ ) }, $ast.<token>.keys.sort
+			], 1 ),
+			qq<}>
+		] ).chomp;
+	}
+
+	method get-shim( $ast ) {
+		ANTLR4::Actions::Perl6::Shim.new(
+			ast   => $ast,
+			perl6 => self.grammar( $ast )
+		);
 	}
 
 	method parse( Str $str ) {
-		my $ast = $!g.parse( $str, :actions($!a) ).ast;
-		ANTLR4::Actions::Perl6::Shim.new(
-			ast => $ast,
-			perl6 => self.reconstruct( $ast ) )
+		self.get-shim(
+			$!g.parse( $str, :actions($!a) ).ast
+		);
 	}
 
 	method parsefile( Str $filename ) {
-		my $ast = $!g.parsefile( $filename, :actions($!a) ).ast;
-		ANTLR4::Actions::Perl6::Shim.new(
-			ast => $ast,
-			perl6 => self.reconstruct( $ast ) )
+		self.get-shim(
+			$!g.parsefile( $filename, :actions($!a) ).ast
+		);
 	}
 }
 
