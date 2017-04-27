@@ -43,8 +43,12 @@ subtest {
 
 	is $parsed.perl6, Q:to{END}.chomp, Q{token};
 	grammar Minimal {
-		token DEDENT { 'dedent' }
-		token INDENT { 'indent' }
+		token DEDENT {
+			'dedent'
+		}
+		token INDENT {
+			'indent'
+		}
 	}
 	END
 
@@ -151,5 +155,19 @@ subtest {
 
 	done-testing;
 }, 'Options surrounding single empty rule (legal in ANTLR)';
+
+#`(
+$parsed = $p.parse(
+	q{grammar Minimal; statement : 'SELECT' ;}
+);
+
+is $parsed.perl6, Q:to{END}.chomp, Q{catch};
+grammar Minimal {
+	rule statement {
+		'SELECT'
+	}
+}
+END
+)
 
 # vim: ft=perl6

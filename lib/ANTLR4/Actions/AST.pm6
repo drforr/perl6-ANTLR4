@@ -177,23 +177,23 @@ class ANTLR4::Actions::AST {
 	}
 	method delegateGrammars( $/ ) {
 		my %import;
-		for $/<delegateGrammar> {
-			%import{$_.<key>.ast} = $_.ast;
+		for $/<delegateGrammar> -> $delegate {
+			%import{$delegate.<key>.ast} = $delegate.ast;
 		}
 		make %import;
 	}
 
 	method tokensSpec( $/ ) {
 		my %token;
-		for $/<token_list_trailing_comma><tokenName> {
-			%token{$_.ast} = Any;
+		for $/<token_list_trailing_comma><tokenName> -> $name {
+			%token{$name.ast} = Any;
 		}
 		make %token;
 	}
 	method throwsSpec( $/ ) {
 		my %throw;
-		for $/<ID> {
-			%throw{$_.ast} = Any;
+		for $/<ID> -> $name {
+			%throw{$name.ast} = Any;
 		}
 		make %throw;
 	}
@@ -206,8 +206,8 @@ class ANTLR4::Actions::AST {
 	}
 	method optionsSpec( $/ ) {
 		my %option;
-		for $/<option> {
-			%option{$_.<ID>.ast} = $_.ast;
+		for $/<option> -> $option {
+			%option{$option.<ID>.ast} = $option.ast;
 		}
 		make %option;
 	}

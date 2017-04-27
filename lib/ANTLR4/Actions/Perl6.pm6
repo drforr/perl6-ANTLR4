@@ -27,6 +27,38 @@ use JSON::Tiny;
 use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 
+my class Outline {
+	has $.indent-char = "\t";
+	has @.line;
+
+	method indent( $line, $depth = 0 ) {
+		( $.indent-char x $depth ) ~ $line
+	}
+
+	method outline( @lines, $depth = 0 ) {
+		for @lines -> $line {
+			given $line {
+				when Array {
+					self.outline(
+						@( $line ),
+						$depth + 1
+					);
+				}
+				when '' { }
+				default {
+					@.line.append(
+						self.indent( $line, $depth )
+					);
+				}
+			}
+		}
+	}
+
+	method render {
+		join( "\n", @.line )
+	}
+}
+
 class ANTLR4::Actions::Perl6 {
 	has ANTLR4::Grammar $g =
 		ANTLR4::Grammar.new;
@@ -46,17 +78,17 @@ class ANTLR4::Actions::Perl6 {
 		$copy
 	}
 
-	method to-json-comment( $json, $indent ) {
+	method to-json-comment( $json ) {
 		my $json-str = to-json( $json );
-		return qq<{"" x $indent}#|$json-str>;
+		return qq<#|$json-str>;
 	}
 
-	method rule-json( $ast, $indent = 1 ) {
+	method rule-json( $ast ) {
 		my $json;
 		for <type throw return action local option catch finally> -> $key {
 			$json.{$key} = $ast.{$key} if $ast.{$key};
 		}
-		return $json ?? self.to-json-comment( $json, 1 ) !! '';
+		return $json ?? self.to-json-comment( $json ) !! '';
 	}
 
 	method outer-json( $ast ) {
@@ -64,51 +96,45 @@ class ANTLR4::Actions::Perl6 {
 		for <type option import action> -> $key {
 			$json.{$key} = $ast.{$key} if $ast.{$key};
 		}
-		return $json ?? self.to-json-comment( $json, 0 ) !! '';
-	}
-
-	method token( $name, $indent = 1 ) {
-		my $lc = lc( $name );
-		qq<token $name \{ '{$lc}' \}>
-	}
-
-	method tokens( $ast ) {
-		map { self.token( $_ ) }, $ast.keys.sort;
-	}
-
-	method indent-lines( @text, $indent = 0 ) {
-		my $indent-str = $.indent-char xx $indent;
-say "|$_|" for @text;
-		map { qq<{$indent-str}{$_}\n> }, grep { $_ ne '' }, @text;
-	}
-
-	method rule( $ast, $name, $indent = 1 ) {
-		my $json = self.rule-json( $ast.{$name}, $indent );
-		self.indent-lines( [
-			$json,
-			qq<rule $name \{>,
-			<}>,
-		], $indent
-		);
-	}
-
-	method rules( $ast ) {
-		map { self.rule( $ast, $_ ) }, $ast.keys.sort;
+		return $json ?? self.to-json-comment( $json ) !! '';
 	}
 
 	method grammar( $ast ) {
-#		my $tokens = self.tokens( $ast.<token> ).join( '' );
-#		my $rules  = self.rules( $ast.<rule> ).join( '' );
-#		qq<{$json}grammar $ast.<name> \{{$tokens}{$rules}\}>;
-		self.indent-lines( [
+		my @token;
+		my @rule;
+		for $ast.<token>.keys -> $name {
+			@token.append( [
+				"token $name \{", [
+					"'{lc($name)}'"
+				],
+				"\}"
+			] );
+		}
+		for $ast.<rule>.keys -> $name {
+			my @term;
+			if $ast.<rule>{$name}.<term> {
+				for $ast.<rule>{$name}.<term> -> $term {
+					@term.append( $term.<name> );
+				}
+			}
+			@rule.append( [
+				self.rule-json( $ast.<rule>{$name} ),
+				"rule $name \{", [
+					@term
+				],
+				"\}"
+			] );
+		}
+		my $ds = [
 			self.outer-json( $ast ),
-			qq<grammar $ast.<name> \{>,
-#			self.tokens( $ast.<token> ).join( '' ),
-			self.indent-lines( [
-				map { self.token( $_ ) }, $ast.<token>.keys.sort
-			], 1 ),
-			qq<}>
-		] ).chomp;
+			"grammar $ast.<name> \{",
+			@token,
+			@rule,
+			"\}"
+		];
+		my $outline = Outline.new;
+		$outline.outline( $ds );
+		$outline.render;
 	}
 
 	method get-shim( $ast ) {
