@@ -27,35 +27,44 @@ use JSON::Tiny;
 use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 
+# Little helper class
+#
+# Take 'foo', [ 'bar', [ 'baz', 'qux' ] ] and turn it into:
+# foo {
+#   bar {
+#     baz
+#     qux
+#   }
+# }
+#
+# This way I don't need to worry about balancing braces and indentation.
+# Just let the class handle it for me.
+#
+# And in case I want to change the brace style later on I've got one point in
+# the application to change.
+#
+# This should have its own mini-test suite, but that would mean exposing it,
+# and it's a tiny ting as it is.
+#
 my class Outline {
-	has $.indent-char = "\t";
 	has @.line;
-
-	method indent( $line, $depth = 0 ) {
-		( $.indent-char x $depth ) ~ $line
+	method indent( $line, $depth ) {
+		@.line.append( ( "\t" x $depth ) ~ $line );
 	}
-
-	method outline( @lines, $depth = 0 ) {
-		for @lines -> $line {
-			given $line {
-				when Array {
-					self.outline(
-						@( $line ),
-						$depth + 1
-					);
-				}
-				when '' { }
-				default {
-					@.line.append(
-						self.indent( $line, $depth )
-					);
-				}
+	method outline( @item, $depth = 0 ) {
+		for @item {
+			when Array {
+				@.line[*-1] ~= ' {'; # }
+				self.outline( @( $_ ), $depth + 1 );
+				self.indent( '}', $depth );
+			}
+			when Str {
+				self.indent( $_, $depth ) if /\S/;
 			}
 		}
 	}
-
 	method render {
-		join( "\n", @.line )
+		join( "\n", @.line );
 	}
 }
 
@@ -78,63 +87,93 @@ class ANTLR4::Actions::Perl6 {
 		$copy
 	}
 
-	method to-json-comment( $json ) {
-		my $json-str = to-json( $json );
-		return qq<#|$json-str>;
-	}
-
-	method rule-json( $ast ) {
+	method to-json-comment( $ast, @key ) {
 		my $json;
-		for <type throw return action local option catch finally> -> $key {
+		for @key -> $key {
 			$json.{$key} = $ast.{$key} if $ast.{$key};
 		}
-		return $json ?? self.to-json-comment( $json ) !! '';
+		if $json {
+			my $json-str = to-json( $json );
+			return qq<#|$json-str>;
+		}
+		return '';
 	}
 
-	method outer-json( $ast ) {
-		my $json;
-		for <type option import action> -> $key {
-			$json.{$key} = $ast.{$key} if $ast.{$key};
+	method token( $ast ) {
+		my @token;
+		for $ast.keys -> $name {
+			@token.append(
+				"token $name", [
+					"'{lc($name)}'"
+				]
+			);
 		}
-		return $json ?? self.to-json-comment( $json ) !! '';
+		@token;
+	}
+
+	method term( $ast ) {
+		my @term;
+		if $ast ~~ Array {
+			given $ast.[1]<type> { # XXX ...
+				when 'terminal' {
+					@term.append(
+						qq{'$ast.[0]<name>'}
+						
+					)
+				}
+			}
+		}
+		else {
+			given $ast.<term>.<type> {
+				when 'alternation' {
+				}
+				when 'concatenation' {
+					@term.append(
+						self.term( $ast.<term><term> )
+					)
+				}
+			}
+		}
+		@term;
+	}
+
+	method rule( $ast ) {
+		my @rule;
+		for $ast.keys -> $name {
+			my @term;
+			@term.append(
+				self.term( $ast.{$name} )
+			);
+			@rule.append(
+				self.to-json-comment(
+					$ast.{$name},
+					[<type throw return action
+					  local option catch finally>]
+				),
+				"rule $name", [
+					@term
+				]
+			);
+		}
+		@rule;
 	}
 
 	method grammar( $ast ) {
-		my @token;
-		my @rule;
-		for $ast.<token>.keys -> $name {
-			@token.append( [
-				"token $name \{", [
-					"'{lc($name)}'"
-				],
-				"\}"
-			] );
-		}
-		for $ast.<rule>.keys -> $name {
-			my @term;
-			if $ast.<rule>{$name}.<term> {
-				for $ast.<rule>{$name}.<term> -> $term {
-					@term.append( $term.<name> );
-				}
-			}
-			@rule.append( [
-				self.rule-json( $ast.<rule>{$name} ),
-				"rule $name \{", [
-					@term
-				],
-				"\}"
-			] );
-		}
-		my $ds = [
-			self.outer-json( $ast ),
-			"grammar $ast.<name> \{",
-			@token,
-			@rule,
-			"\}"
-		];
-		my $outline = Outline.new;
-		$outline.outline( $ds );
-		$outline.render;
+		my $o = Outline.new;
+		my @term;
+		@term.append( self.token( $ast.<token> ) );
+		@term.append( self.rule( $ast.<rule> ) );
+			
+		$o.outline( [
+			self.to-json-comment(
+				$ast,
+				[<type option import action>]
+			),
+			"grammar $ast.<name>", [
+				@term
+			]
+		] );
+		$o.render;
 	}
 
 	method get-shim( $ast ) {

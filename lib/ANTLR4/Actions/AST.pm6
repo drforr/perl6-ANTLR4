@@ -253,9 +253,12 @@ class ANTLR4::Actions::AST {
 	method parserAltList( $/ ) {
 		if $/<parserAlt>.elems == 1 and
 			$/<parserAlt>[0]<parserElement><element> {
-				make [
+			make {
+				type => 'concatenation',
+				term => [
 					$/<parserAlt>[0]<parserElement>.ast
 				]
+			}
 		}
 		elsif $/<parserAlt>.elems > 1 {
 			my @parserElement;
@@ -264,10 +267,10 @@ class ANTLR4::Actions::AST {
 					$parserElement<parserElement>.ast
 				);
 			}
-			make [ {
+			make {
 				type => 'alternation',
 				term => @parserElement
-			} ];
+			};
 		}
 		else {
 			make Any;

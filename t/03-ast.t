@@ -9,11 +9,15 @@ my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
 my $parsed;
 
+# Reminder to those adding tests - I'd like for the first test of a subtest
+# to check the data structure as a whole, in order to let people visualize
+# how it looks. The rest of the tests can focus on just the individual keys.
+#
 subtest {
 	$parsed = $g.parse(
 		Q:to{END},
-grammar Christmas;
-END
+		grammar Christmas;
+		END
 		:actions($a)
 	);
 
@@ -30,39 +34,23 @@ END
 
 	$parsed = $g.parse(
 		Q:to{END},
-lexer grammar Christmas;
-END
+		lexer grammar Christmas;
+		END
 		:actions($a)
 	);
 
-	is-deeply $parsed.ast, {
-		type   => Q{lexer},
-		name   => Q{Christmas},
-		option => { },
-		import => { },
-		token  => { },
-		action => { },
-		rule   => { },
-		mode   => { }
-	}, Q{lexer grammar};
+	is $parsed.ast.<type>, Q{lexer}, Q{lexer type};
+	is $parsed.ast.<name>, Q{Christmas}, Q{lexer name};
 
 	$parsed = $g.parse(
 		Q:to{END},
-parser grammar Christmas;
-END
+		parser grammar Christmas;
+		END
 		:actions($a)
 	);
 
-	is-deeply $parsed.ast, {
-		type   => Q{parser},
-		name   => Q{Christmas},
-		option => { },
-		import => { },
-		token  => { },
-		action => { },
-		rule   => { },
-		mode   => { }
-	}, Q{parser grammar};
+	is $parsed.ast.<type>, Q{parser}, Q{parser type};
+	is $parsed.ast.<name>, Q{Christmas}, Q{parser name};
 
 	done-testing;
 }, Q{grammar types};
@@ -71,9 +59,9 @@ subtest {
 	subtest {
 		$parsed = $g.parse(
 			Q:to{END},
-parser grammar Christmas;
-options { }
-END
+			parser grammar Christmas;
+			options { }
+			END
 			:actions($a)
 		);
 
@@ -90,103 +78,61 @@ END
 
 		$parsed = $g.parse(
 			Q:to{END},
-parser grammar Christmas;
-options { tokenVocab=Antlr; }
-END
+			parser grammar Christmas;
+			options { tokenVocab=Antlr; }
+			END
 			:actions($a)
 		);
 
-		is-deeply $parsed.ast, {
-			type   => Q{parser},
-			name   => Q{Christmas},
-			option => {
-				tokenVocab => Q{Antlr}
-			},
-			import => { },
-			token  => { },
-			action => { },
-			rule   => { },
-			mode   => { }
+		is-deeply $parsed.ast.<option>, {
+			tokenVocab => Q{Antlr}
 		}, Q{single option};
 
 		done-testing;
 	}, Q{options};
 
-	subtest {
-		$parsed = $g.parse(
-			Q:to{END},
-parser grammar Christmas;
-tokens { INDENT }
-END
-			:actions($a)
-		);
+	$parsed = $g.parse(
+		Q:to{END},
+		parser grammar Christmas;
+		tokens { INDENT }
+		END
+		:actions($a)
+	);
 
-		is-deeply $parsed.ast, {
-			type   => Q{parser},
-			name   => Q{Christmas},
-			option => { },
-			import => { },
-			token  => {
-				INDENT => Any
-			},
-			action => { },
-			rule   => { },
-			mode   => { }
-		}, Q{single token};
+	is-deeply $parsed.ast.<token>, {
+		INDENT => Any
+	}, Q{single token};
 
-		done-testing;
-	}, Q{token};
+	$parsed = $g.parse(
+		Q:to{END},
+		parser grammar Christmas;
+		import ChristmasParser, ChristmasLexer=Alias;
+		END
+		:actions($a)
+	);
 
-	subtest {
-		$parsed = $g.parse(
-			Q:to{END},
-parser grammar Christmas;
-import ChristmasParser, ChristmasLexer=Alias;
-END
-			:actions($a)
-		);
+	is-deeply $parsed.ast.<import>, {
+		ChristmasParser => Any,
+		ChristmasLexer  => 'Alias'
+	}, Q{single import};
 
-		is-deeply $parsed.ast, {
-			type   => Q{parser},
-			name   => Q{Christmas},
-			option => { },
-			import => {
-				ChristmasParser => Any,
-				ChristmasLexer  => 'Alias'
-			},
-			token  => { },
-			action => { },
-			rule   => { },
-			mode   => { }
-		}, Q{single import};
+	$parsed = $g.parse(
+		Q:to{END},
+		parser grammar Christmas;
+		@members {
+			/** Track whether we are inside of a rule and whether it is lexical parser.
+			 */
+			public void setCurrentRuleType(int ruleType) {
+				this._currentRuleType = ruleType;
+			}
+		}
+		END
+		:actions($a)
+	);
 
-		done-testing;
-	}, Q{import};
-
-	subtest {
-		$parsed = $g.parse(
-			Q:to{END},
-parser grammar Christmas;
-@members {
-	/** Track whether we are inside of a rule and whether it is lexical parser.
-	 */
-	public void setCurrentRuleType(int ruleType) {
-		this._currentRuleType = ruleType;
-	}
-}
-END
-			:actions($a)
-		);
-
-		is-deeply $parsed.ast, {
-			type   => Q{parser},
-			name   => Q{Christmas},
-			option => { },
-			import => { },
-			token  => { },
-			action => {
-				name => '@members',
-				body => Q:to{END}.chomp
+	is-deeply $parsed.ast.<action>, {
+		name => '@members',
+		body => Q:to{END}.chomp
 {
 	/** Track whether we are inside of a rule and whether it is lexical parser.
 	 */
@@ -195,12 +141,6 @@ END
 	}
 }
 END
-			},
-			rule   => { },
-			mode   => { }
-		}, Q{action};
-
-		done-testing;
 	}, Q{action};
 
 	done-testing;
@@ -211,6 +151,7 @@ END
 # '-> more' &c are per-alternative, not at the rule level.
 # '<assoc=right> are also per-alternative.
 subtest {
+#`(
 	$parsed = $g.parse(
 		Q:to{END},
 parser grammar Christmas;
@@ -309,90 +250,64 @@ END
 			}
 		}
 	}, Q{single import, no rule bodies};
+)
 
 	done-testing;
 }, Q{rule-level settings};
 
-subtest {
-	$parsed = $g.parse(
-		Q:to{END},
-grammar Christmas;
-plain : 'literal' ;
-END
-		:actions($a)
-	);
+$parsed = $g.parse(
+	Q:to{END},
+	grammar Christmas;
+	plain : 'literal' ;
+	END
+	:actions($a)
+);
 
-	is-deeply $parsed.ast, {
-		type   => Any,
-		name   => Q{Christmas},
-		option => { },
-		import => { },
-		token  => { },
-		action => { },
-		rule   => {
-			plain => {
-				type    => Any,
-				throw   => Any,
-				return  => Any,
-				action  => Any,
-				local   => Any,
-				option  => Any,
-				catch   => Any,
-				finally => Any,
-				term    => [ {
-					name => 'literal',
-					type => 'terminal'
-				} ]
-			},
-		},
-		mode   => { }
-	}, Q{single literal};
-
-	done-testing;
+is-deeply $parsed.ast.<rule><plain>, {
+	type    => Any,
+	throw   => Any,
+	return  => Any,
+	action  => Any,
+	local   => Any,
+	option  => Any,
+	catch   => Any,
+	finally => Any,
+	term    => {
+		type => 'concatenation',
+		term => [ {
+			name => 'literal',
+			type => 'terminal'
+		} ]
+	}
 }, Q{single literal};
 
-subtest {
-	$parsed = $g.parse(
-		Q:to{END},
-grammar Christmas;
-plain : 'literal' | 'another literal' ;
-END
-		:actions($a)
-	);
+$parsed = $g.parse(
+	Q:to{END},
+	grammar Christmas;
+	plain : 'literal' | 'another literal' ;
+	END
+	:actions($a)
+);
 
-	is-deeply $parsed.ast, {
-		type   => Any,
-		name   => Q{Christmas},
-		option => { },
-		import => { },
-		token  => { },
-		action => { },
-		rule   => {
-			plain => {
-				type    => Any,
-				throw   => Any,
-				return  => Any,
-				action  => Any,
-				local   => Any,
-				option  => Any,
-				catch   => Any,
-				finally => Any,
-				term    => [ {
-					type => 'alternation',
-					term => [ {
-						name => 'literal',
-						type => 'terminal'
-					}, {
-						type => 'terminal',
-						name => 'another literal'
-					} ]
-				} ]
-			},
-		},
-		mode   => { }
-	}, Q{single alternation};
-
-	done-testing;
+is-deeply $parsed.ast.<rule><plain>, {
+	type    => Any,
+	throw   => Any,
+	return  => Any,
+	action  => Any,
+	local   => Any,
+	option  => Any,
+	catch   => Any,
+	finally => Any,
+	term    => {
+		type => 'alternation',
+		term => [ {
+			name => 'literal',
+			type => 'terminal'
+		}, {
+			type => 'terminal',
+			name => 'another literal'
+		} ]
+	}
 }, Q{single alternation};
 
 # vim: ft=perl6

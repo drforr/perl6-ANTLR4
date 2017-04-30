@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Actions::Perl6;
 use Test;
 
-plan 2;
+plan 3;
 
 my $p = ANTLR4::Actions::Perl6.new;
 my $parsed;
@@ -61,13 +61,21 @@ subtest {
 	END
 
 	done-testing;
-
 }, 'Grammar and its top-level options';
 
 subtest {
+	$parsed = $p.parse( q{grammar Minimal; number : ;} );
+
+	is $parsed.perl6, Q:to{END}.chomp, Q{basic rule};
+	grammar Minimal {
+		rule number {
+		}
+	}
+	END
+
 	$parsed = $p.parse( q{grammar Minimal; fragment number : ;} );
 
-	is $parsed.perl6, Q:to{END}.chomp, Q{type};
+	is $parsed.perl6, Q:to{END}.chomp, Q{rule fragment};
 	grammar Minimal {
 		#|{ "type" : "fragment" }
 		rule number {
@@ -145,7 +153,7 @@ subtest {
 		q{grammar Minimal; number : ; finally {amount=1} }
 	);
 
-	is $parsed.perl6, Q:to{END}.chomp, Q{catch};
+	is $parsed.perl6, Q:to{END}.chomp, Q{finally};
 	grammar Minimal {
 		#|{ "finally" : "{amount=1}" }
 		rule number {
@@ -156,18 +164,16 @@ subtest {
 	done-testing;
 }, 'Options surrounding single empty rule (legal in ANTLR)';
 
-#`(
 $parsed = $p.parse(
 	q{grammar Minimal; statement : 'SELECT' ;}
 );
 
-is $parsed.perl6, Q:to{END}.chomp, Q{catch};
+is $parsed.perl6, Q:to{END}.chomp, Q{single statement};
 grammar Minimal {
 	rule statement {
 		'SELECT'
 	}
 }
 END
-)
 
 # vim: ft=perl6
