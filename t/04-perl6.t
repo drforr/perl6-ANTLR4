@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Actions::Perl6;
 use Test;
 
-plan 3;
+plan 5;
 
 my $p = ANTLR4::Actions::Perl6.new;
 my $parsed;
@@ -176,12 +176,11 @@ grammar Minimal {
 }
 END
 
-#`(
 $parsed = $p.parse(
 	q{grammar Minimal; statement : 'SELECT' '*' ;}
 );
 
-is $parsed.perl6, Q:to{END}.chomp, Q{single statement};
+is $parsed.perl6, Q:to{END}.chomp, Q{compound statement};
 grammar Minimal {
 	rule statement {
 		'SELECT'
@@ -189,6 +188,18 @@ grammar Minimal {
 	}
 }
 END
-)
+
+$parsed = $p.parse(
+	q{grammar Minimal; statement : 'SELECT' | 'UPDATE' ;}
+);
+
+is $parsed.perl6, Q:to{END}.chomp, Q{compound statement};
+grammar Minimal {
+	rule statement {
+		| 'SELECT'
+		| 'UPDATE'
+	}
+}
+END
 
 # vim: ft=perl6

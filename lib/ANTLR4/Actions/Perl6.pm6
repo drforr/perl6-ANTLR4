@@ -113,24 +113,18 @@ class ANTLR4::Actions::Perl6 {
 
 	method term( $ast ) {
 		my @term;
-		if $ast ~~ Array {
-			given $ast.[1]<type> { # XXX ...
-				when 'terminal' {
-					@term.append(
-						qq{'$ast.[0]<name>'}
-						
-					)
+		given $ast.<type> {
+			when 'terminal' {
+				@term.append( qq{'$ast.<name>'} );
+			}
+			when 'alternation' {
+				for @( $ast.<term> ) -> $term {
+					@term.append( '| ' ~ self.term( $term ) )
 				}
 			}
-		}
-		else {
-			given $ast.<term>.<type> {
-				when 'alternation' {
-				}
-				when 'concatenation' {
-					@term.append(
-						self.term( $ast.<term><term> )
-					)
+			when 'concatenation' {
+				for @( $ast.<term> ) -> $term {
+					@term.append( self.term( $term ) )
 				}
 			}
 		}
@@ -142,7 +136,7 @@ class ANTLR4::Actions::Perl6 {
 		for $ast.keys -> $name {
 			my @term;
 			@term.append(
-				self.term( $ast.{$name} )
+				self.term( $ast.{$name}.<term> )
 			);
 			@rule.append(
 				self.to-json-comment(
