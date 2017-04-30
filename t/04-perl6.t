@@ -176,4 +176,19 @@ grammar Minimal {
 }
 END
 
+#`(
+$parsed = $p.parse(
+	q{grammar Minimal; statement : 'SELECT' '*' ;}
+);
+
+is $parsed.perl6, Q:to{END}.chomp, Q{single statement};
+grammar Minimal {
+	rule statement {
+		'SELECT'
+		'*'
+	}
+}
+END
+)
+
 # vim: ft=perl6

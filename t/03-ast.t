@@ -3,7 +3,7 @@ use Test;
 use ANTLR4::Grammar;
 use ANTLR4::Actions::AST;
 
-plan 5;
+plan 6;
 
 my $a = ANTLR4::Actions::AST.new;
 my $g = ANTLR4::Grammar.new;
@@ -258,56 +258,55 @@ END
 $parsed = $g.parse(
 	Q:to{END},
 	grammar Christmas;
-	plain : 'literal' ;
+	plain : 'SELECT' ;
 	END
 	:actions($a)
 );
 
-is-deeply $parsed.ast.<rule><plain>, {
-	type    => Any,
-	throw   => Any,
-	return  => Any,
-	action  => Any,
-	local   => Any,
-	option  => Any,
-	catch   => Any,
-	finally => Any,
-	term    => {
-		type => 'concatenation',
-		term => [ {
-			name => 'literal',
-			type => 'terminal'
-		} ]
-	}
+is-deeply $parsed.ast.<rule><plain><term>, {
+	type => 'concatenation',
+	term => [ {
+		name => 'SELECT',
+		type => 'terminal'
+	}, ]
 }, Q{single literal};
 
 $parsed = $g.parse(
 	Q:to{END},
 	grammar Christmas;
-	plain : 'literal' | 'another literal' ;
+	plain : 'SELECT' '*' ;
 	END
 	:actions($a)
 );
 
-is-deeply $parsed.ast.<rule><plain>, {
-	type    => Any,
-	throw   => Any,
-	return  => Any,
-	action  => Any,
-	local   => Any,
-	option  => Any,
-	catch   => Any,
-	finally => Any,
-	term    => {
-		type => 'alternation',
-		term => [ {
-			name => 'literal',
-			type => 'terminal'
-		}, {
-			type => 'terminal',
-			name => 'another literal'
-		} ]
-	}
-}, Q{single alternation};
+is-deeply $parsed.ast.<rule><plain><term>, {
+	type => 'concatenation',
+	term => [ {
+		name => 'SELECT',
+		type => 'terminal'
+	}, {
+		name => '*',
+		type => 'terminal'
+	} ]
+}, Q{two literals};
+
+$parsed = $g.parse(
+	Q:to{END},
+	grammar Christmas;
+	plain : 'SELECT' | 'UPDATE' ;
+	END
+	:actions($a)
+);
+
+is-deeply $parsed.ast.<rule><plain><term>, {
+	type => 'alternation',
+	term => [ {
+		name => 'SELECT',
+		type => 'terminal'
+	}, {
+		type => 'terminal',
+		name => 'UPDATE'
+	} ]
+}, Q{two alternatives};
 
 # vim: ft=perl6

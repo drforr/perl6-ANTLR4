@@ -245,12 +245,18 @@ class ANTLR4::Actions::AST {
 	}
 
 	method parserElement( $/ ) {
-		make $/<element> ??
-			$/<element>[0]<atom><terminal>.ast !!
-			Any;
+		my @element;
+		for $/<element> -> $element {
+			@element.push(
+				$element<atom><terminal>.ast
+			);
+		}
+		make @element;
 	}
 
 	method parserAltList( $/ ) {
+		# If there's only one alternative, return a concatenation.
+		#
 		if $/<parserAlt>.elems == 1 and
 			$/<parserAlt>[0]<parserElement><element> {
 			make {
@@ -263,7 +269,8 @@ class ANTLR4::Actions::AST {
 		elsif $/<parserAlt>.elems > 1 {
 			my @parserElement;
 			for $/<parserAlt> -> $parserElement {
-				@parserElement.push(
+				#@parserElement.push(
+				@parserElement.append(
 					$parserElement<parserElement>.ast
 				);
 			}
