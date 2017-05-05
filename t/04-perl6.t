@@ -189,6 +189,18 @@ subtest {
 	}
 	END
 
+	$parsed = $p.parse(
+		q{grammar Minimal; statement : . ;}
+	);
+
+	is $parsed.perl6, Q:to{END}.chomp, Q{nonterminal};
+	grammar Minimal {
+		rule statement {
+			.
+		}
+	}
+	END
+
 	done-testing;
 }, Q{single term};
 

@@ -114,6 +114,9 @@ class ANTLR4::Actions::Perl6 {
 	method term( $ast ) {
 		my @term;
 		given $ast.<type> {
+			when 'wildcard' {
+				@term.append( qq{.} );
+			}
 			when 'terminal' {
 				@term.append( qq{'$ast.<name>'} );
 			}

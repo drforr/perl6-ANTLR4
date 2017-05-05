@@ -250,10 +250,27 @@ class ANTLR4::Actions::AST {
 				name => $/<scalar>.Str
 			};
 		}
+		else {
+			die "Shouldn't happen, please report this error.";
+		}
+	}
+	method DOT( $/ ) {
+		make {
+			type => 'wildcard',
+			name => '.'
+		};
 	}
 
 	method atom( $/ ) {
-		make $/<terminal>.ast
+		if $/<terminal> {
+			make $/<terminal>.ast
+		}
+		elsif $/<DOT> {
+			make $/<DOT>.ast
+		}
+		else {
+			die "Shouldn't happen, please report this error.";
+		}
 	}
 
 	method parserElement( $/ ) {

@@ -288,6 +288,22 @@ subtest {
 		}, ]
 	}, Q{non-terminal};
 
+	$parsed = $g.parse(
+		Q:to{END},
+		grammar Christmas;
+		plain : . ;
+		END
+		:actions($a)
+	);
+
+	is-deeply $parsed.ast.<rule><plain><term>, {
+		type => 'concatenation',
+		term => [ {
+			name => '.',
+			type => 'wildcard'
+		}, ]
+	}, Q{wildcard ('.')};
+
 	done-testing;
 }, Q{single term};
 
