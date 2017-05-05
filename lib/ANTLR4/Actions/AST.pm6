@@ -238,18 +238,28 @@ class ANTLR4::Actions::AST {
 	}
 
 	method terminal( $/ ) {
-		make {
-			type => 'terminal',
-			name => $/<STRING_LITERAL>[0].Str
-		};
+		if $/<STRING_LITERAL> {
+			make {
+				type => 'terminal',
+				name => $/<STRING_LITERAL>[0].Str
+			};
+		}
+		elsif $/<scalar> {
+			make {
+				type => 'nonterminal',
+				name => $/<scalar>.Str
+			};
+		}
+	}
+
+	method atom( $/ ) {
+		make $/<terminal>.ast
 	}
 
 	method parserElement( $/ ) {
 		my @element;
 		for $/<element> -> $element {
-			@element.push(
-				$element<atom><terminal>.ast
-			);
+			@element.push( $element<atom>.ast );
 		}
 		make @element;
 	}
