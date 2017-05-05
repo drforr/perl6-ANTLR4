@@ -117,9 +117,14 @@ class ANTLR4::Actions::Perl6 {
 			when 'terminal' {
 				@term.append( qq{'$ast.<name>'} );
 			}
+			when 'nonterminal' {
+				@term.append( qq{<$ast.<name>>} );
+			}
 			when 'alternation' {
 				for @( $ast.<term> ) -> $term {
-					@term.append( '| ' ~ self.term( $term ) )
+					@term.append(
+						'| ' ~ self.term( $term )
+					)
 				}
 			}
 			when 'concatenation' {

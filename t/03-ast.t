@@ -287,6 +287,8 @@ subtest {
 			type => 'nonterminal'
 		}, ]
 	}, Q{non-terminal};
+
+	done-testing;
 }, Q{single term};
 
 $parsed = $g.parse(
