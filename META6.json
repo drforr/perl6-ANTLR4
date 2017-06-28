@@ -36,6 +36,6 @@
       "Jeffrey Goff <drforr@pobox.com>"
    ],
    "version" : "0.0.5",
-   "license" : "Artistic",
+   "license" : "Artistic-2.0",
    "description" : "Turn ANTLR4 Grammars into Perl 6 Grammars"
 }
