@@ -16,16 +16,14 @@
       "ANTLR4::Actions::Perl6" : "lib/ANTLR4/Actions/Perl6.pm6"
    },
    "test-depends" : [
-      "Test"
+      "Test",
+      "JSON::Tiny"
    ],
    "support" : {
       "source" : "https://github.com/drforr/perl6-ANTLR4"
    },
    "perl" : "6.c",
    "build-depends" : [],
-   "test-depends" : [
-       "JSON::Tiny"
-   ],
    "auth" : "github:drforr",
    "source-url" : "https://github.com/drforr/perl6-ANTLR4.git",
    "depends" : [
