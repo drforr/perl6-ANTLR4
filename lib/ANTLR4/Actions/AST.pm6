@@ -254,10 +254,22 @@ class ANTLR4::Actions::AST {
 			die "Shouldn't happen, please report this error.";
 		}
 	}
+
 	method DOT( $/ ) {
 		make {
 			type => 'wildcard',
 			name => '.'
+		};
+	}
+
+	method setElement( $/ ) {
+		make $/<terminal><STRING_LITERAL>[0];
+	}
+
+	method notSet( $/ ) {
+		make {
+			type => 'negatedSet',
+			term => [ $/<setElement>.ast ]
 		};
 	}
 
@@ -267,6 +279,9 @@ class ANTLR4::Actions::AST {
 		}
 		elsif $/<DOT> {
 			make $/<DOT>.ast
+		}
+		elsif $/<notSet> {
+			make $/<notSet>.ast
 		}
 		else {
 			die "Shouldn't happen, please report this error.";
@@ -296,7 +311,6 @@ class ANTLR4::Actions::AST {
 		elsif $/<parserAlt>.elems > 1 {
 			my @parserElement;
 			for $/<parserAlt> -> $parserElement {
-				#@parserElement.push(
 				@parserElement.append(
 					$parserElement<parserElement>.ast
 				);
@@ -349,6 +363,12 @@ class ANTLR4::Actions::AST {
 			%option, %import, %token, %action,
 			%rule, %mode
 		);
+
+		# Accumulate options &c in a single loop.
+		# There may be other prequel constructs we don't need to
+		# handle here, so for...when is fine, as the default case
+		# doesn't need to be managed.
+		#
 		for $/<prequelConstruct> -> $prequel {
 			when $prequel.<optionsSpec> {
 				%option =

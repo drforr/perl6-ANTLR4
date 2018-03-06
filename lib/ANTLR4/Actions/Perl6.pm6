@@ -135,6 +135,15 @@ class ANTLR4::Actions::Perl6 {
 					@term.append( self.term( $term ) )
 				}
 			}
+			when 'negatedSet' {
+				@term.append(
+					'<-[ ' ~
+						join( ' ',
+							@( $ast.<term> )
+						) ~
+					' ]>'
+				);
+			}
 			default {
 				die "Unhandled terminal type '$ast.<type>'";
 			}

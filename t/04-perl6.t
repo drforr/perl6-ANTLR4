@@ -201,6 +201,47 @@ subtest {
 	}
 	END
 
+        #|	'//' ~[\r\n]* # add later
+	$parsed = $p.parse(
+		q{grammar Minimal; statement : ~'C' ;}
+	);
+
+	is $parsed.perl6, Q:to{END}.chomp, Q{negated set element};
+	grammar Minimal {
+		rule statement {
+			<-[ C ]>
+		}
+	}
+	END
+
+#`(
+	$parsed = $p.parse(
+		q{grammar Minimal; statement : ~[CD] ;}
+	);
+
+	is $parsed.perl6, Q:to{END}.chomp, Q{negated set};
+	grammar Minimal {
+		rule statement {
+			<-[ C D ]>
+		}
+	}
+	END
+)
+
+#`(
+	$parsed = $p.parse(
+		q{grammar Minimal; statement : ~[\r\n] ;}
+	);
+
+	is $parsed.perl6, Q:to{END}.chomp, Q{negated escaped set};
+	grammar Minimal {
+		rule statement {
+			<-[ \r \n ]>
+		}
+	}
+	END
+)
+
 	done-testing;
 }, Q{single term};
 
