@@ -53,7 +53,8 @@ class Alternation {
 	method to-lines {
 		my @content;
 		for @.content {
-			@content.append( map { '|| ' ~ $_ }, $_.to-lines );
+			# XXX The (()) is a cue to where the indent will happen.
+			@content.append( '||', '((', $_.to-lines, '))' );
 		}
 		@content.flat
 	}
