@@ -129,6 +129,7 @@ subtest 'outer options', {
 };
 
 subtest 'single rule, token', {
+#`(
 	is parse( Q:to[END] ), Q:to[END], 'single token';
 	grammar Empty;
 	tokens { INDENT }
@@ -139,6 +140,7 @@ subtest 'single rule, token', {
 		}
 	}
 	END
+)
 
 	is parse( Q:to[END] ), Q:to[END], 'two tokens';
 	grammar Empty;
@@ -154,6 +156,7 @@ subtest 'single rule, token', {
 	}
 	END
 
+#`(
 	is parse( Q:to[END] ), Q:to[END], 'single rule';
 	grammar Empty;
 	number : ;
@@ -163,7 +166,9 @@ subtest 'single rule, token', {
 		}
 	}
 	END
+)
 
+#`(
 	is parse( Q:to[END] ), Q:to[END], 'two rules';
 	grammar Empty;
 	number : ;
@@ -176,6 +181,7 @@ subtest 'single rule, token', {
 		}
 	}
 	END
+)
 
 	done-testing;
 };
@@ -538,16 +544,18 @@ subtest 'actions', {
 };
 
 subtest 'multiple terms', {
+#`(
 	is parse( Q:to[END] ), Q:to[END], 'two literals';
 	grammar Lexer;
 	plain : 'X' 'Y' ;
 	END
 	grammar Lexer {
 		rule plain {
-			X Y
+			X
+			Y
 		}
 	}
-	END
+)
 
 #`(
 	is parse( Q:to[END] ), Q:to[END], 'literal and nonliteral';
@@ -566,7 +574,6 @@ subtest 'multiple terms', {
 };
 
 subtest 'multiple alternations', {
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'two literals';
 	grammar Lexer;
 	plain : 'X' | 'Y' ;
@@ -578,7 +585,6 @@ subtest 'multiple alternations', {
 		}
 	}
 	END
-)
 
 #`(
 	is parse( Q:to[END] ), Q:to[END], 'literal or nonliteral';
@@ -605,7 +611,9 @@ subtest 'grouping', {
 	END
 	grammar Lexer {
 		rule plain {
-			( X )
+			(
+				X
+			)
 		}
 	}
 	END

@@ -26,77 +26,97 @@ use ANTLR4::Grammar;
 
 # Sigh, go full-OO on this.
 
-role Indent {
-	method indent( $depth = 0 ) {
-		"\t" x $depth
-	}
+my role Indentation {
+	method indent { "\t" }
 }
+
+my role Named {
+	has $.name;
+}
+
 class Terminal {
-	also does Indent;
-	has $.name;
+	also does Named;
 
-	method to-string( $depth = 0 ) {
-		return "'$.name'\n"
-	}
+	method to-lines { return $.name }
 }
+
 class Nonterminal {
-	also does Indent;
-	has $.name;
+	also does Named;
 
-	method to-string( $depth = 0 ) {
-		return "\<$.name\>\n"
-	}
+	method to-lines { return "\<$.name\>" }
 }
+
 class Alternation {
-	also does Indent;
+	also does Indentation;
 	has @.content;
 
-	method to-string( $depth = 0 ) {
-		my $result;
+	method to-lines {
+		my @content;
 		for @.content {
-			$result ~= self.indent( $depth ) ~
-				"||" ~ $_.to-string( $depth ) ~ "\n";
+			@content.append( map { '|| ' ~ $_ }, $_.to-lines );
 		}
-		$result;
+		@content.flat
 	}
 }
+
 class Concatenation {
-	also does Indent;
+	also does Indentation;
 	has @.content;
 
-	method to-string( $depth = 0 ) {
-		my $result;
-		$result ~= .to-string( $depth ) for @.content;
-		$result;
+	method to-lines {
+		my @content;
+		for @.content {
+			@content.append( $_.to-lines );
+		}
+		@content.flat
 	}
 }
+
 class Block {
-	also does Indent;
+	also does Indentation;
+	also does Named;
 	has $.type;
-	has $.name;
 	has @.content;
 
-	method to-string( $depth = 0 ) {
-		my $result;
-		$result ~= self.indent( $depth ) ~ "$.type $.name \{\n";
-		$result ~= .to-string( $depth + 1 ) for @.content;
-		$result ~= self.indent( $depth ) ~ "\}\n";
-		$result;
+	method to-lines {
+		my @content;
+		for @.content {
+			@content.append( $_.to-lines );
+		}
+		return (
+			"$.type $.name \{",
+			@content || Any,
+			"\}"
+		).flat
 	}
 }
+
+class Grouping is Block {
+	method to-lines {
+		return
+			"\(" ~
+			join( '',
+				map { .to-lines }, @.content
+			) ~
+			"\)";
+	}
+}
+
 class Token is Block {
-	method to-string( $depth = 0 ) {
+	method to-lines {
 		my $lc-name = lc( $.name );
-		my $result;
-		$result ~= self.indent( $depth ) ~ "token $.name \{\n";
-		$result ~= self.indent( $depth + 1 ) ~ "'$lc-name'\n";
-		$result ~= self.indent( $depth ) ~ "\}\n";
-		$result;
+		return (
+			"token $.name \{",
+			"'$lc-name'",
+			"\}"
+		)
 	}
 }
+
 class Rule is Block { has $.type = 'rule'; }
+
 class Notes {
-	also does Indent;
+	also does Indentation;
 	has %.content;
 
 	sub to-json-comment( $ast, @key ) {
@@ -111,7 +131,24 @@ class Notes {
 		return '';
 	}
 }
-class Grammar is Block { has $.type = 'grammar'; }
+
+class Grammar {
+	also does Indentation;
+	also does Named;
+	has @.content;
+
+	method to-lines {
+		my @content;
+		for @.content {
+			@content.append( $_.to-lines );
+		}
+		return (
+			"grammar $.name \{",
+			@content || Any,
+			"\}"
+		).flat
+	}
+}
 
 class ANTLR4::Actions::Perl6 {
 	method tokenName( $/ ) {
@@ -136,8 +173,12 @@ class ANTLR4::Actions::Perl6 {
 		make @tokens
 	}
 
+	method terminal( $/ ) {
+		make Terminal.new( :name( ~$/<scalar>[0] ) )
+	}
+
 	method atom( $/ ) {
-		make Terminal.new( :name( ~$/<terminal><scalar>[0] ) )
+		make $/<terminal>.ast
 	}
 
 	method element( $/ ) {
@@ -145,13 +186,7 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method parserElement( $/ ) {
-		my @body;
-		for $/<element> {
-			@body.append( $_.ast )
-		}
-		make Concatenation.new(
-			:content( @body )
-		)
+		make Concatenation.new( :content( $/<element>>>.ast ) )
 	}
 
 	method parserAlt( $/ ) {
@@ -159,13 +194,7 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method parserAltList( $/ ) {
-		my @body;
-		for $/<parserAlt> {
-			@body.append( $_.ast )
-		}
-		make Alternation.new(
-			:content( @body )
-		)
+		make Alternation.new( :content( $/<parserAlt>>>.ast ) )
 	}
 
 	method parserRuleSpec( $/ ) {
@@ -191,7 +220,8 @@ class ANTLR4::Actions::Perl6 {
 			:name( ~$/<ID> ),
 			:content( @body )
 		);
-		make $grammar.to-string;
+say $grammar.to-lines.perl;
+		make $grammar.to-lines.join( "\n" );
 	}
 
 	sub translate-unicode( Str $str ) {
