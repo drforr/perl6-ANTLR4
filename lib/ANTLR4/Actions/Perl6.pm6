@@ -31,6 +31,45 @@ role Indent {
 		"\t" x $depth
 	}
 }
+class Terminal {
+	also does Indent;
+	has $.name;
+
+	method to-string( $depth = 0 ) {
+		return "'$.name'\n"
+	}
+}
+class Nonterminal {
+	also does Indent;
+	has $.name;
+
+	method to-string( $depth = 0 ) {
+		return "\<$.name\>\n"
+	}
+}
+class Alternation {
+	also does Indent;
+	has @.content;
+
+	method to-string( $depth = 0 ) {
+		my $result;
+		for @.content {
+			$result ~= self.indent( $depth ) ~
+				"||" ~ $_.to-string( $depth ) ~ "\n";
+		}
+		$result;
+	}
+}
+class Concatenation {
+	also does Indent;
+	has @.content;
+
+	method to-string( $depth = 0 ) {
+		my $result;
+		$result ~= .to-string( $depth ) for @.content;
+		$result;
+	}
+}
 class Block {
 	also does Indent;
 	has $.type;
@@ -50,8 +89,7 @@ class Token is Block {
 		my $lc-name = lc( $.name );
 		my $result;
 		$result ~= self.indent( $depth ) ~ "token $.name \{\n";
-		$result ~= self.indent( $depth + 1 ) ~ "'" ~ $lc-name ~ "'\n";
-#		$result ~= "'" ~ $lc-name ~ "'\n";
+		$result ~= self.indent( $depth + 1 ) ~ "'$lc-name'\n";
 		$result ~= self.indent( $depth ) ~ "\}\n";
 		$result;
 	}
@@ -90,17 +128,50 @@ class ANTLR4::Actions::Perl6 {
 
 	method prequelConstruct( $/ ) {
 		my @tokens;
-		for $/ -> $prequel {
-			when $prequel<tokensSpec> {
-				@tokens.append( $prequel<tokensSpec>.ast );
+		for $/ {
+			when $_.<tokensSpec> {
+				@tokens.append( $_.<tokensSpec>.ast );
 			}
 		}
 		make @tokens
 	}
 
+	method atom( $/ ) {
+		make Terminal.new( :name( ~$/<terminal><scalar>[0] ) )
+	}
+
+	method element( $/ ) {
+		make $/<atom>.ast
+	}
+
+	method parserElement( $/ ) {
+		my @body;
+		for $/<element> {
+			@body.append( $_.ast )
+		}
+		make Concatenation.new(
+			:content( @body )
+		)
+	}
+
+	method parserAlt( $/ ) {
+		make $/<parserElement>.ast
+	}
+
+	method parserAltList( $/ ) {
+		my @body;
+		for $/<parserAlt> {
+			@body.append( $_.ast )
+		}
+		make Alternation.new(
+			:content( @body )
+		)
+	}
+
 	method parserRuleSpec( $/ ) {
 		make Rule.new(
-			:name( ~$/<ID> )
+			:name( ~$/<ID> ),
+			:content( $/<parserAltList>.ast )
 		)
 	}
 

@@ -538,7 +538,6 @@ subtest 'actions', {
 };
 
 subtest 'multiple terms', {
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'two literals';
 	grammar Lexer;
 	plain : 'X' 'Y' ;
@@ -549,7 +548,6 @@ subtest 'multiple terms', {
 		}
 	}
 	END
-)
 
 #`(
 	is parse( Q:to[END] ), Q:to[END], 'literal and nonliteral';
