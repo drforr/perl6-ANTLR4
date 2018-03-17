@@ -256,7 +256,6 @@ subtest 'modes', {
 };
 
 subtest 'lexer rule with single term', {
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'token';
 	grammar Lexer;
 	plain : T ;
@@ -267,7 +266,6 @@ subtest 'lexer rule with single term', {
 		}
 	}
 	END
-)
 
 #`(
 	is parse( Q:to[END] ), Q:to[END], 'literal';

@@ -43,7 +43,7 @@ class Terminal {
 class Nonterminal {
 	also does Named;
 
-	method to-lines { return "\<$.name\>" }
+	method to-lines { return "<$.name>" }
 }
 
 class Alternation {
@@ -53,7 +53,7 @@ class Alternation {
 	method to-lines {
 		my @content;
 		for @.content {
-			# XXX The (()) is a cue to where the indent will happen.
+			# XXX The (() is a cue to where the indent will happen.
 			@content.append( '||', '((', $_.to-lines, '))' );
 		}
 		@content.flat
@@ -174,8 +174,18 @@ class ANTLR4::Actions::Perl6 {
 		make @tokens
 	}
 
+	# A lovely quirk of the ANTLR grammar is that nonterminals are actually
+	# just a variant of the terminal, because ANTLR internally divides
+	# lexer and parser grammars, and lexers can't have parser terms
+	# so it's not notated separately.
+	#
 	method terminal( $/ ) {
-		make Terminal.new( :name( ~$/<scalar>[0] ) )
+		if $/<ID> {
+			make Nonterminal.new( :name( ~$/<ID> ) )
+		}
+		else {
+			make Terminal.new( :name( ~$/<scalar>[0] ) )
+		}
 	}
 
 	method atom( $/ ) {
@@ -210,6 +220,7 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method TOP( $/ ) {
+say $/;
 		my @body;
 		for $/<prequelConstruct> {
 			@body.append( $_.ast )
