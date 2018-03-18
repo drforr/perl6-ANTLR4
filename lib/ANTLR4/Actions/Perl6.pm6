@@ -219,6 +219,12 @@ class ANTLR4::Actions::Perl6 {
 		)
 	}
 
+	method lexerAtom( $/ ) {
+make CharacterSet.new(
+	:content( 'a', 'b' )
+);
+	}
+
 	method atom( $/ ) {
 		if $/<DOT> {
 			make Wildcard.new;
@@ -239,16 +245,18 @@ class ANTLR4::Actions::Perl6 {
 		make Concatenation.new( :content( $/<element>>>.ast ) )
 	}
 
-	method lexerElement( $/ ) {
-make CharacterSet.new( :content( < a b c> ) )
-	}
-
 	method parserAlt( $/ ) {
 		make $/<parserElement>.ast
 	}
 
 	method lexerAlt( $/ ) {
-		make $/<lexerElement>>>.ast
+		my @content;
+		for $/<lexerElement>[0]<lexerAtom><LEXER_CHAR_SET> {
+			@content.append( ~$_[0] )
+		}
+		make CharacterSet.new(
+			:content( @content )
+		)
 	}
 
 	method parserAltList( $/ ) {
@@ -274,14 +282,12 @@ make CharacterSet.new( :content( < a b c> ) )
 	}
 
 	method ruleSpec( $/ ) {
-#		make $/<parserRuleSpec>.ast
 		make $/<parserRuleSpec> ??
 			$/<parserRuleSpec>.ast !!
 			$/<lexerRuleSpec>.ast
 	}
 
 	method TOP( $/ ) {
-#say $/;
 		my @body;
 		for $/<prequelConstruct> {
 			@body.append( $_.ast )
@@ -293,7 +299,6 @@ make CharacterSet.new( :content( < a b c> ) )
 			:name( ~$/<ID> ),
 			:content( @body )
 		);
-#say $grammar.to-lines.perl;
 		make $grammar.to-lines.join( "\n" );
 	}
 

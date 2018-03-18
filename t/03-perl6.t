@@ -272,7 +272,6 @@ subtest 'lexer rule with single term', {
 	}
 	END
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'char set';
 	grammar Lexer;
 	plain : [char set] ;
@@ -283,7 +282,6 @@ subtest 'lexer rule with single term', {
 		}
 	}
 	END
-)
 
 	# XXX don't forget escaped characters
 
