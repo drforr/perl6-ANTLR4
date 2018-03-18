@@ -377,7 +377,6 @@ subtest 'lexer rule with single term', {
 };
 
 subtest 'modifiers', {
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'ques';
 	grammar Lexer;
 	plain : 'X'? ;
@@ -388,9 +387,7 @@ subtest 'modifiers', {
 		}
 	}
 	END
-)
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'star';
 	grammar Lexer;
 	plain : 'X'* ;
@@ -401,9 +398,7 @@ subtest 'modifiers', {
 		}
 	}
 	END
-)
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'plus';
 	grammar Lexer;
 	plain : 'X'+ ;
@@ -414,7 +409,6 @@ subtest 'modifiers', {
 		}
 	}
 	END
-)
 
 	done-testing;
 };

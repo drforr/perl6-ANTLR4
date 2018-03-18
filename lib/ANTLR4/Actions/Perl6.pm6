@@ -31,7 +31,9 @@ my role Named { has $.name; }
 class Terminal {
 	also does Named;
 
-	method to-lines { return $.name }
+	has $.modifier;
+
+	method to-lines { return $.name ~ $.modifier }
 }
 
 class Wildcard { method to-lines { return "." } }
@@ -207,26 +209,34 @@ class ANTLR4::Actions::Perl6 {
 		)
 	}
 
+	method blockSet( $/ ) {
+		my @content;
+		for $/<setElementAltList><setElement> {
+			@content.append( ~$_<terminal><scalar>[0] )
+		}
+		make CharacterSet.new(
+			:negated( True ),
+			:content( @content )
+		)
+	}
+
+	method setElement( $/ ) {
+		my @content;
+		for $/<LEXER_CHAR_SET> {
+			@content.append( $_ )
+		}
+		make CharacterSet.new(
+			:negated( True ),
+			:content( @content )
+		)
+	}
+
 	method notSet( $/ ) {
 		if $/<setElement><LEXER_CHAR_SET> {
-			my @content;
-			for $/<setElement><LEXER_CHAR_SET> {
-				@content.append( $_ )
-			}
-			make CharacterSet.new(
-				:negated( True ),
-				:content( @content )
-			)
+			make $/<setElement>.ast
 		}
 		elsif $/<blockSet> {
-			my @content;
-			for $/<blockSet><setElementAltList><setElement> {
-				@content.append( ~$_<terminal><scalar>[0] )
-			}
-			make CharacterSet.new(
-				:negated( True ),
-				:content( @content )
-			)
+			make $/<blockSet>.ast
 		}
 		else {
 			make CharacterSet.new(
@@ -266,7 +276,13 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method element( $/ ) {
-		if $/<atom> {
+		if $/<ebnfSuffix> {
+			make Terminal.new(
+				:modifier( ~$/<ebnfSuffix><MODIFIER> ),
+				:name( ~$/<atom><terminal><scalar>[0] )
+			)
+		}
+		elsif $/<atom> {
 			make $/<atom>.ast
 		}
 		elsif $/<ebnf> {
