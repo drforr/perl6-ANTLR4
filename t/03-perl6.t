@@ -355,11 +355,11 @@ subtest 'lexer rule with single term', {
 #`(
 		is parse( Q:to[END] ), Q:to[END], 'subrule';
 		grammar Lexer;
-		plain : ~('X'|'Y') ;
+		plain : ~('W'|'Y') ;
 		END
 		grammar Lexer {
 			rule plain {
-				<-[ X Y ]>
+				<-[ W Y ]>
 			}
 		}
 		END
@@ -583,7 +583,6 @@ subtest 'multiple alternations', {
 };
 
 subtest 'grouping', {
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'single terminal';
 	grammar Lexer;
 	plain : ( 'X' ) ;
@@ -596,9 +595,7 @@ subtest 'grouping', {
 		}
 	}
 	END
-)
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'single nonterminal';
 	grammar Lexer;
 	plain : ( X ) ;
@@ -611,9 +608,7 @@ subtest 'grouping', {
 		}
 	}
 	END
-)
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'two terms grouped';
 	grammar Lexer;
 	plain : ( 'X' 'Y' ) ;
@@ -627,7 +622,6 @@ subtest 'grouping', {
 		}
 	}
 	END
-)
 
 	done-testing;
 };

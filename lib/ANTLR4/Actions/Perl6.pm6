@@ -26,13 +26,7 @@ use ANTLR4::Grammar;
 
 # Sigh, go full-OO on this.
 
-my role Indentation {
-	method indent { "\t" }
-}
-
-my role Named {
-	has $.name;
-}
+my role Named { has $.name; }
 
 class Terminal {
 	also does Named;
@@ -58,17 +52,10 @@ class Range {
 class CharacterSet {
 	has @.content;
 
-	method to-lines {
-		return (
-			'<[',
-			@.content,
-			']>'
-		)
-	}
+	method to-lines { return ( '<[', @.content, ']>' ) }
 }
 
 class Alternation {
-	also does Indentation;
 	has @.content;
 
 	method to-lines {
@@ -82,7 +69,6 @@ class Alternation {
 }
 
 class Concatenation {
-	also does Indentation;
 	has @.content;
 
 	method to-lines {
@@ -95,8 +81,8 @@ class Concatenation {
 }
 
 class Block {
-	also does Indentation;
 	also does Named;
+
 	has $.type;
 	has @.content;
 
@@ -115,30 +101,24 @@ class Block {
 
 class Grouping is Block {
 	method to-lines {
-		return
-			"\(" ~
-			join( '',
-				map { .to-lines }, @.content
-			) ~
-			"\)";
+		my @content;
+		for @.content {
+			@content.append( $_.to-lines );
+		}
+		return ( "\(", @content || Any, "\)" )
 	}
 }
 
 class Token is Block {
 	method to-lines {
 		my $lc-name = lc( $.name );
-		return (
-			"token $.name \{",
-			"'$lc-name'",
-			"\}"
-		)
+		return ( "token $.name \{", "'$lc-name'", "\}" )
 	}
 }
 
 class Rule is Block { has $.type = 'rule'; }
 
 class Notes {
-	also does Indentation;
 	has %.content;
 
 	sub to-json-comment( $ast, @key ) {
@@ -158,8 +138,8 @@ class Notes {
 # and the grammar level is always the top level of the file.
 #
 class Grammar {
-	also does Indentation;
 	also does Named;
+
 	has @.content;
 
 	method to-lines {
@@ -167,11 +147,7 @@ class Grammar {
 		for @.content {
 			@content.append( $_.to-lines );
 		}
-		return (
-			"grammar $.name \{",
-			@content || Any,
-			"\}"
-		).flat
+		return ( "grammar $.name \{", @content || Any, "\}" ).flat
 	}
 }
 
@@ -219,12 +195,6 @@ class ANTLR4::Actions::Perl6 {
 		)
 	}
 
-	method lexerAtom( $/ ) {
-make CharacterSet.new(
-	:content( 'a', 'b' )
-);
-	}
-
 	method atom( $/ ) {
 		if $/<DOT> {
 			make Wildcard.new;
@@ -237,8 +207,29 @@ make CharacterSet.new(
 		}
 	}
 
+	method blockAltList( $/ ) {
+		make $/<parserElement>>>.ast
+	}
+
+	method block( $/ ) {
+		make $/<blockAltList>.ast
+	}
+
+	method ebnf( $/ ) {
+		make $/<block>.ast
+	}
+
 	method element( $/ ) {
-		make $/<atom>.ast
+		if $/<atom> {
+			make $/<atom>.ast
+		}
+		elsif $/<ebnf> {
+			make Grouping.new(
+				:content(
+					$/<ebnf>.ast
+				)
+			)
+		}
 	}
 
 	method parserElement( $/ ) {
@@ -251,8 +242,8 @@ make CharacterSet.new(
 
 	method lexerAlt( $/ ) {
 		my @content;
-		for $/<lexerElement>[0]<lexerAtom><LEXER_CHAR_SET> {
-			@content.append( ~$_[0] )
+		for $/<lexerElement> {
+			@content.append( ~$_<lexerAtom><LEXER_CHAR_SET>[0] )
 		}
 		make CharacterSet.new(
 			:content( @content )
