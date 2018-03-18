@@ -45,8 +45,14 @@ class Nonterminal {
 class Range {
 	has $.from;
 	has $.to;
+	has $.negated;
 
-	method to-lines { return "<[ $.from .. $.to ]>" }
+	method to-lines {
+		if $.negated {
+			return "<-[ $.from .. $.to ]>"
+		}
+		return "<[ $.from .. $.to ]>"
+	}
 }
 
 class CharacterSet {
@@ -202,12 +208,34 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method notSet( $/ ) {
-		make CharacterSet.new(
-			:negated( True ),
-			:content(
-				$/<setElement><terminal><STRING_LITERAL>[0]
+		if $/<setElement><LEXER_CHAR_SET> {
+			my @content;
+			for $/<setElement><LEXER_CHAR_SET> {
+				@content.append( $_ )
+			}
+			make CharacterSet.new(
+				:negated( True ),
+				:content( @content )
 			)
-		)
+		}
+		elsif $/<blockSet> {
+			my @content;
+			for $/<blockSet><setElementAltList><setElement> {
+				@content.append( ~$_<terminal><scalar>[0] )
+			}
+			make CharacterSet.new(
+				:negated( True ),
+				:content( @content )
+			)
+		}
+		else {
+			make CharacterSet.new(
+				:negated( True ),
+				:content(
+					$/<setElement><terminal><STRING_LITERAL>[0]
+				)
+			)
+		}
 	}
 
 	method atom( $/ ) {
@@ -256,8 +284,9 @@ class ANTLR4::Actions::Perl6 {
 			$/<element>[1]<atom><DOT> and
 			$/<element>[2]<atom><DOT> {
 			make Range.new(
-				:from( $/<element>[0]<atom><notSet><setElement><terminal><scalar>[0] ),
-				:to( $/<element>[3]<atom><terminal><scalar>[0] ),
+				:negated( True ),
+				:from( ~$/<element>[0]<atom><notSet><setElement><terminal><scalar>[0] ),
+				:to( ~$/<element>[3]<atom><terminal><scalar>[0] ),
 			)
 		}
 		else {
@@ -283,7 +312,6 @@ class ANTLR4::Actions::Perl6 {
 		for $/<lexerElement> {
 			@content.append( $_<lexerAtom>.ast )
 		}
-#say @content;
 		make CharacterSet.new(
 			:content( @content )
 		)

@@ -348,7 +348,6 @@ subtest 'lexer rule with single term', {
 		}
 		END
 
-#`(
 		is parse( Q:to[END] ), Q:to[END], 'subrule';
 		grammar Lexer;
 		plain : ~('W'|'Y') ;
@@ -359,9 +358,7 @@ subtest 'lexer rule with single term', {
 			}
 		}
 		END
-)
 
-#`(
 		is parse( Q:to[END] ), Q:to[END], 'set';
 		grammar Lexer;
 		plain : ~[ABZ] ;
@@ -372,7 +369,6 @@ subtest 'lexer rule with single term', {
 			}
 		}
 		END
-)
 
 		done-testing;
 	};
