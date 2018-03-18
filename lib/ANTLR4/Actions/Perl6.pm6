@@ -24,14 +24,24 @@ use v6;
 use JSON::Tiny;
 use ANTLR4::Grammar;
 
-# Sigh, go full-OO on this.
+my role Indenting {
+	method indent-line( $line ) {
+		if $line {
+			return "\t" ~ $line
+		}
+		return ''
+	}
+	method indent( @lines ) {
+		map { self.indent-line( $_ ) }, grep { /\S/ }, @lines
+	}
+}
 
 my role Named { has $.name; }
 
 class Terminal {
 	also does Named;
 
-	has $.modifier;
+	has $.modifier = '';
 
 	method to-lines { return $.name ~ $.modifier }
 }
@@ -41,7 +51,9 @@ class Wildcard { method to-lines { return "." } }
 class Nonterminal {
 	also does Named;
 
-	method to-lines { return "<$.name>" }
+	has $.modifier = '';
+
+	method to-lines { return "<$.name>" ~ $.modifier }
 }
 
 class Range {
@@ -50,10 +62,9 @@ class Range {
 	has $.negated;
 
 	method to-lines {
-		if $.negated {
-			return "<-[ $.from .. $.to ]>"
-		}
-		return "<[ $.from .. $.to ]>"
+		$.negated ??
+			"<-[ $.from .. $.to ]>" !!
+			"<[ $.from .. $.to ]>"
 	}
 }
 
@@ -62,21 +73,27 @@ class CharacterSet {
 	has $.negated;
 
 	method to-lines {
-		if $.negated {
-			return ( '<-[', @.content, ']>' )
-		}
-		return ( '<[', @.content, ']>' )
+		$.negated ??
+			"<-[ {@.content} ]>" !!
+			"<[ {@.content} ]>"
 	}
 }
 
 class Alternation {
+	also does Indenting;
+
 	has @.content;
 
 	method to-lines {
 		my @content;
 		for @.content {
-			# XXX The (() is a cue to where the indent will happen.
-			@content.append( '||', '((', $_.to-lines, '))' );
+			my @lines = $_.to-lines;
+			my $head = @lines[0];
+			my @rest = @lines[ 1 .. * ];
+			@content.append(
+				'||' ~ self.indent-line( $head ),
+					self.indent( @rest )
+			);
 		}
 		@content.flat
 	}
@@ -90,12 +107,13 @@ class Concatenation {
 		for @.content {
 			@content.append( $_.to-lines );
 		}
-		@content.flat
+		@content
 	}
 }
 
 class Block {
 	also does Named;
+	also does Indenting;
 
 	has $.type;
 	has @.content;
@@ -107,7 +125,7 @@ class Block {
 		}
 		return (
 			"$.type $.name \{",
-			@content || Any,
+			self.indent( @content ),
 			"\}"
 		).flat
 	}
@@ -119,14 +137,24 @@ class Grouping is Block {
 		for @.content {
 			@content.append( $_.to-lines );
 		}
-		return ( "\(", @content || Any, "\)" )
+		return (
+			"\(",
+			self.indent( @content ),
+			"\)"
+		).flat
 	}
 }
 
 class Token is Block {
 	method to-lines {
 		my $lc-name = lc( $.name );
-		return ( "token $.name \{", "'$lc-name'", "\}" )
+		return (
+			"token $.name \{",
+			self.indent-line(
+				'||' ~ self.indent-line( "'$lc-name'" )
+			),
+			"\}"
+		).flat
 	}
 }
 
@@ -153,6 +181,7 @@ class Notes {
 #
 class Grammar {
 	also does Named;
+	also does Indenting;
 
 	has @.content;
 
@@ -161,7 +190,11 @@ class Grammar {
 		for @.content {
 			@content.append( $_.to-lines );
 		}
-		return ( "grammar $.name \{", @content || Any, "\}" ).flat
+		return (
+			"grammar $.name \{",
+			self.indent( @content ),
+			"\}"
+		).flat
 	}
 }
 
@@ -276,7 +309,13 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method element( $/ ) {
-		if $/<ebnfSuffix> {
+		if $/<ebnfSuffix> and $/<atom> {
+			make Nonterminal.new(
+				:modifier( ~$/<ebnfSuffix><MODIFIER> ),
+				:name( ~$/<atom><terminal><scalar> )
+			)
+		}
+		elsif $/<ebnfSuffix> {
 			make Terminal.new(
 				:modifier( ~$/<ebnfSuffix><MODIFIER> ),
 				:name( ~$/<atom><terminal><scalar>[0] )
@@ -373,7 +412,8 @@ class ANTLR4::Actions::Perl6 {
 			:name( ~$/<ID> ),
 			:content( @body )
 		);
-		make $grammar.to-lines.join( "\n" );
+#say $grammar.to-lines.perl;
+		make $grammar.to-lines.join( "\n" ) ~ "\n";
 	}
 
 	sub translate-unicode( Str $str ) {

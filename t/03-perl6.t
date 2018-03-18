@@ -135,7 +135,7 @@ subtest 'single rule, token', {
 	END
 	grammar Empty {
 		token INDENT {
-			'indent'
+			||	'indent'
 		}
 	}
 	END
@@ -146,10 +146,10 @@ subtest 'single rule, token', {
 	END
 	grammar Empty {
 		token INDENT {
-			'indent'
+			||	'indent'
 		}
 		token DEDENT {
-			'dedent'
+			||	'dedent'
 		}
 	}
 	END
@@ -160,6 +160,7 @@ subtest 'single rule, token', {
 	END
 	grammar Empty {
 		rule number {
+			||
 		}
 	}
 	END
@@ -171,8 +172,10 @@ subtest 'single rule, token', {
 	END
 	grammar Empty {
 		rule number {
+			||
 		}
 		rule string {
+			||
 		}
 	}
 	END
@@ -191,6 +194,7 @@ subtest 'rule options', {
 	grammar Empty {
 		#|{ "type" : "fragment", "parameters" : [ { "type" : "String", "name" : "name" }, { "type" : "int", "name" : "total" } ], "returns" : { "type" : "int", "name" : "amount" }, "throws" : "XFoo", "options" : [ { "key" : "I", "vaue" : "1" } ] }
 		rule parametrized {
+			||
 		}
 	}
 	END
@@ -207,6 +211,7 @@ subtest 'rule options', {
 	grammar Empty {
 		#|{ "visibility" : "public", "locals" : "int n = 0", "catch" : { "type" : "int", "name" : "amount", "code" : "amount++" }, "finally" : "amount=1" }
 		rule test_catch_locals {
+			||
 		}
 	}
 	END
@@ -236,10 +241,12 @@ subtest 'modes', {
 		}
 		#|{ "mode" : "Remainder" }
 		rule lexer_stuff {
+			||
 		}
 		#|{ "mode" : "SkipThis" }
 		#|{ "mode" : "YetAnother" }
 		rule parser_stuff {
+			||
 		}
 	}
 	END
@@ -256,7 +263,7 @@ subtest 'lexer rule with single term', {
 	END
 	grammar Lexer {
 		rule plain {
-			<T>
+			||	<T>
 		}
 	}
 	END
@@ -267,7 +274,7 @@ subtest 'lexer rule with single term', {
 	END
 	grammar Lexer {
 		rule plain {
-			literal
+			||	literal
 		}
 	}
 	END
@@ -278,7 +285,7 @@ subtest 'lexer rule with single term', {
 	END
 	grammar Lexer {
 		rule plain {
-			<[ c h a r s e t ]>
+			||	<[ c h a r   s e t ]>
 		}
 	}
 	END
@@ -291,7 +298,7 @@ subtest 'lexer rule with single term', {
 	END
 	grammar Lexer {
 		rule plain {
-			<[ a .. z ]>
+			||	<[ a .. z ]>
 		}
 	}
 	END
@@ -304,7 +311,7 @@ subtest 'lexer rule with single term', {
 	END
 	grammar Lexer {
 		rule plain {
-			.
+			||	.
 		}
 	}
 	END
@@ -318,7 +325,7 @@ subtest 'lexer rule with single term', {
 	grammar Lexer {
 		#|{ "action" : "System.out.println(\"Found end\");" }
 		rule plain {
-			.
+			||	.
 		}
 	}
 	END
@@ -332,7 +339,7 @@ subtest 'lexer rule with single term', {
 		END
 		grammar Lexer {
 			rule plain {
-				<-[ X ]>
+				||	<-[ X ]>
 			}
 		}
 		END
@@ -343,7 +350,7 @@ subtest 'lexer rule with single term', {
 		END
 		grammar Lexer {
 			rule plain {
-				<-[ X .. Z ]>
+				||	<-[ X .. Z ]>
 			}
 		}
 		END
@@ -354,7 +361,7 @@ subtest 'lexer rule with single term', {
 		END
 		grammar Lexer {
 			rule plain {
-				<-[ W Y ]>
+				||	<-[ W Y ]>
 			}
 		}
 		END
@@ -365,7 +372,7 @@ subtest 'lexer rule with single term', {
 		END
 		grammar Lexer {
 			rule plain {
-				<-[ A B Z ]>
+				||	<-[ A B Z ]>
 			}
 		}
 		END
@@ -383,7 +390,7 @@ subtest 'modifiers', {
 	END
 	grammar Lexer {
 		rule plain {
-			X?
+			||	X?
 		}
 	}
 	END
@@ -394,7 +401,7 @@ subtest 'modifiers', {
 	END
 	grammar Lexer {
 		rule plain {
-			X*
+			||	X*
 		}
 	}
 	END
@@ -405,7 +412,7 @@ subtest 'modifiers', {
 	END
 	grammar Lexer {
 		rule plain {
-			X+
+			||	X+
 		}
 	}
 	END
@@ -423,7 +430,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "skip" : true }
 		rule plain {
-			X
+			||	X
 		}
 	}
 	END
@@ -439,7 +446,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "pushMode" : "INSIDE" }
 		rule plain {
-			X
+			||	X
 		}
 	}
 	END
@@ -455,7 +462,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "popMode" : "INSIDE" }
 		rule plain {
-			X
+			||	X
 		}
 	}
 	END
@@ -471,7 +478,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "more" : true }
 		rule plain {
-			X
+			||	X
 		}
 	}
 	END
@@ -487,7 +494,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "type" : "STRING" }
 		rule plain {
-			X
+			||	X
 		}
 	}
 	END
@@ -503,7 +510,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "channel" : "HIDDEN" }
 		rule plain {
-			X
+			||	X
 		}
 	}
 	END
@@ -520,8 +527,8 @@ subtest 'multiple terms', {
 	END
 	grammar Lexer {
 		rule plain {
-			X
-			Y
+			||	X
+				Y
 		}
 	}
 	END
@@ -532,7 +539,8 @@ subtest 'multiple terms', {
 	END
 	grammar Lexer {
 		rule plain {
-			X <Y>
+			||	X
+				<Y>
 		}
 	}
 	END
@@ -547,8 +555,8 @@ subtest 'multiple alternations', {
 	END
 	grammar Lexer {
 		rule plain {
-			|| X
-			|| Y
+			||	X
+			||	Y
 		}
 	}
 	END
@@ -559,8 +567,8 @@ subtest 'multiple alternations', {
 	END
 	grammar Lexer {
 		rule plain {
-			X
-			<Y>
+			||	X
+				<Y>
 		}
 	}
 	END
@@ -575,9 +583,9 @@ subtest 'grouping', {
 	END
 	grammar Lexer {
 		rule plain {
-			(
-				X
-			)
+			||	(
+					||	X
+				)
 		}
 	}
 	END
@@ -588,9 +596,9 @@ subtest 'grouping', {
 	END
 	grammar Lexer {
 		rule plain {
-			(
-				<X>
-			)
+			||	(
+					||	<X>
+				)
 		}
 	}
 	END
@@ -601,10 +609,10 @@ subtest 'grouping', {
 	END
 	grammar Lexer {
 		rule plain {
-			(
-				X
-				Y
-			)
+			||	(
+					||	X
+						Y
+				)
 		}
 	}
 	END
