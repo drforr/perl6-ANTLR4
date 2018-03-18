@@ -267,7 +267,6 @@ subtest 'lexer rule with single term', {
 	}
 	END
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'literal';
 	grammar Lexer;
 	plain : 'literal' ;
@@ -278,9 +277,7 @@ subtest 'lexer rule with single term', {
 		}
 	}
 	END
-)
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'char set';
 	grammar Lexer;
 	plain : [char set] ;
@@ -291,7 +288,6 @@ subtest 'lexer rule with single term', {
 		}
 	}
 	END
-)
 
 	# XXX don't forget escaped characters
 
@@ -451,7 +447,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "skip" : true }
 		rule plain {
-			X+
+			X
 		}
 	}
 	END
@@ -467,7 +463,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "pushMode" : "INSIDE" }
 		rule plain {
-			X+
+			X
 		}
 	}
 	END
@@ -483,7 +479,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "popMode" : "INSIDE" }
 		rule plain {
-			X+
+			X
 		}
 	}
 	END
@@ -499,7 +495,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "more" : true }
 		rule plain {
-			X+
+			X
 		}
 	}
 	END
@@ -515,7 +511,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "type" : "STRING" }
 		rule plain {
-			X+
+			X
 		}
 	}
 	END
@@ -531,7 +527,7 @@ subtest 'actions', {
 	grammar Lexer {
 		#|{ "channel" : "HIDDEN" }
 		rule plain {
-			X+
+			X
 		}
 	}
 	END
@@ -554,7 +550,6 @@ subtest 'multiple terms', {
 	}
 	END
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'literal and nonliteral';
 	grammar Lexer;
 	plain : 'X' Y ;
@@ -565,7 +560,6 @@ subtest 'multiple terms', {
 		}
 	}
 	END
-)
 
 	done-testing;
 };
@@ -583,19 +577,17 @@ subtest 'multiple alternations', {
 	}
 	END
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'literal or nonliteral';
 	grammar Lexer;
 	plain : 'X' Y ;
 	END
 	grammar Lexer {
 		rule plain {
-			|| X
-			|| <Y>
+			X
+			<Y>
 		}
 	}
 	END
-)
 
 	done-testing;
 };

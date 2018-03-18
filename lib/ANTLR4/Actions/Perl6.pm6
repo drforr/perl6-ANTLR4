@@ -40,10 +40,24 @@ class Terminal {
 	method to-lines { return $.name }
 }
 
+class Wildcard { method to-lines { return "." } }
+
 class Nonterminal {
 	also does Named;
 
 	method to-lines { return "<$.name>" }
+}
+
+class CharacterSet {
+	has @.content;
+
+	method to-lines {
+		return (
+			'<[',
+			@.content,
+			']>'
+		)
+	}
 }
 
 class Alternation {
@@ -133,6 +147,9 @@ class Notes {
 	}
 }
 
+# This doesn't use the generic Block because it'll eventually be indented,
+# and the grammar level is always the top level of the file.
+#
 class Grammar {
 	also does Indentation;
 	also does Named;
@@ -189,10 +206,16 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method atom( $/ ) {
-		make $/<terminal>.ast
+		if $/<DOT> {
+			make Wildcard.new;
+		}
+		else {
+			make $/<terminal>.ast
+		}
 	}
 
 	method element( $/ ) {
+say $/;
 		make $/<atom>.ast
 	}
 
@@ -200,12 +223,25 @@ class ANTLR4::Actions::Perl6 {
 		make Concatenation.new( :content( $/<element>>>.ast ) )
 	}
 
+	method lexerElement( $/ ) {
+make CharacterSet.new( :content( < a b c> ) )
+	}
+
 	method parserAlt( $/ ) {
 		make $/<parserElement>.ast
 	}
 
+	method lexerAlt( $/ ) {
+		make $/<lexerElement>>>.ast
+	}
+
 	method parserAltList( $/ ) {
 		make Alternation.new( :content( $/<parserAlt>>>.ast ) )
+	}
+
+	method lexerAltList( $/ ) {
+#say $/;
+		make Alternation.new( :content( $/<lexerAlt>>>.ast ) )
 	}
 
 	method parserRuleSpec( $/ ) {
@@ -215,12 +251,22 @@ class ANTLR4::Actions::Perl6 {
 		)
 	}
 
+	method lexerRuleSpec( $/ ) {
+		make Rule.new(
+			:name( ~$/<ID> ),
+			:content( $/<lexerAltList>.ast )
+		)
+	}
+
 	method ruleSpec( $/ ) {
-		make $/<parserRuleSpec>.ast
+#		make $/<parserRuleSpec>.ast
+		make $/<parserRuleSpec> ??
+			$/<parserRuleSpec>.ast !!
+			$/<lexerRuleSpec>.ast
 	}
 
 	method TOP( $/ ) {
-say $/;
+#say $/;
 		my @body;
 		for $/<prequelConstruct> {
 			@body.append( $_.ast )
@@ -232,7 +278,7 @@ say $/;
 			:name( ~$/<ID> ),
 			:content( @body )
 		);
-say $grammar.to-lines.perl;
+#say $grammar.to-lines.perl;
 		make $grammar.to-lines.join( "\n" );
 	}
 
