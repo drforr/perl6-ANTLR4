@@ -129,7 +129,6 @@ subtest 'outer options', {
 };
 
 subtest 'single rule, token', {
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'single token';
 	grammar Empty;
 	tokens { INDENT }
@@ -140,7 +139,6 @@ subtest 'single rule, token', {
 		}
 	}
 	END
-)
 
 	is parse( Q:to[END] ), Q:to[END], 'two tokens';
 	grammar Empty;
@@ -156,7 +154,6 @@ subtest 'single rule, token', {
 	}
 	END
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'single rule';
 	grammar Empty;
 	number : ;
@@ -166,9 +163,7 @@ subtest 'single rule, token', {
 		}
 	}
 	END
-)
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'two rules';
 	grammar Empty;
 	number : ;
@@ -181,7 +176,6 @@ subtest 'single rule, token', {
 		}
 	}
 	END
-)
 
 	done-testing;
 };
@@ -278,6 +272,7 @@ subtest 'lexer rule with single term', {
 	}
 	END
 
+#`(
 	is parse( Q:to[END] ), Q:to[END], 'char set';
 	grammar Lexer;
 	plain : [char set] ;
@@ -288,10 +283,10 @@ subtest 'lexer rule with single term', {
 		}
 	}
 	END
+)
 
 	# XXX don't forget escaped characters
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'char range';
 	grammar Lexer;
 	plain : 'a'..'z' ;
@@ -302,11 +297,9 @@ subtest 'lexer rule with single term', {
 		}
 	}
 	END
-)
 
 	# XXX Make sure this is ANTLR's <dot>
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'dot';
 	grammar Lexer;
 	plain : . ;
@@ -317,7 +310,6 @@ subtest 'lexer rule with single term', {
 		}
 	}
 	END
-)
 
 #`(
 #`(

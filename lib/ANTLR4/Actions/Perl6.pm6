@@ -48,6 +48,13 @@ class Nonterminal {
 	method to-lines { return "<$.name>" }
 }
 
+class Range {
+	has $.from;
+	has $.to;
+
+	method to-lines { return "<[ $.from .. $.to ]>" }
+}
+
 class CharacterSet {
 	has @.content;
 
@@ -205,9 +212,19 @@ class ANTLR4::Actions::Perl6 {
 		}
 	}
 
+	method range( $/ ) {
+		make Range.new(
+			:from( ~$/<from>[0] ),
+			:to( ~$/<to>[0] )
+		)
+	}
+
 	method atom( $/ ) {
 		if $/<DOT> {
 			make Wildcard.new;
+		}
+		elsif $/<range> {
+			make $/<range>.ast
 		}
 		else {
 			make $/<terminal>.ast
@@ -215,7 +232,6 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method element( $/ ) {
-say $/;
 		make $/<atom>.ast
 	}
 
@@ -240,7 +256,6 @@ make CharacterSet.new( :content( < a b c> ) )
 	}
 
 	method lexerAltList( $/ ) {
-#say $/;
 		make Alternation.new( :content( $/<lexerAlt>>>.ast ) )
 	}
 
