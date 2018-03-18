@@ -51,8 +51,14 @@ class Range {
 
 class CharacterSet {
 	has @.content;
+	has $.negated;
 
-	method to-lines { return ( '<[', @.content, ']>' ) }
+	method to-lines {
+		if $.negated {
+			return ( '<-[', @.content, ']>' )
+		}
+		return ( '<[', @.content, ']>' )
+	}
 }
 
 class Alternation {
@@ -195,8 +201,20 @@ class ANTLR4::Actions::Perl6 {
 		)
 	}
 
+	method notSet( $/ ) {
+		make CharacterSet.new(
+			:negated( True ),
+			:content(
+				$/<setElement><terminal><STRING_LITERAL>[0]
+			)
+		)
+	}
+
 	method atom( $/ ) {
-		if $/<DOT> {
+		if $/<notSet> {
+			make $/<notSet>.ast
+		}
+		elsif $/<DOT> {
 			make Wildcard.new;
 		}
 		elsif $/<range> {
@@ -233,18 +251,39 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method parserElement( $/ ) {
-		make Concatenation.new( :content( $/<element>>>.ast ) )
+		if $/<element>.elems == 4 and
+			$/<element>[0]<atom><notSet> and
+			$/<element>[1]<atom><DOT> and
+			$/<element>[2]<atom><DOT> {
+			make Range.new(
+				:from( $/<element>[0]<atom><notSet><setElement><terminal><scalar>[0] ),
+				:to( $/<element>[3]<atom><terminal><scalar>[0] ),
+			)
+		}
+		else {
+			make Concatenation.new( :content( $/<element>>>.ast ) )
+		}
 	}
 
 	method parserAlt( $/ ) {
 		make $/<parserElement>.ast
 	}
 
+	method lexerAtom( $/ ) {
+		if $/<LEXER_CHAR_SET> {
+			make ~$/<LEXER_CHAR_SET>[0]
+		}
+		else {
+			make ~$/<notSet>
+		}
+	}
+
 	method lexerAlt( $/ ) {
 		my @content;
 		for $/<lexerElement> {
-			@content.append( ~$_<lexerAtom><LEXER_CHAR_SET>[0] )
+			@content.append( $_<lexerAtom>.ast )
 		}
+#say @content;
 		make CharacterSet.new(
 			:content( @content )
 		)

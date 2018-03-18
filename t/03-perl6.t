@@ -326,7 +326,6 @@ subtest 'lexer rule with single term', {
 )
 
 	subtest 'negation', {
-#`(
 		is parse( Q:to[END] ), Q:to[END], 'character';
 		grammar Lexer;
 		plain : ~'X' ;
@@ -337,9 +336,7 @@ subtest 'lexer rule with single term', {
 			}
 		}
 		END
-)
 
-#`(
 		is parse( Q:to[END] ), Q:to[END], 'range';
 		grammar Lexer;
 		plain : ~'X'..'Z' ;
@@ -350,7 +347,6 @@ subtest 'lexer rule with single term', {
 			}
 		}
 		END
-)
 
 #`(
 		is parse( Q:to[END] ), Q:to[END], 'subrule';
