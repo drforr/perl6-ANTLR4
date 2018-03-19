@@ -43,7 +43,11 @@ class Terminal {
 
 	has $.modifier = '';
 
-	method to-lines { return $.name ~ $.modifier }
+	method to-lines {
+		my $copy = $.name;
+		$copy ~~ s:g/\\u(....)/\\x[$0]/;
+		return $copy ~ $.modifier
+	}
 }
 
 class Wildcard { method to-lines { return "." } }
@@ -327,7 +331,9 @@ class ANTLR4::Actions::Perl6 {
 		elsif $/<ebnf> {
 			make Grouping.new(
 				:content(
-					$/<ebnf>.ast
+					Alternation.new(
+						:content( $/<ebnf>.ast )
+					)
 				)
 			)
 		}
@@ -412,14 +418,8 @@ class ANTLR4::Actions::Perl6 {
 			:name( ~$/<ID> ),
 			:content( @body )
 		);
-#say $grammar.to-lines.perl;
+say $grammar.to-lines.perl;
 		make $grammar.to-lines.join( "\n" ) ~ "\n";
-	}
-
-	sub translate-unicode( Str $str ) {
-		my $copy = $str;
-		$copy ~~ s/\\u(....)/\\x[$0]/;
-		$copy
 	}
 }
 
