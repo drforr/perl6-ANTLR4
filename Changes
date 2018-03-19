@@ -2,5 +2,8 @@ Revision history for ANTLR4-Grammar
 
 {{$NEXT}}
 
+0.0.2  2018-03-19T20:22:49+01:00
+    - Escape terminals correctly, add modifiers to grouping
+
 0.0.1  2018-03-19T19:45:35+01:00
     - Initial release
