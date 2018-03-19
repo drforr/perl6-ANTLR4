@@ -137,6 +137,8 @@ class Block {
 }
 
 class Grouping is Block {
+	has $.modifier = '';
+
 	method to-lines {
 		my @content;
 		for @.content {
@@ -145,7 +147,7 @@ class Grouping is Block {
 		return (
 			"\(",
 			self.indent( @content ),
-			"\)"
+			"\)" ~ $.modifier
 		).flat
 	}
 }
@@ -350,7 +352,9 @@ class ANTLR4::Actions::Perl6 {
 			make $/<atom>.ast
 		}
 		elsif $/<ebnf> {
+			# XXX The // '' should probably go away...
 			make Grouping.new(
+				:modifier( $/<ebnf><ebnfSuffix><MODIFIER>.ast // '' ),
 				:content(
 					Alternation.new(
 						:content( $/<ebnf>.ast )

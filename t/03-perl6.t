@@ -628,6 +628,52 @@ subtest 'grouping', {
 	}
 	END
 
+	subtest 'with modifiers', {
+		is parse( Q:to[END] ), Q:to[END], 'question';
+		grammar Lexer;
+		plain : ( 'X' 'Y' )? ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	(
+						||	X
+							Y
+					)?
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'star';
+		grammar Lexer;
+		plain : ( 'X' 'Y' )* ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	(
+						||	X
+							Y
+					)*
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'plus';
+		grammar Lexer;
+		plain : ( 'X' 'Y' )+ ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	(
+						||	X
+							Y
+					)+
+			}
+		}
+		END
+
+		done-testing;
+	};
+
 	done-testing;
 };
 
