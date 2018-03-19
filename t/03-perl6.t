@@ -2,6 +2,8 @@ use v6;
 use ANTLR4::Actions::Perl6;
 use Test;
 
+plan 11;
+
 sub parse( $str ) {
 	return ANTLR4::Grammar.parse(
 		$str, 
@@ -616,5 +618,7 @@ subtest 'grouping', {
 
 	done-testing;
 };
+
+done-testing;
 
 # vim: ft=perl6
