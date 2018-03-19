@@ -10,84 +10,161 @@ C<ANTLR4::Actions::Perl6> generates a perl6 representation of an ANTLR4 AST.
     use ANTLR4::Grammar;
     my $p = ANTLR4::Actions::Perl6.new;
 
-    say $p.parse('grammar Minimal { identifier : [A-Z][A-Za-z]+ ; }').perl6;
-    say $p.parsefile('ECMAScript.g4').perl6;
+    say $p.parse('grammar Minimal { identifier : [A-Z][A-Za-z]+ ; }', :actions($p)).ast;
+    say $p.parsefile('ECMAScript.g4', :actions($p)).ast;
 
 =head1 Documentation
 
-The action in this file will return a completely unblessed abstract syntax
-tree (AST) of the ANTLR4 grammar perl6 has been asked to parse. Other variants
-may return an object or even the nearest perl6 equivalent grammar, but this
-just returns a hash reference with nested array references.
+The action in this file will return a string containing a rough Perl 6
+translation of the ANTLR4 grammar that the module has been given to parse.
 
 =end pod
 
 use v6;
 use JSON::Tiny;
 use ANTLR4::Grammar;
-use ANTLR4::Actions::AST;
 
-# Little helper class
-#
-# Take 'foo', [ 'bar', [ 'baz', 'qux' ] ] and turn it into:
-# foo {
-#   bar {
-#     baz
-#     qux
-#   }
-# }
-#
-# This way I don't need to worry about balancing braces and indentation.
-# Just let the class handle it for me.
-#
-# And in case I want to change the brace style later on I've got one point in
-# the application to change.
-#
-# This should have its own mini-test suite, but that would mean exposing it,
-# and it's a tiny ting as it is.
-#
-my class Outline {
-	has @.line;
-	method indent( $line, $depth ) {
-		@.line.append( ( "\t" x $depth ) ~ $line );
-	}
-	method outline( @item, $depth = 0 ) {
-		for @item {
-			when Array {
-				@.line[*-1] ~= ' {'; # }
-				self.outline( @( $_ ), $depth + 1 );
-				self.indent( '}', $depth );
-			}
-			when Str {
-				self.indent( $_, $depth ) if /\S/;
-			}
+my role Indenting {
+	method indent-line( $line ) {
+		if $line {
+			return "\t" ~ $line
 		}
+		return ''
 	}
-	method render {
-		join( "\n", @.line );
+	#method indent( @lines ) {
+	method indent( *@lines ) {
+		map { self.indent-line( $_ ) }, grep { /\S/ }, @lines
 	}
 }
 
-class ANTLR4::Actions::Perl6 {
-	has ANTLR4::Grammar $g =
-		ANTLR4::Grammar.new;
-	has ANTLR4::Actions::AST $a =
-		ANTLR4::Actions::AST.new;
+my role Named { has $.name; }
 
-	has Str $.indent-char = qq{\t};
+class Terminal {
+	also does Named;
 
-	my class ANTLR4::Actions::Perl6::Shim {
-		has $.ast;
-		has $.perl6;
+	has $.modifier = '';
+
+	method to-lines {
+		my $copy = $.name;
+		$copy ~~ s:g/\\u(....)/\\x[$0]/;
+		return $copy ~ $.modifier
 	}
+}
 
-	sub translate-unicode( Str $str ) {
-		my $copy = $str;
-		$copy ~~ s/\\u(....)/\\x[$0]/;
-		$copy
+class Wildcard { method to-lines { return "." } }
+
+class Nonterminal {
+	also does Named;
+
+	has $.modifier = '';
+
+	method to-lines { return "<$.name>" ~ $.modifier }
+}
+
+class Range {
+	has $.from;
+	has $.to;
+	has $.negated;
+
+	method to-lines {
+		$.negated ??
+			"<-[ $.from .. $.to ]>" !!
+			"<[ $.from .. $.to ]>"
 	}
+}
 
-	method to-json-comment( $ast, @key ) {
+class CharacterSet {
+	has @.content;
+	has $.negated;
+
+	method to-lines {
+		$.negated ??
+			"<-[ {@.content} ]>" !!
+			"<[ {@.content} ]>"
+	}
+}
+
+class Alternation {
+	also does Indenting;
+
+	has @.content;
+
+	method to-lines {
+		my @content;
+		for @.content {
+			my @lines = self.indent( $_.to-lines );
+			@lines[0] = '||' ~ @lines[0] if @lines[0];
+			@content.append( @lines );
+		}
+		@content.flat
+	}
+}
+
+class Concatenation {
+	has @.content;
+
+	method to-lines {
+		my @content;
+		for @.content {
+			@content.append( $_.to-lines );
+		}
+		@content
+	}
+}
+
+class Block {
+	also does Named;
+	also does Indenting;
+
+	has $.type;
+	has @.content;
+
+	method to-lines {
+		my @content;
+		for @.content {
+			@content.append( $_.to-lines );
+		}
+		return (
+			"$.type $.name \{",
+			self.indent( @content ),
+			"\}"
+		).flat
+	}
+}
+
+class Grouping is Block {
+	method to-lines {
+		my @content;
+		for @.content {
+			@content.append( $_.to-lines );
+		}
+		return (
+			"\(",
+			self.indent( @content ),
+			"\)"
+		).flat
+	}
+}
+
+class Token is Block {
+	method to-lines {
+		my $lc-name = lc( $.name );
+		return (
+			"token $.name \{",
+			self.indent-line(
+				'||' ~ self.indent-line( "'$lc-name'" )
+			),
+			"\}"
+		).flat
+	}
+}
+
+class Rule is Block { has $.type = 'rule'; }
+
+class Notes {
+	has %.content;
+
+	sub to-json-comment( $ast, @key ) {
 		my $json;
 		for @key -> $key {
 			$json.{$key} = $ast.{$key} if $ast.{$key};
@@ -98,117 +175,262 @@ class ANTLR4::Actions::Perl6 {
 		}
 		return '';
 	}
+}
 
-	method token( $ast ) {
-		my @token;
-		for $ast.keys -> $name {
-			@token.append(
-				"token $name", [
-					"'{lc($name)}'"
-				]
-			);
+# This doesn't use the generic Block because it'll eventually be indented,
+# and the grammar level is always the top level of the file.
+#
+class Grammar {
+	also does Named;
+	also does Indenting;
+
+	has @.content;
+
+	method to-lines {
+		my @content;
+		for @.content {
+			@content.append( $_.to-lines );
 		}
-		@token;
+		return (
+			"grammar $.name \{",
+			self.indent( @content ),
+			"\}"
+		).flat
+	}
+}
+
+class ANTLR4::Actions::Perl6 {
+	method ID( $/ ) { make ~$/ }
+	method STRING_LITERAL( $/ ) { make ~$/[0] }
+	method LEXER_CHAR_SET( $/ ) { make ~$/[0] }
+	method MODIFIER( $/ ) { make ~$/ }
+
+	method tokenName( $/ ) {
+		make Token.new( :name( $/<ID>.ast ) )
 	}
 
-	method term( $ast ) {
-		my @term;
-		given $ast.<type> {
-			when 'wildcard' {
-				@term.append( qq{.} );
+	method token_list_trailing_comma( $/ ) {
+		make $/<tokenName>>>.ast
+	}
+
+	method tokensSpec( $/ ) {
+		make $/<token_list_trailing_comma>.ast
+	}
+
+	method prequelConstruct( $/ ) {
+		my @tokens;
+		for $/ {
+			when $_.<tokensSpec> {
+				@tokens.append( $_.<tokensSpec>.ast );
 			}
-			when 'terminal' {
-				@term.append( qq{'$ast.<name>'} );
-			}
-			when 'nonterminal' {
-				@term.append( qq{<$ast.<name>>} );
-			}
-			when 'alternation' {
-				for @( $ast.<term> ) -> $term {
-					@term.append(
-						'| ' ~ self.term( $term )
+		}
+		make @tokens
+	}
+
+	# A lovely quirk of the ANTLR grammar is that nonterminals are actually
+	# just a variant of the terminal, because ANTLR internally divides
+	# lexer and parser grammars, and lexers can't have parser terms
+	# so it's not notated separately.
+	#
+	method terminal( $/ ) {
+		if $/<ID> {
+			make Nonterminal.new( :name( $/<ID>.ast ) )
+		}
+		else {
+			make Terminal.new( :name( $/<scalar>.ast ) )
+		}
+	}
+
+	# Keep in mind that there is no 'from' rule, so even though here we
+	# reference 'STRING_LITERAL' by its alias, the actual method that
+	# gets called is STRING_LITERAL.
+	#
+	method range( $/ ) {
+		make Range.new(
+			:from( $/<from>.ast ),
+			:to( $/<to>.ast )
+		)
+	}
+
+	method blockSet( $/ ) {
+		my @content;
+		for $/<setElementAltList><setElement> {
+			@content.append( $_.<terminal><scalar>.ast )
+		}
+		make CharacterSet.new(
+			:negated( True ),
+			:content( @content )
+		)
+	}
+
+	method setElement( $/ ) {
+		my @content;
+		for $/<LEXER_CHAR_SET> {
+			@content.append( $_ )
+		}
+		make CharacterSet.new(
+			:negated( True ),
+			:content( @content )
+		)
+	}
+
+	method notSet( $/ ) {
+		if $/<setElement><LEXER_CHAR_SET> {
+			make $/<setElement>.ast
+		}
+		elsif $/<blockSet> {
+			make $/<blockSet>.ast
+		}
+		else {
+			make CharacterSet.new(
+				:negated( True ),
+				:content(
+					$/<setElement><terminal><scalar>.ast
+				)
+			)
+		}
+	}
+
+	method atom( $/ ) {
+		if $/<notSet> {
+			make $/<notSet>.ast
+		}
+		elsif $/<DOT> {
+			make Wildcard.new;
+		}
+		elsif $/<range> {
+			make $/<range>.ast
+		}
+		else {
+			make $/<terminal>.ast
+		}
+	}
+
+	method blockAltList( $/ ) {
+		make $/<parserElement>>>.ast
+	}
+
+	method block( $/ ) {
+		make $/<blockAltList>.ast
+	}
+
+	method ebnf( $/ ) {
+		make $/<block>.ast
+	}
+
+	# This... this takes some explanation.
+	# Yes, it's a simple match. The problem is that it's being used from
+	# *inside* a match. So attempting to match inside the method attempts
+	# to overwrite the existing $/ variable.
+	#
+	# The error is a bit unclear.
+	#
+	sub is-literal( $atom ) {
+		$atom ~~ / ^ \' /
+	}
+
+	method element( $/ ) {
+		if $/<ebnfSuffix> and $/<atom> and !is-literal( ~$/<atom> ) {
+			make Nonterminal.new(
+				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
+				:name( $/<atom><terminal><scalar>.ast )
+			)
+		}
+		elsif $/<ebnfSuffix> {
+			make Terminal.new(
+				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
+				:name( $/<atom><terminal><scalar>.ast )
+			)
+		}
+		elsif $/<atom> {
+			make $/<atom>.ast
+		}
+		elsif $/<ebnf> {
+			make Grouping.new(
+				:content(
+					Alternation.new(
+						:content( $/<ebnf>.ast )
 					)
-				}
-			}
-			when 'concatenation' {
-				for @( $ast.<term> ) -> $term {
-					@term.append( self.term( $term ) )
-				}
-			}
-			when 'negatedSet' {
-				@term.append(
-					'<-[ ' ~
-						join( ' ',
-							@( $ast.<term> )
-						) ~
-					' ]>'
-				);
-			}
-			default {
-				die "Unhandled terminal type '$ast.<type>'";
-			}
+				)
+			)
 		}
-		@term;
 	}
 
-	method rule( $ast ) {
-		my @rule;
-		for $ast.keys -> $name {
-			my @term;
-			if $ast.{$name}.<term> {
-				@term.append(
-					self.term( $ast.{$name}.<term> )
-				);
-			}
-			@rule.append(
-				self.to-json-comment(
-					$ast.{$name},
-					[<type throw return action
-					  local option catch finally>]
-				),
-				"rule $name", [
-					@term
-				]
-			);
+	method parserElement( $/ ) {
+		if $/<element>.elems == 4 and
+			$/<element>[0]<atom><notSet> and
+			$/<element>[1]<atom><DOT> and
+			$/<element>[2]<atom><DOT> {
+			make Range.new(
+				:negated( True ),
+				:from( $/<element>[0]<atom><notSet><setElement><terminal><scalar>.ast ),
+				:to( $/<element>[3]<atom><terminal><scalar>.ast ),
+			)
 		}
-		@rule;
+		else {
+			make Concatenation.new( :content( $/<element>>>.ast ) )
+		}
 	}
 
-	method grammar( $ast ) {
-		my $o = Outline.new;
-		my @term;
-		@term.append( self.token( $ast.<token> ) );
-		@term.append( self.rule( $ast.<rule> ) );
-			
-		$o.outline( [
-			self.to-json-comment(
-				$ast,
-				[<type option import action>]
-			),
-			"grammar $ast.<name>", [
-				@term
-			]
-		] );
-		$o.render;
+	method parserAlt( $/ ) {
+		make $/<parserElement>.ast
 	}
 
-	method get-shim( $ast ) {
-		ANTLR4::Actions::Perl6::Shim.new(
-			ast   => $ast,
-			perl6 => self.grammar( $ast )
+	method lexerAtom( $/ ) {
+		make $/<LEXER_CHAR_SET>.ast
+	}
+
+	method lexerAlt( $/ ) {
+		my @content;
+		for $/<lexerElement> {
+			@content.append( $_.<lexerAtom>.ast )
+		}
+		make CharacterSet.new(
+			:content( @content )
+		)
+	}
+
+	method parserAltList( $/ ) {
+		make Alternation.new( :content( $/<parserAlt>>>.ast ) )
+	}
+
+	method lexerAltList( $/ ) {
+		make Alternation.new( :content( $/<lexerAlt>>>.ast ) )
+	}
+
+	method parserRuleSpec( $/ ) {
+		make Rule.new(
+			:name( $/<ID>.ast ),
+			:content( $/<parserAltList>.ast )
+		)
+	}
+
+	method lexerRuleSpec( $/ ) {
+		make Rule.new(
+			:name( $/<ID>.ast ),
+			:content( $/<lexerAltList>.ast )
+		)
+	}
+
+	method ruleSpec( $/ ) {
+		make $/<parserRuleSpec> ??
+			$/<parserRuleSpec>.ast !!
+			$/<lexerRuleSpec>.ast
+	}
+
+	method TOP( $/ ) {
+		my @body;
+		for $/<prequelConstruct> {
+			@body.append( $_.ast )
+		}
+		for $/<ruleSpec> {
+			@body.append( $_.ast )
+		}
+		my $grammar = Grammar.new(
+			:name( $/<ID>.ast ),
+			:content( @body )
 		);
-	}
-
-	method parse( Str $str ) {
-		self.get-shim(
-			$!g.parse( $str, :actions($!a) ).ast
-		);
-	}
-
-	method parsefile( Str $filename ) {
-		self.get-shim(
-			$!g.parsefile( $filename, :actions($!a) ).ast
-		);
+		make $grammar.to-lines.join( "\n" ) ~ "\n";
 	}
 }
 
