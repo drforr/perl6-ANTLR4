@@ -314,6 +314,43 @@ subtest 'lexer rule with single term', {
 	}
 	END
 
+	subtest 'grouped range', {
+		is parse( Q:to[END] ), Q:to[END], 'question';
+		grammar Lexer;
+		plain : 'a'..'z'? ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<[ a .. z ]>?
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'star';
+		grammar Lexer;
+		plain : 'a'..'z'* ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<[ a .. z ]>*
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'plus';
+		grammar Lexer;
+		plain : 'a'..'z'+ ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<[ a .. z ]>+
+			}
+		}
+		END
+
+		done-testing;
+	};
+
 	# XXX Make sure this is ANTLR's <dot>
 
 	is parse( Q:to[END] ), Q:to[END], 'dot';

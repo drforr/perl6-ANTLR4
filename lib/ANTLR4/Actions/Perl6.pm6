@@ -69,11 +69,12 @@ class Range {
 	has $.from;
 	has $.to;
 	has $.negated;
+	has $.modifier = '';
 
 	method to-lines {
 		$.negated ??
-			"<-[ $.from .. $.to ]>" !!
-			"<[ $.from .. $.to ]>"
+			"<-[ $.from .. $.to ]>" ~ $.modifier !!
+			"<[ $.from .. $.to ]>" ~ $.modifier
 	}
 }
 
@@ -365,11 +366,21 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method parserElement( $/ ) {
-		if $/<element>.elems == 4 and
+		if $/<element>.elems == 1 and
+			$/<element>[0]<atom><range> and
+			$/<element>[0]<ebnfSuffix> {
+			make Range.new(
+				:modifier( $/<element>[0]<ebnfSuffix><MODIFIER>.ast ),
+				:from( $/<element>[0]<atom><range><from>.ast ),
+				:to( $/<element>[0]<atom><range><to>.ast ),
+			)
+		}
+		elsif $/<element>.elems == 4 and
 			$/<element>[0]<atom><notSet> and
 			$/<element>[1]<atom><DOT> and
 			$/<element>[2]<atom><DOT> {
 			make Range.new(
+				:modifier( ),
 				:negated( True ),
 				:from( $/<element>[0]<atom><notSet><setElement><terminal><scalar>.ast ),
 				:to( $/<element>[3]<atom><terminal><scalar>.ast ),
