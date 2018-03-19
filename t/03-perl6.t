@@ -267,13 +267,25 @@ subtest 'lexer rule with single term', {
 	}
 	END
 
-	is parse( Q:to[END] ), Q:to[END], 'literal';
+	is parse( Q:to[END] ), Q:to[END], 'terminal';
 	grammar Lexer;
-	plain : 'literal' ;
+	plain : 'terminal' ;
 	END
 	grammar Lexer {
 		rule plain {
-			||	literal
+			||	terminal
+		}
+	}
+	END
+
+	is parse( Q:to[END] ), Q:to[END], 'terminal that needs quoting';
+	grammar Lexer;
+	plain : '(' ')' ;
+	END
+	grammar Lexer {
+		rule plain {
+			||	'('
+				')'
 		}
 	}
 	END

@@ -47,6 +47,10 @@ class Terminal {
 	method to-lines {
 		my $copy = $.name;
 		$copy ~~ s:g/\\u(....)/\\x[$0]/;
+		$copy ~~ s:g/<!after \\>\'/\\\'/;
+		if $copy !~~ / <[ a ..z A .. Z ]> / {
+			$copy = qq{'$copy'};
+		}
 		return $copy ~ $.modifier
 	}
 }
