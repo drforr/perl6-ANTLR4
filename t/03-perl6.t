@@ -280,11 +280,12 @@ subtest 'lexer rule with single term', {
 
 	is parse( Q:to[END] ), Q:to[END], 'terminal that needs quoting';
 	grammar Lexer;
-	plain : '(' ')' ;
+	plain : '(' '\t' ')' ;
 	END
 	grammar Lexer {
 		rule plain {
 			||	'('
+				'\t'
 				')'
 		}
 	}
