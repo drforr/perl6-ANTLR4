@@ -203,8 +203,13 @@ class Grammar {
 }
 
 class ANTLR4::Actions::Perl6 {
+	method ID( $/ ) { make ~$/ }
+	method STRING_LITERAL( $/ ) { make ~$/[0] }
+	method LEXER_CHAR_SET( $/ ) { make ~$/[0] }
+	method MODIFIER( $/ ) { make ~$/ }
+
 	method tokenName( $/ ) {
-		make Token.new( :name( ~$/<ID> ) )
+		make Token.new( :name( $/<ID>.ast ) )
 	}
 
 	method token_list_trailing_comma( $/ ) {
@@ -232,24 +237,28 @@ class ANTLR4::Actions::Perl6 {
 	#
 	method terminal( $/ ) {
 		if $/<ID> {
-			make Nonterminal.new( :name( ~$/<ID> ) )
+			make Nonterminal.new( :name( $/<ID>.ast ) )
 		}
 		else {
-			make Terminal.new( :name( ~$/<scalar>[0] ) )
+			make Terminal.new( :name( $/<scalar>.ast ) )
 		}
 	}
 
+	# Keep in mind that there is no 'from' rule, so even though here we
+	# reference 'STRING_LITERAL' by its alias, the actual method that
+	# gets called is STRING_LITERAL.
+	#
 	method range( $/ ) {
 		make Range.new(
-			:from( ~$/<from>[0] ),
-			:to( ~$/<to>[0] )
+			:from( $/<from>.ast ),
+			:to( $/<to>.ast )
 		)
 	}
 
 	method blockSet( $/ ) {
 		my @content;
 		for $/<setElementAltList><setElement> {
-			@content.append( ~$_<terminal><scalar>[0] )
+			@content.append( $_.<terminal><scalar>.ast )
 		}
 		make CharacterSet.new(
 			:negated( True ),
@@ -279,7 +288,7 @@ class ANTLR4::Actions::Perl6 {
 			make CharacterSet.new(
 				:negated( True ),
 				:content(
-					$/<setElement><terminal><STRING_LITERAL>[0]
+					$/<setElement><terminal><scalar>.ast
 				)
 			)
 		}
@@ -315,14 +324,14 @@ class ANTLR4::Actions::Perl6 {
 	method element( $/ ) {
 		if $/<ebnfSuffix> and $/<atom> {
 			make Nonterminal.new(
-				:modifier( ~$/<ebnfSuffix><MODIFIER> ),
-				:name( ~$/<atom><terminal><scalar> )
+				:modifier( $/<ebnfSuffix><MODIFIER>.ast // '' ),
+				:name( $/<atom><terminal><scalar>.ast )
 			)
 		}
 		elsif $/<ebnfSuffix> {
 			make Terminal.new(
-				:modifier( ~$/<ebnfSuffix><MODIFIER> ),
-				:name( ~$/<atom><terminal><scalar>[0] )
+				:modifier( $/<ebnfSuffix><MODIFIER>.ast // '' ),
+				:name( $/<atom><terminal><scalar>.ast )
 			)
 		}
 		elsif $/<atom> {
@@ -346,8 +355,8 @@ class ANTLR4::Actions::Perl6 {
 			$/<element>[2]<atom><DOT> {
 			make Range.new(
 				:negated( True ),
-				:from( ~$/<element>[0]<atom><notSet><setElement><terminal><scalar>[0] ),
-				:to( ~$/<element>[3]<atom><terminal><scalar>[0] ),
+				:from( $/<element>[0]<atom><notSet><setElement><terminal><scalar>.ast ),
+				:to( $/<element>[3]<atom><terminal><scalar>.ast ),
 			)
 		}
 		else {
@@ -360,18 +369,13 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method lexerAtom( $/ ) {
-		if $/<LEXER_CHAR_SET> {
-			make ~$/<LEXER_CHAR_SET>[0]
-		}
-		else {
-			make ~$/<notSet>
-		}
+		make $/<LEXER_CHAR_SET>.ast
 	}
 
 	method lexerAlt( $/ ) {
 		my @content;
 		for $/<lexerElement> {
-			@content.append( $_<lexerAtom>.ast )
+			@content.append( $_.<lexerAtom>.ast )
 		}
 		make CharacterSet.new(
 			:content( @content )
@@ -388,14 +392,14 @@ class ANTLR4::Actions::Perl6 {
 
 	method parserRuleSpec( $/ ) {
 		make Rule.new(
-			:name( ~$/<ID> ),
+			:name( $/<ID>.ast ),
 			:content( $/<parserAltList>.ast )
 		)
 	}
 
 	method lexerRuleSpec( $/ ) {
 		make Rule.new(
-			:name( ~$/<ID> ),
+			:name( $/<ID>.ast ),
 			:content( $/<lexerAltList>.ast )
 		)
 	}
@@ -415,10 +419,10 @@ class ANTLR4::Actions::Perl6 {
 			@body.append( $_.ast )
 		}
 		my $grammar = Grammar.new(
-			:name( ~$/<ID> ),
+			:name( $/<ID>.ast ),
 			:content( @body )
 		);
-say $grammar.to-lines.perl;
+#say $grammar.to-lines.perl;
 		make $grammar.to-lines.join( "\n" ) ~ "\n";
 	}
 }
