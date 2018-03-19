@@ -31,7 +31,8 @@ my role Indenting {
 		}
 		return ''
 	}
-	method indent( @lines ) {
+	#method indent( @lines ) {
+	method indent( *@lines ) {
 		map { self.indent-line( $_ ) }, grep { /\S/ }, @lines
 	}
 }
@@ -91,13 +92,9 @@ class Alternation {
 	method to-lines {
 		my @content;
 		for @.content {
-			my @lines = $_.to-lines;
-			my $head = @lines[0];
-			my @rest = @lines[ 1 .. * ];
-			@content.append(
-				'||' ~ self.indent-line( $head ),
-					self.indent( @rest )
-			);
+			my @lines = self.indent( $_.to-lines );
+			@lines[0] = '||' ~ @lines[0] if @lines[0];
+			@content.append( @lines );
 		}
 		@content.flat
 	}
@@ -321,16 +318,27 @@ class ANTLR4::Actions::Perl6 {
 		make $/<block>.ast
 	}
 
+	# This... this takes some explanation.
+	# Yes, it's a simple match. The problem is that it's being used from
+	# *inside* a match. So attempting to match inside the method attempts
+	# to overwrite the existing $/ variable.
+	#
+	# The error is a bit unclear.
+	#
+	sub is-literal( $atom ) {
+		$atom ~~ / ^ \' /
+	}
+
 	method element( $/ ) {
-		if $/<ebnfSuffix> and $/<atom> {
+		if $/<ebnfSuffix> and $/<atom> and !is-literal( ~$/<atom> ) {
 			make Nonterminal.new(
-				:modifier( $/<ebnfSuffix><MODIFIER>.ast // '' ),
+				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
 				:name( $/<atom><terminal><scalar>.ast )
 			)
 		}
 		elsif $/<ebnfSuffix> {
 			make Terminal.new(
-				:modifier( $/<ebnfSuffix><MODIFIER>.ast // '' ),
+				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
 				:name( $/<atom><terminal><scalar>.ast )
 			)
 		}
@@ -422,7 +430,6 @@ class ANTLR4::Actions::Perl6 {
 			:name( $/<ID>.ast ),
 			:content( @body )
 		);
-#say $grammar.to-lines.perl;
 		make $grammar.to-lines.join( "\n" ) ~ "\n";
 	}
 }

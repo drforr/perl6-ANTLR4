@@ -160,7 +160,6 @@ subtest 'single rule, token', {
 	END
 	grammar Empty {
 		rule number {
-			||
 		}
 	}
 	END
@@ -172,10 +171,8 @@ subtest 'single rule, token', {
 	END
 	grammar Empty {
 		rule number {
-			||
 		}
 		rule string {
-			||
 		}
 	}
 	END
