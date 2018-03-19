@@ -1,6 +1,6 @@
 use v6;
 #use Grammar::Tracer;
-grammar ANTLR4::Grammar {
+grammar ANTLR4::Grammar:ver<0.0.1> {
 
 #
 # Not currently acted upon
