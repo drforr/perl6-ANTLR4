@@ -81,11 +81,12 @@ class Range {
 class CharacterSet {
 	has @.content;
 	has $.negated;
+	has $.modifier = '';
 
 	method to-lines {
 		$.negated ??
-			"<-[ {@.content} ]>" !!
-			"<[ {@.content} ]>"
+			"<-[ {@.content} ]>" ~ $.modifier !!
+			"<[ {@.content} ]>" ~ $.modifier
 	}
 }
 
@@ -204,6 +205,10 @@ class Grammar {
 			"\}"
 		).flat
 	}
+
+	method to-string {
+		self.to-lines.join( "\n" ) ~ "\n"
+	}
 }
 
 class ANTLR4::Actions::Perl6 {
@@ -211,6 +216,8 @@ class ANTLR4::Actions::Perl6 {
 	method STRING_LITERAL( $/ ) { make ~$/[0] }
 	method LEXER_CHAR_SET( $/ ) { make ~$/[0] }
 	method MODIFIER( $/ ) { make ~$/ }
+
+	method ebnfSuffix( $/ ) { make $/<MODIFIER>.ast }
 
 	method tokenName( $/ ) {
 		make Token.new( :name( $/<ID>.ast ) )
@@ -325,27 +332,19 @@ class ANTLR4::Actions::Perl6 {
 		make $/<block>.ast
 	}
 
-	# This... this takes some explanation.
-	# Yes, it's a simple match. The problem is that it's being used from
-	# *inside* a match. So attempting to match inside the method attempts
-	# to overwrite the existing $/ variable.
-	#
-	# The error is a bit unclear.
-	#
-	sub is-literal( $atom ) {
-		$atom ~~ / ^ \' /
-	}
-
 	method element( $/ ) {
-		if $/<ebnfSuffix> and $/<atom> and !is-literal( ~$/<atom> ) {
-			make Nonterminal.new(
-				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
-				:name( $/<atom><terminal><scalar>.ast )
+		if $/<ebnfSuffix> and $/<atom> and $/<atom><notSet> {
+			make CharacterSet.new(
+				:negated( True ),
+				:modifier( $/<ebnfSuffix>.ast ),
+				:content(
+					~$/<atom><notSet><blockSet><setElementAltList><setElement>[0]<terminal><STRING_LITERAL>[0]
+				)
 			)
 		}
 		elsif $/<ebnfSuffix> {
 			make Terminal.new(
-				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
+				:modifier( $/<ebnfSuffix>.ast ),
 				:name( $/<atom><terminal><scalar>.ast )
 			)
 		}
@@ -355,7 +354,7 @@ class ANTLR4::Actions::Perl6 {
 		elsif $/<ebnf> {
 			# XXX The // '' should probably go away...
 			make Grouping.new(
-				:modifier( $/<ebnf><ebnfSuffix><MODIFIER>.ast // '' ),
+				:modifier( $/<ebnf><ebnfSuffix>.ast // '' ),
 				:content(
 					Alternation.new(
 						:content( $/<ebnf>.ast )
@@ -370,7 +369,7 @@ class ANTLR4::Actions::Perl6 {
 			$/<element>[0]<atom><range> and
 			$/<element>[0]<ebnfSuffix> {
 			make Range.new(
-				:modifier( $/<element>[0]<ebnfSuffix><MODIFIER>.ast ),
+				:modifier( $/<element>[0]<ebnfSuffix>.ast ),
 				:from( $/<element>[0]<atom><range><from>.ast ),
 				:to( $/<element>[0]<atom><range><to>.ast ),
 			)
@@ -449,7 +448,7 @@ class ANTLR4::Actions::Perl6 {
 			:name( $/<ID>.ast ),
 			:content( @body )
 		);
-		make $grammar.to-lines.join( "\n" ) ~ "\n";
+		make $grammar
 	}
 }
 

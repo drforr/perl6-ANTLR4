@@ -2,13 +2,13 @@ use v6;
 use ANTLR4::Actions::Perl6;
 use Test;
 
-plan 11;
+plan 12;
 
 sub parse( $str ) {
 	return ANTLR4::Grammar.parse(
 		$str, 
 		:actions( ANTLR4::Actions::Perl6.new )
-	).ast;
+	).ast.to-string;
 }
 
 # The double comment blocks are around bits of the grammar that don't
@@ -705,6 +705,58 @@ subtest 'grouping', {
 						||	X
 							Y
 					)+
+			}
+		}
+		END
+
+		done-testing;
+	};
+
+	done-testing;
+};
+
+subtest 'negated grouping', {
+	is parse( Q:to[END] ), Q:to[END], 'single terminal';
+	grammar Lexer;
+	plain : ~( 'X' ) ;
+	END
+	grammar Lexer {
+		rule plain {
+			||	<-[ X ]>
+		}
+	}
+	END
+
+	subtest 'with modifiers', {
+		is parse( Q:to[END] ), Q:to[END], 'question';
+		grammar Lexer;
+		plain : ~( 'X' )? ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<-[ X ]>?
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'star';
+		grammar Lexer;
+		plain : ~( 'X' )* ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<-[ X ]>*
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'plus';
+		grammar Lexer;
+		plain : ~( 'X' )+ ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<-[ X ]>+
 			}
 		}
 		END

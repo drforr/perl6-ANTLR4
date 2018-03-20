@@ -6,7 +6,7 @@ sub MAIN( Str $filename )
 	{
 	my $g = ANTLR4::Grammar.new;
 	my $a = ANTLR4::Actions::Perl6.new;
-	say $g.parsefile( $filename, :actions( $a ) ).ast;
+	say $g.parsefile( $filename, :actions( $a ) ).ast.to-lines.join( "\n" ) ~ "\n";
 	}
 
 # vim: ft=perl6
