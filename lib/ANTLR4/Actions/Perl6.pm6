@@ -383,7 +383,7 @@ class ANTLR4::Actions::Perl6 {
 			$/<element>[1]<atom><DOT> and
 			$/<element>[2]<atom><DOT> {
 			make Range.new(
-				:modifier( ),
+				:modifier( $/<element>[3]<ebnfSuffix>.ast // '' ),
 				:negated( True ),
 				:from( $/<element>[0]<atom><notSet><setElement><terminal><scalar>.ast ),
 				:to( $/<element>[3]<atom><terminal><scalar>.ast ),
