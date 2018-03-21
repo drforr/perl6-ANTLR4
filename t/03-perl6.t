@@ -900,10 +900,9 @@ subtest 'grouping', {
 	}
 	END
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'empty fragment';
 	grammar Empty;
-	fragment empty : ;
+	fragment empty : ( ) ;
 	END
 	grammar Empty {
 		rule empty {
@@ -912,16 +911,14 @@ subtest 'grouping', {
 		}
 	}
 	END
-)
 
 	subtest 'modifiers', {
 		# a negated group is actually a negated character class, which
 		# we checked earlier.
 		#
-#`(
 		is parse( Q:to[END] ), Q:to[END], 'question';
 		grammar Empty;
-		rule empty : ( )? ;
+		empty : ( )? ;
 		END
 		grammar Empty {
 			rule empty {
@@ -930,12 +927,10 @@ subtest 'grouping', {
 			}
 		}
 		END
-)
 
-#`(
 		is parse( Q:to[END] ), Q:to[END], 'star';
 		grammar Empty;
-		rule empty : ( )* ;
+		empty : ( )* ;
 		END
 		grammar Empty {
 			rule empty {
@@ -944,12 +939,10 @@ subtest 'grouping', {
 			}
 		}
 		END
-)
 
-#`(
 		is parse( Q:to[END] ), Q:to[END], 'plus';
 		grammar Empty;
-		rule empty : ( )+ ;
+		empty : ( )+ ;
 		END
 		grammar Empty {
 			rule empty {
@@ -958,7 +951,6 @@ subtest 'grouping', {
 			}
 		}
 		END
-)
 
 		done-testing;
 	};

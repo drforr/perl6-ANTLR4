@@ -104,8 +104,10 @@ class Alternation {
 		my @content;
 		for @.content {
 			my @lines = self.indent( $_.to-lines );
-			@lines[0] = '||' ~ @lines[0] if @lines[0];
-			@content.append( @lines );
+			if @lines {
+				@lines[0] = '||' ~ @lines[0];
+				@content.append( @lines );
+			}
 		}
 		@content.flat
 	}
