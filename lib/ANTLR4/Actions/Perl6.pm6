@@ -409,6 +409,7 @@ class ANTLR4::Actions::Perl6 {
 			@content.append( $_.<lexerAtom>.ast )
 		}
 		make CharacterSet.new(
+			:modifier( $/<lexerElement>[0]<ebnfSuffix>.ast // '' ),
 			:content( @content )
 		)
 	}
