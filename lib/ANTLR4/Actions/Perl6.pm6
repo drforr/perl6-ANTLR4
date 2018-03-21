@@ -332,6 +332,10 @@ class ANTLR4::Actions::Perl6 {
 		make $/<block>.ast
 	}
 
+	sub is-ANTLR-terminal( $str ) {
+		$str ~~ / ^ \' /;
+	}
+
 	method element( $/ ) {
 		if $/<ebnfSuffix> and $/<atom> and $/<atom><notSet> {
 			make CharacterSet.new(
@@ -342,7 +346,7 @@ class ANTLR4::Actions::Perl6 {
 				)
 			)
 		}
-		elsif $/<ebnfSuffix> {
+		elsif $/<ebnfSuffix> and is-ANTLR-terminal( $/<atom> ) {
 			make Terminal.new(
 				:modifier( $/<ebnfSuffix>.ast ),
 				:name( $/<atom><terminal><scalar>.ast )
