@@ -955,6 +955,117 @@ subtest 'grouping', {
 		done-testing;
 	};
 
+	subtest 'grouped thing', {
+		is parse( Q:to[END] ), Q:to[END], 'terminal';
+		grammar Empty;
+		stuff : ( 'foo' ) ;
+		END
+		grammar Empty {
+			rule stuff {
+				||	(
+						||	foo
+					)
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'character range';
+		grammar Empty;
+		stuff : ( 'a'..'z' ) ;
+		END
+		grammar Empty {
+			rule stuff {
+				||	(
+						||	<[ a .. z ]>
+					)
+			}
+		}
+		END
+
+#`(
+		is parse( Q:to[END] ), Q:to[END], 'character set';
+		grammar Empty;
+		stuff : ( [c] ) ;
+		END
+		grammar Empty {
+			rule stuff {
+				||	(
+						||	<[ c ]>
+					)
+			}
+		}
+		END
+)
+
+		is parse( Q:to[END] ), Q:to[END], 'alternate character set';
+		grammar Empty;
+		stuff : ( ~'c' ) ;
+		END
+		grammar Empty {
+			rule stuff {
+				||	(
+						||	<-[ c ]>
+					)
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'negated character set subrule';
+		grammar Empty;
+		stuff : ( ~( 'c' ) ) ;
+		END
+		grammar Empty {
+			rule stuff {
+				||	(
+						||	<-[ c ]>
+					)
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'wildcard';
+		grammar Empty;
+		stuff : ( . ) ;
+		END
+		grammar Empty {
+			rule stuff {
+				||	(
+						||	.
+					)
+			}
+		}
+		END
+
+
+		is parse( Q:to[END] ), Q:to[END], 'empty rule';
+		grammar Empty;
+		stuff : ( Str ) ;
+		END
+		grammar Empty {
+			rule stuff {
+				||	(
+						||	<Str>
+					)
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'empty rule';
+		grammar Empty;
+		stuff : ( Str ) ;
+		END
+		grammar Empty {
+			rule stuff {
+				||	(
+						||	<Str>
+					)
+			}
+		}
+		END
+
+		done-testing;
+	};
+
 	done-testing;
 };
 
