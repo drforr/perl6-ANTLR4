@@ -341,8 +341,9 @@ class ANTLR4::Actions::Perl6 {
 			make CharacterSet.new(
 				:negated( True ),
 				:modifier( $/<ebnfSuffix>.ast ),
+				# XXX can improve
 				:content(
-					~$/<atom><notSet><blockSet><setElementAltList><setElement>[0]<terminal><STRING_LITERAL>[0]
+					$/<atom><notSet><setElement><LEXER_CHAR_SET>>>.Str
 				)
 			)
 		}

@@ -357,7 +357,6 @@ subtest 'rule', {
 			END
 
 			subtest 'negated modifiers', {
-#`(
 				is parse( Q:to[END] ), Q:to[END], 'question';
 				grammar Lexer;
 				plain : ~[c]? ;
@@ -368,9 +367,7 @@ subtest 'rule', {
 					}
 				}
 				END
-)
 
-#`(
 				is parse( Q:to[END] ), Q:to[END], 'star';
 				grammar Lexer;
 				plain : ~[c]* ;
@@ -381,9 +378,7 @@ subtest 'rule', {
 					}
 				}
 				END
-)
 
-#`(
 				is parse( Q:to[END] ), Q:to[END], 'plus';
 				grammar Lexer;
 				plain : ~[c]+ ;
@@ -394,7 +389,6 @@ subtest 'rule', {
 					}
 				}
 				END
-)
 
 				done-testing;
 			};
