@@ -337,13 +337,23 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method element( $/ ) {
-		if $/<ebnfSuffix> and $/<atom> and $/<atom><notSet> {
+		if $/<ebnfSuffix> and $/<atom> and $/<atom><notSet><setElement><LEXER_CHAR_SET> {
 			make CharacterSet.new(
 				:negated( True ),
 				:modifier( $/<ebnfSuffix>.ast ),
 				# XXX can improve
 				:content(
 					$/<atom><notSet><setElement><LEXER_CHAR_SET>>>.Str
+				)
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<atom> and $/<atom><notSet><setElement><terminal> {
+			make CharacterSet.new(
+				:negated( True ),
+				:modifier( $/<ebnfSuffix>.ast ),
+				# XXX can improve
+				:content(
+					~$/<atom><notSet><setElement><terminal><STRING_LITERAL>[0]
 				)
 			)
 		}
