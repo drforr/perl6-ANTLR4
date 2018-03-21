@@ -676,7 +676,7 @@ subtest 'rule', {
 # work if these do.
 #
 subtest 'concatenation, all basic permutations', {
-	is parse( Q:to[END] ), Q:to[END], 'terminal-terminal';
+	is parse( Q:to[END] ), Q:to[END], 'terminal,terminal';
 	grammar Lexer;
 	plain : 'terminal' 'other' ;
 	END
@@ -688,7 +688,7 @@ subtest 'concatenation, all basic permutations', {
 	}
 	END
 
-	is parse( Q:to[END] ), Q:to[END], 'terminal-character range';
+	is parse( Q:to[END] ), Q:to[END], 'terminal,character range';
 	grammar Lexer;
 	plain : 'terminal' 'a'..'z' ;
 	END
@@ -700,8 +700,7 @@ subtest 'concatenation, all basic permutations', {
 	}
 	END
 
-#`(
-	is parse( Q:to[END] ), Q:to[END], 'terminal-character set';
+	is parse( Q:to[END] ), Q:to[END], 'terminal,character set';
 	grammar Lexer;
 	plain : 'terminal' [by] ;
 	END
@@ -712,23 +711,66 @@ subtest 'concatenation, all basic permutations', {
 		}
 	}
 	END
-)
 
-#`(
-	is parse( Q:to[END] ), Q:to[END], 'terminal-character set';
-	grammar Lexer;
-	plain : 'terminal' [by] ;
-	END
-	grammar Lexer {
-		rule plain {
-			||	terminal
-				<[ b y ]>
+	# This is needed because a terminal for some reason shifts ANTLR to
+	# using the lexerAlt stuff, which needs to be built out separately.
+	# Again, I could redesign the grammar to get rid of this problem,
+	# but I think I'm going to leave it as-is to show what sort of
+	# challenges can result from this.
+	#
+	subtest 'terminal,character set modifiers', {
+		is parse( Q:to[END] ), Q:to[END], 'terminal,negated character set';
+		grammar Lexer;
+		plain : 'terminal' ~[by] ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	terminal
+					<[ b y ]>
+			}
 		}
-	}
-	END
-)
+		END
 
-	is parse( Q:to[END] ), Q:to[END], 'terminal-negated subrule';
+		is parse( Q:to[END] ), Q:to[END], 'terminal,character set with question';
+		grammar Lexer;
+		plain : 'terminal' [by]? ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	terminal
+					<[ b y ]>?
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'terminal,character set with star';
+		grammar Lexer;
+		plain : 'terminal' [by]* ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	terminal
+					<[ b y ]>*
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'terminal,character set with plus';
+		grammar Lexer;
+		plain : 'terminal' [by]+ ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	terminal
+					<[ b y ]>+
+			}
+		}
+		END
+
+		done-testing;
+	};
+
+	is parse( Q:to[END] ), Q:to[END], 'terminal,negated subrule';
 	grammar Lexer;
 	plain : 'terminal' ~('W') ;
 	END

@@ -443,19 +443,40 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method lexerAtom( $/ ) {
-		make $/<LEXER_CHAR_SET>.ast
+		if $/<LEXER_CHAR_SET> {
+			my @content;
+			for $/<LEXER_CHAR_SET> {
+				@content.append( $_ )
+			}
+			make CharacterSet.new(
+				:content( @content )
+			)
+		}
+		elsif $/<terminal> {
+			make Terminal.new(
+				:name( ~$/<terminal><STRING_LITERAL>[0] )
+			)
+		}
+	}
+
+	method lexerElement( $/ ) {
+		if $/<ebnfSuffix> {
+			my @content;
+			for $/<lexerAtom><LEXER_CHAR_SET> {
+				@content.append( $_ )
+			}
+			make CharacterSet.new(
+				:modifier( $/<ebnfSuffix> ),
+				:content( @content )
+			)
+		}
+		else {
+			make $/<lexerAtom>.ast
+		}
 	}
 
 	method lexerAlt( $/ ) {
-say $/;
-		my @content;
-		for $/<lexerElement> {
-			@content.append( $_.<lexerAtom>.ast )
-		}
-		make CharacterSet.new(
-			:modifier( $/<lexerElement>[0]<ebnfSuffix>.ast // '' ),
-			:content( @content )
-		)
+		make Concatenation.new( :content( $/<lexerElement>>>.ast ) )
 	}
 
 	method parserAltList( $/ ) {
@@ -463,7 +484,8 @@ say $/;
 	}
 
 	method lexerAltList( $/ ) {
-		make Alternation.new( :content( $/<lexerAlt>>>.ast ) )
+		#make Alternation.new( :content( $/<lexerAlt>>>.ast ) )
+		make Alternation.new( :content( $/<lexerAlt>[0].ast ) )
 	}
 
 	method parserRuleSpec( $/ ) {
