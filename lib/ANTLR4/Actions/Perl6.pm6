@@ -484,8 +484,7 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method lexerAltList( $/ ) {
-		#make Alternation.new( :content( $/<lexerAlt>>>.ast ) )
-		make Alternation.new( :content( $/<lexerAlt>[0].ast ) )
+		make Alternation.new( :content( $/<lexerAlt>>>.ast ) )
 	}
 
 	method parserRuleSpec( $/ ) {

@@ -726,7 +726,7 @@ subtest 'concatenation, all basic permutations', {
 		grammar Lexer {
 			rule plain {
 				||	terminal
-					<[ b y ]>
+					<-[ b y ]>
 			}
 		}
 		END
@@ -834,7 +834,6 @@ subtest 'alternation, all basic permutations', {
 	}
 	END
 
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'terminal-character set';
 	grammar Lexer;
 	plain : 'terminal' | [by] ;
@@ -846,7 +845,6 @@ subtest 'alternation, all basic permutations', {
 		}
 	}
 	END
-)
 
 	is parse( Q:to[END] ), Q:to[END], 'terminal-negated subrule';
 	grammar Lexer;
