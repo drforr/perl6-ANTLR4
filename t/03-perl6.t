@@ -1032,19 +1032,7 @@ subtest 'grouping', {
 		END
 
 
-		is parse( Q:to[END] ), Q:to[END], 'empty rule';
-		grammar Empty;
-		stuff : ( Str ) ;
-		END
-		grammar Empty {
-			rule stuff {
-				||	(	||	<Str>
-					)
-			}
-		}
-		END
-
-		is parse( Q:to[END] ), Q:to[END], 'empty rule';
+		is parse( Q:to[END] ), Q:to[END], 'nonterminal';
 		grammar Empty;
 		stuff : ( Str ) ;
 		END
@@ -1058,6 +1046,32 @@ subtest 'grouping', {
 
 		done-testing;
 	};
+
+	is parse( Q:to[END] ), Q:to[END], 'concatenation';
+	grammar Empty;
+	stuff : ( Str 'testing' ) ;
+	END
+	grammar Empty {
+		rule stuff {
+			||	(	||	<Str>
+						testing
+				)
+		}
+	}
+	END
+
+	is parse( Q:to[END] ), Q:to[END], 'alternation';
+	grammar Empty;
+	stuff : ( Str | 'testing' ) ;
+	END
+	grammar Empty {
+		rule stuff {
+			||	(	||	<Str>
+					||	testing
+				)
+		}
+	}
+	END
 
 	done-testing;
 };
