@@ -342,7 +342,14 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method element( $/ ) {
-		if $/<ebnfSuffix> and $/<atom><DOT> {
+		if $/<ebnfSuffix> and $/<atom><terminal><scalar> and
+			!is-ANTLR-terminal( ~$/<atom><terminal><scalar> ) {
+			make Nonterminal.new(
+				:modifier( $/<ebnfSuffix>.ast ),
+				:name( ~$/<atom><terminal><scalar> )
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<atom><DOT> {
 			make Wildcard.new(
 				:modifier( $/<ebnfSuffix>.ast )
 			)

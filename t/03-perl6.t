@@ -626,7 +626,6 @@ subtest 'rule', {
 			# Negation is allowed in the grammar but is illegal
 			# in the actual language, apparently.
 
-#`(
 			is parse( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : Str? ;
@@ -637,12 +636,10 @@ subtest 'rule', {
 				}
 			}
 			END
-)
 
-#`(
 			is parse( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
-			plain : <Str>* ;
+			plain : Str* ;
 			END
 			grammar Lexer {
 				rule plain {
@@ -650,12 +647,10 @@ subtest 'rule', {
 				}
 			}
 			END
-)
 
-#`(
 			is parse( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
-			plain : <Str>+ ;
+			plain : Str+ ;
 			END
 			grammar Lexer {
 				rule plain {
@@ -663,7 +658,6 @@ subtest 'rule', {
 				}
 			}
 			END
-)
 
 			done-testing;
 		};
