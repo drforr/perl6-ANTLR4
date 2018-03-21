@@ -524,7 +524,6 @@ subtest 'rule', {
 			}
 			END
 
-#`(
 			is parse( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : ~( 'W' )* ;
@@ -535,9 +534,7 @@ subtest 'rule', {
 				}
 			}
 			END
-)
 
-#`(
 			is parse( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : ~( 'W' )+ ;
@@ -548,7 +545,6 @@ subtest 'rule', {
 				}
 			}
 			END
-)
 
 			done-testing;
 		};
@@ -574,7 +570,6 @@ subtest 'rule', {
 			# Negated wildcard is illegal.
 			# Good thing too, no idea what it would mean.
 
-#`(
 			is parse( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : .? ;
@@ -585,9 +580,7 @@ subtest 'rule', {
 				}
 			}
 			END
-)
 
-#`(
 			is parse( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : .* ;
@@ -598,9 +591,7 @@ subtest 'rule', {
 				}
 			}
 			END
-)
 
-#`(
 			is parse( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : .+ ;
@@ -611,7 +602,6 @@ subtest 'rule', {
 				}
 			}
 			END
-)
 
 			done-testing;
 		};

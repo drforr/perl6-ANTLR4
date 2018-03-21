@@ -55,7 +55,12 @@ class Terminal {
 	}
 }
 
-class Wildcard { method to-lines { return "." } }
+class Wildcard {
+
+	has $.modifier = '';
+
+	method to-lines { return "." ~ $.modifier }
+}
 
 class Nonterminal {
 	also does Named;
@@ -337,14 +342,18 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method element( $/ ) {
-		if $/<ebnfSuffix> and $/<atom> and $/<atom><notSet><blockSet> {
+		if $/<ebnfSuffix> and $/<atom><DOT> {
+			make Wildcard.new(
+				:modifier( $/<ebnfSuffix>.ast )
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<atom> and $/<atom><notSet><blockSet> {
 			make CharacterSet.new(
 				:negated( True ),
 				:modifier( $/<ebnfSuffix>.ast ),
 				# XXX can improve
 				:content(
 ~$/<atom><notSet><blockSet><setElementAltList><setElement>[0]<terminal><STRING_LITERAL>[0]
-#~$/<atom><notSet><blockSet><setElementAltList><setElement><terminal>
 				)
 			)
 		}
