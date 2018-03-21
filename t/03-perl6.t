@@ -1073,6 +1073,35 @@ subtest 'grouping', {
 	}
 	END
 
+	is parse( Q:to[END] ), Q:to[END], 'nesting';
+	grammar Empty;
+	stuff : ( ( Str | 'testing' ) ) ;
+	END
+	grammar Empty {
+		rule stuff {
+			||	(	||	(	||	<Str>
+							||	testing
+						)
+				)
+		}
+	}
+	END
+
+	is parse( Q:to[END] ), Q:to[END], 'terminal + nesting';
+	grammar Empty;
+	stuff : ( ( Str | 'testing' ) 'foo' ) ;
+	END
+	grammar Empty {
+		rule stuff {
+			||	(	||	(	||	<Str>
+							||	testing
+						)
+						foo
+				)
+		}
+	}
+	END
+
 	done-testing;
 };
 
