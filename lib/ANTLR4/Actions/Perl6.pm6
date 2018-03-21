@@ -154,7 +154,7 @@ class Grouping is Block {
 			@content.append( $_.to-lines );
 		}
 		return (
-			"\(",
+			"\(" ~ self.indent-line( @content.pop ),
 			self.indent( @content ),
 			"\)" ~ $.modifier
 		).flat

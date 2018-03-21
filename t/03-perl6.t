@@ -962,8 +962,7 @@ subtest 'grouping', {
 		END
 		grammar Empty {
 			rule stuff {
-				||	(
-						||	foo
+				||	(	||	foo
 					)
 			}
 		}
@@ -975,8 +974,7 @@ subtest 'grouping', {
 		END
 		grammar Empty {
 			rule stuff {
-				||	(
-						||	<[ a .. z ]>
+				||	(	||	<[ a .. z ]>
 					)
 			}
 		}
@@ -1003,8 +1001,7 @@ subtest 'grouping', {
 		END
 		grammar Empty {
 			rule stuff {
-				||	(
-						||	<-[ c ]>
+				||	(	||	<-[ c ]>
 					)
 			}
 		}
@@ -1016,8 +1013,7 @@ subtest 'grouping', {
 		END
 		grammar Empty {
 			rule stuff {
-				||	(
-						||	<-[ c ]>
+				||	(	||	<-[ c ]>
 					)
 			}
 		}
@@ -1029,8 +1025,7 @@ subtest 'grouping', {
 		END
 		grammar Empty {
 			rule stuff {
-				||	(
-						||	.
+				||	(	||	.
 					)
 			}
 		}
@@ -1043,8 +1038,7 @@ subtest 'grouping', {
 		END
 		grammar Empty {
 			rule stuff {
-				||	(
-						||	<Str>
+				||	(	||	<Str>
 					)
 			}
 		}
@@ -1056,8 +1050,7 @@ subtest 'grouping', {
 		END
 		grammar Empty {
 			rule stuff {
-				||	(
-						||	<Str>
+				||	(	||	<Str>
 					)
 			}
 		}
