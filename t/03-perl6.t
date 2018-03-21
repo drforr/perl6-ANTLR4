@@ -513,7 +513,6 @@ subtest 'rule', {
 		END
 
 		subtest 'modifiers', {
-#`(
 			is parse( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : ~( 'W' )? ;
@@ -524,7 +523,6 @@ subtest 'rule', {
 				}
 			}
 			END
-)
 
 #`(
 			is parse( Q:to[END] ), Q:to[END], 'star';

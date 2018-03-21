@@ -337,7 +337,18 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method element( $/ ) {
-		if $/<ebnfSuffix> and $/<atom> and $/<atom><notSet><setElement><LEXER_CHAR_SET> {
+		if $/<ebnfSuffix> and $/<atom> and $/<atom><notSet><blockSet> {
+			make CharacterSet.new(
+				:negated( True ),
+				:modifier( $/<ebnfSuffix>.ast ),
+				# XXX can improve
+				:content(
+~$/<atom><notSet><blockSet><setElementAltList><setElement>[0]<terminal><STRING_LITERAL>[0]
+#~$/<atom><notSet><blockSet><setElementAltList><setElement><terminal>
+				)
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<atom> and $/<atom><notSet><setElement><LEXER_CHAR_SET> {
 			make CharacterSet.new(
 				:negated( True ),
 				:modifier( $/<ebnfSuffix>.ast ),
