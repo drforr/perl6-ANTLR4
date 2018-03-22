@@ -31,7 +31,6 @@ my role Indenting {
 		}
 		return ''
 	}
-	#method indent( @lines ) {
 	method indent( *@lines ) {
 		map { self.indent-line( $_ ) }, grep { /\S/ }, @lines
 	}
@@ -43,6 +42,7 @@ class Terminal {
 	also does Named;
 
 	has $.modifier = '';
+	has $.greed = '';
 
 	method to-lines {
 		my $copy = $.name;
@@ -51,23 +51,25 @@ class Terminal {
 		if $copy ~~ / <-[ a ..z A .. Z ]> / {
 			$copy = qq{'$copy'};
 		}
-		return $copy ~ $.modifier
+		return $copy ~ $.modifier ~ $.greed
 	}
 }
 
 class Wildcard {
 
 	has $.modifier = '';
+	has $.greed = '';
 
-	method to-lines { return "." ~ $.modifier }
+	method to-lines { return "." ~ $.modifier ~ $.greed }
 }
 
 class Nonterminal {
 	also does Named;
 
 	has $.modifier = '';
+	has $.greed = '';
 
-	method to-lines { return "<$.name>" ~ $.modifier }
+	method to-lines { return "<$.name>" ~ $.modifier ~ $.greed }
 }
 
 class Range {
@@ -75,11 +77,12 @@ class Range {
 	has $.to;
 	has $.negated;
 	has $.modifier = '';
+	has $.greed = '';
 
 	method to-lines {
 		$.negated ??
-			"<-[ $.from .. $.to ]>" ~ $.modifier !!
-			"<[ $.from .. $.to ]>" ~ $.modifier
+			"<-[ $.from .. $.to ]>" ~ $.modifier ~ $.greed !!
+			"<[ $.from .. $.to ]>" ~ $.modifier ~ $.greed
 	}
 }
 
@@ -87,11 +90,12 @@ class CharacterSet {
 	has @.content;
 	has $.negated;
 	has $.modifier = '';
+	has $.greed = '';
 
 	method to-lines {
 		$.negated ??
-			"<-[ {@.content} ]>" ~ $.modifier !!
-			"<[ {@.content} ]>" ~ $.modifier
+			"<-[ {@.content} ]>" ~ $.modifier ~ $.greed !!
+			"<[ {@.content} ]>" ~ $.modifier ~ $.greed
 	}
 }
 
@@ -147,6 +151,7 @@ class Block {
 
 class Grouping is Block {
 	has $.modifier = '';
+	has $.greed = '';
 
 	method to-lines {
 		my @content;
@@ -156,7 +161,7 @@ class Grouping is Block {
 		return (
 			"\(" ~ self.indent-line( @content.shift ),
 			self.indent( @content ),
-			"\)" ~ $.modifier
+			"\)" ~ $.modifier ~ $.greed
 		).flat
 	}
 }
@@ -230,11 +235,6 @@ class ANTLR4::Actions::Perl6 {
 	method LEXER_CHAR_SET( $/ ) { make ~$/[0] }
 	method MODIFIER( $/ ) { make ~$/ }
 	method GREED( $/ ) { make ~$/ }
-
-	method ebnfSuffix( $/ ) {
-		make $/<MODIFIER>.ast ~
-			( $/<GREED> ?? $/<GREED>.ast !! '' )
-	}
 
 	method tokenName( $/ ) {
 		make Token.new( :name( $/<ID>.ast ) )
@@ -358,19 +358,40 @@ class ANTLR4::Actions::Perl6 {
 			if $/<atom><terminal><scalar> and
 				!is-ANTLR-terminal( ~$/<atom><terminal><scalar> ) {
 				make Nonterminal.new(
-					:modifier( $/<ebnfSuffix>.ast ),
+					:modifier(
+						$/<ebnfSuffix><MODIFIER>.ast
+					),
+					:greed(
+						$/<ebnfSuffix><GREED> ??
+							$/<ebnfSuffix><GREED>.ast !!
+							''
+					),
 					:name( ~$/<atom><terminal><scalar> )
 				)
 			}
 			elsif $/<atom><DOT> {
 				make Wildcard.new(
-					:modifier( $/<ebnfSuffix>.ast )
+					:modifier(
+						$/<ebnfSuffix><MODIFIER>.ast
+					),
+					:greed(
+						$/<ebnfSuffix><GREED> ??
+							$/<ebnfSuffix><GREED>.ast !!
+							''
+					),
 				)
 			}
 			elsif $/<atom><notSet><blockSet> {
 				make CharacterSet.new(
 					:negated( True ),
-					:modifier( $/<ebnfSuffix>.ast ),
+					:modifier(
+						$/<ebnfSuffix><MODIFIER>.ast
+					),
+					:greed(
+						$/<ebnfSuffix><GREED> ??
+							$/<ebnfSuffix><GREED>.ast !!
+							''
+					),
 					# XXX can improve
 					:content(
 	~$/<atom><notSet><blockSet><setElementAltList><setElement>[0]<terminal><STRING_LITERAL>[0]
@@ -380,7 +401,14 @@ class ANTLR4::Actions::Perl6 {
 			elsif $/<atom><notSet><setElement><LEXER_CHAR_SET> {
 				make CharacterSet.new(
 					:negated( True ),
-					:modifier( $/<ebnfSuffix>.ast ),
+					:modifier(
+						$/<ebnfSuffix><MODIFIER>.ast
+					),
+					:greed(
+						$/<ebnfSuffix><GREED> ??
+							$/<ebnfSuffix><GREED>.ast !!
+							''
+					),
 					# XXX can improve
 					:content(
 						$/<atom><notSet><setElement><LEXER_CHAR_SET>>>.Str
@@ -390,7 +418,14 @@ class ANTLR4::Actions::Perl6 {
 			elsif $/<atom><notSet><setElement><terminal> {
 				make CharacterSet.new(
 					:negated( True ),
-					:modifier( $/<ebnfSuffix>.ast ),
+					:modifier(
+						$/<ebnfSuffix><MODIFIER>.ast
+					),
+					:greed(
+						$/<ebnfSuffix><GREED> ??
+							$/<ebnfSuffix><GREED>.ast !!
+							''
+					),
 					# XXX can improve
 					:content(
 						~$/<atom><notSet><setElement><terminal><STRING_LITERAL>[0]
@@ -399,7 +434,14 @@ class ANTLR4::Actions::Perl6 {
 			}
 			else {
 				make Terminal.new(
-					:modifier( $/<ebnfSuffix>.ast ),
+					:modifier(
+						$/<ebnfSuffix><MODIFIER>.ast
+					),
+					:greed(
+						$/<ebnfSuffix><GREED> ??
+							$/<ebnfSuffix><GREED>.ast !!
+							''
+					),
 					:name( $/<atom><terminal><scalar>.ast )
 				)
 			}
@@ -407,7 +449,14 @@ class ANTLR4::Actions::Perl6 {
 		elsif $/<ebnf> {
 			# XXX The // '' should probably go away...
 			make Grouping.new(
-				:modifier( $/<ebnf><ebnfSuffix>.ast // '' ),
+				:modifier(
+					$/<ebnf><ebnfSuffix><MODIFIER>.ast // ''
+				),
+				:greed(
+					$/<ebnf><ebnfSuffix><GREED> ??
+						$/<ebnf><ebnfSuffix><GREED>.ast !!
+						''
+				),
 				:content(
 					Alternation.new(
 						:content( $/<ebnf>.ast )
@@ -424,7 +473,14 @@ class ANTLR4::Actions::Perl6 {
 		if $/<element>[0]<atom><range> and
 			$/<element>[0]<ebnfSuffix> {
 			make Range.new(
-				:modifier( $/<element>[0]<ebnfSuffix>.ast ),
+				:modifier(
+					 $/<element>[0]<ebnfSuffix><MODIFIER>.ast
+				),
+				:greed(
+					$/<element>[0]<ebnfSuffix><GREED> ??
+						$/<element>[0]<ebnfSuffix><GREED>.ast !!
+						''
+				),
 				:from( $/<element>[0]<atom><range><from>.ast ),
 				:to( $/<element>[0]<atom><range><to>.ast ),
 			)
@@ -433,7 +489,14 @@ class ANTLR4::Actions::Perl6 {
 			$/<element>[1]<atom><DOT> and
 			$/<element>[2]<atom><DOT> {
 			make Range.new(
-				:modifier( $/<element>[3]<ebnfSuffix>.ast // '' ),
+				:modifier(
+					$/<element>[3]<ebnfSuffix><MODIFIER>.ast // ''
+				),
+				:greed(
+					$/<element>[3]<ebnfSuffix><GREED> ??
+						$/<element>[3]<ebnfSuffix><GREED>.ast !!
+						''
+				),
 				:negated( True ),
 				:from( $/<element>[0]<atom><notSet><setElement><terminal><scalar>.ast ),
 				:to( $/<element>[3]<atom><terminal><scalar>.ast ),
@@ -472,7 +535,11 @@ class ANTLR4::Actions::Perl6 {
 				@content.append( $_ )
 			}
 			make CharacterSet.new(
-				:modifier( $/<ebnfSuffix> ),
+				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
+				:greed(
+					$/<ebnfSuffix><GREED> ??
+						$/<ebnfSuffix><GREED>.ast !! ''
+				),
 				:content( @content )
 			)
 		}
