@@ -333,6 +333,80 @@ subtest 'rule', {
 			done-testing;
 		};
 
+		subtest 'greedy modifiers', {
+			subtest 'negated modifiers', {
+				is parse( Q:to[END] ), Q:to[END], 'question';
+				grammar Lexer;
+				plain : ~'a'..'z'?? ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ a .. z ]>??
+					}
+				}
+				END
+
+				is parse( Q:to[END] ), Q:to[END], 'star';
+				grammar Lexer;
+				plain : ~'a'..'z'*? ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ a .. z ]>*?
+					}
+				}
+				END
+
+				is parse( Q:to[END] ), Q:to[END], 'plus';
+				grammar Lexer;
+				plain : ~'a'..'z'+? ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ a .. z ]>+?
+					}
+				}
+				END
+
+				done-testing;
+			};
+
+			is parse( Q:to[END] ), Q:to[END], 'question';
+			grammar Lexer;
+			plain : 'a'..'z'?? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<[ a .. z ]>??
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'star';
+			grammar Lexer;
+			plain : 'a'..'z'*? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<[ a .. z ]>*?
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'plus';
+			grammar Lexer;
+			plain : 'a'..'z'+? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<[ a .. z ]>+?
+				}
+			}
+			END
+
+			done-testing;
+		};
+
 		done-testing;
 	};
 
@@ -466,6 +540,80 @@ subtest 'rule', {
 			done-testing;
 		};
 
+		subtest 'greedy modifiers', {
+			subtest 'negated modifiers', {
+				is parse( Q:to[END] ), Q:to[END], 'question';
+				grammar Lexer;
+				plain : ~[c]?? ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ c ]>??
+					}
+				}
+				END
+
+				is parse( Q:to[END] ), Q:to[END], 'star';
+				grammar Lexer;
+				plain : ~[c]*? ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ c ]>*?
+					}
+				}
+				END
+
+				is parse( Q:to[END] ), Q:to[END], 'plus';
+				grammar Lexer;
+				plain : ~[c]+? ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ c ]>+?
+					}
+				}
+				END
+
+				done-testing;
+			};
+
+			is parse( Q:to[END] ), Q:to[END], 'question';
+			grammar Lexer;
+			plain : [c]?? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<[ c ]>??
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'star';
+			grammar Lexer;
+			plain : [c]*? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<[ c ]>*?
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'plus';
+			grammar Lexer;
+			plain : [c]+? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<[ c ]>+?
+				}
+			}
+			END
+
+			done-testing;
+		};
+
 		subtest 'alternate form', {
 			is parse( Q:to[END] ), Q:to[END], 'negated';
 			grammar Lexer;
@@ -508,6 +656,43 @@ subtest 'rule', {
 				grammar Lexer {
 					rule plain {
 						||	<-[ c ]>+
+					}
+				}
+				END
+
+				done-testing;
+			};
+
+			subtest 'greedy modifiers', {
+				is parse( Q:to[END] ), Q:to[END], 'question';
+				grammar Lexer;
+				plain : ~'c'?? ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ c ]>??
+					}
+				}
+				END
+
+				is parse( Q:to[END] ), Q:to[END], 'star';
+				grammar Lexer;
+				plain : ~'c'*? ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ c ]>*?
+					}
+				}
+				END
+
+				is parse( Q:to[END] ), Q:to[END], 'plus';
+				grammar Lexer;
+				plain : ~'c'+? ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ c ]>+?
 					}
 				}
 				END
@@ -586,6 +771,43 @@ subtest 'rule', {
 			done-testing;
 		};
 
+		subtest 'greedy modifiers', {
+			is parse( Q:to[END] ), Q:to[END], 'question';
+			grammar Lexer;
+			plain : ~( 'W' )?? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<-[ W ]>??
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'star';
+			grammar Lexer;
+			plain : ~( 'W' )*? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<-[ W ]>*?
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'plus';
+			grammar Lexer;
+			plain : ~( 'W' )+? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<-[ W ]>+?
+				}
+			}
+			END
+
+			done-testing;
+		};
+
 		done-testing;
 	};
 
@@ -636,6 +858,46 @@ subtest 'rule', {
 			grammar Lexer {
 				rule plain {
 					||	.+
+				}
+			}
+			END
+
+			done-testing;
+		};
+
+		subtest 'greedy modifiers', {
+			# Negated wildcard is illegal.
+			# Good thing too, no idea what it would mean.
+
+			is parse( Q:to[END] ), Q:to[END], 'question';
+			grammar Lexer;
+			plain : .?? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	.??
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'star';
+			grammar Lexer;
+			plain : .*? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	.*?
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'plus';
+			grammar Lexer;
+			plain : .+? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	.+?
 				}
 			}
 			END
@@ -699,6 +961,46 @@ subtest 'rule', {
 			done-testing;
 		};
 
+		subtest 'greedy modifiers', {
+
+			# Negation is allowed in the grammar but is illegal
+			# in the actual language, apparently.
+
+			is parse( Q:to[END] ), Q:to[END], 'question';
+			grammar Lexer;
+			plain : Str?? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<Str>??
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'star';
+			grammar Lexer;
+			plain : Str*? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<Str>*?
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'plus';
+			grammar Lexer;
+			plain : Str+? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<Str>+?
+				}
+			}
+			END
+
+			done-testing;
+		};
 
 		done-testing;
 	};
