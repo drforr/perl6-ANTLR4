@@ -38,8 +38,8 @@ my role Indenting {
 
 my role Named { has $.name; }
 my role Modified {
-	has $.modifier;
-	has $.greed;
+	has $.modifier = '';
+	has $.greed = '';
 }
 
 class Terminal {
@@ -47,12 +47,10 @@ class Terminal {
 	also does Modified;
 
 	method to-lines {
-		if $.name ~~ / <-[ a ..z A .. Z ]> / {
-			return qq{'$.name'} ~ $.modifier ~ $.greed
-		}
-		else {
-			return $.name ~ $.modifier ~ $.greed
-		}
+		my $name = $.name ~~ / <-[ a ..z A .. Z ]> / ??
+			qq{'$.name'} !!
+			$.name;	
+		return $name ~ $.modifier ~ $.greed
 	}
 }
 
@@ -453,7 +451,7 @@ class ANTLR4::Actions::Perl6 {
 					)
 				)
 			}
-			else {
+			elsif $/<atom><terminal><scalar>.ast {
 				make Terminal.new(
 					:modifier(
 						$/<ebnfSuffix><MODIFIER>.ast
