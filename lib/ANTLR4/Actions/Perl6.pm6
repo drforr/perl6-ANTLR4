@@ -37,73 +37,59 @@ my role Indenting {
 }
 
 my role Named { has $.name; }
+my role Modified {
+	has $.modifier;
+	has $.greed;
+}
 
 class Terminal {
 	also does Named;
-
-	has $.modifier = '';
-	has $.greed = '';
+	also does Modified;
 
 	method to-lines {
-		# XXX This shouldn't be done here...
-		#
-		my $copy = $.name;
-		$copy ~~ s:g/\\u(....)/\\x[$0]/;
-		$copy ~~ s:g/<!after \\>\'/\\\'/;
-		if $copy ~~ / <-[ a ..z A .. Z ]> / {
-			$copy = qq{'$copy'};
+		if $.name ~~ / <-[ a ..z A .. Z ]> / {
+			return qq{'$.name'} ~ $.modifier ~ $.greed
 		}
-		return $copy ~ $.modifier ~ $.greed
+		else {
+			return $.name ~ $.modifier ~ $.greed
+		}
 	}
 }
 
 class Wildcard {
-
-	has $.modifier = '';
-	has $.greed = '';
+	also does Modified;
 
 	method to-lines { return "." ~ $.modifier ~ $.greed }
 }
 
 class Nonterminal {
 	also does Named;
-
-	has $.modifier = '';
-	has $.greed = '';
+	also does Modified;
 
 	method to-lines { return "<$.name>" ~ $.modifier ~ $.greed }
 }
 
 class Range {
+	also does Modified;
+
 	has $.from;
 	has $.to;
 	has $.negated;
-	has $.modifier = '';
-	has $.greed = '';
 
 	method to-lines {
-		# XXX This shouldn't be done here...
-		#
-		my $from = $.from;
-		$from ~~ s:g/\\u(....)/\\x[$0]/;
-		my $to = $.to;
-		$to ~~ s:g/\\u(....)/\\x[$0]/;
-
-		$.negated ??
-			"<-[ $from .. $to ]>" ~ $.modifier ~ $.greed !!
-			"<[ $from .. $to ]>" ~ $.modifier ~ $.greed
+		my $negated = $.negated ?? '-' !! '';
+		"<{$negated}[ $.from .. $.to ]>" ~ $.modifier ~ $.greed
 	}
 }
 
 class CharacterSet {
+	also does Modified;
+
 	has @.content;
 	has $.negated;
-	has $.modifier = '';
-	has $.greed = '';
 
 	method to-lines {
 		my @content;
-say @.content;
 		for @.content {
 			if /(.)\-(.)/ {
 				@content.append( qq{$0 .. $1} );
@@ -112,9 +98,8 @@ say @.content;
 				@content.append( $_ );
 			}
 		}
-		$.negated ??
-			"<-[ {@.content} ]>" ~ $.modifier ~ $.greed !!
-			"<[ {@.content} ]>" ~ $.modifier ~ $.greed
+		my $negated = $.negated ?? '-' !! '';
+		"<{$negated}[ {@.content} ]>" ~ $.modifier ~ $.greed
 	}
 }
 
@@ -169,8 +154,7 @@ class Block {
 }
 
 class Grouping is Block {
-	has $.modifier = '';
-	has $.greed = '';
+	also does Modified;
 
 	method to-lines {
 		my @content;
@@ -277,6 +261,20 @@ class ANTLR4::Actions::Perl6 {
 		make @tokens
 	}
 
+	# XXX The 'if $copy' shouldn't be needed because Terminals with empty
+	# XXX names shouldn't ever be created.
+	sub ANTLR-to-perl( $str ) {
+		if $str {
+			my $copy = $str;
+			$copy ~~ s:g/\\u(....)/\\x[$0]/;
+			$copy ~~ s:g/<!after \\>\'/\\\'/;
+			$copy;
+		}
+		else {
+			$str;
+		}
+	}
+
 	# A lovely quirk of the ANTLR grammar is that nonterminals are actually
 	# just a variant of the terminal, because ANTLR internally divides
 	# lexer and parser grammars, and lexers can't have parser terms
@@ -287,7 +285,11 @@ class ANTLR4::Actions::Perl6 {
 			make Nonterminal.new( :name( $/<scalar>.ast ) )
 		}
 		else {
-			make Terminal.new( :name( $/<scalar>.ast ) )
+			make Terminal.new(
+				:name(
+					ANTLR-to-perl( $/<scalar>.ast )
+				)
+			)
 		}
 	}
 
@@ -297,8 +299,8 @@ class ANTLR4::Actions::Perl6 {
 	#
 	method range( $/ ) {
 		make Range.new(
-			:from( $/<from>.ast ),
-			:to( $/<to>.ast )
+			:from( ANTLR-to-perl( $/<from>.ast ) ),
+			:to( ANTLR-to-perl( $/<to>.ast ) )
 		)
 	}
 
@@ -461,7 +463,11 @@ class ANTLR4::Actions::Perl6 {
 							$/<ebnfSuffix><GREED>.ast !!
 							''
 					),
-					:name( $/<atom><terminal><scalar>.ast )
+					:name(
+						ANTLR-to-perl(
+							$/<atom><terminal><scalar>.ast
+						)
+					)
 				)
 			}
 		}
@@ -500,8 +506,16 @@ class ANTLR4::Actions::Perl6 {
 						$/<element>[0]<ebnfSuffix><GREED>.ast !!
 						''
 				),
-				:from( $/<element>[0]<atom><range><from>.ast ),
-				:to( $/<element>[0]<atom><range><to>.ast ),
+				:from(
+					ANTLR-to-perl(
+						$/<element>[0]<atom><range><from>.ast
+					)
+				),
+				:to(
+					ANTLR-to-perl(
+						$/<element>[0]<atom><range><to>.ast
+					)
+				),
 			)
 		}
 		elsif $/<element>[0]<atom><notSet> and
@@ -517,8 +531,14 @@ class ANTLR4::Actions::Perl6 {
 						''
 				),
 				:negated( True ),
-				:from( $/<element>[0]<atom><notSet><setElement><terminal><scalar>.ast ),
-				:to( $/<element>[3]<atom><terminal><scalar>.ast ),
+				:from(
+					ANTLR-to-perl(
+						$/<element>[0]<atom><notSet><setElement><terminal><scalar>.ast ) ),
+				:to(
+					ANTLR-to-perl(
+						$/<element>[3]<atom><terminal><scalar>.ast
+					)
+				)
 			)
 		}
 		else {
@@ -542,7 +562,11 @@ class ANTLR4::Actions::Perl6 {
 		}
 		elsif $/<terminal> {
 			make Terminal.new(
-				:name( $/<terminal><STRING_LITERAL>.ast )
+				:name(
+					ANTLR-to-perl(
+						$/<terminal><STRING_LITERAL>.ast
+					)
+				)
 			)
 		}
 	}
