@@ -229,8 +229,12 @@ class ANTLR4::Actions::Perl6 {
 	method STRING_LITERAL( $/ ) { make ~$/[0] }
 	method LEXER_CHAR_SET( $/ ) { make ~$/[0] }
 	method MODIFIER( $/ ) { make ~$/ }
+	method GREED( $/ ) { make ~$/ }
 
-	method ebnfSuffix( $/ ) { make $/<MODIFIER>.ast }
+	method ebnfSuffix( $/ ) {
+		make $/<MODIFIER>.ast ~
+			( $/<GREED> ?? $/<GREED>.ast !! '' )
+	}
 
 	method tokenName( $/ ) {
 		make Token.new( :name( $/<ID>.ast ) )
@@ -456,7 +460,7 @@ class ANTLR4::Actions::Perl6 {
 		}
 		elsif $/<terminal> {
 			make Terminal.new(
-				:name( ~$/<terminal><STRING_LITERAL>[0] )
+				:name( $/<terminal><STRING_LITERAL>.ast )
 			)
 		}
 	}

@@ -196,6 +196,43 @@ subtest 'rule', {
 			done-testing;
 		};
 
+		subtest 'greedy modifiers', {
+			is parse( Q:to[END] ), Q:to[END], 'question';
+			grammar Lexer;
+			plain : 'terminal'?? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	terminal??
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'star';
+			grammar Lexer;
+			plain : 'terminal'*? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	terminal*?
+				}
+			}
+			END
+
+			is parse( Q:to[END] ), Q:to[END], 'plus';
+			grammar Lexer;
+			plain : 'terminal'+? ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	terminal+?
+				}
+			}
+			END
+
+			done-testing;
+		};
+
 		done-testing;
 	};
 
