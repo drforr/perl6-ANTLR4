@@ -444,6 +444,17 @@ subtest 'rule', {
 		}
 		END
 
+		is parse( Q:to[END] ), Q:to[END], 'range in charaset';
+		grammar Lexer;
+		plain : [a-c] ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<[ a .. c ]>
+			}
+		}
+		END
+
 		subtest 'modifiers', {
 			is parse( Q:to[END] ), Q:to[END], 'negated';
 			grammar Lexer;

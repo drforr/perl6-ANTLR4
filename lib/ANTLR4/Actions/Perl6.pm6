@@ -102,6 +102,16 @@ class CharacterSet {
 	has $.greed = '';
 
 	method to-lines {
+		my @content;
+say @.content;
+		for @.content {
+			if /(.)\-(.)/ {
+				@content.append( qq{$0 .. $1} );
+			}
+			else {
+				@content.append( $_ );
+			}
+		}
 		$.negated ??
 			"<-[ {@.content} ]>" ~ $.modifier ~ $.greed !!
 			"<[ {@.content} ]>" ~ $.modifier ~ $.greed
@@ -524,7 +534,7 @@ class ANTLR4::Actions::Perl6 {
 		if $/<LEXER_CHAR_SET> {
 			my @content;
 			for $/<LEXER_CHAR_SET> {
-				@content.append( $_ )
+				@content.append( ~$_ )
 			}
 			make CharacterSet.new(
 				:content( @content )
