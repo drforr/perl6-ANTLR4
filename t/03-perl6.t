@@ -248,6 +248,17 @@ subtest 'rule', {
 		}
 		END
 
+		is parse( Q:to[END] ), Q:to[END], 'Unicode escape';
+		grammar Lexer;
+		plain : '\u0300'..'\u036F' ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<[ \x[0300] .. \x[036F] ]>
+			}
+		}
+		END
+
 		subtest 'modifiers', {
 			is parse( Q:to[END] ), Q:to[END], 'negation';
 			grammar Lexer;

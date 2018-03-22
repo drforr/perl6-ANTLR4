@@ -45,6 +45,8 @@ class Terminal {
 	has $.greed = '';
 
 	method to-lines {
+		# XXX This shouldn't be done here...
+		#
 		my $copy = $.name;
 		$copy ~~ s:g/\\u(....)/\\x[$0]/;
 		$copy ~~ s:g/<!after \\>\'/\\\'/;
@@ -80,9 +82,16 @@ class Range {
 	has $.greed = '';
 
 	method to-lines {
+		# XXX This shouldn't be done here...
+		#
+		my $from = $.from;
+		$from ~~ s:g/\\u(....)/\\x[$0]/;
+		my $to = $.to;
+		$to ~~ s:g/\\u(....)/\\x[$0]/;
+
 		$.negated ??
-			"<-[ $.from .. $.to ]>" ~ $.modifier ~ $.greed !!
-			"<[ $.from .. $.to ]>" ~ $.modifier ~ $.greed
+			"<-[ $from .. $to ]>" ~ $.modifier ~ $.greed !!
+			"<[ $from .. $to ]>" ~ $.modifier ~ $.greed
 	}
 }
 
