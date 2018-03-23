@@ -462,9 +462,7 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 					 $/<element>[0]<ebnfSuffix><MODIFIER>.ast
 				),
 				:greed(
-					$/<element>[0]<ebnfSuffix><GREED> ??
-						$/<element>[0]<ebnfSuffix><GREED>.ast !!
-						''
+					$/<element>[0]<ebnfSuffix><GREED>.ast // ''
 				),
 				:from(
 					ANTLR-to-perl(
@@ -510,10 +508,28 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 		make $/<parserElement>.ast
 	}
 
+	sub ANTLR-to-char-range( $str ) {
+		if $str ~~ / ^ (.) \- (.) $ / {
+			return qq{$0 .. $1}
+		}
+		else {
+			return $str
+		}
+	}
+
 	method lexerAtom( $/ ) {
 		if $/<LEXER_CHAR_SET> {
+			my @content;
+			for $/<LEXER_CHAR_SET>[0] {
+				@content.append(
+					ANTLR-to-char-range(
+						~$_<LEXER_CHAR_SET_RANGE>
+					)
+				)
+			}
 			make CharacterSet.new(
-				:content( $/<LEXER_CHAR_SET>>>.Str )
+				#:content( $/<LEXER_CHAR_SET>>>.Str )
+				:content( @content )
 			)
 		}
 		elsif $/<terminal> {
