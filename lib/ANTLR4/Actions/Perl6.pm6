@@ -109,6 +109,8 @@ class Alternation {
 	method to-lines {
 		my @content;
 		for @.content {
+			# XXX These should always be objects...
+			next unless $_;
 			my @lines = self.indent( $_.to-lines );
 			if @lines {
 				@lines[0] = '||' ~ @lines[0];
@@ -499,7 +501,7 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 				)
 			)
 		}
-		else {
+		elsif $/<element> {
 			make Concatenation.new( :content( $/<element>>>.ast ) )
 		}
 	}
@@ -544,7 +546,14 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	}
 
 	method lexerElement( $/ ) {
-		if $/<ebnfSuffix> {
+		if $/<lexerBlock> {
+			make Grouping.new(
+				:content(
+					$/<lexerBlock><lexerAltList>.ast
+				)
+			)
+		}
+		elsif $/<ebnfSuffix> {
 			make CharacterSet.new(
 				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
 				:greed( $/<ebnfSuffix><GREED> // '' ),

@@ -1341,20 +1341,17 @@ subtest 'grouping', {
 		}
 		END
 
-#`(
 		is parse( Q:to[END] ), Q:to[END], 'character set';
 		grammar Empty;
 		stuff : ( [c] ) ;
 		END
 		grammar Empty {
 			rule stuff {
-				||	(
-						||	<[ c ]>
+				||	(	||	<[ c ]>
 					)
 			}
 		}
 		END
-)
 
 		is parse( Q:to[END] ), Q:to[END], 'alternate character set';
 		grammar Empty;
