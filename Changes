@@ -2,6 +2,9 @@ Revision history for ANTLR4-Grammar
 
 {{$NEXT}}
 
+0.1.1  2018-03-23T13:55:51+01:00
+    - Eep. The generated Abnf grammar parses a basic Abnf file.
+
 0.1.0  2018-03-21T21:01:31+01:00
     - Terminal, nonterminal, concatenation and alternation all work.
 
