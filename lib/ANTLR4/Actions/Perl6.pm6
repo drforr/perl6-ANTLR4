@@ -60,6 +60,12 @@ class Wildcard {
 	method to-lines { return "." ~ $.modifier ~ $.greed }
 }
 
+class EOF {
+	also does Modified;
+
+	method to-lines { return '$' ~ $.modifier ~ $.greed }
+}
+
 class Nonterminal {
 	also does Named;
 	also does Modified;
@@ -282,7 +288,12 @@ class ANTLR4::Actions::Perl6 {
 	#
 	method terminal( $/ ) {
 		if $/<ID> {
-			make Nonterminal.new( :name( $/<scalar>.ast ) )
+			if $/<scalar>.ast eq 'EOF' {
+				make EOF.new
+			}
+			else {
+				make Nonterminal.new( :name( $/<scalar>.ast ) )
+			}
 		}
 		else {
 			make Terminal.new(
@@ -378,11 +389,19 @@ class ANTLR4::Actions::Perl6 {
 			my $greed = $/<ebnfSuffix><GREED>.ast // '';
 			if $/<atom><terminal><scalar> and
 				!is-ANTLR-terminal( ~$/<atom><terminal><scalar> ) {
-				make Nonterminal.new(
-					:modifier( $modifier ),
-					:greed( $greed ),
-					:name( $/<atom><terminal><scalar>.ast )
-				)
+				if $/<atom><terminal><scalar>.ast eq 'EOF' {
+					make EOF.new(
+						:modifier( $modifier ),
+						:greed( $greed ),
+					)
+				}
+				else {
+					make Nonterminal.new(
+						:modifier( $modifier ),
+						:greed( $greed ),
+						:name( $/<atom><terminal><scalar>.ast )
+					)
+				}
 			}
 			elsif $/<atom><DOT> {
 				make Wildcard.new(

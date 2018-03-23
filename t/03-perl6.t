@@ -156,6 +156,17 @@ subtest 'rule', {
 		}
 		END
 
+		is parse( Q:to[END] ), Q:to[END], 'Unicode terminal';
+		grammar Lexer;
+		sign : 'Hello\u236a' ;
+		END
+		grammar Lexer {
+			rule sign {
+				||	'Hello\x[236a]'
+			}
+		}
+		END
+
 		# Even though ~'t' is valid, 't' in this context isn't a
 		# terminal but a (degenerate) character set, I think.
 		#
@@ -938,6 +949,17 @@ subtest 'rule', {
 		grammar Lexer {
 			rule plain {
 				||	<Str>
+			}
+		}
+		END
+
+		is parse( Q:to[END] ), Q:to[END], 'special EOF nonterminal';
+		grammar Lexer;
+		plain : EOF ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	$
 			}
 		}
 		END
