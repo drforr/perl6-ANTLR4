@@ -74,14 +74,13 @@ class Token is Block { }
 
 class Rule is Block { has $.type = 'rule'; }
 
-class Notes { has %.content; }
-
 # This doesn't use the generic Block because it'll eventually be indented,
 # and the grammar level is always the top level of the file.
 #
 class Grammar {
 	also does Named;
 
+	has %.notes;
 	has @.content;
 }
 
@@ -105,13 +104,13 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method prequelConstruct( $/ ) {
-		my @tokens;
+		my @prequels;
 		for $/ {
 			when $_.<tokensSpec> {
-				@tokens.append( $_.<tokensSpec>.ast );
+				@prequels.append( $_.<tokensSpec>.ast );
 			}
 		}
-		make @tokens
+		make @prequels
 	}
 
 	# XXX The 'if $copy' shouldn't be needed because Terminals with empty
@@ -463,6 +462,7 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	}
 
 	method TOP( $/ ) {
+		my %notes;
 		my @body;
 		for $/<prequelConstruct> {
 			@body.append( $_.ast )
@@ -470,7 +470,11 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 		for $/<ruleSpec> {
 			@body.append( $_.ast )
 		}
+		if $/<grammarType>[0] {
+			%notes<type> = ~$/<grammarType>[0];
+		}
 		my $grammar = Grammar.new(
+			:notes( %notes ),
 			:name( $/<ID>.ast ),
 			:content( @body )
 		);

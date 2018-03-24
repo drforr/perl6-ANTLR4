@@ -146,30 +146,22 @@ my role Formatting {
 		).flat
 	}
 
-	multi method to-lines( Notes $n ) {
-#`(
-		my $json;
-		for @key -> $key {
-			$json.{$key} = $ast.{$key} if $ast.{$key};
-		}
-		if $json {
-			my $json-str = to-json( $json );
-			return qq<#|$json-str>;
-		}
-		return '';
-)
-	}
-
 	multi method to-lines( Grammar $g ) {
 		my @content;
 		for $g.content {
 			@content.append( self.to-lines( $_ ) )
 		}
+		my $notes;
+		if $g.notes {
+			my $json-str = to-json( $g.notes );
+			$notes = qq<#|$json-str>;
+		}
 		return (
+			$notes // (),
 			"grammar {$g.name} \{",
 			self.indent( @content ),
 			"\}"
-		).flat
+		).flat;
 	}
 }
 

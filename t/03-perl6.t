@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 7;
+plan 13;
 
 sub parse( $str ) {
 	return ANTLR4::Grammar.to-string( $str );
@@ -1482,16 +1482,12 @@ subtest 'grouping', {
 	done-testing;
 };
 
-#`(
-
 # The double comment blocks are around bits of the grammar that don't
 # necessarily translate into Perl 6.
 #
 # Taking a much more pragmatic approach this time 'round.
 
 subtest 'grammar basics', {
-#`(
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'lexer grammar';
 	lexer grammar Empty;
 	END
@@ -1499,11 +1495,7 @@ subtest 'grammar basics', {
 	grammar Empty {
 	}
 	END
-)
-)
 
-#`(
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'parser grammar';
 	parser grammar Empty;
 	END
@@ -1511,8 +1503,6 @@ subtest 'grammar basics', {
 	grammar Empty {
 	}
 	END
-)
-)
 
 	done-testing;
 };
@@ -1692,7 +1682,6 @@ subtest 'lexer rule with single term', {
 
 subtest 'actions', {
 #`(
-#`(
 	is parse( Q:to[END] ), Q:to[END], 'skip';
 	grammar Lexer;
 	plain : 'X' -> skip ;
@@ -1704,7 +1693,6 @@ subtest 'actions', {
 		}
 	}
 	END
-)
 )
 
 #`(
@@ -1789,8 +1777,6 @@ subtest 'actions', {
 
 	done-testing;
 };
-
-)
 
 done-testing;
 
