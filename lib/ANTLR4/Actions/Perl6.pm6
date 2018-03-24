@@ -21,20 +21,6 @@ translation of the ANTLR4 grammar that the module has been given to parse.
 =end pod
 
 use v6;
-use JSON::Tiny;
-use ANTLR4::Grammar;
-
-my role Indenting {
-	method indent-line( $line ) {
-		if $line {
-			return "\t" ~ $line
-		}
-		return ''
-	}
-	method indent( *@lines ) {
-		map { self.indent-line( $_ ) }, grep { /\S/ }, @lines
-	}
-}
 
 my role Named { has $.name; }
 my role Modified {
@@ -45,32 +31,15 @@ my role Modified {
 class Terminal {
 	also does Named;
 	also does Modified;
-
-	method to-lines {
-		my $name = $.name ~~ / <-[ a ..z A .. Z ]> / ??
-			qq{'$.name'} !!
-			$.name;	
-		return $name ~ $.modifier ~ $.greed
-	}
 }
 
-class Wildcard {
-	also does Modified;
+class Wildcard { also does Modified; }
 
-	method to-lines { return "." ~ $.modifier ~ $.greed }
-}
-
-class EOF {
-	also does Modified;
-
-	method to-lines { return '$' ~ $.modifier ~ $.greed }
-}
+class EOF { also does Modified; }
 
 class Nonterminal {
 	also does Named;
 	also does Modified;
-
-	method to-lines { return "<$.name>" ~ $.modifier ~ $.greed }
 }
 
 class Range {
@@ -79,11 +48,6 @@ class Range {
 	has $.from;
 	has $.to;
 	has $.negated;
-
-	method to-lines {
-		my $negated = $.negated ?? '-' !! '';
-		"<{$negated}[ $.from .. $.to ]>" ~ $.modifier ~ $.greed
-	}
 }
 
 class CharacterSet {
@@ -91,151 +55,34 @@ class CharacterSet {
 
 	has @.content;
 	has $.negated;
-
-	method to-lines {
-		my @content;
-		for @.content {
-			if /(.)\-(.)/ {
-				@content.append( qq{$0 .. $1} );
-			}
-			else {
-				@content.append( $_ );
-			}
-		}
-		my $negated = $.negated ?? '-' !! '';
-		"<{$negated}[ {@.content} ]>" ~ $.modifier ~ $.greed
-	}
 }
 
-class Alternation {
-	also does Indenting;
+class Alternation { has @.content; }
 
-	has @.content;
-
-	method to-lines {
-		my @content;
-		for @.content {
-			# XXX These should always be objects...
-			next unless $_;
-			my @lines = self.indent( $_.to-lines );
-			if @lines {
-				@lines[0] = '||' ~ @lines[0];
-				@content.append( @lines );
-			}
-		}
-		@content.flat
-	}
-}
-
-class Concatenation {
-	has @.content;
-
-	method to-lines {
-		my @content;
-		for @.content {
-			@content.append( $_.to-lines );
-		}
-		@content
-	}
-}
+class Concatenation { has @.content; }
 
 class Block {
 	also does Named;
-	also does Indenting;
 
 	has $.type = '';
 	has @.content;
-
-	method to-lines {
-		my @content;
-		for @.content {
-			@content.append( $_.to-lines );
-		}
-		return (
-			"$.type $.name \{",
-			self.indent( @content ),
-			"\}"
-		).flat
-	}
 }
 
-class Grouping is Block {
-	also does Modified;
+class Grouping is Block { also does Modified; }
 
-	method to-lines {
-		my @content;
-		for @.content {
-			@content.append( $_.to-lines );
-		}
-		return (
-			"\(" ~ self.indent-line( @content.shift ),
-			self.indent( @content ),
-			"\)" ~ $.modifier ~ $.greed
-		).flat
-	}
-}
-
-# Though it's true that Tokens don't use any of the Block mechanisms, I'll
-# leave it as a subclass because of its X { Y } nature.
-#
-# Actually @.content should be set as a submethod, I suppose.
-# That would make hte relationship clearer. Something for later...
-#
-class Token is Block {
-	method to-lines {
-		my $lc-name = lc( $.name );
-		return (
-			"token $.name \{",
-			self.indent-line(
-				'||' ~ self.indent-line( "'$lc-name'" )
-			),
-			"\}"
-		).flat
-	}
-}
+class Token is Block { }
 
 class Rule is Block { has $.type = 'rule'; }
 
-class Notes {
-	has %.content;
-
-	sub to-json-comment( $ast, @key ) {
-		my $json;
-		for @key -> $key {
-			$json.{$key} = $ast.{$key} if $ast.{$key};
-		}
-		if $json {
-			my $json-str = to-json( $json );
-			return qq<#|$json-str>;
-		}
-		return '';
-	}
-}
+class Notes { has %.content; }
 
 # This doesn't use the generic Block because it'll eventually be indented,
 # and the grammar level is always the top level of the file.
 #
 class Grammar {
 	also does Named;
-	also does Indenting;
 
 	has @.content;
-
-	method to-lines {
-		my @content;
-		for @.content {
-			@content.append( $_.to-lines );
-		}
-		return (
-			"grammar $.name \{",
-			self.indent( @content ),
-			"\}"
-		).flat
-	}
-
-	method to-string {
-		self.to-lines.join( "\n" ) ~ "\n"
-	}
 }
 
 class ANTLR4::Actions::Perl6 {

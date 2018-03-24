@@ -14,7 +14,8 @@
   "perl" : "6.c",
   "provides" : {
     "ANTLR4::Actions::Perl6" : "lib/ANTLR4/Actions/Perl6.pm6",
-    "ANTLR4::Grammar" : "lib/ANTLR4/Grammar.pm6"
+    "ANTLR4::Grammar" : "lib/ANTLR4/Grammar.pm6",
+    "ANTLR4::Grammar::Parser" : "lib/ANTLR4/Grammar/Parser.pm6"
   },
   "resources" : [ ],
   "source-url" : "https://github.com/drforr/perl6-ANTLR4.git",
@@ -35,5 +36,5 @@
     "Test",
     "JSON::Tiny"
   ],
-  "version" : "0.1.1"
+  "version" : "0.2.0"
 }

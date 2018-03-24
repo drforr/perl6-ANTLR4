@@ -1,5 +1,5 @@
 use v6;
-use ANTLR4::Grammar;
+use ANTLR4::Grammar::Parser;
 use Test;
 
 plan 1;
@@ -53,7 +53,7 @@ STRING : '"' ('""'|~'"')* '"' ; // quote-quote is an escaped quote
 
 #############################################################################
 
-my $g = ANTLR4::Grammar.new;
-ok $g.parse( $csv-grammar );
+my $p = ANTLR4::Grammar::Parser.new;
+ok $p.parse( $csv-grammar );
 
 # vim: ft=perl6

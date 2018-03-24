@@ -1,531 +1,196 @@
+=begin pod
+
+=head1 ANTLR4::Grammar
+
+C<ANTLR4::Grammar> generates a perl6 representation of an ANTLR4 AST.
+
+=head1 Synopsis
+
+    use ANTLR4::Grammar;
+    my $ag = ANTLR4::Grammar.new;
+
+    say $ag.to-string('grammar Minimal { identifier : [A-Z][A-Za-z]+ ; }');
+    say $ag.file-to-string('ECMAScript.g4');
+
+=head1 Documentation
+
+In its simplest form, just use the .to-string method on an existing grammar
+text to get back its closest Perl 6 representation.
+
+=head1 Extension
+
+Suppose you don't like how the module formats the ANTLR grammar. Subclass this
+module and override the C<to-lines> methods I've provided, or go all the way
+back to the top level and replace the C<to-lines( Grammar $g )> with your own
+inheritance hierarchy.
+
+Maybe you want to add a way to create a bare-bones action class to go along
+with your resulting grammar - override the C<to-string> method, you've got the
+C<$grammar> value that you can walk through, and do your own thing.
+
+=end pod
+
 use v6;
-#use Grammar::Tracer;
-grammar ANTLR4::Grammar:ver<0.1.1> {
+use JSON::Tiny;
+use ANTLR4::Grammar::Parser;
+use ANTLR4::Actions::Perl6;
 
-#
-# Not currently acted upon
-#
-token BLANK_LINE
-	{
-	\s* \n
+my role Indenting {
+	method indent-line( $line ) {
+		if $line {
+			return "\t" ~ $line
+		}
+		return ''
 	}
 
-#
-# Not currently acted upon
-#
-token COMMENT
-	{	'/*' .*? '*/'
-	|	'//' \N*
-	}
-
-#
-# Not currently acted upon
-#
-token COMMENTS
-	{
-	[<COMMENT> \s*]+
-	}
-
-#
-# Not currently acted upon
-#
-token DIGIT
-	{
-	<[ 0..9 ]>
-	}
-
-token DIGITS
-	{
-	<DIGIT>+
-	}
-
-#  Allow unicode rule/token names
-
-token ID
-	{
-	<NameStartChar> <NameChar>*
-	}
-
-token NameChar
-	{	<NameStartChar>
-	|	<DIGIT>
-	|	'_'
-	|	\x[00B7]
-	|	<[ \x[0300]..\x[036F] ]>
-	|	<[ \x[203F]..\x[2040] ]>
-	}
-
-token NameStartChar
-	{	<[ A..Z ]>
-	|	<[ a..z ]>
-	|	<[ \x[00C0]..\x[00D6] ]>
-	|	<[ \x[00D8]..\x[00F6] ]>
-	|	<[ \x[00F8]..\x[02FF] ]>
-	|	<[ \x[0370]..\x[037D] ]>
-	|	<[ \x[037F]..\x[1FFF] ]>
-	|	<[ \x[200C]..\x[200D] ]>
-	|	<[ \x[2070]..\x[218F] ]>
-	|	<[ \x[2C00]..\x[2FEF] ]>
-	|	<[ \x[3001]..\x[D7FF] ]>
-	|	<[ \x[F900]..\x[FDCF] ]>
-	|	<[ \x[FDF0]..\x[FFFD] ]>
-	} # ignores | ['\u10000-'\uEFFFF] ;
-
-token STRING_LITERAL
-	{
-	'\''
-	( :!sigspace [ '\\' <ESC_SEQ> | <-[ ' \r \n \\ ]> ]* )
-	'\''
-	}
-
-token ESC_SEQ
-	{	<[ b t n f r " ' \\ ]> 	# The standard escaped character set
-	|	<UNICODE_ESC>		# A Java style Unicode escape sequence
-	|	.			# Invalid escape
-	|	$			# Invalid escape at end of file
-	}
-
-token UNICODE_ESC
-	{
-	'u' <HEX_DIGIT> ** {4}
-	}
-
-token HEX_DIGIT
-	{
-	<[ 0..9 a..f A..F ]>
-	}
-
-#  Many language targets use {} as block delimiters and so we
-#  must recursively match {} delimited blocks to balance the
-#  braces. Additionally, we must make some assumptions about
-#  literal string representation in the target language. We assume
-#  that they are delimited by ' or " and so consume these
-#  in their own alts so as not to inadvertantly match {}.
-
-token ACTION
-	{
-	'{'	[	<COMMENT>
-		|	<ACTION>
-		|	<ACTION_ESCAPE>
-		|	<ACTION_STRING_LITERAL>
-		|	<ACTION_CHAR_LITERAL>
-		|	.
-		]*?
-	'}'
-	}
-
-token ACTION_ESCAPE
-	{
-	'\\' .
-	}
-
-token ACTION_STRING_LITERAL
-	{
-	'"' [<ACTION_ESCAPE> | <-[ " \\ ]>]* '"'
-	}
-
-token ACTION_CHAR_LITERAL
-	{
-	'\'' [<ACTION_ESCAPE> | <-[ ' \\ ]>]* '\''
-	}
-
-#
-# mode ArgAction; # E.g., [int x, List<String> a[]]
-# 
-token ARG_ACTION
-	{
-	'[' <-[ \\ \x[5d]]>* ']'
-	}
-
-token LEXER_CHAR_SET_ELEMENT
-	{	'\\' <-[ u ]>
-	|	'\\' <UNICODE_ESC>
-	|	<-[ \\ \x[5d] ]>
-	}
-
-token LEXER_CHAR_SET_ELEMENT_NO_HYPHEN
-	{	'\\' <-[ u ]>
-	|	'\\' <UNICODE_ESC>
-	|	<-[ - \\ \x[5d] ]>
-	}
-
-token LEXER_CHAR_SET_RANGE
-	{
-	[<LEXER_CHAR_SET_ELEMENT_NO_HYPHEN> '-']? <LEXER_CHAR_SET_ELEMENT>
-	}
-
-token LEXER_CHAR_SET
-	{
-	'[' (<LEXER_CHAR_SET_RANGE> | <LEXER_CHAR_SET_ELEMENT>)* ']'
-	}
-
-#
-#  The main entry point for parsing a v4 grammar.
-# 
-rule TOP 
-	{
-	<BLANK_LINE>*
-	<grammarType> <ID> ';'
-	<prequelConstruct>*
-	<ruleSpec>*
-	<modeSpec>*
-	}
-
-rule grammarType
-	{
-	<COMMENTS>?  ( :!sigspace 'lexer' | 'parser' )?
-	<COMMENTS>? 'grammar'
-	}
-
-#  This is the list of all constructs that can be declared before
-#  the set of rules that compose the grammar, and is invoked 0..n
-#  times by the grammarPrequel rule.
-
-rule prequelConstruct
- 	{	<optionsSpec>
-	|	<delegateGrammars>
-	|	<tokensSpec>
-	|	<action>
- 	}
- 
-#  A list of options that affect analysis and/or code generation
-
-rule optionsSpec
-	{
-	'options' '{' <option>* '}'
-	} 
-
-rule option
-	{
-	<ID> '=' <optionValue> ';'
-	}
-
-rule ID_list
-	{
-	<ID>+ % ','
-	}
-
-#
-# Strings, actions and digit strings are all just scalar types, so
-# rename the term, and take advantage of homogeneity.
-#
-rule optionValue
- 	{	<list=ID_list>
- 	|	<scalar=STRING_LITERAL>
- 	|	<scalar=ACTION>
- 	|	<scalar=DIGITS>
- 	}
- 
-rule delegateGrammars
- 	{
-	'import' <delegateGrammar>+ % ',' ';'
- 	}
- 
-rule delegateGrammar
- 	{
-	<key=ID> ['=' <value=ID>]?
- 	}
- 
-# Concede a bit to Perl 6's grammar here.
-#
-# In the official ANTLR grammar, this is (probably) <ID> straight up.
-# But, if we have an explicit <tokenName> rather than a generic <ID>, that can
-# be given its own AST method and generate the simple block we want.
-#
-token tokenName { <ID> }
-rule token_list_trailing_comma
-	{
-	<tokenName>+ %% ','
-	}
-
-rule tokensSpec
- 	{
-	<COMMENTS>? 'tokens' '{' <token_list_trailing_comma> '}'
- 	}
- 
-#  Match stuff like @parser::members {int i;}
-
-token action_name
- 	{
-	'@' ( :!sigspace <actionScopeName> '::')? <ID>
-	}
- 
-rule action
- 	{
-	<action_name> <ACTION>
- 	}
- 
-#  Sometimes the scope names will collide with keywords; allow them as
-#  ids for action scopes.
- 
-token actionScopeName
- 	{	<ID>
- 	|	'lexer'
- 	|	'parser'
- 	}
- 
-rule modeSpec
- 	{
-	<COMMENTS>? 'mode' <ID> ';' <lexerRuleSpec>*
- 	}
- 
-rule ruleSpec
- 	{	<parserRuleSpec>
- 	|	<lexerRuleSpec>
- 	}
-
-rule parserRuleSpec
- 	{
-	<COMMENTS>? <ruleAttribute>?
-	<COMMENTS>? <ID>
-	<COMMENTS>? <ARG_ACTION>?
-	<COMMENTS>? <ruleReturns>?
-	<COMMENTS>? <throwsSpec>?
-	<COMMENTS>? <localsSpec>?
-	<COMMENTS>? <optionsSpec>? # XXX This was <optionsSpec>*
-	':'
-	<COMMENTS>? <parserAltList>
-	';'
-	<COMMENTS>? <exceptionGroup>
- 	}
- 
-rule exceptionGroup
- 	{
-	<exceptionHandler>* <finallyClause>?
- 	}
- 
-rule exceptionHandler
- 	{
-	'catch' <ARG_ACTION> <ACTION>
- 	}
- 
-rule finallyClause
- 	{
-	'finally' <ACTION>
- 	}
- 
-rule ruleReturns
- 	{
-	'returns' <ARG_ACTION>
- 	}
- 
-rule throwsSpec
- 	{
-	'throws' <ID>+ % ','
- 	}
- 
-rule localsSpec
- 	{
-	'locals' <ARG_ACTION>
- 	}
- 
-#  An individual access modifier for a rule. The 'fragment' modifier
-#  is an internal indication for lexer rules that they do not match
-#  from the input but are like subroutines for other lexer rules to
-#  reuse for certain lexical patterns. The other modifiers are passed
-#  to the code generation templates and may be ignored by the template
-#  if they are of no use in that language.
- 
-token ruleAttribute
- 	{	'public'
- 	|	'private'
- 	|	'protected'
- 	|	'fragment'
- 	}
- 
-#
-# ('a' | ) # Trailing empty alternative is allowed in sample code
-#
-rule parserAltList
-	{
-	<parserAlt>+ % '|'
-	}
- 
-rule parserAlt
- 	{
-	<parserElement> <COMMENTS>? ['#' <label=ID> <COMMENTS>?]?
- 	}
- 
-token FRAGMENT
-	{
-	'fragment'
-	}
-rule lexerRuleSpec
- 	{
-	<COMMENTS>? <FRAGMENT>?
- 	<COMMENTS>? <ID>
-	<COMMENTS>? ':'
-	<COMMENTS>? <lexerAltList>
-	<COMMENTS>? ';'
-	<COMMENTS>?
- 	}
- 
-rule lexerAltList
-	{
-	<lexerAlt>+ %% '|'
-	}
- 
-rule lexerAlt
- 	{
-	<COMMENTS>? <lexerElement>+ <lexerCommands>? <COMMENTS>? | ''
- 	}
- 
-rule lexerElement
- 	{	<labeledLexerElement> <ebnfSuffix>?
- 	|	<lexerAtom> <ebnfSuffix>?
- 	|	<lexerBlock> <ebnfSuffix>?
- 	|	<ACTION> '?'?
- 	}
- 
-rule labeledLexerElement
- 	{
-	<ID> ['=' | '+=']
- 		[	<lexerAtom>
- 		|	<block>
- 		]
- 	}
-
-token complement { '~' }
- 
-rule lexerBlock
- 	{
-	<complement>? '(' <COMMENTS>? <lexerAltList>? ')'
- 	}
- 
-#  E.g., channel(HIDDEN), skip, more, mode(INSIDE), push(INSIDE), pop
- 
-rule lexerCommands
- 	{
-	'->' <lexerCommand>+ % ','
- 	}
-
-rule lexerCommand
-	{
-	<ID> <lexerCommandExpr>?
-	}
-
-rule lexerCommandExpr
-	{
-	'(' (<ID> | <DIGITS>) ')'
-	}
- 
-rule blockAltList
-	{
-	<parserElement>+ % '|'
-	}
- 
-rule parserElement
- 	{
-	<elementOptions>? <element>*
- 	}
- 
-rule element
- 	{	<labeledElement> <ebnfSuffix>?
- 	|	<atom> <ebnfSuffix>?
- 	|	<ebnf>
- 	|	<ACTION> '?'? <COMMENTS>?
- 	}
- 
-rule labeledElement
- 	{
-	<ID> ['=' | '+=']
- 		[	<atom>
- 		|	<block>
- 		]
- 	}
- 
-rule ebnf
-	{
-	<block> <ebnfSuffix>?
- 	}
-
-token MODIFIER
-	{	'+'
-	|	'*'
-	|	'?'
-	}
-
-token GREED
-	{
-	'?'
-	}
- 
-token ebnfSuffix
- 	{
-	<MODIFIER> <GREED>?
- 	}
- 
-rule lexerAtom
- 	{	<range>
- 	|	<terminal>
- 	|	<ID>
- 	|	<notSet>
- 	|	<LEXER_CHAR_SET>
- 	|	('.') <elementOptions>?
- 	}
-
-token DOT
-	{
-	'.'
-	}
- 
-rule atom
- 	{	<range>
- 	|	<terminal>
- 	|	<ruleref>
- 	|	<notSet>
- 	|	<DOT> <elementOptions>?
- 	}
- 
-rule notSet
- 	{
-	<complement> [<setElement> | <blockSet>]
- 	}
- 
-rule setElementAltList
-	{
-	<setElement>+ % '|'
-	}
-
-rule blockSet
-	{
-	'(' <setElementAltList> ')' <COMMENTS>?
-	}
- 
-rule setElement
-	{	<terminal>
- 	|	<range>
- 	|	<LEXER_CHAR_SET>
- 	}
- 
-rule block
- 	{
-	'(' [ <optionsSpec>? ':' ]? <blockAltList> <COMMENTS>? ')'
-	}
- 
-rule ruleref
- 	{
-	<ID> <ARG_ACTION>? <elementOptions>?
- 	} 
-rule range
-	{
-	<from=STRING_LITERAL> '..' <to=STRING_LITERAL>
- 	}
- 
-rule terminal
-	{
-	[<scalar=ID> | <scalar=STRING_LITERAL>] <elementOptions>?
-	}
- 
-rule elementOptions
- 	{
-	'<' <elementOption>+ % ',' '>'
- 	}
- 
-rule elementOption
-	{
-	<key=ID> ['=' [<value=ID> | <value=STRING_LITERAL>] ]?
+	method indent( *@lines ) {
+		map { self.indent-line( $_ ) }, grep { /\S/ }, @lines
 	}
 }
- 
+
+my role Formatting {
+	also does Indenting;
+
+	multi method to-lines( Token $t ) {
+		my $lc-name = lc( $t.name );
+		return (
+			"token {$t.name} \{",
+			self.indent-line(
+				'||' ~ self.indent-line( "'$lc-name'" )
+			),
+			"\}"
+		).flat
+	}
+
+	multi method to-lines( Terminal $t ) {
+		my $name = $t.name ~~ / <-[ a ..z A .. Z ]> / ??
+			q{'} ~ $t.name ~ q{'} !!
+			$t.name;	
+		return $name ~ $t.modifier ~ $t.greed
+	}
+
+	multi method to-lines( Wildcard $w ) {
+		return "." ~ $w.modifier ~ $w.greed
+	}
+
+	multi method to-lines( Grouping $g ) {
+		my @content;
+		for $g.content {
+			@content.append( self.to-lines( $_ ) );
+		}
+		return (
+			"\(" ~ self.indent-line( @content.shift ),
+			self.indent( @content ),
+			"\)" ~ $g.modifier ~ $g.greed
+		).flat
+	}
+
+	multi method to-lines( EOF $e ) {
+		return '$' ~ $e.modifier ~ $e.greed
+	}
+
+	multi method to-lines( Nonterminal $n ) {
+		return q{<} ~ $n.name ~ q{>} ~ $n.modifier ~ $n.greed
+	}
+
+	multi method to-lines( Range $r ) {
+		my $negated = $r.negated ?? '-' !! '';
+		"<{$negated}[ {$r.from} .. {$r.to} ]>" ~ $r.modifier ~ $r.greed
+	}
+
+	multi method to-lines( CharacterSet $c ) {
+		my $negated = $c.negated ?? '-' !! '';
+		my @content;
+		for $c.content {
+			if /(.)\-(.)/ {
+				@content.append( qq{$0 .. $1} );
+			}
+			else {
+				@content.append( $_ );
+			}
+		}
+		"<{$negated}[ {@content} ]>" ~ $c.modifier ~ $c.greed
+	}
+
+	multi method to-lines( Concatenation $c ) {
+		my @content;
+		for $c.content {
+			@content.append( self.to-lines( $_ ) )
+		}
+		@content
+	}
+
+	multi method to-lines( Alternation $a ) {
+		my @content;
+		for $a.content {
+			# XXX These should always be objects...
+			next unless $_;
+			my @lines = self.indent( self.to-lines( $_ ) );
+			if @lines {
+				@lines[0] = '||' ~ @lines[0];
+				@content.append( @lines );
+			}
+		}
+		@content.flat
+	}
+
+	multi method to-lines( Rule $r ) {
+		my @content;
+		for $r.content {
+			@content.append( self.to-lines( $_ ) );
+		}
+		return (
+			"{$r.type} {$r.name} \{",
+			self.indent( @content ),
+			"\}"
+		).flat
+	}
+
+	multi method to-lines( Notes $n ) {
+#`(
+		my $json;
+		for @key -> $key {
+			$json.{$key} = $ast.{$key} if $ast.{$key};
+		}
+		if $json {
+			my $json-str = to-json( $json );
+			return qq<#|$json-str>;
+		}
+		return '';
+)
+	}
+
+	multi method to-lines( Grammar $g ) {
+		my @content;
+		for $g.content {
+			@content.append( self.to-lines( $_ ) )
+		}
+		return (
+			"grammar {$g.name} \{",
+			self.indent( @content ),
+			"\}"
+		).flat
+	}
+}
+
+class ANTLR4::Grammar:ver<0.2.0> {
+	also does Formatting;
+
+	method to-string( Str $string ) {
+		my $p = ANTLR4::Grammar::Parser.new;
+		my $a = ANTLR4::Actions::Perl6.new;
+
+		my $ast = $p.parse( $string, :actions( $a ) ).ast;
+		return self.to-lines( $ast ).join( "\n" ) ~ "\n";
+	}
+
+	method file-to-string( Str $filename ) {
+		my $p = ANTLR4::Grammar::Parser.new;
+		my $a = ANTLR4::Actions::Perl6.new;
+
+		my $ast = $p.parsefile( $filename, :actions( $a ) ).ast;
+		return self.to-lines( $ast ).join( "\n" ) ~ "\n";
+	}
+}
+
 # vim: ft=perl6

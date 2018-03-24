@@ -2,6 +2,9 @@ Revision history for ANTLR4-Grammar
 
 {{$NEXT}}
 
+0.2.0  2018-03-24T16:31:29+01:00
+    - Made it easier for subclasses to indent files as they like, and extend.
+
 0.1.1  2018-03-23T13:55:51+01:00
     - Eep. The generated Abnf grammar parses a basic Abnf file.
 

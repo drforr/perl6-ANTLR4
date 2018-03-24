@@ -1,14 +1,11 @@
 use v6;
-use ANTLR4::Actions::Perl6;
+use ANTLR4::Grammar;
 use Test;
 
 plan 7;
 
 sub parse( $str ) {
-	return ANTLR4::Grammar.parse(
-		$str, 
-		:actions( ANTLR4::Actions::Perl6.new )
-	).ast.to-string;
+	return ANTLR4::Grammar.to-string( $str );
 }
 
 # It's most important to test things that can easily translate into Perl 6.
