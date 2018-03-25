@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 3;
+plan 2;
 
 subtest 'rule options', {
 #`(
@@ -42,28 +42,24 @@ subtest 'rule options', {
 	done-testing;
 };
 
-subtest 'lexer rule with single term', {
-
 #`(
 #`(
-	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'action';
-	grammar Lexer;
-	plain : {System.out.println("Found end");} ;
-	END
-	grammar Lexer {
-		#|{ "action" : "System.out.println(\"Found end\");" }
-		rule plain {
-			||	.
-		}
+is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'action';
+grammar Lexer;
+plain : {System.out.println("Found end");} ;
+END
+grammar Lexer {
+	#|{ "action" : "System.out.println(\"Found end\");" }
+	rule plain {
+		||	.
 	}
-	END
+}
+END
 )
 )
-
-	done-testing;
-};
 
 subtest 'actions', {
+#`(
 #`(
 	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'skip';
 	grammar Lexer;
@@ -71,37 +67,6 @@ subtest 'actions', {
 	END
 	grammar Lexer {
 		#|{ "skip" : true }
-		rule plain {
-			||	X
-		}
-	}
-	END
-)
-
-#`(
-#`(
-	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'pushMode';
-	grammar Lexer;
-	plain : 'X' -> pushMode(INSIDE) ;
-	END
-	grammar Lexer {
-		#|{ "pushMode" : "INSIDE" }
-		rule plain {
-			||	X
-		}
-	}
-	END
-)
-)
-
-#`(
-#`(
-	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'popMode';
-	grammar Lexer;
-	plain : 'X' -> popMode(INSIDE) ;
-	END
-	grammar Lexer {
-		#|{ "popMode" : "INSIDE" }
 		rule plain {
 			||	X
 		}

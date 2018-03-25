@@ -102,7 +102,6 @@ subtest 'token', {
 };
 
 subtest 'rule', {
-
 	subtest 'terminal', {
 		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'bare';
 		grammar Lexer;
