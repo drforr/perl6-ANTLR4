@@ -82,6 +82,7 @@ class Grammar {
 
 	has $.type;
 	has %.option;
+	has %.import;
 	has @.token;
 	has @.rule;
 }
@@ -459,6 +460,7 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	method TOP( $/ ) {
 		my @token;
 		my %option;
+		my %import;
 		for $/<prequelConstruct> {
 			when $_.<optionsSpec> {
 				for $_.<optionsSpec><option> {
@@ -467,6 +469,10 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 				}
 			}
 			when $_.<delegateGrammars> {
+				for $_.<delegateGrammars><delegateGrammar> {
+					%import{ ~$_.<key> } = 
+						( $_.<value> ?? ~$_.<value> !! Any );
+				}
 			}
 			when $_.<tokensSpec> {
 				@token.append( $_.<tokensSpec>.ast );
@@ -486,6 +492,7 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 			:type( $type ),
 			:name( $/<ID>.ast ),
 			:option( %option ),
+			:import( %import ),
 			:token( @token ),
 			:rule( @rule )
 		);

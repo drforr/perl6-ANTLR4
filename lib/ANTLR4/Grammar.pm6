@@ -156,6 +156,7 @@ my role Formatting {
 		@rule.append( self.to-lines( $_ ) ) for $g.rule;
 		%json<type> = $g.type if $g.type;
 		%json<option> = $g.option if keys $g.option;
+		%json<import> = $g.import if keys $g.import;
 
 		$json-str = q{#|} ~ to-json( %json ) if keys %json;
 		return (

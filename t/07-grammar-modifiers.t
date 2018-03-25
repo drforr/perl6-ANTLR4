@@ -29,35 +29,19 @@ subtest 'grammar basics', {
 	done-testing;
 };
 
-subtest 'outer options', {
-#`(
-#`(
-	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'empty options';
-	grammar Empty;
-	options { }
-	END
-	#|{ "options" : { } }
-	grammar Empty {
-	}
-	END
-)
-)
-
-	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'single option';
-	grammar Empty;
-	options { tokenVocab=Antlr; }
-	END
-	#|{ "option" : { "tokenVocab" : "Antlr" } }
-	grammar Empty {
-	}
-	END
-
-	done-testing;
-};
+# A blank option array may be possible, but it won't be placed
+# into the JSON block.
+#
+is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'single option';
+grammar Empty;
+options { tokenVocab=Antlr; }
+END
+#|{ "option" : { "tokenVocab" : "Antlr" } }
+grammar Empty {
+}
+END
 
 subtest 'import', {
-#`(
-#`(
 	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'import';
 	grammar Empty;
 	import ChristmasParser;
@@ -66,11 +50,7 @@ subtest 'import', {
 	grammar Empty {
 	}
 	END
-)
-)
 
-#`(
-#`(
 	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'import with alias';
 	grammar Empty;
 	import ChristmasParser=Christmas;
@@ -79,8 +59,7 @@ subtest 'import', {
 	grammar Empty {
 	}
 	END
-)
-)
+
 	done-testing;
 };
 
