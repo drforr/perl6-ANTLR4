@@ -463,12 +463,13 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	}
 
 	method TOP( $/ ) {
-		my @body;
+		my @token;
 		for $/<prequelConstruct> {
-			@body.append( $_.ast )
+			@token.append( $_.ast )
 		}
+		my @rule;
 		for $/<ruleSpec> {
-			@body.append( $_.ast )
+			@rule.append( $_.ast )
 		}
 		my $type;
 		if $/<grammarType>[0] {
@@ -477,8 +478,8 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 		my $grammar = Grammar.new(
 			:type( $type ),
 			:name( $/<ID>.ast ),
-			:token( @body ),
-			:rule( @body )
+			:token( @token ),
+			:rule( @rule )
 		);
 		make $grammar
 	}

@@ -147,6 +147,10 @@ my role Formatting {
 	}
 
 	multi method to-lines( Grammar $g ) {
+		my @token;
+		for $g.token {
+			@token.append( self.to-lines( $_ ) )
+		}
 		my @rule;
 		for $g.rule {
 			@rule.append( self.to-lines( $_ ) )
@@ -159,6 +163,7 @@ my role Formatting {
 		return (
 			$type // (),
 			"grammar {$g.name} \{",
+				@token ?? self.indent( @token ) !! (),
 				self.indent( @rule ),
 			"\}"
 		).flat;
