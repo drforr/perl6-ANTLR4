@@ -80,7 +80,7 @@ class Rule is Block { has $.type = 'rule'; }
 class Grammar {
 	also does Named;
 
-	has %.notes;
+	has $.type;
 	has @.content;
 }
 
@@ -88,6 +88,7 @@ class ANTLR4::Actions::Perl6 {
 	method ID( $/ ) { make ~$/ }
 	method STRING_LITERAL( $/ ) { make ~$/[0] }
 	method LEXER_CHAR_SET( $/ ) { make ~$/[0] }
+	method grammarType( $/ ) { make ~$/[0] }
 	method MODIFIER( $/ ) { make ~$/ }
 	method GREED( $/ ) { make ~$/ }
 
@@ -462,7 +463,6 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	}
 
 	method TOP( $/ ) {
-		my %notes;
 		my @body;
 		for $/<prequelConstruct> {
 			@body.append( $_.ast )
@@ -470,11 +470,12 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 		for $/<ruleSpec> {
 			@body.append( $_.ast )
 		}
+		my $type;
 		if $/<grammarType>[0] {
-			%notes<type> = ~$/<grammarType>[0];
+			$type = ~$/<grammarType>[0];
 		}
 		my $grammar = Grammar.new(
-			:notes( %notes ),
+			:type( $type ),
 			:name( $/<ID>.ast ),
 			:content( @body )
 		);

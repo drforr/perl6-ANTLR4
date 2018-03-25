@@ -151,13 +151,13 @@ my role Formatting {
 		for $g.content {
 			@content.append( self.to-lines( $_ ) )
 		}
-		my $notes;
-		if $g.notes {
-			my $json-str = to-json( $g.notes );
-			$notes = qq<#|$json-str>;
+		my $type;
+		if $g.type {
+			my $json-str = to-json( { type => $g.type } );
+			$type = qq<#|$json-str>;
 		}
 		return (
-			$notes // (),
+			$type // (),
 			"grammar {$g.name} \{",
 			self.indent( @content ),
 			"\}"
