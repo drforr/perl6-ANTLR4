@@ -148,22 +148,20 @@ my role Formatting {
 
 	multi method to-lines( Grammar $g ) {
 		my @token;
-		for $g.token {
-			@token.append( self.to-lines( $_ ) )
-		}
 		my @rule;
-		for $g.rule {
-			@rule.append( self.to-lines( $_ ) )
-		}
-		my $type;
-		if $g.type {
-			my $json-str = to-json( { type => $g.type } );
-			$type = qq<#|$json-str>;
-		}
+		my $json-str;
+		my %json;
+
+		@token.append( self.to-lines( $_ ) ) for $g.token;
+		@rule.append( self.to-lines( $_ ) ) for $g.rule;
+		%json<type> = $g.type if $g.type;
+		%json<option> = $g.option if keys $g.option;
+
+		$json-str = q{#|} ~ to-json( %json ) if keys %json;
 		return (
-			$type // (),
+			$json-str // (),
 			"grammar {$g.name} \{",
-				@token ?? self.indent( @token ) !! (),
+				self.indent( @token ),
 				self.indent( @rule ),
 			"\}"
 		).flat;

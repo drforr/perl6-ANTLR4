@@ -81,6 +81,7 @@ class Grammar {
 	also does Named;
 
 	has $.type;
+	has %.option;
 	has @.token;
 	has @.rule;
 }
@@ -104,15 +105,8 @@ class ANTLR4::Actions::Perl6 {
 		make $/<token_list_trailing_comma>.ast
 	}
 
-	method prequelConstruct( $/ ) {
-		my @prequels;
-		for $/ {
-			when $_.<tokensSpec> {
-				@prequels.append( $_.<tokensSpec>.ast );
-			}
-		}
-		make @prequels
-	}
+	#method prequelConstruct - gave up temporarily on using tat.
+	# I'll make that work later.
 
 	# XXX The 'if $copy' shouldn't be needed because Terminals with empty
 	# XXX names shouldn't ever be created.
@@ -464,8 +458,21 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 
 	method TOP( $/ ) {
 		my @token;
+		my %option;
 		for $/<prequelConstruct> {
-			@token.append( $_.ast )
+			when $_.<optionsSpec> {
+				for $_.<optionsSpec><option> {
+					%option{ $_.<ID>.ast } =
+						~$_.<optionValue>;
+				}
+			}
+			when $_.<delegateGrammars> {
+			}
+			when $_.<tokensSpec> {
+				@token.append( $_.<tokensSpec>.ast );
+			}
+			when $_.<action> {
+			}
 		}
 		my @rule;
 		for $/<ruleSpec> {
@@ -478,6 +485,7 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 		my $grammar = Grammar.new(
 			:type( $type ),
 			:name( $/<ID>.ast ),
+			:option( %option ),
 			:token( @token ),
 			:rule( @rule )
 		);

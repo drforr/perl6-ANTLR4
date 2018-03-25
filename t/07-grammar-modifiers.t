@@ -43,18 +43,15 @@ subtest 'outer options', {
 )
 )
 
-#`(
-#`(
 	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'single option';
 	grammar Empty;
 	options { tokenVocab=Antlr; }
 	END
-	#|{ "options" : { "tokenVocab" : "Antlr" } }
+	#|{ "option" : { "tokenVocab" : "Antlr" } }
 	grammar Empty {
 	}
 	END
-)
-)
+
 	done-testing;
 };
 
