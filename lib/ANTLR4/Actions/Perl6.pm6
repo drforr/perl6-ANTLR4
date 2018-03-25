@@ -81,14 +81,14 @@ class Grammar {
 	also does Named;
 
 	has $.type;
-	has @.content;
+	has @.token;
+	has @.rule;
 }
 
 class ANTLR4::Actions::Perl6 {
 	method ID( $/ ) { make ~$/ }
 	method STRING_LITERAL( $/ ) { make ~$/[0] }
 	method LEXER_CHAR_SET( $/ ) { make ~$/[0] }
-	method grammarType( $/ ) { make ~$/[0] }
 	method MODIFIER( $/ ) { make ~$/ }
 	method GREED( $/ ) { make ~$/ }
 
@@ -477,7 +477,8 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 		my $grammar = Grammar.new(
 			:type( $type ),
 			:name( $/<ID>.ast ),
-			:content( @body )
+			:token( @body ),
+			:rule( @body )
 		);
 		make $grammar
 	}

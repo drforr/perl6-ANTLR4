@@ -147,9 +147,9 @@ my role Formatting {
 	}
 
 	multi method to-lines( Grammar $g ) {
-		my @content;
-		for $g.content {
-			@content.append( self.to-lines( $_ ) )
+		my @rule;
+		for $g.rule {
+			@rule.append( self.to-lines( $_ ) )
 		}
 		my $type;
 		if $g.type {
@@ -159,7 +159,7 @@ my role Formatting {
 		return (
 			$type // (),
 			"grammar {$g.name} \{",
-			self.indent( @content ),
+				self.indent( @rule ),
 			"\}"
 		).flat;
 	}
