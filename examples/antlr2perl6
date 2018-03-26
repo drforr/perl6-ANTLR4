@@ -1,12 +1,9 @@
 #!/usr/bin/env perl6
 use ANTLR4::Grammar;
-use ANTLR4::Actions::Perl6;
 
 sub MAIN( Str $filename )
 	{
-	my $g = ANTLR4::Grammar.new;
-	my $a = ANTLR4::Actions::Perl6.new;
-	say $g.parsefile( $filename, :actions( $a ) ).ast.to-lines.join( "\n" ) ~ "\n";
+	say ANTLR4::Grammar.file-to-string( $filename );
 	}
 
 # vim: ft=perl6
