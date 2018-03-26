@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 18;
+plan 21;
 
 sub compile( $name ) {
 	return ANTLR4::Grammar.file-to-string( 'corpus/' ~ $name );
@@ -10,7 +10,7 @@ sub compile( $name ) {
 
 eval-lives-ok compile( 'Abnf.g4'                ), 'Abnf.g4';
 #eval-lives-ok compile( 'ANTLRv4Lexer.g4'        ), 'ANTLRv4Lexer.g4';
-#eval-lives-ok compile( 'ANTLRv4Parser.g4'       ), 'ANTLRv4Parser.g4';
+eval-lives-ok compile( 'ANTLRv4Parser.g4'       ), 'ANTLRv4Parser.g4';
 eval-lives-ok compile( 'asm6502.g4'             ), 'asm6502.g4';
 #eval-lives-ok compile( 'ATL.g4'                 ), 'ATL.g4';
 eval-lives-ok compile( 'bnf.g4'                 ), 'bnf.g4';
@@ -26,7 +26,7 @@ eval-lives-ok compile( 'CSV.g4'                 ), 'CSV.g4';
 #eval-lives-ok compile( 'Erlang.g4'              ), 'Erlang.g4';
 eval-lives-ok compile( 'fasta.g4'               ), 'fasta.g4';
 eval-lives-ok compile( 'gff3.g4'                ), 'gff3.g4';
-#eval-lives-ok compile( 'HTMLLexer.g4'           ), 'HTMLLexer.g4';
+eval-lives-ok compile( 'HTMLLexer.g4'           ), 'HTMLLexer.g4';
 eval-lives-ok compile( 'HTMLParser.g4'          ), 'HTMLParser.g4';
 #eval-lives-ok compile( 'ICalendar.g4'           ), 'ICalendar.g4';
 #eval-lives-ok compile( 'IDL.g4'                 ), 'IDL.g4';
@@ -63,7 +63,7 @@ eval-lives-ok compile( 'tnt.g4'                 ), 'tnt.g4';
 ##eval-lives-ok compile( /VisualBasic6.g4'        ), 'VisualBasic6.g4';
 #skip 'Need to fix UTF-8 issue', 1;
 #eval-lives-ok compile( 'WebIDL.g4'              ), 'WebIDL.g4';
-#eval-lives-ok compile( 'XMLLexer.g4'            ), 'XMLLexer.g4';
+eval-lives-ok compile( 'XMLLexer.g4'            ), 'XMLLexer.g4';
 eval-lives-ok compile( 'XMLParser.g4'           ), 'XMLParser.g4';
 
 # vim: ft=perl6)

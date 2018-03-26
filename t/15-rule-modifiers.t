@@ -2,7 +2,18 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 2;
+plan 3;
+
+is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'channel XXX PARTIALLY BROKEN';
+grammar Empty;
+BLOCK_COMMENT :	 EOF  -> channel(HIDDEN) ;
+END
+grammar Empty {
+	rule BLOCK_COMMENT {
+		||	$
+	}
+}
+END
 
 subtest 'rule options', {
 #`(
