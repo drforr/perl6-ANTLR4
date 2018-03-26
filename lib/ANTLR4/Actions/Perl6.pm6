@@ -408,7 +408,14 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	}
 
 	method lexerElement( $/ ) {
-		if $/<lexerBlock> {
+		if $/<lexerAtom><terminal> and $/<ebnfSuffix> {
+			make Terminal.new(
+				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
+				:greed( $/<ebnfSuffix><GREED> // '' ),
+				:name( $/<lexerAtom><terminal><STRING_LITERAL>.ast )
+			)
+		}
+		elsif $/<lexerBlock> {
 			make Grouping.new(
 				:content(
 					$/<lexerBlock><lexerAltList>.ast
@@ -416,11 +423,32 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 			)
 		}
 		elsif $/<ebnfSuffix> {
-			make CharacterSet.new(
-				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
-				:greed( $/<ebnfSuffix><GREED> // '' ),
-				:content( $/<lexerAtom><LEXER_CHAR_SET>>>.Str )
-			)
+			if $/<lexerAtom><LEXER_CHAR_SET> {
+				make CharacterSet.new(
+					:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
+					:greed( $/<ebnfSuffix><GREED> // '' ),
+					:content( $/<lexerAtom><LEXER_CHAR_SET>>>.Str )
+				)
+			}
+			elsif $/<lexerAtom><notSet> {
+				my @content;
+				for $/<lexerAtom><notSet><blockSet><setElementAltList><setElement> {
+					@content.append( $_.<terminal><STRING_LITERAL>.ast )
+				}
+				make CharacterSet.new(
+					:negated( True ),
+					:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
+					:greed( $/<ebnfSuffix><GREED> // '' ),
+					:content( @content )
+				)
+			}
+			else {
+				make CharacterSet.new(
+					:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
+					:greed( $/<ebnfSuffix><GREED> // '' ),
+					:content( $/<lexerAtom><terminal>>>.Str )
+				)
+			}
 		}
 		else {
 			make $/<lexerAtom>.ast
