@@ -2,6 +2,9 @@ Revision history for ANTLR4-Grammar
 
 {{$NEXT}}
 
+0.2.1  2018-03-26T12:30:00+02:00
+    - Add grammar-level modifiers
+
 0.2.0  2018-03-24T16:31:29+01:00
     - Made it easier for subclasses to indent files as they like, and extend.
 
