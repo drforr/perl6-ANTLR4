@@ -445,6 +445,18 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 					:content( $/<lexerAtom><LEXER_CHAR_SET>>>.Str )
 				)
 			}
+			elsif $/<lexerAtom><notSet><setElement> and $/<ebnfSuffix> {
+				my @content;
+				for $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>[0] {
+					@content.append( ~$_.<LEXER_CHAR_SET_RANGE> );
+				}
+				make CharacterSet.new(
+					:negated( True ),
+					:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
+					:greed( $/<ebnfSuffix><GREED> // False ),
+					:content( @content )
+				)
+			}
 			elsif $/<lexerAtom><notSet> {
 				my @content;
 				for $/<lexerAtom><notSet><blockSet><setElementAltList><setElement> {

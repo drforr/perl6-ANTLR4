@@ -28,7 +28,7 @@ eval-lives-ok compile( 'fasta.g4'               ), 'fasta.g4';
 eval-lives-ok compile( 'gff3.g4'                ), 'gff3.g4';
 eval-lives-ok compile( 'HTMLLexer.g4'           ), 'HTMLLexer.g4';
 eval-lives-ok compile( 'HTMLParser.g4'          ), 'HTMLParser.g4';
-#eval-lives-ok compile( 'ICalendar.g4'           ), 'ICalendar.g4';
+#eval-lives-ok compile( 'ICalendar.g4'           ), 'ICalendar.g4'; # Impedance mismatch
 #eval-lives-ok compile( 'IDL.g4'                 ), 'IDL.g4';
 #eval-lives-ok compile( 'IRI.g4'                 ), 'IRI.g4';
 #eval-lives-ok compile( 'Java8.g4'               ), 'Java8.g4';
@@ -56,7 +56,7 @@ eval-lives-ok compile( 'Smalltalk.g4'           ), 'Smalltalk.g4';
 #eval-lives-ok compile( 'Swift.g4'               ), 'Swift.g4';
 #eval-lives-ok compile( 'tnsnames.g4'            ), 'tnsnames.g4';
 eval-lives-ok compile( 'tnt.g4'                 ), 'tnt.g4';
-#eval-lives-ok compile( 'TURTLE.g4'              ), 'TURTLE.g4';
+#eval-lives-ok compile( 'TURTLE.g4'              ), 'TURTLE.g4'; # Impednce mismatch
 #eval-lives-ok compile( 'UCBLogo.g4'             ), 'UCBLogo.g4';
 #eval-lives-ok compile( 'Verilog2001.g4'         ), 'Verilog2001.g4';
 #eval-lives-ok compile( 'vhdl.g4'                ), 'vhdl.g4';
