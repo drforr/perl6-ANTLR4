@@ -4,7 +4,17 @@ use Test;
 
 plan 1;
 
-ok 1, 'XXX Reserved for per-term modifiers';
+is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'alternating action';
+grammar Lexer;
+plain : 'X' {doStuff();} ;
+END
+grammar Lexer {
+	rule plain {
+		||	X
+			#|{doStuff();}
+	}
+}
+END
 
 done-testing;
 

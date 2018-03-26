@@ -51,6 +51,12 @@ my role Indenting {
 my role Formatting {
 	also does Indenting;
 
+	multi method to-lines( Action $a ) {
+		return (
+			q{#|} ~ $a.name
+		)
+	}
+
 	multi method to-lines( Token $t ) {
 		my $lc-name = lc( $t.name );
 		return (

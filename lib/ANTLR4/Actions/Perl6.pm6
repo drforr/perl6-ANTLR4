@@ -28,6 +28,10 @@ my role Modified {
 	has $.greed = False;
 }
 
+class Action {
+	also does Named;
+}
+
 class Terminal {
 	also does Named;
 	also does Modified;
@@ -226,7 +230,13 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method element( $/ ) {
-		if $/<ebnfSuffix> {
+		if $/<ACTION> {
+			# XXX aack, ACTIONs are next to the term they refer to
+			make Action.new(
+				:name( ~$/<ACTION> )
+			)
+		}
+		elsif $/<ebnfSuffix> {
 			my $modifier = $/<ebnfSuffix><MODIFIER>.ast;
 			my $greed = $/<ebnfSuffix><GREED>.ast // False;
 			if $/<atom><terminal><scalar> and
