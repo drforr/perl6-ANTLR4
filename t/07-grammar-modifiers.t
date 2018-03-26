@@ -63,32 +63,24 @@ subtest 'import', {
 	done-testing;
 };
 
-subtest 'actions', {
-#`(
-#`(
-	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'import with alias';
-	grammar Empty;
-	@members {
-		/** Track whether we are inside of a rule and whether it is lexical parser.
-		 */
-		public void setCurrentRuleType(int ruleType) {
-			this._currentRuleType = ruleType;
-		}
+# The test text below is rather dense because the here-doc seems to eat a
+# tab that it shouldn't, so I write everything out "longhand" as it were, with
+# literal \n characters.
+#
+is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'action';
+grammar Empty;
+@members {
+	/** Track whether we are inside of a rule and whether it is lexical parser.
+	 */
+	public void setCurrentRuleType(int ruleType) {
+		this._currentRuleType = ruleType;
 	}
-	END
-	#|{ "actions" : { "@members" : "/** Track whether we are inside of a rule and whether it is lexical parser.
-		 */
-		public void setCurrentRuleType(int ruleType) {
-			this._currentRuleType = ruleType;
-		}" } }
-	grammar Empty {
-	}
-	END
-)
-)
-
-	done-testing;
-};
+}
+END
+#|{ "action" : { "@members" : "{\n\t/** Track whether we are inside of a rule and whether it is lexical parser.\n\t */\n\tpublic void setCurrentRuleType(int ruleType) {\n\t\tthis._currentRuleType = ruleType;\n\t}\n}" } }
+grammar Empty {
+}
+END
 
 done-testing;
 

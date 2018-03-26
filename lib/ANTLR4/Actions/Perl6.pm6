@@ -83,6 +83,7 @@ class Grammar {
 	has $.type;
 	has %.option;
 	has %.import;
+	has %.action;
 	has @.token;
 	has @.rule;
 }
@@ -460,6 +461,7 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	method TOP( $/ ) {
 		my @token;
 		my %option;
+		my %action;
 		my %import;
 		for $/<prequelConstruct> {
 			when $_.<optionsSpec> {
@@ -478,6 +480,8 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 				@token.append( $_.<tokensSpec>.ast );
 			}
 			when $_.<action> {
+				%action{ ~$_.<action><action_name> } =
+					~$_.<action><ACTION>;
 			}
 		}
 		my @rule;
@@ -493,6 +497,7 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 			:name( $/<ID>.ast ),
 			:option( %option ),
 			:import( %import ),
+			:action( %action ),
 			:token( @token ),
 			:rule( @rule )
 		);
