@@ -2,14 +2,14 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 22;
+plan 23;
 
 sub compile( $name ) {
 	return ANTLR4::Grammar.file-to-string( 'corpus/' ~ $name );
 }
 
 eval-lives-ok compile( 'Abnf.g4'                ), 'Abnf.g4';
-#eval-lives-ok compile( 'ANTLRv4Lexer.g4'        ), 'ANTLRv4Lexer.g4';
+eval-lives-ok compile( 'ANTLRv4Lexer.g4'        ), 'ANTLRv4Lexer.g4';
 eval-lives-ok compile( 'ANTLRv4Parser.g4'       ), 'ANTLRv4Parser.g4';
 eval-lives-ok compile( 'asm6502.g4'             ), 'asm6502.g4';
 #eval-lives-ok compile( 'ATL.g4'                 ), 'ATL.g4';
@@ -53,7 +53,7 @@ eval-lives-ok compile( 'scala.g4'               ), 'scala.g4';
 eval-lives-ok compile( 'ScssParser.g4'          ), 'ScssParser.g4';
 eval-lives-ok compile( 'Smalltalk.g4'           ), 'Smalltalk.g4';
 #eval-lives-ok compile( 'SQLite.g4'              ), 'SQLite.g4';
-#eval-lives-ok compile( 'Swift.g4'               ), 'Swift.g4';
+#eval-lives-ok compile( 'Swift.g4'               ), 'Swift.g4'; # Impedance mismatch
 #eval-lives-ok compile( 'tnsnames.g4'            ), 'tnsnames.g4';
 eval-lives-ok compile( 'tnt.g4'                 ), 'tnt.g4';
 #eval-lives-ok compile( 'TURTLE.g4'              ), 'TURTLE.g4'; # Impednce mismatch
@@ -62,7 +62,7 @@ eval-lives-ok compile( 'tnt.g4'                 ), 'tnt.g4';
 #eval-lives-ok compile( 'vhdl.g4'                ), 'vhdl.g4';
 ##eval-lives-ok compile( /VisualBasic6.g4'        ), 'VisualBasic6.g4';
 #skip 'Need to fix UTF-8 issue', 1;
-#eval-lives-ok compile( 'WebIDL.g4'              ), 'WebIDL.g4';
+#eval-lives-ok compile( 'WebIDL.g4'              ), 'WebIDL.g4'; @ Impedance mismatch
 eval-lives-ok compile( 'XMLLexer.g4'            ), 'XMLLexer.g4';
 eval-lives-ok compile( 'XMLParser.g4'           ), 'XMLParser.g4';
 

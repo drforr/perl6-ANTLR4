@@ -475,6 +475,9 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 		elsif $/<lexerBlock> {
 			make $/<lexerBlock>.ast
 		}
+		elsif $/<lexerAtom>[0] {
+			make Wildcard.new
+		}
 		else {
 			make $/<lexerAtom>.ast
 		}
