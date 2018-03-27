@@ -408,12 +408,15 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	}
 
 	sub ANTLR-to-char-range( $str ) {
-		if $str ~~ / ^ (.) \- (.) $ / {
-			return qq{$0 .. $1}
+		if $str {
+			if $str ~~ / ^ (.) \- (.) $ / {
+				return qq{$0 .. $1}
+			}
+			else {
+				return $str
+			}
 		}
-		else {
-			return $str
-		}
+		return ''
 	}
 
 	method LEXER_CHAR_SET( $/ ) {
