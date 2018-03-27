@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 29;
+plan 30;
 
 sub compile( $name ) {
 	return ANTLR4::Grammar.file-to-string( 'corpus/' ~ $name );
@@ -29,7 +29,7 @@ eval-lives-ok compile( 'gff3.g4'                ), 'gff3.g4';
 eval-lives-ok compile( 'HTMLLexer.g4'           ), 'HTMLLexer.g4';
 eval-lives-ok compile( 'HTMLParser.g4'          ), 'HTMLParser.g4';
 #eval-lives-ok compile( 'ICalendar.g4'           ), 'ICalendar.g4'; # Impedance mismatch
-#eval-lives-ok compile( 'IDL.g4'                 ), 'IDL.g4';
+eval-lives-ok compile( 'IDL.g4'                 ), 'IDL.g4';
 #eval-lives-ok compile( 'IRI.g4'                 ), 'IRI.g4'; # Impedance mismatch
 #eval-lives-ok compile( 'Java8.g4'               ), 'Java8.g4';
 #eval-lives-ok compile( 'Java.g4'                ), 'Java.g4';

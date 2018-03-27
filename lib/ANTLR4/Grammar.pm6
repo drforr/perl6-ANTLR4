@@ -69,10 +69,15 @@ my role Formatting {
 	}
 
 	multi method to-lines( Terminal $t ) {
-		my $name = $t.name ~~ / <-[ a ..z A .. Z ]> / ??
-			q{'} ~ $t.name ~ q{'} !!
-			$t.name;	
-		return $name ~ $t.modifier ~ ( $t.greed ?? '?' !! '' )
+		my $name = '';
+		if $t.name {
+			$name = $t.name ~~ / <-[ a ..z A .. Z ]> / ??
+				q{'} ~ $t.name ~ q{'} !!
+				$t.name;
+		}
+		return $name ~
+			$t.modifier ~
+			( $t.greed ?? '?' !! '' )
 	}
 
 	multi method to-lines( Wildcard $w ) {
