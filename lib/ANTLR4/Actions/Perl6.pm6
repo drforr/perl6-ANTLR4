@@ -230,81 +230,79 @@ class ANTLR4::Actions::Perl6 {
 	}
 
 	method element( $/ ) {
+		my $modifier = $/<ebnfSuffix><MODIFIER>.ast;
+		my $greed = $/<ebnfSuffix><GREED>.ast // False;
 		if $/<ACTION> {
 			# XXX aack, ACTIONs are next to the term they refer to
 			make Action.new(
 				:name( ~$/<ACTION> )
 			)
 		}
-		elsif $/<ebnfSuffix> {
-			my $modifier = $/<ebnfSuffix><MODIFIER>.ast;
-			my $greed = $/<ebnfSuffix><GREED>.ast // False;
-			if $/<atom><terminal><scalar> and
-				!is-ANTLR-terminal( ~$/<atom><terminal><scalar> ) {
-				if $/<atom><terminal><scalar>.ast eq 'EOF' {
-					make EOF.new(
-						:modifier( $modifier ),
-						:greed( $greed ),
-					)
-				}
-				else {
-					make Nonterminal.new(
-						:modifier( $modifier ),
-						:greed( $greed ),
-						:name( $/<atom><terminal><scalar>.ast )
-					)
-				}
-			}
-			elsif $/<atom><DOT> {
-				make Wildcard.new(
-					:modifier( $modifier ),
-					:greed( $greed )
-				)
-			}
-			elsif $/<atom><notSet><blockSet> {
-				make CharacterSet.new(
-					:negated( True ),
+		elsif $/<ebnfSuffix> and $/<atom><terminal><scalar> and
+				!is-ANTLR-terminal( ~$/<atom><terminal><scalar> ) { 
+			if $/<atom><terminal><scalar>.ast eq 'EOF' {
+				make EOF.new(
 					:modifier( $modifier ),
 					:greed( $greed ),
-					# XXX can improve
-					:content(
+				)
+			}
+			else {
+				make Nonterminal.new(
+					:modifier( $modifier ),
+					:greed( $greed ),
+					:name( $/<atom><terminal><scalar>.ast )
+				)
+			}
+		}
+		elsif $/<ebnfSuffix> and $/<atom><DOT> {
+			make Wildcard.new(
+				:modifier( $modifier ),
+				:greed( $greed )
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<atom><notSet><blockSet> {
+			make CharacterSet.new(
+				:negated( True ),
+				:modifier( $modifier ),
+				:greed( $greed ),
+				# XXX can improve
+				:content(
 $/<atom><notSet><blockSet><setElementAltList><setElement>[0]<terminal><STRING_LITERAL>.ast
-					)
 				)
-			}
-			elsif $/<atom><notSet><setElement><LEXER_CHAR_SET> {
-				make CharacterSet.new(
-					:negated( True ),
-					:modifier( $modifier ),
-					:greed( $greed ),
-					# XXX can improve
-					:content(
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<atom><notSet><setElement><LEXER_CHAR_SET> {
+			make CharacterSet.new(
+				:negated( True ),
+				:modifier( $modifier ),
+				:greed( $greed ),
+				# XXX can improve
+				:content(
 $/<atom><notSet><setElement><LEXER_CHAR_SET>>>.Str
-					)
 				)
-			}
-			elsif $/<atom><notSet><setElement><terminal> {
-				make CharacterSet.new(
-					:negated( True ),
-					:modifier( $modifier ),
-					:greed( $greed ),
-					# XXX can improve
-					:content(
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<atom><notSet><setElement><terminal> {
+			make CharacterSet.new(
+				:negated( True ),
+				:modifier( $modifier ),
+				:greed( $greed ),
+				# XXX can improve
+				:content(
 $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
+				)
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<atom>.ast {
+			make Terminal.new(
+				:modifier( $modifier ),
+				:greed( $greed ),
+				:name(
+					ANTLR-to-perl(
+						$/<atom><terminal><scalar>.ast
 					)
 				)
-			}
-			elsif $/<atom>.ast {
-				make Terminal.new(
-					:modifier( $modifier ),
-					:greed( $greed ),
-					:name(
-						ANTLR-to-perl(
-							$/<atom><terminal><scalar>.ast
-						)
-					)
-				)
-			}
+			)
 		}
 		elsif $/<ebnf> {
 			# XXX The // '' should probably go away...
@@ -417,11 +415,55 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	}
 
 	method lexerElement( $/ ) {
-		if $/<lexerAtom><terminal> and $/<ebnfSuffix> {
+		my $modifier = $/<ebnfSuffix><MODIFIER>.ast;
+		my $greed = $/<ebnfSuffix><GREED> // False;
+
+		if $/<ebnfSuffix> and $/<lexerAtom><terminal> {
 			make Terminal.new(
-				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
-				:greed( $/<ebnfSuffix><GREED> // False ),
-				:name( $/<lexerAtom><terminal><STRING_LITERAL>.ast )
+				:modifier( $modifier ),
+				:greed( $greed ),
+				:name(
+					ANTLR-to-perl(
+						$/<lexerAtom><terminal><STRING_LITERAL>.ast
+					)
+				)
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<lexerAtom>[0] {
+			make Wildcard.new(
+				:modifier( $modifier ),
+				:greed( $greed )
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<lexerAtom><LEXER_CHAR_SET> {
+			make CharacterSet.new(
+				:modifier( $modifier ),
+				:greed( $greed ),
+				:content( $/<lexerAtom><LEXER_CHAR_SET>>>.Str )
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<lexerAtom><notSet><setElement> {
+			my @content;
+			for $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>[0] {
+				@content.append( $_.<LEXER_CHAR_SET_RANGE>.ast );
+			}
+			make CharacterSet.new(
+				:negated( True ),
+				:modifier( $modifier ),
+				:greed( $greed ),
+				:content( @content )
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<lexerAtom><notSet> {
+			my @content;
+			for $/<lexerAtom><notSet><blockSet><setElementAltList><setElement> {
+				@content.append( $_.<terminal><STRING_LITERAL>.ast )
+			}
+			make CharacterSet.new(
+				:negated( True ),
+				:modifier( $modifier ),
+				:greed( $greed ),
+				:content( @content )
 			)
 		}
 		elsif $/<lexerAtom><terminal> {
@@ -430,15 +472,13 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 			}
 			else {
 				make Terminal.new(
-					:name( $/<lexerAtom><terminal><scalar>.ast )
+					:name(
+						ANTLR-to-perl(
+							$/<lexerAtom><terminal><scalar>.ast
+						)
+					)
 				)
 			}
-		}
-		elsif $/<lexerAtom>[0] and $/<ebnfSuffix> {
-			make Wildcard.new(
-				:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
-				:greed( $/<ebnfSuffix><GREED> // False ),
-			)
 		}
 		elsif $/<lexerBlock> {
 			make Grouping.new(
@@ -448,44 +488,11 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 			)
 		}
 		elsif $/<ebnfSuffix> {
-			if $/<lexerAtom><LEXER_CHAR_SET> {
-				make CharacterSet.new(
-					:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
-					:greed( $/<ebnfSuffix><GREED> // False ),
-					:content( $/<lexerAtom><LEXER_CHAR_SET>>>.Str )
-				)
-			}
-			elsif $/<lexerAtom><notSet><setElement> and $/<ebnfSuffix> {
-				my @content;
-				for $/<lexerAtom><notSet><setElement><LEXER_CHAR_SET>[0] {
-					@content.append( ~$_.<LEXER_CHAR_SET_RANGE> );
-				}
-				make CharacterSet.new(
-					:negated( True ),
-					:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
-					:greed( $/<ebnfSuffix><GREED> // False ),
-					:content( @content )
-				)
-			}
-			elsif $/<lexerAtom><notSet> {
-				my @content;
-				for $/<lexerAtom><notSet><blockSet><setElementAltList><setElement> {
-					@content.append( $_.<terminal><STRING_LITERAL>.ast )
-				}
-				make CharacterSet.new(
-					:negated( True ),
-					:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
-					:greed( $/<ebnfSuffix><GREED> // False ),
-					:content( @content )
-				)
-			}
-			else {
-				make CharacterSet.new(
-					:modifier( $/<ebnfSuffix><MODIFIER>.ast ),
-					:greed( $/<ebnfSuffix><GREED> // False ),
-					:content( $/<lexerAtom><terminal>>>.Str )
-				)
-			}
+			make CharacterSet.new(
+				:modifier( $modifier ),
+				:greed( $greed ),
+				:content( $/<lexerAtom><terminal>>>.Str )
+			)
 		}
 		else {
 			make $/<lexerAtom>.ast
