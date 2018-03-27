@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 23;
+plan 26;
 
 sub compile( $name ) {
 	return ANTLR4::Grammar.file-to-string( 'corpus/' ~ $name );
@@ -14,7 +14,7 @@ eval-lives-ok compile( 'ANTLRv4Parser.g4'       ), 'ANTLRv4Parser.g4';
 eval-lives-ok compile( 'asm6502.g4'             ), 'asm6502.g4';
 #eval-lives-ok compile( 'ATL.g4'                 ), 'ATL.g4';
 eval-lives-ok compile( 'bnf.g4'                 ), 'bnf.g4';
-#eval-lives-ok compile( 'C.g4'                   ), 'C.g4';
+eval-lives-ok compile( 'C.g4'                   ), 'C.g4';
 #eval-lives-ok compile( 'Clojure.g4'             ), 'Clojure.g4';
 eval-lives-ok compile( 'creole.g4'              ), 'creole.g4';
 #eval-lives-ok compile( 'CSharp4.g4'             ), 'CSharp4.g4';
@@ -33,7 +33,7 @@ eval-lives-ok compile( 'HTMLParser.g4'          ), 'HTMLParser.g4';
 #eval-lives-ok compile( 'IRI.g4'                 ), 'IRI.g4'; # Impedance mismatch
 #eval-lives-ok compile( 'Java8.g4'               ), 'Java8.g4';
 #eval-lives-ok compile( 'Java.g4'                ), 'Java.g4';
-#eval-lives-ok compile( 'JSON.g4'                ), 'JSON.g4';
+eval-lives-ok compile( 'JSON.g4'                ), 'JSON.g4';
 eval-lives-ok compile( 'jvmBasic.g4'            ), 'jvmBasic.g4';
 #eval-lives-ok compile( 'LessLexer.g4'           ), 'LessLexer.g4';
 eval-lives-ok compile( 'LessParser.g4'          ), 'LessParser.g4';
@@ -47,7 +47,7 @@ eval-lives-ok compile( 'MySQL.g4'               ), 'MySQL.g4';
 #eval-lives-ok compile( 'Python3.g4'             ), 'Python3.g4';
 eval-lives-ok compile( 'redcode.g4'             ), 'redcode.g4';
 eval-lives-ok compile( 'RFilter.g4'             ), 'RFilter.g4';
-#eval-lives-ok compile( 'R.g4'                   ), 'R.g4';
+#eval-lives-ok compile( 'R.g4'                   ), 'R.g4'; # Impedance mismatch
 eval-lives-ok compile( 'scala.g4'               ), 'scala.g4';
 #eval-lives-ok compile( 'ScssLexer.g4'           ), 'ScssLexer.g4';
 eval-lives-ok compile( 'ScssParser.g4'          ), 'ScssParser.g4';

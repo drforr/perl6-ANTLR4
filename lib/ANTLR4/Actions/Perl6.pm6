@@ -425,7 +425,18 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 		my $modifier = $/<ebnfSuffix><MODIFIER>.ast;
 		my $greed = $/<ebnfSuffix><GREED> // False;
 
-		if $/<ebnfSuffix> and $/<lexerAtom><terminal> {
+		if $/<ebnfSuffix> and $/<lexerAtom><terminal><scalar> {
+			make Terminal.new(
+				:modifier( $modifier ),
+				:greed( $greed ),
+				:name(
+					ANTLR-to-perl(
+						$/<lexerAtom><terminal><scalar>.ast
+					)
+				)
+			)
+		}
+		elsif $/<ebnfSuffix> and $/<lexerAtom><terminal><STRING_LITERAL> {
 			make Terminal.new(
 				:modifier( $modifier ),
 				:greed( $greed ),
