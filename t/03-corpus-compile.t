@@ -59,7 +59,7 @@ eval-lives-ok compile( 'tnt.g4'                 ), 'tnt.g4';
 #eval-lives-ok compile( 'TURTLE.g4'              ), 'TURTLE.g4'; # Impednce mismatch
 #eval-lives-ok compile( 'UCBLogo.g4'             ), 'UCBLogo.g4';
 #eval-lives-ok compile( 'Verilog2001.g4'         ), 'Verilog2001.g4';
-#eval-lives-ok compile( 'vhdl.g4'                ), 'vhdl.g4';
+eval-lives-ok compile( 'vhdl.g4'                ), 'vhdl.g4';
 ##eval-lives-ok compile( /VisualBasic6.g4'        ), 'VisualBasic6.g4';
 #skip 'Need to fix UTF-8 issue', 1;
 #eval-lives-ok compile( 'WebIDL.g4'              ), 'WebIDL.g4'; @ Impedance mismatch

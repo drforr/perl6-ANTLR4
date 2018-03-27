@@ -413,7 +413,8 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 
 	method lexerAtom( $/ ) {
 		make $/<LEXER_CHAR_SET>.ast //
-			$/<terminal>.ast
+			$/<terminal>.ast //
+			$/<notSet>.ast
 	}
 
 	method lexerBlock( $/ ) {
