@@ -44,6 +44,8 @@ class EOF { also does Modified; }
 class Nonterminal {
 	also does Named;
 	also does Modified;
+
+	has $.alias;
 }
 
 class Range {
@@ -246,7 +248,15 @@ class ANTLR4::Actions::Perl6 {
 	method element( $/ ) {
 		my $modifier = $/<ebnfSuffix><MODIFIER>.ast;
 		my $greed = $/<ebnfSuffix><GREED>.ast // False;
-		if $/<ACTION> {
+		if $/<labeledElement> {
+			make Nonterminal.new(
+				:modifier( $modifier ),
+				:greed( $greed ),
+				:name( $/<labeledElement><atom><terminal><scalar>.ast ),
+				:alias( $/<labeledElement><ID>.ast )
+			)
+		}
+		elsif $/<ACTION> {
 			make $/<ACTION>.ast
 		}
 		elsif $/<ebnfSuffix> and

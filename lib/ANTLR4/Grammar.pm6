@@ -96,7 +96,12 @@ my role Formatting {
 	}
 
 	multi method to-lines( Nonterminal $n ) {
-		return q{<} ~ $n.name ~ q{>} ~ $n.modifier ~ ( $n.greed ?? '?' !! '' )
+		return q{<} ~
+				( $n.alias ?? ( $n.alias ~ '=' ) !! '' ) ~
+				$n.name ~
+			q{>} ~
+			( $n.modifier // '' ) ~
+			( $n.greed ?? '?' !! '' )
 	}
 
 	multi method to-lines( Range $r ) {

@@ -62,7 +62,7 @@ eval-lives-ok compile( 'tnt.g4'                 ), 'tnt.g4';
 eval-lives-ok compile( 'vhdl.g4'                ), 'vhdl.g4';
 ##eval-lives-ok compile( /VisualBasic6.g4'        ), 'VisualBasic6.g4';
 #skip 'Need to fix UTF-8 issue', 1;
-#eval-lives-ok compile( 'WebIDL.g4'              ), 'WebIDL.g4'; @ Impedance mismatch
+#eval-lives-ok compile( 'WebIDL.g4'              ), 'WebIDL.g4'; # Impedance mismatch
 eval-lives-ok compile( 'XMLLexer.g4'            ), 'XMLLexer.g4';
 eval-lives-ok compile( 'XMLParser.g4'           ), 'XMLParser.g4';
 

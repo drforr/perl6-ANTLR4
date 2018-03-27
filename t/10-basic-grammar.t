@@ -967,6 +967,17 @@ subtest 'rule', {
 		}
 		END
 
+		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'aliased';
+		grammar Lexer;
+		plain : alias=Str ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<alias=Str>
+			}
+		}
+		END
+
 		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'special EOF nonterminal';
 		grammar Lexer;
 		plain : EOF ;
