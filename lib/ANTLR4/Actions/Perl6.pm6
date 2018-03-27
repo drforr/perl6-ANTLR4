@@ -418,7 +418,29 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	}
 
 	method lexerBlock( $/ ) {
-		make Grouping.new( :content( $/<lexerAltList>.ast ) )
+		if $/<complement> {
+			my @content;
+			for $/<lexerAltList><lexerAlt> {
+				if $_.<lexerElement>[0]<lexerAtom><range> {
+					@content.append(
+$_.<lexerElement>[0]<lexerAtom><range><from>[0] ~ ' .. ' ~
+$_.<lexerElement>[0]<lexerAtom><range><to>[0]
+					)
+				}
+				else {
+					@content.append(
+$_.<lexerElement>[0]<lexerAtom><terminal><scalar>.ast
+					);
+				}
+			}
+			make CharacterSet.new(
+				:negated( True ),
+				:content( @content )
+			)
+		}
+		else {
+			make Grouping.new( :content( $/<lexerAltList>.ast ) )
+		}
 	}
 
 	method lexerElement( $/ ) {

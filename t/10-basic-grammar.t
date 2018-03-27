@@ -759,6 +759,17 @@ subtest 'rule', {
 		}
 		END
 
+		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'multiple characters';
+		grammar Lexer;
+		plain : ~( 'W' .. 'X' | 'Y' ) ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<-[ W .. X Y ]>
+			}
+		}
+		END
+
 		subtest 'modifiers', {
 			is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
