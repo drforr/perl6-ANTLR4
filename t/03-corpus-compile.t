@@ -18,8 +18,8 @@ eval-lives-ok compile( 'C.g4'                   ), 'C.g4';
 #eval-lives-ok compile( 'Clojure.g4'             ), 'Clojure.g4';
 eval-lives-ok compile( 'creole.g4'              ), 'creole.g4';
 #eval-lives-ok compile( 'CSharp4.g4'             ), 'CSharp4.g4';
-#eval-lives-ok compile( 'CSharp4Lexer.g4'        ), 'CSharp4Lexer.g4';
-#eval-lives-ok compile( 'CSharp4PreProcessor.g4' ), 'CSharp4PreProcessor.g4';
+#eval-lives-ok compile( 'CSharp4Lexer.g4'        ), 'CSharp4Lexer.g4'; # Impedance mismatch
+#eval-lives-ok compile( 'CSharp4PreProcessor.g4' ), 'CSharp4PreProcessor.g4'; # Impedance mismatch
 eval-lives-ok compile( 'CSV.g4'                 ), 'CSV.g4';
 #eval-lives-ok compile( 'DOT.g4'                 ), 'DOT.g4'; # Impedance mismatch
 #eval-lives-ok compile( 'ECMAScript.g4'          ), 'ECMAScript.g4';

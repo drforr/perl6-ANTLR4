@@ -163,7 +163,16 @@ class ANTLR4::Actions::Perl6 {
 	method setElementAltList( $/ ) {
 		my @content;
 		for $/<setElement> {
-			@content.append( $_.<terminal><scalar>.ast )
+			if $_.<LEXER_CHAR_SET> {
+				for $_.<LEXER_CHAR_SET> {
+					for $_ {
+						@content.append( ~$_ )
+					}
+				}
+			}
+			else {
+				@content.append( $_.<terminal><scalar>.ast )
+			}
 		}
 		make CharacterSet.new(
 			:negated( True ),
