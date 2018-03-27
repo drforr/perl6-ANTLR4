@@ -759,6 +759,17 @@ subtest 'rule', {
 		}
 		END
 
+		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'character set';
+		grammar Lexer;
+		plain : ~( [ \n\r\t\,] ) ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<-[   \n \r \t \, ]>
+			}
+		}
+		END
+
 		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'multiple characters';
 		grammar Lexer;
 		plain : ~( 'W' .. 'X' | 'Y' ) ;

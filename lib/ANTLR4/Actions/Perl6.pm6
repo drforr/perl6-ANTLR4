@@ -436,6 +436,13 @@ $_.<lexerElement>[0]<lexerAtom><range><from>[0] ~ ' .. ' ~
 $_.<lexerElement>[0]<lexerAtom><range><to>[0]
 					)
 				}
+				elsif $_.<lexerElement>[0]<lexerAtom><LEXER_CHAR_SET> {
+					for $_.<lexerElement>[0]<lexerAtom><LEXER_CHAR_SET>[0] {
+						@content.append(
+							~$_.<LEXER_CHAR_SET_RANGE>
+						)
+					}
+				}
 				else {
 					@content.append(
 $_.<lexerElement>[0]<lexerAtom><terminal><scalar>.ast
