@@ -436,6 +436,17 @@ subtest 'rule', {
 		}
 		END
 
+		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'Unicode character';
+		grammar Lexer;
+		plain : [\u000c] ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<[ \x[000c] ]>
+			}
+		}
+		END
+
 		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'multiple characters';
 		grammar Lexer;
 		plain : [char set] ;

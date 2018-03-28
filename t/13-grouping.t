@@ -98,6 +98,47 @@ subtest 'grouped thing', {
 	}
 	END
 
+	subtest 'modifiers', {
+		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'question';
+		grammar Empty;
+		stuff : ( 'a'..'z'? ) ;
+		END
+		grammar Empty {
+			rule stuff {
+				||	(	||	<[ a .. z ]>?
+					)
+			}
+		}
+		END
+
+		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'star';
+		grammar Empty;
+		stuff : ( 'a'..'z'* ) ;
+		END
+		grammar Empty {
+			rule stuff {
+				||	(	||	<[ a .. z ]>*
+					)
+			}
+		}
+		END
+
+
+		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'plus';
+		grammar Empty;
+		stuff : ( 'a'..'z'+ ) ;
+		END
+		grammar Empty {
+			rule stuff {
+				||	(	||	<[ a .. z ]>+
+					)
+			}
+		}
+		END
+
+		done-testing;
+	};
+
 	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'character set';
 	grammar Empty;
 	stuff : ( [c] ) ;
@@ -213,6 +254,21 @@ grammar Empty {
 					)
 					foo
 			)
+	}
+}
+END
+
+is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'regression from IDL';
+grammar Empty;
+stuff : ('0' | '1'..'9' '0'..'9'*) SUFFIX? ;
+END
+grammar Empty {
+	rule stuff {
+		||	(	||	0
+				||	<[ 1 .. 9 ]>
+					<[ 0 .. 9 ]>*
+			)
+			<SUFFIX>?
 	}
 }
 END
