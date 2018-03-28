@@ -175,8 +175,8 @@ class ANTLR4::Actions::Perl6 {
 	#
 	method range( $/ ) {
 		make Range.new(
-			:from( ANTLR-to-perl6( $/<from>.ast ) ),
-			:to( ANTLR-to-perl6( $/<to>.ast ) )
+			:from( escape-character-class( $/<from>.ast ) ),
+			:to( escape-character-class( $/<to>.ast ) )
 		)
 	}
 
@@ -382,13 +382,11 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 				# XXX can improve
 				:content(
 					escape-character-class(
-						ANTLR-to-perl6( 
-							~$/<atom><range><from>[0]
-						) ~
-						' .. ' ~
-						ANTLR-to-perl6( 
-							~$/<atom><range><to>[0]
-						)
+						~$/<atom><range><from>[0]
+					) ~
+					' .. ' ~
+					escape-character-class(
+						~$/<atom><range><to>[0]
 					)
 				)
 			)
@@ -437,12 +435,12 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 					$/<element>[0]<ebnfSuffix><GREED>.ast // False
 				),
 				:from(
-					ANTLR-to-perl6(
+					escape-character-class(
 						$/<element>[0]<atom><range><from>.ast
 					)
 				),
 				:to(
-					ANTLR-to-perl6(
+					escape-character-class(
 						$/<element>[0]<atom><range><to>.ast
 					)
 				),
@@ -460,12 +458,12 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 				),
 				:negated( True ),
 				:from(
-					ANTLR-to-perl6(
+					escape-character-class(
 						$/<element>[0]<atom><notSet><setElement><terminal><scalar>.ast
 					)
 				),
 				:to(
-					ANTLR-to-perl6(
+					escape-character-class(
 						$/<element>[3]<atom><terminal><scalar>.ast
 					)
 				)
@@ -483,7 +481,9 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	sub ANTLR-to-char-range( $str ) {
 		if $str {
 			if $str ~~ / ^ (.) \- (.) $ / {
-				return qq{$0 .. $1}
+				my $x = qq{$0 .. $1};
+				$x ~~ s:g/\]/\\\]/;
+				return $x;
 			}
 			else {
 				return $str
@@ -525,11 +525,11 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 			for $/<lexerAltList><lexerAlt> {
 				if $_.<lexerElement>[0]<lexerAtom><range> {
 					@content.append(
-ANTLR-to-perl6(
+escape-character-class(
 $_.<lexerElement>[0]<lexerAtom><range><from>[0]
 ) ~
 ' .. ' ~
-ANTLR-to-perl6(
+escape-character-class(
 $_.<lexerElement>[0]<lexerAtom><range><to>[0]
 )
 					)
