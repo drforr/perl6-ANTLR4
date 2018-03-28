@@ -57,7 +57,7 @@ eval-lives-ok compile( 'Smalltalk.g4'           ), 'Smalltalk.g4';
 eval-lives-ok compile( 'tnsnames.g4'            ), 'tnsnames.g4';
 eval-lives-ok compile( 'tnt.g4'                 ), 'tnt.g4';
 #eval-lives-ok compile( 'TURTLE.g4'              ), 'TURTLE.g4'; # Impednce mismatch
-#eval-lives-ok compile( 'UCBLogo.g4'             ), 'UCBLogo.g4';
+#eval-lives-ok compile( 'UCBLogo.g4'             ), 'UCBLogo.g4'; # Impedance mismatch
 eval-lives-ok compile( 'Verilog2001.g4'         ), 'Verilog2001.g4';
 eval-lives-ok compile( 'vhdl.g4'                ), 'vhdl.g4';
 ##eval-lives-ok compile( /VisualBasic6.g4'        ), 'VisualBasic6.g4';
@@ -66,4 +66,4 @@ eval-lives-ok compile( 'vhdl.g4'                ), 'vhdl.g4';
 eval-lives-ok compile( 'XMLLexer.g4'            ), 'XMLLexer.g4';
 eval-lives-ok compile( 'XMLParser.g4'           ), 'XMLParser.g4';
 
-# vim: ft=perl6)
+# vim: ft=perl6

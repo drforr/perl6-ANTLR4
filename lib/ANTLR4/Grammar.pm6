@@ -104,6 +104,7 @@ my role Formatting {
 
 	multi method to-lines( Nonterminal $n ) {
 		return q{<} ~
+				( $n.negated ?? '!' !! '' ) ~
 				( $n.alias ?? ( $n.alias ~ '=' ) !! '' ) ~
 				$n.name ~
 			q{>} ~

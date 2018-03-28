@@ -46,6 +46,7 @@ class Nonterminal {
 	also does Named;
 	also does Modified;
 
+	has $.negated;
 	has $.alias;
 }
 
@@ -306,6 +307,19 @@ $/<atom><notSet><blockSet><setElementAltList><setElement>[0]<terminal><STRING_LI
 				# XXX can improve
 				:content(
 $/<atom><notSet><setElement><LEXER_CHAR_SET>>>.Str
+				)
+			)
+		}
+		elsif $/<ebnfSuffix> and
+			$/<atom><notSet><setElement><terminal><scalar> and
+			!is-ANTLR-terminal( $/<atom><notSet><setElement><terminal><scalar> ) {
+			make Nonterminal.new(
+				:negated( True ),
+				:modifier( $modifier ),
+				:greed( $greed ),
+				# XXX can improve
+				:name(
+$/<atom><notSet><setElement><terminal><scalar>.ast
 				)
 			)
 		}

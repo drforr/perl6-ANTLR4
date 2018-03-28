@@ -990,9 +990,16 @@ subtest 'rule', {
 		END
 
 		subtest 'modifiers', {
-
-			# Negation is allowed in the grammar but is illegal
-			# in the actual language, apparently.
+			is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'negation';
+			grammar Lexer;
+			plain : ~Str* ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<!Str>*
+				}
+			}
+			END
 
 			is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
