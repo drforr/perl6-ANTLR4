@@ -30,6 +30,7 @@ my role Modified {
 
 class Action {
 	also does Named;
+	also does Modified;
 }
 
 class Terminal {
@@ -540,6 +541,17 @@ $_.<lexerElement>[0]<lexerAtom><terminal><scalar>.ast
 		}
 		elsif $/<lexerAtom>[0] {
 			make Wildcard.new
+		}
+		elsif $/<ACTION> {
+			if $/<GREED> {
+				make Action.new(
+					:name( ~$/<ACTION> ),
+					:greed( True )
+				)
+			}
+			else {
+				make $/<ACTION>.ast
+			}
 		}
 		else {
 			make $/<lexerAtom>.ast

@@ -374,7 +374,7 @@ rule lexerElement
  	{	<labeledLexerElement> <ebnfSuffix>?
  	|	<lexerAtom> <ebnfSuffix>?
  	|	<lexerBlock> <ebnfSuffix>?
- 	|	<ACTION> '?'?
+ 	|	<ACTION> <GREED>?
  	}
  
 rule labeledLexerElement

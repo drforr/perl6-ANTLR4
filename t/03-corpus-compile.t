@@ -31,8 +31,8 @@ eval-lives-ok compile( 'HTMLParser.g4'          ), 'HTMLParser.g4';
 #eval-lives-ok compile( 'ICalendar.g4'           ), 'ICalendar.g4'; # Impedance mismatch
 eval-lives-ok compile( 'IDL.g4'                 ), 'IDL.g4';
 #eval-lives-ok compile( 'IRI.g4'                 ), 'IRI.g4'; # Impedance mismatch
-#eval-lives-ok compile( 'Java8.g4'               ), 'Java8.g4';
-#eval-lives-ok compile( 'Java.g4'                ), 'Java.g4';
+#eval-lives-ok compile( 'Java8.g4'               ), 'Java8.g4'; # Impedance mismatch
+#eval-lives-ok compile( 'Java.g4'                ), 'Java.g4'; # Impedance mismatch
 eval-lives-ok compile( 'JSON.g4'                ), 'JSON.g4';
 eval-lives-ok compile( 'jvmBasic.g4'            ), 'jvmBasic.g4';
 #eval-lives-ok compile( 'LessLexer.g4'           ), 'LessLexer.g4';

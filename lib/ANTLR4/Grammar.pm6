@@ -53,7 +53,9 @@ my role Formatting {
 
 	multi method to-lines( Action $a ) {
 		return (
-			q{#|} ~ $a.name
+			q{#|} ~
+				$a.name ~
+				( $a.greed ?? '?' !! '' )
 		)
 	}
 
