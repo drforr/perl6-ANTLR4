@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 43;
+plan 45;
 
 sub compile( $name ) {
 	return ANTLR4::Grammar.file-to-string( 'corpus/' ~ $name );
@@ -21,7 +21,7 @@ eval-lives-ok compile( 'CSharp4.g4'             ), 'CSharp4.g4';
 eval-lives-ok compile( 'CSharp4Lexer.g4'        ), 'CSharp4Lexer.g4';
 eval-lives-ok compile( 'CSharp4PreProcessor.g4' ), 'CSharp4PreProcessor.g4';
 eval-lives-ok compile( 'CSV.g4'                 ), 'CSV.g4';
-#eval-lives-ok compile( 'DOT.g4'                 ), 'DOT.g4'; # Impedance mismatch
+eval-lives-ok compile( 'DOT.g4'                 ), 'DOT.g4';
 #eval-lives-ok compile( 'ECMAScript.g4'          ), 'ECMAScript.g4'; # Impedance mismatch
 #eval-lives-ok compile( 'Erlang.g4'              ), 'Erlang.g4'; # XXX Bug in ANLR script?
 eval-lives-ok compile( 'fasta.g4'               ), 'fasta.g4';
@@ -32,7 +32,7 @@ eval-lives-ok compile( 'HTMLParser.g4'          ), 'HTMLParser.g4';
 eval-lives-ok compile( 'IDL.g4'                 ), 'IDL.g4';
 #eval-lives-ok compile( 'IRI.g4'                 ), 'IRI.g4'; # Impedance mismatch
 #eval-lives-ok compile( 'Java8.g4'               ), 'Java8.g4'; # Impedance mismatch
-#eval-lives-ok compile( 'Java.g4'                ), 'Java.g4'; # Impedance mismatch
+eval-lives-ok compile( 'Java.g4'                ), 'Java.g4'; # Impedance mismatch
 eval-lives-ok compile( 'JSON.g4'                ), 'JSON.g4';
 eval-lives-ok compile( 'jvmBasic.g4'            ), 'jvmBasic.g4';
 eval-lives-ok compile( 'LessLexer.g4'           ), 'LessLexer.g4';
@@ -44,7 +44,7 @@ eval-lives-ok compile( 'MySQL.g4'               ), 'MySQL.g4';
 eval-lives-ok compile( 'ObjC.g4'                ), 'ObjC.g4';
 #eval-lives-ok compile( 'PCRE.g4'                ), 'PCRE.g4'; # Impedance mismatch
 eval-lives-ok compile( 'PGN.g4'                 ), 'PGN.g4';
-#eval-lives-ok compile( 'Python3.g4'             ), 'Python3.g4'; # Impedance mismatch
+eval-lives-ok compile( 'Python3.g4'             ), 'Python3.g4';
 eval-lives-ok compile( 'redcode.g4'             ), 'redcode.g4';
 eval-lives-ok compile( 'RFilter.g4'             ), 'RFilter.g4';
 eval-lives-ok compile( 'R.g4'                   ), 'R.g4';

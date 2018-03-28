@@ -519,16 +519,24 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 
 	# XXX
 	sub ANTLR-to-char-range( $str ) {
-		$str ~~ / ^ (.) \- (.) $ /;
+		my ( $from, $to ) = $str.split( '-' );
 		return CharacterRange.new(
-			:from( ~$0 ),
-			:to( ~$1 )
+			:from(
+				escape-character-class(
+					$from
+				)
+			),
+			:to(
+				escape-character-class(
+					$to
+				)
+			)
 		)
 	}
 
 	sub is-ANTLR-range( $str ) {
 		if $str {
-			return $str ~~ / ^ (.) \- (.) $ /
+			return $str ~~ / . \- /
 		}
 		return False
 	}
@@ -571,10 +579,14 @@ $_.<LEXER_CHAR_SET_RANGE>.ast
 					@content.append(
 						CharacterRange.new(
 							:from(
+								escape-character-class(
 ~$_.<lexerElement>[0]<lexerAtom><range><from>[0]
+								)
 							),
 							:to(
+								escape-character-class(
 ~$_.<lexerElement>[0]<lexerAtom><range><to>[0]
+								)
 							)
 						)
 					)
@@ -636,10 +648,14 @@ $/<lexerAtom><LEXER_CHAR_SET>[0][0]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT
 				:content(
 					CharacterRange.new(
 						:from(
+							escape-character-class(
 ~$/<lexerAtom><LEXER_CHAR_SET>[0][0]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT_NO_HYPHEN>
+							)
 						),
 						:to(
+							escape-character-class(
 ~$/<lexerAtom><LEXER_CHAR_SET>[0][0]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT>
+							)
 						)
 					)
 				)

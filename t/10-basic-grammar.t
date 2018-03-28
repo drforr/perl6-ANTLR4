@@ -799,6 +799,19 @@ subtest 'rule', {
 		}
 		END
 
+#`(
+		is compile( Q:to[END] ), Q:to[END], 'normal';
+		grammar Lexer;
+		plain : [\u000a-\u000c] ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<[ \x[000a] .. \x[000c] ]>
+			}
+		}
+		END
+)
+
 		subtest 'modifiers', {
 			is compile( Q:to[END] ), Q:to[END], 'negated';
 			grammar Lexer;
