@@ -114,6 +114,12 @@ class ANTLR4::Actions::Perl6 {
 		}, @str
 	}
 
+	sub new-CharacterSet( *%args ) {
+		CharacterSet.new(
+			%args
+		)
+	}
+
 	method ID( $/ ) { make ~$/ }
 	method STRING_LITERAL( $/ ) { make ~$/[0] }
 	method LEXER_CHAR_SET_RANGE( $/ ) { make ~$/ }
@@ -173,18 +179,13 @@ class ANTLR4::Actions::Perl6 {
 			if $_.<LEXER_CHAR_SET> {
 				for $_.<LEXER_CHAR_SET> {
 					for $_ {
-						@content.append(
-#							ANTLR-to-perl6( ~$_ )
-							~$_
-						)
+						@content.append( ~$_)
 					}
 				}
 			}
 			else {
 				@content.append(
-#					ANTLR-to-perl6(
-						$_.<terminal><scalar>.ast
-#					)
+					$_.<terminal><scalar>.ast
 				)
 			}
 		}
@@ -480,7 +481,7 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 			)
 		}
 		make CharacterSet.new(
-			:content( @content )
+			:content( ANTLR-to-perl6( @content ) )
 		)
 	}
 

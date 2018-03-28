@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 8;
+plan 9;
 
 # No way to generate an empty token, otherwise it'd be here.
 #
@@ -264,7 +264,7 @@ stuff : ('0' | '1'..'9' '0'..'9'*) SUFFIX? ;
 END
 grammar Empty {
 	rule stuff {
-		||	(	||	0
+		||	(	||	'0'
 				||	<[ 1 .. 9 ]>
 					<[ 0 .. 9 ]>*
 			)
