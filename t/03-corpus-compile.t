@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 32;
+plan 33;
 
 sub compile( $name ) {
 	return ANTLR4::Grammar.file-to-string( 'corpus/' ~ $name );
@@ -43,7 +43,7 @@ eval-lives-ok compile( 'MySQLBase.g4'           ), 'MySQLBase.g4';
 eval-lives-ok compile( 'MySQL.g4'               ), 'MySQL.g4';
 #eval-lives-ok compile( 'ObjC.g4'                ), 'ObjC.g4'; # Impedance mismatch
 #eval-lives-ok compile( 'PCRE.g4'                ), 'PCRE.g4'; # Impedance mismatch
-#eval-lives-ok compile( 'PGN.g4'                 ), 'PGN.g4';
+eval-lives-ok compile( 'PGN.g4'                 ), 'PGN.g4';
 #eval-lives-ok compile( 'Python3.g4'             ), 'Python3.g4'; # Impedance mismatch
 eval-lives-ok compile( 'redcode.g4'             ), 'redcode.g4';
 eval-lives-ok compile( 'RFilter.g4'             ), 'RFilter.g4';

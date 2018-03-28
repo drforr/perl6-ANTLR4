@@ -481,17 +481,6 @@ subtest 'rule', {
 			}
 			END
 
-			is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'negated alternate form';
-			grammar Lexer;
-			plain : ~'c' ;
-			END
-			grammar Lexer {
-				rule plain {
-					||	<-[ c ]>
-				}
-			}
-			END
-
 			subtest 'negated modifiers', {
 				is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'question';
 				grammar Lexer;
@@ -518,6 +507,54 @@ subtest 'rule', {
 				is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'plus';
 				grammar Lexer;
 				plain : ~[c]+ ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ c ]>+
+					}
+				}
+				END
+
+				done-testing;
+			};
+
+			is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'negated alternate form';
+			grammar Lexer;
+			plain : ~'c' ;
+			END
+			grammar Lexer {
+				rule plain {
+					||	<-[ c ]>
+				}
+			}
+			END
+
+			subtest 'negated modifiers', {
+				is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'question';
+				grammar Lexer;
+				plain : ~'c'? ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ c ]>?
+					}
+				}
+				END
+
+				is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'star';
+				grammar Lexer;
+				plain : ~'c'* ;
+				END
+				grammar Lexer {
+					rule plain {
+						||	<-[ c ]>*
+					}
+				}
+				END
+
+				is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'plus';
+				grammar Lexer;
+				plain : ~'c'+ ;
 				END
 				grammar Lexer {
 					rule plain {
