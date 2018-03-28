@@ -51,11 +51,19 @@ my role Indenting {
 my role Formatting {
 	also does Indenting;
 
+	sub greed-to-string( $a ) {
+		$a.greed ?? '?' !! ''
+	}
+
+	sub modifier-to-string( $a ) {
+		( $a.modifier // '' ) ~ greed-to-string( $a )
+	}
+
 	multi method to-lines( Action $a ) {
 		return (
 			q{#|} ~
 				$a.name ~
-				( $a.greed ?? '?' !! '' )
+				greed-to-string( $a )
 		)
 	}
 
@@ -74,16 +82,16 @@ my role Formatting {
 		my $name = '';
 		if $t.name {
 			$name = $t.name ~~ / <-[ a ..z A .. Z ]> / ??
-				q{'} ~ $t.name ~ q{'} !!
-				$t.name;
+			q{'} ~ $t.name ~ q{'} !!
+			$t.name;
 		}
 		return $name ~
-			$t.modifier ~
-			( $t.greed ?? '?' !! '' )
+			modifier-to-string( $t )
 	}
 
 	multi method to-lines( Wildcard $w ) {
-		return "." ~ $w.modifier ~ ( $w.greed ?? '?' !! '' )
+		return "." ~
+			modifier-to-string( $w )
 	}
 
 	multi method to-lines( Grouping $g ) {
@@ -94,12 +102,14 @@ my role Formatting {
 		return (
 			"\(" ~ self.indent-line( @content.shift ),
 			self.indent( @content ),
-			"\)" ~ $g.modifier ~ ( $g.greed ?? '?' !! '' )
+			"\)" ~
+				modifier-to-string( $g )
 		).flat
 	}
 
 	multi method to-lines( EOF $e ) {
-		return '$' ~ $e.modifier ~ ( $e.greed ?? '?' !! '' )
+		return '$' ~
+			modifier-to-string( $e )
 	}
 
 	multi method to-lines( Nonterminal $n ) {
@@ -108,13 +118,13 @@ my role Formatting {
 				( $n.alias ?? ( $n.alias ~ '=' ) !! '' ) ~
 				$n.name ~
 			q{>} ~
-			( $n.modifier // '' ) ~
-			( $n.greed ?? '?' !! '' )
+			modifier-to-string( $n )
 	}
 
 	multi method to-lines( Range $r ) {
 		my $negated = $r.negated ?? '-' !! '';
-		"<{$negated}[ {$r.from} .. {$r.to} ]>" ~ $r.modifier ~ ( $r.greed ?? '?' !! '' )
+		"<{$negated}[ {$r.from} .. {$r.to} ]>" ~
+			modifier-to-string( $r )
 	}
 
 	multi method to-lines( CharacterSet $c ) {
@@ -128,7 +138,8 @@ my role Formatting {
 				@content.append( $_ );
 			}
 		}
-		"<{$negated}[ {@content} ]>" ~ $c.modifier ~ ( $c.greed ?? '?' !! '' )
+		"<{$negated}[ {@content} ]>" ~
+			modifier-to-string( $c )
 	}
 
 	multi method to-lines( Concatenation $c ) {
@@ -159,7 +170,7 @@ my role Formatting {
 			@content.append( self.to-lines( $_ ) );
 		}
 		return (
-			"{$r.type} {$r.name} \{",
+			"rule {$r.name} \{",
 			self.indent( @content ),
 			"\}"
 		).flat

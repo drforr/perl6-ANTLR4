@@ -76,11 +76,15 @@ class Block {
 	has @.content;
 }
 
-class Grouping is Block { also does Modified; }
+class Grouping {
+	also does Modified;
+
+	has @.content;
+}
 
 class Token is Block { }
 
-class Rule is Block { has $.type = 'rule'; }
+class Rule is Block { }
 
 # This doesn't use the generic Block because it'll eventually be indented,
 # and the grammar level is always the top level of the file.
