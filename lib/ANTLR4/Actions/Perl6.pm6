@@ -538,8 +538,24 @@ $_.<lexerElement>[0]<lexerAtom><terminal><scalar>.ast
 		my $modifier = $/<ebnfSuffix><MODIFIER>.ast;
 		my $greed = $/<ebnfSuffix><GREED> // False;
 
-		if $/<ebnfSuffix> and $/<lexerAtom><terminal><scalar> {
+		if $/<ebnfSuffix> and $/<lexerAtom><terminal><scalar> and
+			is-ANTLR-terminal( $/<lexerAtom><terminal><scalar> ) {
+			#make Terminal.new(
 			make Terminal.new(
+				:modifier( $modifier ),
+				:greed( $greed ),
+				:name(
+					ANTLR-to-perl6(
+						$/<lexerAtom><terminal><scalar>.ast
+					)
+				)
+			)
+		}
+		elsif $/<ebnfSuffix> and
+			$/<lexerAtom><terminal><scalar> and
+			!is-ANTLR-terminal( $/<lexerAtom><terminal><scalar> ) {
+			#make Terminal.new(
+			make Nonterminal.new(
 				:modifier( $modifier ),
 				:greed( $greed ),
 				:name(

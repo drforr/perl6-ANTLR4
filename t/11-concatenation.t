@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 7;
+plan 9;
 
 # No, I'm not going to go through all the permutations of the possible stuff
 # inside character ranges, just the basic types outline above.
@@ -136,6 +136,30 @@ grammar Lexer {
 	rule plain {
 		||	terminal
 			<Str>
+	}
+}
+END
+
+is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'regression from Clojure';
+grammar Lexer;
+plain: '0' [xX] HEXD+ ;
+END
+grammar Lexer {
+	rule plain {
+		||	'0'
+			<[ x X ]>
+			<HEXD>+
+	}
+}
+END
+
+is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'regression from Abnf';
+grammar Lexer;
+plain : '\r'? -> channel(HIDDEN) ;
+END
+grammar Lexer {
+	rule plain {
+		||	'\r'?
 	}
 }
 END

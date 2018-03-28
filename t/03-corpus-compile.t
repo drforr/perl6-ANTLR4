@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 40;
+plan 41;
 
 sub compile( $name ) {
 	return ANTLR4::Grammar.file-to-string( 'corpus/' ~ $name );
@@ -15,7 +15,7 @@ eval-lives-ok compile( 'asm6502.g4'             ), 'asm6502.g4';
 eval-lives-ok compile( 'ATL.g4'                 ), 'ATL.g4';
 eval-lives-ok compile( 'bnf.g4'                 ), 'bnf.g4';
 eval-lives-ok compile( 'C.g4'                   ), 'C.g4';
-#eval-lives-ok compile( 'Clojure.g4'             ), 'Clojure.g4'; # Impedance mismatch
+#eval-lives-ok compile( 'Clojure.g4'             ), 'Clojure.g4'; # Impedance mismatch 
 eval-lives-ok compile( 'creole.g4'              ), 'creole.g4';
 eval-lives-ok compile( 'CSharp4.g4'             ), 'CSharp4.g4';
 eval-lives-ok compile( 'CSharp4Lexer.g4'        ), 'CSharp4Lexer.g4';
