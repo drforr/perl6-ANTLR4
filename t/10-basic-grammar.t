@@ -4,8 +4,8 @@ use Test;
 
 plan 4;
 
-sub compiled-match( $orig, $expected ) {
-	ANTLR4::Grammar.to-string( $orig ) eq $expected
+sub compile( $orig ) {
+	return ANTLR4::Grammar.to-string( $orig )
 }
 
 # It's most important to test things that can easily translate into Perl 6.
@@ -13,7 +13,7 @@ sub compiled-match( $orig, $expected ) {
 # Parametrize types, return types, options, and exceptions won't make sense
 # until the C/Java types get translated to Perl 6.
 
-ok compiled-match( Q:to[END], Q:to[END] ), 'empty grammar';
+is compile( Q:to[END] ), Q:to[END], 'empty grammar';
 grammar Empty;
 END
 grammar Empty {
@@ -25,7 +25,7 @@ END
 subtest 'empty rule, fragment', {
 	# No way to generate an empty token, otherwise it'd be here.
 	#
-	ok compiled-match( Q:to[END], Q:to[END] ), 'empty rule';
+	is compile( Q:to[END] ), Q:to[END], 'empty rule';
 	grammar Empty;
 	empty : ;
 	END
@@ -35,7 +35,7 @@ subtest 'empty rule, fragment', {
 	}
 	END
 
-	ok compiled-match( Q:to[END], Q:to[END] ), 'multiple empty rules';
+	is compile( Q:to[END] ), Q:to[END], 'multiple empty rules';
 	grammar Empty;
 	empty : ;
 	emptier : ;
@@ -48,7 +48,7 @@ subtest 'empty rule, fragment', {
 	}
 	END
 
-	ok compiled-match( Q:to[END], Q:to[END] ), 'empty fragment';
+	is compile( Q:to[END] ), Q:to[END], 'empty fragment';
 	grammar Empty;
 	fragment empty : ;
 	END
@@ -58,7 +58,7 @@ subtest 'empty rule, fragment', {
 	}
 	END
 
-	ok compiled-match( Q:to[END], Q:to[END] ), 'multiple empty fragments';
+	is compile( Q:to[END] ), Q:to[END], 'multiple empty fragments';
 	grammar Empty;
 	fragment empty : ;
 	fragment emptier : ;
@@ -77,7 +77,7 @@ subtest 'empty rule, fragment', {
 # Tokens in ANTLR can't get complex, they're simple strings.
 #
 subtest 'token', {
-	ok compiled-match( Q:to[END], Q:to[END] ), 'single token';
+	is compile( Q:to[END] ), Q:to[END], 'single token';
 	grammar Empty;
 	tokens { INDENT }
 	END
@@ -88,7 +88,7 @@ subtest 'token', {
 	}
 	END
 
-	ok compiled-match( Q:to[END], Q:to[END] ), 'multiple tokens';
+	is compile( Q:to[END] ), Q:to[END], 'multiple tokens';
 	grammar Empty;
 	tokens { INDENT, DEDENT }
 	END
@@ -107,7 +107,7 @@ subtest 'token', {
 
 subtest 'rule', {
 	subtest 'terminal', {
-		ok compiled-match( Q:to[END], Q:to[END] ), 'bare';
+		is compile( Q:to[END] ), Q:to[END], 'bare';
 		grammar Lexer;
 		plain : 'terminal' ;
 		END
@@ -118,7 +118,7 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'multiple terms, letters only';
+		is compile( Q:to[END] ), Q:to[END], 'multiple terms, letters only';
 		grammar Lexer;
 		plain : 'terminal' 'station' ;
 		END
@@ -130,7 +130,7 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'quoted terminal';
+		is compile( Q:to[END] ), Q:to[END], 'quoted terminal';
 		grammar Lexer;
 		sign : '-' ;
 		END
@@ -141,7 +141,7 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'escaped terminal';
+		is compile( Q:to[END] ), Q:to[END], 'escaped terminal';
 		grammar Lexer;
 		sign : '\t' ;
 		END
@@ -152,7 +152,7 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'Unicode terminal';
+		is compile( Q:to[END] ), Q:to[END], 'Unicode terminal';
 		grammar Lexer;
 		sign : 'Hello\u236a' ;
 		END
@@ -167,7 +167,7 @@ subtest 'rule', {
 		# terminal but a (degenerate) character set, I think.
 		#
 		subtest 'modifiers', {
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : 'terminal'? ;
 			END
@@ -178,7 +178,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : 'terminal'* ;
 			END
@@ -189,7 +189,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : 'terminal'+ ;
 			END
@@ -204,7 +204,7 @@ subtest 'rule', {
 		};
 
 		subtest 'greedy modifiers', {
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : 'terminal'?? ;
 			END
@@ -215,7 +215,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : 'terminal'*? ;
 			END
@@ -226,7 +226,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : 'terminal'+? ;
 			END
@@ -244,7 +244,7 @@ subtest 'rule', {
 	};
 
 	subtest 'negated terminal (character)', {
-		ok compiled-match( Q:to[END], Q:to[END] ), 'negated alternate form';
+		is compile( Q:to[END] ), Q:to[END], 'negated alternate form';
 		grammar Lexer;
 		plain : ~'c' ;
 		END
@@ -256,7 +256,7 @@ subtest 'rule', {
 		END
 
 		subtest 'modifiers', {
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : ~'c'? ;
 			END
@@ -267,7 +267,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : ~'c'* ;
 			END
@@ -278,7 +278,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : ~'c'+ ;
 			END
@@ -291,7 +291,7 @@ subtest 'rule', {
 		};
 
 		subtest 'greedy modifiers', {
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : ~'c'?? ;
 			END
@@ -302,7 +302,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : ~'c'*? ;
 			END
@@ -313,7 +313,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : ~'c'+? ;
 			END
@@ -331,7 +331,7 @@ subtest 'rule', {
 	};
 
 	subtest 'dotted character range', {
-		ok compiled-match( Q:to[END], Q:to[END] ), 'bare';
+		is compile( Q:to[END] ), Q:to[END], 'letters';
 		grammar Lexer;
 		plain : 'a'..'z' ;
 		END
@@ -342,7 +342,8 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'bare';
+#`(
+		is compile( Q:to[END] ), Q:to[END], 'letter..non-letter';
 		grammar Lexer;
 		plain : 'a'..']' ;
 		END
@@ -352,8 +353,9 @@ subtest 'rule', {
 			}
 		}
 		END
+)
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'Unicode escape';
+		is compile( Q:to[END] ), Q:to[END], 'Unicode escape';
 		grammar Lexer;
 		plain : '\u0300'..'\u036F' ;
 		END
@@ -365,7 +367,7 @@ subtest 'rule', {
 		END
 
 		subtest 'modifiers', {
-			ok compiled-match( Q:to[END], Q:to[END] ), 'negation';
+			is compile( Q:to[END] ), Q:to[END], 'negation';
 			grammar Lexer;
 			plain : ~'a'..'z' ;
 			END
@@ -377,7 +379,7 @@ subtest 'rule', {
 			END
 
 			subtest 'negated modifiers', {
-				ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+				is compile( Q:to[END] ), Q:to[END], 'question';
 				grammar Lexer;
 				plain : ~'a'..'z'? ;
 				END
@@ -388,7 +390,7 @@ subtest 'rule', {
 				}
 				END
 
-				ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+				is compile( Q:to[END] ), Q:to[END], 'star';
 				grammar Lexer;
 				plain : ~'a'..'z'* ;
 				END
@@ -399,7 +401,7 @@ subtest 'rule', {
 				}
 				END
 
-				ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+				is compile( Q:to[END] ), Q:to[END], 'plus';
 				grammar Lexer;
 				plain : ~'a'..'z'+ ;
 				END
@@ -413,7 +415,7 @@ subtest 'rule', {
 				done-testing;
 			};
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : 'a'..'z'? ;
 			END
@@ -424,7 +426,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : 'a'..'z'* ;
 			END
@@ -435,7 +437,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : 'a'..'z'+ ;
 			END
@@ -451,7 +453,7 @@ subtest 'rule', {
 
 		subtest 'greedy modifiers', {
 			subtest 'negated modifiers', {
-				ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+				is compile( Q:to[END] ), Q:to[END], 'question';
 				grammar Lexer;
 				plain : ~'a'..'z'?? ;
 				END
@@ -462,7 +464,7 @@ subtest 'rule', {
 				}
 				END
 
-				ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+				is compile( Q:to[END] ), Q:to[END], 'star';
 				grammar Lexer;
 				plain : ~'a'..'z'*? ;
 				END
@@ -473,7 +475,7 @@ subtest 'rule', {
 				}
 				END
 
-				ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+				is compile( Q:to[END] ), Q:to[END], 'plus';
 				grammar Lexer;
 				plain : ~'a'..'z'+? ;
 				END
@@ -487,7 +489,7 @@ subtest 'rule', {
 				done-testing;
 			};
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : 'a'..'z'?? ;
 			END
@@ -498,7 +500,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : 'a'..'z'*? ;
 			END
@@ -509,7 +511,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : 'a'..'z'+? ;
 			END
@@ -527,7 +529,7 @@ subtest 'rule', {
 	};
 
 	subtest 'bracketed character set', {
-		ok compiled-match( Q:to[END], Q:to[END] ), 'single character';
+		is compile( Q:to[END] ), Q:to[END], 'single character';
 		grammar Lexer;
 		plain : [c] ;
 		END
@@ -538,7 +540,7 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'Unicode character';
+		is compile( Q:to[END] ), Q:to[END], 'Unicode character';
 		grammar Lexer;
 		plain : [\u000C] ;
 		END
@@ -549,7 +551,7 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'close-bracket';
+		is compile( Q:to[END] ), Q:to[END], 'close-bracket';
 		grammar Lexer;
 		plain : [\]] ;
 		END
@@ -561,7 +563,7 @@ subtest 'rule', {
 		END
 
 		subtest 'modifiers', {
-			ok compiled-match( Q:to[END], Q:to[END] ), 'negated';
+			is compile( Q:to[END] ), Q:to[END], 'negated';
 			grammar Lexer;
 			plain : ~[c] ;
 			END
@@ -573,7 +575,7 @@ subtest 'rule', {
 			END
 
 			subtest 'negated modifiers', {
-				ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+				is compile( Q:to[END] ), Q:to[END], 'question';
 				grammar Lexer;
 				plain : ~[c]? ;
 				END
@@ -584,7 +586,7 @@ subtest 'rule', {
 				}
 				END
 
-				ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+				is compile( Q:to[END] ), Q:to[END], 'star';
 				grammar Lexer;
 				plain : ~[c]* ;
 				END
@@ -595,7 +597,7 @@ subtest 'rule', {
 				}
 				END
 
-				ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+				is compile( Q:to[END] ), Q:to[END], 'plus';
 				grammar Lexer;
 				plain : ~[c]+ ;
 				END
@@ -609,7 +611,7 @@ subtest 'rule', {
 				done-testing;
 			};
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : [c]? ;
 			END
@@ -620,7 +622,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : [c]* ;
 			END
@@ -631,7 +633,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : [c]+ ;
 			END
@@ -647,7 +649,7 @@ subtest 'rule', {
 
 		subtest 'greedy modifiers', {
 			subtest 'negated modifiers', {
-				ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+				is compile( Q:to[END] ), Q:to[END], 'question';
 				grammar Lexer;
 				plain : ~[c]?? ;
 				END
@@ -658,7 +660,7 @@ subtest 'rule', {
 				}
 				END
 
-				ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+				is compile( Q:to[END] ), Q:to[END], 'star';
 				grammar Lexer;
 				plain : ~[c]*? ;
 				END
@@ -669,7 +671,7 @@ subtest 'rule', {
 				}
 				END
 
-				ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+				is compile( Q:to[END] ), Q:to[END], 'plus';
 				grammar Lexer;
 				plain : ~[c]+? ;
 				END
@@ -683,7 +685,7 @@ subtest 'rule', {
 				done-testing;
 			};
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : [c]?? ;
 			END
@@ -694,7 +696,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : [c]*? ;
 			END
@@ -705,7 +707,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : [c]+? ;
 			END
@@ -723,7 +725,7 @@ subtest 'rule', {
 	};
 
 	subtest 'multiple-character set', {
-		ok compiled-match( Q:to[END], Q:to[END] ), 'normal';
+		is compile( Q:to[END] ), Q:to[END], 'normal';
 		grammar Lexer;
 		plain : [abc] ;
 		END
@@ -735,7 +737,7 @@ subtest 'rule', {
 		END
 
 		subtest 'modifiers', {
-			ok compiled-match( Q:to[END], Q:to[END] ), 'negated';
+			is compile( Q:to[END] ), Q:to[END], 'negated';
 			grammar Lexer;
 			plain : ~[abc] ;
 			END
@@ -746,7 +748,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : [abc]? ;
 			END
@@ -757,7 +759,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : [abc]* ;
 			END
@@ -768,7 +770,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : [abc]+ ;
 			END
@@ -786,7 +788,7 @@ subtest 'rule', {
 	};
 
 	subtest 'ranged character set', {
-		ok compiled-match( Q:to[END], Q:to[END] ), 'normal';
+		is compile( Q:to[END] ), Q:to[END], 'normal';
 		grammar Lexer;
 		plain : [a-c] ;
 		END
@@ -798,8 +800,7 @@ subtest 'rule', {
 		END
 
 		subtest 'modifiers', {
-#`(
-			ok compiled-match( Q:to[END], Q:to[END] ), 'negated';
+			is compile( Q:to[END] ), Q:to[END], 'negated';
 			grammar Lexer;
 			plain : ~[a-c] ;
 			END
@@ -809,11 +810,10 @@ subtest 'rule', {
 				}
 			}
 			END
-)
 
 			subtest 'negated modifiers', {
 #`(
-				ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+				is compile( Q:to[END] ), Q:to[END], 'question';
 				grammar Lexer;
 				plain : ~[a-c]? ;
 				END
@@ -826,7 +826,7 @@ subtest 'rule', {
 )
 
 #`(
-				ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+				is compile( Q:to[END] ), Q:to[END], 'star';
 				grammar Lexer;
 				plain : ~[a-c]* ;
 				END
@@ -839,7 +839,7 @@ subtest 'rule', {
 )
 
 #`(
-				ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+				is compile( Q:to[END] ), Q:to[END], 'plus';
 				grammar Lexer;
 				plain : ~[a-c]+ ;
 				END
@@ -866,7 +866,7 @@ subtest 'rule', {
 	# set composed of the alternatives.
 	# 
 	subtest 'negated character set, subrule form', {
-		ok compiled-match( Q:to[END], Q:to[END] ), 'single character';
+		is compile( Q:to[END] ), Q:to[END], 'single character';
 		grammar Lexer;
 		plain : ~( 'W' ) ;
 		END
@@ -877,7 +877,7 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'multiple characters';
+		is compile( Q:to[END] ), Q:to[END], 'multiple characters';
 		grammar Lexer;
 		plain : ~( 'W' | 'Y' ) ;
 		END
@@ -888,7 +888,7 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'character set';
+		is compile( Q:to[END] ), Q:to[END], 'character set';
 		grammar Lexer;
 		plain : ~( [ \n\r\t\,] ) ;
 		END
@@ -899,7 +899,7 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'multiple characters';
+		is compile( Q:to[END] ), Q:to[END], 'multiple characters';
 		grammar Lexer;
 		plain : ~( 'W' .. 'X' | 'Y' ) ;
 		END
@@ -911,7 +911,7 @@ subtest 'rule', {
 		END
 
 		subtest 'modifiers', {
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : ~( 'W' )? ;
 			END
@@ -922,7 +922,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : ~( 'W' )* ;
 			END
@@ -933,7 +933,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : ~( 'W' )+ ;
 			END
@@ -948,7 +948,7 @@ subtest 'rule', {
 		};
 
 		subtest 'greedy modifiers', {
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : ~( 'W' )?? ;
 			END
@@ -959,7 +959,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : ~( 'W' )*? ;
 			END
@@ -970,7 +970,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : ~( 'W' )+? ;
 			END
@@ -990,7 +990,7 @@ subtest 'rule', {
 	# XXX Make sure that wildcard semantics match ANTLR?
 	#
 	subtest 'wildcard', {
-		ok compiled-match( Q:to[END], Q:to[END] ), 'bare';
+		is compile( Q:to[END] ), Q:to[END], 'bare';
 		grammar Lexer;
 		plain : . ;
 		END
@@ -1003,9 +1003,9 @@ subtest 'rule', {
 
 		subtest 'modifiers', {
 			# Negated wildcard is illegal.
-			# Good thing too, no idea what it would mean.
+			# Good thing , no idea what it would mean.
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : .? ;
 			END
@@ -1016,7 +1016,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : .* ;
 			END
@@ -1027,7 +1027,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : .+ ;
 			END
@@ -1043,9 +1043,9 @@ subtest 'rule', {
 
 		subtest 'greedy modifiers', {
 			# Negated wildcard is illegal.
-			# Good thing too, no idea what it would mean.
+			# Good thing , no idea what it would mean.
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : .?? ;
 			END
@@ -1056,7 +1056,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : .*? ;
 			END
@@ -1067,7 +1067,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : .+? ;
 			END
@@ -1085,7 +1085,7 @@ subtest 'rule', {
 	};
 
 	subtest 'rule with nonterminal', {
-		ok compiled-match( Q:to[END], Q:to[END] ), 'bare';
+		is compile( Q:to[END] ), Q:to[END], 'bare';
 		grammar Lexer;
 		plain : Str ;
 		END
@@ -1096,7 +1096,7 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'aliased';
+		is compile( Q:to[END] ), Q:to[END], 'aliased';
 		grammar Lexer;
 		plain : alias=Str ;
 		END
@@ -1107,7 +1107,7 @@ subtest 'rule', {
 		}
 		END
 
-		ok compiled-match( Q:to[END], Q:to[END] ), 'special EOF nontermnal';
+		is compile( Q:to[END] ), Q:to[END], 'special EOF nontermnal';
 		grammar Lexer;
 		plain : EOF ;
 		END
@@ -1119,7 +1119,7 @@ subtest 'rule', {
 		END
 
 		subtest 'modifiers', {
-			ok compiled-match( Q:to[END], Q:to[END] ), 'negation';
+			is compile( Q:to[END] ), Q:to[END], 'negation';
 			grammar Lexer;
 			plain : ~Str* ;
 			END
@@ -1130,7 +1130,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : Str? ;
 			END
@@ -1141,7 +1141,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : Str* ;
 			END
@@ -1152,7 +1152,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : Str+ ;
 			END
@@ -1171,7 +1171,7 @@ subtest 'rule', {
 			# Negation is allowed in the grammar but is illegal
 			# in the actual language, apparently.
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'question';
+			is compile( Q:to[END] ), Q:to[END], 'question';
 			grammar Lexer;
 			plain : Str?? ;
 			END
@@ -1182,7 +1182,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'star';
+			is compile( Q:to[END] ), Q:to[END], 'star';
 			grammar Lexer;
 			plain : Str*? ;
 			END
@@ -1193,7 +1193,7 @@ subtest 'rule', {
 			}
 			END
 
-			ok compiled-match( Q:to[END], Q:to[END] ), 'plus';
+			is compile( Q:to[END] ), Q:to[END], 'plus';
 			grammar Lexer;
 			plain : Str+? ;
 			END

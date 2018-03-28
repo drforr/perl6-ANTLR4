@@ -109,12 +109,18 @@ class Grammar {
 }
 
 class ANTLR4::Actions::Perl6 {
+	my %character-class-escape =
+		']' => True,
+		'-' => True
+	;
 	sub escape-character-class( *@chars ) {
 		map {
 			if $_ {
 				my $copy = $_;
 				$copy ~~ s:g/\\u(....)/\\x[$0]/;
-				$copy = '\\]' if $copy eq ']';
+				if %character-class-escape{$copy} {
+					$copy = %character-class-escape{$copy};
+				}
 				$copy;
 			}
 			else {
@@ -225,10 +231,17 @@ class ANTLR4::Actions::Perl6 {
 
 	method setElement( $/ ) {
 		my @content;
-		for $/<LEXER_CHAR_SET> {
+		for $/<LEXER_CHAR_SET>[0] {
 			# XXX fix later
 			if $_ {
-				@content.append( Character.new( :name( ~$_ ) ) )
+				if is-ANTLR-range( ~$_ ) {
+					@content.append(
+						ANTLR-to-char-range( ~$_ )
+					)
+				}
+				elsif ~$_ {
+					@content.append( Character.new( :name( $_ ) ) )
+				}
 			}
 		}
 		make CharacterSet.new(
@@ -516,11 +529,9 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 	method LEXER_CHAR_SET( $/ ) {
 		my @content;
 		for $/[0] {
-			if is-ANTLR-range( $_.<LEXER_CHAR_SET_RANGE>.ast ) {
+			if is-ANTLR-range( ~$_ ) {
 				@content.append(
-					ANTLR-to-char-range(
-						$_.<LEXER_CHAR_SET_RANGE>.ast
-					)
+					ANTLR-to-char-range( ~$_ )
 				)
 			}
 			else {
