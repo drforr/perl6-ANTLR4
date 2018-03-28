@@ -121,18 +121,35 @@ my role Formatting {
 			modifier-to-string( $n )
 	}
 
+	multi method to-lines( CharacterRange $r ) {
+		"{$r.from} .. {$r.to}"
+	}
+
 	multi method to-lines( Range $r ) {
 		my $negated = $r.negated ?? '-' !! '';
 		"<{$negated}[ {$r.from} .. {$r.to} ]>" ~
 			modifier-to-string( $r )
 	}
 
+	multi method to-lines( Character $c ) {
+		if $c.name {
+			if $c.name eq ']' {
+				return '\]'
+			}
+			elsif $c.name ~~ / ^ \\ u (....) $ / {
+				return '\x[' ~ $0 ~ ']'
+			}
+			return $c.name
+		}
+		return ''
+	}
+
 	multi method to-lines( CharacterSet $c ) {
 		my $negated = $c.negated ?? '-' !! '';
 		my @content;
 		for $c.content {
-			if /(.)\-(.)/ {
-				@content.append( qq{$0 .. $1} );
+			if $_ ~~ Character or $_ ~~ CharacterRange {
+				@content.append( self.to-lines( $_ ) )
 			}
 			else {
 				@content.append( $_ );
