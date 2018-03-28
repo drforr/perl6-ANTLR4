@@ -125,12 +125,6 @@ my role Formatting {
 		"{$r.from} .. {$r.to}"
 	}
 
-	multi method to-lines( Range $r ) {
-		my $negated = $r.negated ?? '-' !! '';
-		"<{$negated}[ {$r.from} .. {$r.to} ]>" ~
-			modifier-to-string( $r )
-	}
-
 	multi method to-lines( Character $c ) {
 		if $c.name {
 			if $c.name eq ']' {
