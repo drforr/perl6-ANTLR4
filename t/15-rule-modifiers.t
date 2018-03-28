@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 3;
+plan 4;
 
 is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'channel XXX PARTIALLY BROKEN';
 grammar Empty;
@@ -11,6 +11,18 @@ END
 grammar Empty {
 	rule BLOCK_COMMENT {
 		||	$
+	}
+}
+END
+
+is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'push XXX PARTIALLY BROKEN';
+grammar Empty;
+BLOCK_COMMENT : ('0'..'9') -> pushMode(I) ;
+END
+grammar Empty {
+	rule BLOCK_COMMENT {
+		||	(	||	<[ 0 .. 9 ]>
+			)
 	}
 }
 END
