@@ -359,13 +359,20 @@ $/<atom><notSet><blockSet><setElementAltList><setElement>[0]<terminal><STRING_LI
 		}
 		elsif $/<ebnfSuffix> and
 			$/<atom><notSet><setElement><LEXER_CHAR_SET> {
-			my @content =
-				Character.new(
-					:name(
-				# XXX can improve
-$/<atom><notSet><setElement><LEXER_CHAR_SET>>>.Str
-					)
-				);
+			my @content;
+			for $/<atom><notSet><setElement><LEXER_CHAR_SET> {
+				if $_ {
+					if is-ANTLR-range( ~$_ ) {
+# XXX fix later
+						@content.append(
+							ANTLR-to-char-range( ~$_ )
+						)
+					}
+					elsif ~$_ {
+						@content.append( Character.new( :name( $_ ) ) )
+					}
+				}
+			}
 			make CharacterSet.new(
 				:negated( True ),
 				:modifier( $modifier ),
