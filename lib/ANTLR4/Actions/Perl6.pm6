@@ -100,6 +100,19 @@ class Grammar {
 }
 
 class ANTLR4::Actions::Perl6 {
+	sub escape-character-class( *@chars ) {
+		map {
+			if $_ {
+				my $copy = $_;
+				$copy ~~ s:g/\\u(....)/\\x[$0]/;
+				$copy = '\\]' if $copy eq ']';
+				$copy;
+			}
+			else {
+				''
+			}
+		}, @chars
+	}
 	sub ANTLR-to-perl6( *@str ) {
 		map {
 			if $_ {
@@ -112,12 +125,6 @@ class ANTLR4::Actions::Perl6 {
 				''
 			}
 		}, @str
-	}
-
-	sub new-CharacterSet( *%args ) {
-		CharacterSet.new(
-			%args
-		)
 	}
 
 	method ID( $/ ) { make ~$/ }
@@ -191,7 +198,9 @@ class ANTLR4::Actions::Perl6 {
 		}
 		make CharacterSet.new(
 			:negated( True ),
-			:content( ANTLR-to-perl6( @content ) )
+			:content( escape-character-class(
+				ANTLR-to-perl6( @content ) )
+			)
 		)
 	}
 
@@ -207,7 +216,9 @@ class ANTLR4::Actions::Perl6 {
 		}
 		make CharacterSet.new(
 			:negated( True ),
-			:content( ANTLR-to-perl6( @content ) )
+			:content( escape-character-class(
+				ANTLR-to-perl6( @content ) )
+			)
 		)
 	}
 
@@ -222,8 +233,10 @@ class ANTLR4::Actions::Perl6 {
 			make CharacterSet.new(
 				:negated( True ),
 				:content(
-					ANTLR-to-perl6(
-						$/<setElement><terminal><scalar>.ast
+					escape-character-class(
+						ANTLR-to-perl6( 
+							$/<setElement><terminal><scalar>.ast
+						)
 					)
 				)
 			)
@@ -308,8 +321,10 @@ class ANTLR4::Actions::Perl6 {
 				:greed( $greed ),
 				# XXX can improve
 				:content(
-					ANTLR-to-perl6(
+					escape-character-class(
+						ANTLR-to-perl6( 
 $/<atom><notSet><blockSet><setElementAltList><setElement>[0]<terminal><STRING_LITERAL>.ast
+						)
 					)
 				)
 			)
@@ -322,8 +337,10 @@ $/<atom><notSet><blockSet><setElementAltList><setElement>[0]<terminal><STRING_LI
 				:greed( $greed ),
 				# XXX can improve
 				:content(
-					ANTLR-to-perl6(
+					escape-character-class(
+						ANTLR-to-perl6( 
 $/<atom><notSet><setElement><LEXER_CHAR_SET>>>.Str
+						)
 					)
 				)
 			)
@@ -349,8 +366,10 @@ $/<atom><notSet><setElement><terminal><scalar>.ast
 				:greed( $greed ),
 				# XXX can improve
 				:content(
-					ANTLR-to-perl6(
+					escape-character-class(
+						ANTLR-to-perl6( 
 $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
+						)
 					)
 				)
 			)
@@ -362,12 +381,14 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 				:greed( $greed ),
 				# XXX can improve
 				:content(
-					ANTLR-to-perl6(
-						~$/<atom><range><from>[0]
-					) ~
-					' .. ' ~
-					ANTLR-to-perl6(
-						~$/<atom><range><to>[0]
+					escape-character-class(
+						ANTLR-to-perl6( 
+							~$/<atom><range><from>[0]
+						) ~
+						' .. ' ~
+						ANTLR-to-perl6( 
+							~$/<atom><range><to>[0]
+						)
 					)
 				)
 			)
@@ -481,7 +502,13 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 			)
 		}
 		make CharacterSet.new(
-			:content( ANTLR-to-perl6( @content ) )
+			:content(
+				escape-character-class(
+					ANTLR-to-perl6( 
+						@content
+					)
+				)
+			)
 		)
 	}
 
@@ -526,7 +553,13 @@ $_.<lexerElement>[0]<lexerAtom><terminal><scalar>.ast
 			}
 			make CharacterSet.new(
 				:negated( True ),
-				:content( @content )
+				:content(
+					escape-character-class(
+						ANTLR-to-perl6( 
+							@content
+						)
+					)
+				)
 			)
 		}
 		else {
@@ -587,8 +620,10 @@ $_.<lexerElement>[0]<lexerAtom><terminal><scalar>.ast
 				:modifier( $modifier ),
 				:greed( $greed ),
 				:content(
-					ANTLR-to-perl6(
-						$/<lexerAtom><LEXER_CHAR_SET>>>.Str
+					escape-character-class(
+						ANTLR-to-perl6( 
+							$/<lexerAtom><LEXER_CHAR_SET>>>.Str
+						)
 					)
 				)
 			)
@@ -599,8 +634,10 @@ $_.<lexerElement>[0]<lexerAtom><terminal><scalar>.ast
 				:modifier( $modifier ),
 				:greed( $greed ),
 				:content(
-					ANTLR-to-perl6(
+					escape-character-class(
+						ANTLR-to-perl6( 
 $/<lexerAtom><notSet><setElement><terminal><STRING_LITERAL>.ast
+						)
 					)
 				)
 			)
@@ -618,7 +655,13 @@ $/<lexerAtom><notSet><setElement><terminal><STRING_LITERAL>.ast
 				:negated( True ),
 				:modifier( $modifier ),
 				:greed( $greed ),
-				:content( @content )
+				:content(
+					escape-character-class(
+						ANTLR-to-perl6( 
+							@content
+						)
+					)
+				)
 			)
 		}
 		elsif $/<ebnfSuffix> and $/<lexerAtom><notSet> {
@@ -634,7 +677,13 @@ $/<lexerAtom><notSet><setElement><terminal><STRING_LITERAL>.ast
 				:negated( True ),
 				:modifier( $modifier ),
 				:greed( $greed ),
-				:content( @content )
+				:content(
+					escape-character-class(
+						ANTLR-to-perl6( 
+							@content
+						)
+					)
+				)
 			)
 		}
 		elsif $/<lexerBlock> {

@@ -447,6 +447,17 @@ subtest 'rule', {
 		}
 		END
 
+		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'close-bracket';
+		grammar Lexer;
+		plain : [\]] ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<[ \] ]>
+			}
+		}
+		END
+
 		is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'multiple characters';
 		grammar Lexer;
 		plain : [char set] ;

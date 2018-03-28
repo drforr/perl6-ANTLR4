@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 41;
+plan 44;
 
 sub compile( $name ) {
 	return ANTLR4::Grammar.file-to-string( 'corpus/' ~ $name );
@@ -15,7 +15,7 @@ eval-lives-ok compile( 'asm6502.g4'             ), 'asm6502.g4';
 eval-lives-ok compile( 'ATL.g4'                 ), 'ATL.g4';
 eval-lives-ok compile( 'bnf.g4'                 ), 'bnf.g4';
 eval-lives-ok compile( 'C.g4'                   ), 'C.g4';
-#eval-lives-ok compile( 'Clojure.g4'             ), 'Clojure.g4'; # Impedance mismatch 
+eval-lives-ok compile( 'Clojure.g4'             ), 'Clojure.g4';
 eval-lives-ok compile( 'creole.g4'              ), 'creole.g4';
 eval-lives-ok compile( 'CSharp4.g4'             ), 'CSharp4.g4';
 eval-lives-ok compile( 'CSharp4Lexer.g4'        ), 'CSharp4Lexer.g4';
@@ -37,7 +37,7 @@ eval-lives-ok compile( 'JSON.g4'                ), 'JSON.g4';
 eval-lives-ok compile( 'jvmBasic.g4'            ), 'jvmBasic.g4';
 eval-lives-ok compile( 'LessLexer.g4'           ), 'LessLexer.g4';
 eval-lives-ok compile( 'LessParser.g4'          ), 'LessParser.g4';
-#eval-lives-ok compile( 'logo.g4'                ), 'logo.g4'; # Impedance mismatch?
+eval-lives-ok compile( 'logo.g4'                ), 'logo.g4';
 eval-lives-ok compile( 'Lua.g4'                 ), 'Lua.g4';
 eval-lives-ok compile( 'MySQLBase.g4'           ), 'MySQLBase.g4';
 eval-lives-ok compile( 'MySQL.g4'               ), 'MySQL.g4';
@@ -52,7 +52,7 @@ eval-lives-ok compile( 'scala.g4'               ), 'scala.g4';
 eval-lives-ok compile( 'ScssLexer.g4'           ), 'ScssLexer.g4';
 eval-lives-ok compile( 'ScssParser.g4'          ), 'ScssParser.g4';
 eval-lives-ok compile( 'Smalltalk.g4'           ), 'Smalltalk.g4';
-#eval-lives-ok compile( 'SQLite.g4'              ), 'SQLite.g4'; # Impedance mismatch
+eval-lives-ok compile( 'SQLite.g4'              ), 'SQLite.g4';
 #eval-lives-ok compile( 'Swift.g4'               ), 'Swift.g4'; # Impedance mismatch
 eval-lives-ok compile( 'tnsnames.g4'            ), 'tnsnames.g4';
 eval-lives-ok compile( 'tnt.g4'                 ), 'tnt.g4';
