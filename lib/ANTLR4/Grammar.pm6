@@ -138,30 +138,20 @@ my role Formatting {
 	}
 
 	multi method to-lines( Character $c ) {
-		if $c.name {
-			if $c.name eq ']' {
-				return '\]'
-			}
-			elsif $c.name ~~ / ^ \\ u (....) $ / {
-				return '\x[' ~ $0 ~ ']'
-			}
-			return $c.name
+		if $c.name eq ']' {
+			return '\]'
 		}
-		return (
-			 ''
-		)
+		elsif $c.name ~~ / ^ \\ u (....) $ / {
+			return '\x[' ~ $0 ~ ']'
+		}
+		return $c.name
 	}
 
 	multi method to-lines( CharacterSet $c ) {
 		my $negated = $c.negated ?? '-' !! '';
 		my @content;
 		for $c.content {
-			if $_ ~~ Character or $_ ~~ CharacterRange {
-				@content.append( self.to-lines( $_ ) )
-			}
-			else {
-				@content.append( $_ );
-			}
+			@content.append( self.to-lines( $_ ) )
 		}
 		return (
 			"<{$negated}[ {@content} ]>" ~
