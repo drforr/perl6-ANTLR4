@@ -79,23 +79,25 @@ my role Formatting {
 				'||' ~ self.indent-line( "'$lc-name'" )
 			),
 			"\}"
-		).flat
+		)
 	}
 
 	multi method to-lines( Terminal $t ) {
-		my $name = '';
-		if $t.name {
-			$name = $t.name ~~ / <-[ a ..z A .. Z ]> / ??
-			q{'} ~ $t.name ~ q{'} !!
-			$t.name;
-		}
-		return $name ~
-			modifier-to-string( $t )
+		my $name =
+			$t.name ~~ / <-[ a ..z A .. Z ]> / ??
+				q{'} ~ $t.name ~ q{'} !!
+				$t.name;
+		return (
+			$name ~
+				modifier-to-string( $t )
+		)
 	}
 
 	multi method to-lines( Wildcard $w ) {
-		return "." ~
-			modifier-to-string( $w )
+		return (
+			"." ~
+				modifier-to-string( $w )
+		)
 	}
 
 	multi method to-lines( Grouping $g ) {
@@ -112,21 +114,27 @@ my role Formatting {
 	}
 
 	multi method to-lines( EOF $e ) {
-		return '$' ~
-			modifier-to-string( $e )
+		return (
+			'$' ~
+				modifier-to-string( $e )
+		)
 	}
 
 	multi method to-lines( Nonterminal $n ) {
-		return q{<} ~
+		return (
+			q{<} ~
 				( $n.negated ?? '!' !! '' ) ~
 				( $n.alias ?? ( $n.alias ~ '=' ) !! '' ) ~
 				$n.name ~
 			q{>} ~
 			modifier-to-string( $n )
+		)
 	}
 
 	multi method to-lines( CharacterRange $r ) {
-		"{$r.from} .. {$r.to}"
+		return (
+			"{$r.from} .. {$r.to}"
+		)
 	}
 
 	multi method to-lines( Character $c ) {
@@ -139,7 +147,9 @@ my role Formatting {
 			}
 			return $c.name
 		}
-		return ''
+		return (
+			 ''
+		)
 	}
 
 	multi method to-lines( CharacterSet $c ) {
@@ -153,8 +163,10 @@ my role Formatting {
 				@content.append( $_ );
 			}
 		}
-		"<{$negated}[ {@content} ]>" ~
-			modifier-to-string( $c )
+		return (
+			"<{$negated}[ {@content} ]>" ~
+				modifier-to-string( $c )
+		)
 	}
 
 	multi method to-lines( Concatenation $c ) {
@@ -176,7 +188,7 @@ my role Formatting {
 				@content.append( @lines );
 			}
 		}
-		@content.flat
+		@content
 	}
 
 	multi method to-lines( Rule $r ) {
