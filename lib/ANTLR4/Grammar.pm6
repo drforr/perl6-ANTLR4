@@ -59,6 +59,10 @@ my role Formatting {
 		( $a.modifier // '' ) ~ greed-to-string( $a )
 	}
 
+	multi method to-lines( Any $a ) {
+		die "Unknown type, this should not get triggred"
+	}
+
 	multi method to-lines( Action $a ) {
 		return (
 			q{#|} ~

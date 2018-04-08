@@ -46,7 +46,7 @@ class Nonterminal {
 	also does Named;
 	also does Modified;
 
-	has $.negated;
+	has $.negated = False;
 	has $.alias;
 }
 
@@ -63,7 +63,7 @@ class CharacterSet {
 	also does Modified;
 
 	has @.content;
-	has $.negated;
+	has $.negated = False;
 }
 
 class Alternation { has @.content; }
@@ -102,6 +102,7 @@ class Grammar {
 
 class ANTLR4::Actions::Perl6 {
 	my %character-class-escape =
+		' ' => True,
 		']' => True,
 		'-' => True
 	;
@@ -115,31 +116,21 @@ class ANTLR4::Actions::Perl6 {
 
 	sub escape-character-class( *@chars ) {
 		map {
-			if $_ {
-				my $copy = $_;
-				$copy ~~ s:g/\\u(....)/\\x[$0]/;
-				if %character-class-escape{$copy} {
-					$copy = %character-class-escape{$copy};
-				}
-				$copy;
+			my $copy = $_;
+			$copy ~~ s:g/\\u(....)/\\x[$0]/;
+			if %character-class-escape{$copy} {
+				$copy = %character-class-escape{$copy};
 			}
-			else {
-				''
-			}
+			$copy;
 		}, @chars
 	}
 
 	sub ANTLR-to-perl6( *@str ) {
 		map {
-			if $_ {
-				my $copy = $_;
-				$copy ~~ s:g/\\u(....)/\\x[$0]/;
-				$copy ~~ s:g/<!after \\>\'/\\\'/;
-				$copy;
-			}
-			else {
-				''
-			}
+			my $copy = $_;
+			$copy ~~ s:g/\\u(....)/\\x[$0]/;
+			$copy ~~ s:g/<!after \\>\'/\\\'/;
+			$copy;
 		}, @str
 	}
 
