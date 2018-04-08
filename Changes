@@ -2,8 +2,11 @@ Revision history for ANTLR4-Grammar
 
 {{$NEXT}}
 
+0.5.2  2018-04-08T22:09:09+02:00
+    - Clean up another grammar file, more refactoring.
+
 0.5.0  2018-04-03T16:24:21+02:00
-    - Passses most of the corpus, there likely are some hole.
+    - Passes most of the corpus, there likely are some holes.
 
 0.2.3  2018-03-26T22:37:20+02:00
     - Add compilation test suite, a few ANTLR-specific terms

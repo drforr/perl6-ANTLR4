@@ -2,7 +2,7 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 45;
+plan 46;
 
 sub compile( $name ) {
 	return ANTLR4::Grammar.file-to-string( 'corpus/' ~ $name );
@@ -53,7 +53,7 @@ eval-lives-ok compile( 'ScssLexer.g4'           ), 'ScssLexer.g4';
 eval-lives-ok compile( 'ScssParser.g4'          ), 'ScssParser.g4';
 eval-lives-ok compile( 'Smalltalk.g4'           ), 'Smalltalk.g4';
 eval-lives-ok compile( 'SQLite.g4'              ), 'SQLite.g4';
-#eval-lives-ok compile( 'Swift.g4'               ), 'Swift.g4'; # Impedance mismatch
+eval-lives-ok compile( 'Swift.g4'               ), 'Swift.g4';
 eval-lives-ok compile( 'tnsnames.g4'            ), 'tnsnames.g4';
 eval-lives-ok compile( 'tnt.g4'                 ), 'tnt.g4';
 #eval-lives-ok compile( 'TURTLE.g4'              ), 'TURTLE.g4'; # Impednce mismatch

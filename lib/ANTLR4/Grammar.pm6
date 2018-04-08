@@ -227,7 +227,7 @@ my role Formatting {
 	}
 }
 
-class ANTLR4::Grammar:ver<0.5.0> {
+class ANTLR4::Grammar:ver<0.5.2> {
 	also does Formatting;
 
 	method to-string( Str $string ) {
