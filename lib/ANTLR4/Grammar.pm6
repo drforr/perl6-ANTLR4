@@ -138,12 +138,7 @@ my role Formatting {
 	}
 
 	multi method to-lines( Character $c ) {
-		if $c.name eq ']' {
-			return '\]'
-		}
-		elsif $c.name ~~ / ^ \\ u (....) $ / {
-			return '\x[' ~ $0 ~ ']'
-		}
+		return '\]' if $c.name eq ']';
 		return $c.name
 	}
 
@@ -213,7 +208,7 @@ my role Formatting {
 				self.indent( @token ),
 				self.indent( @rule ),
 			"\}"
-		).flat;
+		).flat
 	}
 }
 

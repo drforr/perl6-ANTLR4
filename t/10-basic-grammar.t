@@ -1114,6 +1114,17 @@ subtest 'rule', {
 		}
 		END
 
+		is compile( Q:to[END] ), Q:to[END], 'negated';
+		grammar Lexer;
+		plain : ~Str ;
+		END
+		grammar Lexer {
+			rule plain {
+				||	<!Str>
+			}
+		}
+		END
+
 		is compile( Q:to[END] ), Q:to[END], 'special EOF nontermnal';
 		grammar Lexer;
 		plain : EOF ;

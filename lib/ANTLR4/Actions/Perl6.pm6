@@ -248,7 +248,14 @@ ANTLR-to-range(
 	}
 
 	method notSet( $/ ) {
-		if $/<setElement><LEXER_CHAR_SET> {
+		if $/<complement> and $/<setElement><terminal><scalar> and
+			!is-ANTLR-terminal( $/<setElement><terminal><scalar> ) {
+			make Nonterminal.new(
+				:negated( True ),
+				:name( ~$/<setElement><terminal><scalar> )
+			)
+		}
+		elsif $/<setElement><LEXER_CHAR_SET> {
 			make $/<setElement>.ast
 		}
 		elsif $/<blockSet> {
@@ -688,16 +695,14 @@ $_.<terminal><STRING_LITERAL>.ast
 		elsif $/<lexerAtom>[0] {
 			make Wildcard.new
 		}
+		elsif $/<ACTION> and $/<GREED> {
+			make Action.new(
+				:name( ~$/<ACTION> ),
+				:greed( True )
+			)
+		}
 		elsif $/<ACTION> {
-			if $/<GREED> {
-				make Action.new(
-					:name( ~$/<ACTION> ),
-					:greed( True )
-				)
-			}
-			else {
 				make $/<ACTION>.ast
-			}
 		}
 		else {
 			make $/<lexerAtom>.ast
