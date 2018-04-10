@@ -201,7 +201,7 @@ class ANTLR4::Actions::Perl6 {
 					}
 				}
 			}
-			else {
+			elsif $_.<terminal> {
 				@child.append(
 					ANTLR-to-character(
 						$_.<terminal><scalar>.ast
@@ -245,27 +245,19 @@ ANTLR-to-range(
 	}
 
 	method notSet( $/ ) {
-		if $/<complement> and $/<setElement><terminal><scalar> and
+		if $/<complement> and
+			$/<setElement><terminal><scalar> and
 			!is-ANTLR-terminal( $/<setElement><terminal><scalar> ) {
 			make Nonterminal.new(
 				:negated( True ),
 				:name( ~$/<setElement><terminal><scalar> )
 			)
 		}
-		elsif $/<setElement><LEXER_CHAR_SET> {
+		elsif $/<setElement> {
 			make $/<setElement>.ast
 		}
 		elsif $/<blockSet> {
 			make $/<blockSet>.ast
-		}
-		else {
-			my @child = ANTLR-to-character(
-				$/<setElement><terminal><scalar>.ast
-			);
-			make CharacterSet.new(
-				:negated( True ),
-				:child( @child )
-			)
 		}
 	}
 

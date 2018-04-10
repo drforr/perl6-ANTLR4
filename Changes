@@ -2,6 +2,9 @@ Revision history for ANTLR4-Grammar
 
 {{$NEXT}}
 
+0.6.0  2018-04-10T21:09:01+02:00
+    - Added several new grammar files, massive refactoring
+
 0.5.2  2018-04-08T22:09:09+02:00
     - Clean up another grammar file, more refactoring.
 
