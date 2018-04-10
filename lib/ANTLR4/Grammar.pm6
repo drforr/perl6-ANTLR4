@@ -83,12 +83,8 @@ my role Formatting {
 	}
 
 	multi method to-lines( Terminal $t ) {
-		my $name =
-			$t.name ~~ / <-[ a ..z A .. Z ]> / ??
-				q{'} ~ $t.name ~ q{'} !!
-				$t.name;
 		return (
-			$name ~
+			q{'} ~ $t.name ~ q{'} ~
 				modifier-to-string( $t )
 		)
 	}
@@ -127,7 +123,7 @@ my role Formatting {
 				( $n.alias ?? ( $n.alias ~ '=' ) !! '' ) ~
 				$n.name ~
 			q{>} ~
-			modifier-to-string( $n )
+				modifier-to-string( $n )
 		)
 	}
 
@@ -138,7 +134,6 @@ my role Formatting {
 	}
 
 	multi method to-lines( Character $c ) {
-		return '\]' if $c.name eq ']';
 		return $c.name
 	}
 

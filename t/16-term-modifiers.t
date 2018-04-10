@@ -10,7 +10,7 @@ plain : 'X' {doStuff();} ;
 END
 grammar Lexer {
 	rule plain {
-		||	X
+		||	'X'
 			#|{doStuff();}
 	}
 }

@@ -110,6 +110,7 @@ class ANTLR4::Actions::Perl6 {
 	sub ANTLR-to-perl6( $c is copy ) {
 		$c ~~ s:g/\\u(<[ 0 .. 9 a .. f A .. F ]> ** {4..6})/\\x[$0]/;
 		$c ~~ s:g/<!after \\>\'/\\\'/;
+		$c = '\\]' if $c eq ']';
 		$c;
 	}
 
@@ -129,6 +130,7 @@ class ANTLR4::Actions::Perl6 {
 	sub escape-character-class( $c is copy ) {
 		$c ~~ s:g/\\u(<[ 0 .. 9 a .. f A .. F ]> ** {4..6})/\\x[$0]/;
 		$c ~~ s:g/<!after \\>\'/\\\'/;
+		$c = '\\]' if $c eq ']';
 		$c = %character-class-escape{$c}
 			if %character-class-escape{$c};
 		$c;

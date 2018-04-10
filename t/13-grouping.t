@@ -80,7 +80,7 @@ subtest 'grouped thing', {
 	END
 	grammar Empty {
 		rule stuff {
-			||	(	||	foo
+			||	(	||	'foo'
 				)
 		}
 	}
@@ -210,7 +210,7 @@ END
 grammar Empty {
 	rule stuff {
 		||	(	||	<Str>
-					testing
+					'testing'
 			)
 	}
 }
@@ -223,7 +223,7 @@ END
 grammar Empty {
 	rule stuff {
 		||	(	||	<Str>
-				||	testing
+				||	'testing'
 			)
 	}
 }
@@ -236,7 +236,7 @@ END
 grammar Empty {
 	rule stuff {
 		||	(	||	(	||	<Str>
-						||	testing
+						||	'testing'
 					)
 			)
 	}
@@ -250,9 +250,9 @@ END
 grammar Empty {
 	rule stuff {
 		||	(	||	(	||	<Str>
-						||	testing
+						||	'testing'
 					)
-					foo
+					'foo'
 			)
 	}
 }

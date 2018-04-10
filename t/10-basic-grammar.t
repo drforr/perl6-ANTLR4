@@ -113,7 +113,7 @@ subtest 'rule', {
 		END
 		grammar Lexer {
 			rule plain {
-				||	terminal
+				||	'terminal'
 			}
 		}
 		END
@@ -124,8 +124,8 @@ subtest 'rule', {
 		END
 		grammar Lexer {
 			rule plain {
-				||	terminal
-					station
+				||	'terminal'
+					'station'
 			}
 		}
 		END
@@ -173,7 +173,7 @@ subtest 'rule', {
 			END
 			grammar Lexer {
 				rule plain {
-					||	terminal?
+					||	'terminal'?
 				}
 			}
 			END
@@ -184,7 +184,7 @@ subtest 'rule', {
 			END
 			grammar Lexer {
 				rule plain {
-					||	terminal*
+					||	'terminal'*
 				}
 			}
 			END
@@ -195,7 +195,7 @@ subtest 'rule', {
 			END
 			grammar Lexer {
 				rule plain {
-					||	terminal+
+					||	'terminal'+
 				}
 			}
 			END
@@ -210,7 +210,7 @@ subtest 'rule', {
 			END
 			grammar Lexer {
 				rule plain {
-					||	terminal??
+					||	'terminal'??
 				}
 			}
 			END
@@ -221,7 +221,7 @@ subtest 'rule', {
 			END
 			grammar Lexer {
 				rule plain {
-					||	terminal*?
+					||	'terminal'*?
 				}
 			}
 			END
@@ -232,7 +232,7 @@ subtest 'rule', {
 			END
 			grammar Lexer {
 				rule plain {
-					||	terminal+?
+					||	'terminal'+?
 				}
 			}
 			END
@@ -342,7 +342,6 @@ subtest 'rule', {
 		}
 		END
 
-#`(
 		is compile( Q:to[END] ), Q:to[END], 'letter..non-letter';
 		grammar Lexer;
 		plain : 'a'..']' ;
@@ -353,7 +352,6 @@ subtest 'rule', {
 			}
 		}
 		END
-)
 
 		is compile( Q:to[END] ), Q:to[END], 'Unicode escape';
 		grammar Lexer;
@@ -799,7 +797,6 @@ subtest 'rule', {
 		}
 		END
 
-#`(
 		is compile( Q:to[END] ), Q:to[END], 'normal';
 		grammar Lexer;
 		plain : [\u000a-\u000c] ;
@@ -810,7 +807,6 @@ subtest 'rule', {
 			}
 		}
 		END
-)
 
 		subtest 'modifiers', {
 			is compile( Q:to[END] ), Q:to[END], 'negated';

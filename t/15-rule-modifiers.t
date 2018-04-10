@@ -65,21 +65,16 @@ subtest 'rule options', {
 	done-testing;
 };
 
-#`(
-#`(
 is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'action';
 grammar Lexer;
 plain : {System.out.println("Found end");} ;
 END
 grammar Lexer {
-	#|{ "action" : "System.out.println(\"Found end\");" }
 	rule plain {
-		||	.
+		||	#|{System.out.println("Found end");}
 	}
 }
 END
-)
-)
 
 subtest 'actions', {
 #`(

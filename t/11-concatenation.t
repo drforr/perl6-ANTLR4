@@ -16,8 +16,8 @@ plain : 'terminal' 'other' ;
 END
 grammar Lexer {
 	rule plain {
-		||	terminal
-			other
+		||	'terminal'
+			'other'
 	}
 }
 END
@@ -28,7 +28,7 @@ plain : 'terminal' 'a'..'z' ;
 END
 grammar Lexer {
 	rule plain {
-		||	terminal
+		||	'terminal'
 			<[ a .. z ]>
 	}
 }
@@ -40,7 +40,7 @@ plain : 'terminal' [by] ;
 END
 grammar Lexer {
 	rule plain {
-		||	terminal
+		||	'terminal'
 			<[ b y ]>
 	}
 }
@@ -59,7 +59,7 @@ subtest 'terminal,character set modifiers', {
 	END
 	grammar Lexer {
 		rule plain {
-			||	terminal
+			||	'terminal'
 				<-[ b y ]>
 		}
 	}
@@ -71,7 +71,7 @@ subtest 'terminal,character set modifiers', {
 	END
 	grammar Lexer {
 		rule plain {
-			||	terminal
+			||	'terminal'
 				<[ b y ]>?
 		}
 	}
@@ -83,7 +83,7 @@ subtest 'terminal,character set modifiers', {
 	END
 	grammar Lexer {
 		rule plain {
-			||	terminal
+			||	'terminal'
 				<[ b y ]>*
 		}
 	}
@@ -95,7 +95,7 @@ subtest 'terminal,character set modifiers', {
 	END
 	grammar Lexer {
 		rule plain {
-			||	terminal
+			||	'terminal'
 				<[ b y ]>+
 		}
 	}
@@ -110,7 +110,7 @@ plain : 'terminal' ~('W') ;
 END
 grammar Lexer {
 	rule plain {
-		||	terminal
+		||	'terminal'
 			<-[ W ]>
 	}
 }
@@ -122,7 +122,7 @@ plain : 'terminal' . ;
 END
 grammar Lexer {
 	rule plain {
-		||	terminal
+		||	'terminal'
 			.
 	}
 }
@@ -134,7 +134,7 @@ plain : 'terminal' Str ;
 END
 grammar Lexer {
 	rule plain {
-		||	terminal
+		||	'terminal'
 			<Str>
 	}
 }
