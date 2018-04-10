@@ -101,13 +101,13 @@ my role Formatting {
 	}
 
 	multi method to-lines( Grouping $g ) {
-		my @content;
-		for $g.content {
-			@content.append( self.to-lines( $_ ) );
+		my @child;
+		for $g.child {
+			@child.append( self.to-lines( $_ ) );
 		}
 		return (
-			"\(" ~ self.indent-line( @content.shift ),
-			self.indent( @content ),
+			"\(" ~ self.indent-line( @child.shift ),
+			self.indent( @child ),
 			"\)" ~
 				modifier-to-string( $g )
 		).flat
@@ -144,46 +144,46 @@ my role Formatting {
 
 	multi method to-lines( CharacterSet $c ) {
 		my $negated = $c.negated ?? '-' !! '';
-		my @content;
-		for $c.content {
-			@content.append( self.to-lines( $_ ) )
+		my @child;
+		for $c.child {
+			@child.append( self.to-lines( $_ ) )
 		}
 		return (
-			"<{$negated}[ {@content} ]>" ~
+			"<{$negated}[ {@child} ]>" ~
 				modifier-to-string( $c )
 		)
 	}
 
 	multi method to-lines( Concatenation $c ) {
-		my @content;
-		for $c.content {
-			@content.append( self.to-lines( $_ ) )
+		my @child;
+		for $c.child {
+			@child.append( self.to-lines( $_ ) )
 		}
-		@content
+		@child
 	}
 
 	multi method to-lines( Alternation $a ) {
-		my @content;
-		for $a.content {
+		my @child;
+		for $a.child {
 			# XXX These should always be objects...
 			next unless $_;
 			my @lines = self.indent( self.to-lines( $_ ) );
 			if @lines {
 				@lines[0] = '||' ~ @lines[0];
-				@content.append( @lines );
+				@child.append( @lines );
 			}
 		}
-		@content
+		@child
 	}
 
 	multi method to-lines( Rule $r ) {
-		my @content;
-		for $r.content {
-			@content.append( self.to-lines( $_ ) );
+		my @child;
+		for $r.child {
+			@child.append( self.to-lines( $_ ) );
 		}
 		return (
 			"rule {$r.name} \{",
-			self.indent( @content ),
+			self.indent( @child ),
 			"\}"
 		).flat
 	}
