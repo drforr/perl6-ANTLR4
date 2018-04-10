@@ -323,8 +323,7 @@ ANTLR-to-range(
 				:name( $/<atom><terminal><scalar>.ast )
 			)
 		}
-		elsif $/<ebnfSuffix> and
-			$/<atom><notSet><setElement><terminal><scalar> and
+		elsif $/<atom><notSet><setElement><terminal><scalar> and
 			!is-ANTLR-terminal( $/<atom><notSet><setElement><terminal><scalar> ) {
 			make Nonterminal.new(
 				:negated( True ),
@@ -374,8 +373,7 @@ ANTLR-to-range(
 				:content( @content )
 			)
 		}
-		elsif $/<ebnfSuffix> and
-			$/<atom><notSet><setElement><terminal> {
+		elsif $/<atom><notSet><setElement><terminal> {
 			my @content;
 			@content = ANTLR-to-character(
 				# XXX can improve
@@ -388,18 +386,7 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 				:content( @content )
 			)
 		}
-		elsif $/<ACTION> {
-			make $/<ACTION>.ast
-		}
-		elsif $/<ebnfSuffix> and
-			$/<atom><DOT> {
-			make Wildcard.new(
-				:modifier( $modifier ),
-				:greed( $greed )
-			)
-		}
-		elsif $/<ebnfSuffix> and
-			$/<atom><range>.ast {
+		elsif $/<atom><range>.ast {
 			my @content = ANTLR-to-range(
 				~$/<atom><range><from>[0],
 				~$/<atom><range><to>[0]
@@ -408,6 +395,15 @@ $/<atom><notSet><setElement><terminal><STRING_LITERAL>.ast
 				:modifier( $modifier ),
 				:greed( $greed ),
 				:content( @content )
+			)
+		}
+		elsif $/<ACTION> {
+			make $/<ACTION>.ast
+		}
+		elsif $/<atom><DOT> {
+			make Wildcard.new(
+				:modifier( $modifier ),
+				:greed( $greed )
 			)
 		}
 		elsif $/<ebnfSuffix> and
@@ -561,7 +557,7 @@ $_.<lexerElement>[0]<lexerAtom><terminal><scalar>.ast
 		my $modifier = $/<ebnfSuffix><MODIFIER>.ast;
 		my $greed = $/<ebnfSuffix><GREED>;
 
-		if $/<ebnfSuffix> and $/<lexerAtom><terminal><scalar> and
+		if $/<lexerAtom><terminal><scalar> and
 			is-ANTLR-terminal( $/<lexerAtom><terminal><scalar> ) and
 ( !$/<lexerAtom><LEXER_CHAR_SET>[0][0]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT_NO_HYPHEN> ) {
 			make Terminal.new(
@@ -574,8 +570,7 @@ $_.<lexerElement>[0]<lexerAtom><terminal><scalar>.ast
 				)
 			)
 		}
-		elsif $/<ebnfSuffix> and
-			$/<lexerAtom><LEXER_CHAR_SET> and
+		elsif $/<lexerAtom><LEXER_CHAR_SET> and
 $/<lexerAtom><LEXER_CHAR_SET>[0][0]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT_NO_HYPHEN> {
 			my @content =
 				ANTLR-to-range(
@@ -588,7 +583,7 @@ $/<lexerAtom><LEXER_CHAR_SET>[0][0]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT
 				:content( @content )
 			)
 		}
-		elsif $/<ebnfSuffix> and $/<lexerAtom><LEXER_CHAR_SET> {
+		elsif $/<lexerAtom><LEXER_CHAR_SET> {
 			my @content;
 			for $/<lexerAtom><LEXER_CHAR_SET> {
 				@content.append(
@@ -602,7 +597,7 @@ $/<lexerAtom><LEXER_CHAR_SET>[0][0]<LEXER_CHAR_SET_RANGE><LEXER_CHAR_SET_ELEMENT
 			)
 		}
 # XXX add regression
-		elsif $/<ebnfSuffix> and $/<lexerAtom><notSet><setElement><terminal> {
+		elsif $/<lexerAtom><notSet><setElement><terminal> {
 			my @content = ANTLR-to-character(
 $/<lexerAtom><notSet><setElement><terminal><STRING_LITERAL>.ast
 			);
