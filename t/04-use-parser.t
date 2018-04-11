@@ -2,24 +2,38 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 48;
+#plan 50;
+plan 2;
 
 sub compile( $name ) {
 	return ANTLR4::Grammar.file-to-string( 'corpus/' ~ $name );
 }
 
-# Commenting out the Abnf test as 04-use-parser.t tests:
-# parsing a .g4 file
-# Compiling the .g4 file into Perl 6
-# Evaluating the grammar
-# Parsing a sample .abnf document
-#
-# So it's a pretty complete test now.
-#
-#eval-lives-ok compile( 'Abnf.g4'                ), 'Abnf.g4'; # roundtrip
+do {
+	my $grammar-text = compile( 'Abnf.g4' );
+	my $out = EVAL $grammar-text ~ Q:to[END];
+	ok Abnf.parse( :rule( 'rule_' ), Q:to[TEST-END].chomp ), 'parses ABNF input';
+	Abnf=3Digits/"foo"
+	TEST-END
+	END
+};
+
+#`(
 eval-lives-ok compile( 'ANTLRv4Lexer.g4'        ), 'ANTLRv4Lexer.g4';
 eval-lives-ok compile( 'ANTLRv4Parser.g4'       ), 'ANTLRv4Parser.g4';
-#eval-lives-ok compile( 'asm6502.g4'             ), 'asm6502.g4'; # roundtrip
+)
+
+# XXX 'prog' really is the root, work on this.
+do {
+	my $grammar-text = compile( 'asm6502.g4' );
+	my $out = EVAL $grammar-text ~ Q:to[END];
+	ok asm6502.parse( :rule( 'line' ), Q:to[TEST-END].chomp ), 'parses asm6502 input';
+	label:
+	TEST-END
+	END
+};
+
+#`(
 eval-lives-ok compile( 'ATL.g4'                 ), 'ATL.g4';
 eval-lives-ok compile( 'bnf.g4'                 ), 'bnf.g4';
 eval-lives-ok compile( 'C.g4'                   ), 'C.g4';
@@ -73,5 +87,6 @@ eval-lives-ok compile( 'vhdl.g4'                ), 'vhdl.g4';
 eval-lives-ok compile( 'WebIDL.g4'              ), 'WebIDL.g4';
 eval-lives-ok compile( 'XMLLexer.g4'            ), 'XMLLexer.g4';
 eval-lives-ok compile( 'XMLParser.g4'           ), 'XMLParser.g4';
+)
 
 # vim: ft=perl6

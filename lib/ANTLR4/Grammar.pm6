@@ -177,7 +177,7 @@ my role Formatting {
 			@child.append( self.to-lines( $_ ) );
 		}
 		return (
-			"rule {$r.name} \{",
+			"token {$r.name} \{",
 			self.indent( @child ),
 			"\}"
 		).flat
@@ -207,7 +207,7 @@ my role Formatting {
 	}
 }
 
-class ANTLR4::Grammar:ver<0.6.0> {
+class ANTLR4::Grammar:ver<0.6.1> {
 	also does Formatting;
 
 	method to-string( Str $string ) {

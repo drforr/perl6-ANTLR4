@@ -30,7 +30,7 @@ subtest 'empty rule, fragment', {
 	empty : ;
 	END
 	grammar Empty {
-		rule empty {
+		token empty {
 		}
 	}
 	END
@@ -41,9 +41,9 @@ subtest 'empty rule, fragment', {
 	emptier : ;
 	END
 	grammar Empty {
-		rule empty {
+		token empty {
 		}
-		rule emptier {
+		token emptier {
 		}
 	}
 	END
@@ -53,7 +53,7 @@ subtest 'empty rule, fragment', {
 	fragment empty : ;
 	END
 	grammar Empty {
-		rule empty {
+		token empty {
 		}
 	}
 	END
@@ -64,9 +64,9 @@ subtest 'empty rule, fragment', {
 	fragment emptier : ;
 	END
 	grammar Empty {
-		rule empty {
+		token empty {
 		}
-		rule emptier {
+		token emptier {
 		}
 	}
 	END
@@ -112,7 +112,7 @@ subtest 'rule', {
 		plain : 'terminal' ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	'terminal'
 			}
 		}
@@ -123,7 +123,7 @@ subtest 'rule', {
 		plain : 'terminal' 'station' ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	'terminal'
 					'station'
 			}
@@ -135,7 +135,7 @@ subtest 'rule', {
 		sign : '-' ;
 		END
 		grammar Lexer {
-			rule sign {
+			token sign {
 				||	'-'
 			}
 		}
@@ -146,7 +146,7 @@ subtest 'rule', {
 		sign : '\t' ;
 		END
 		grammar Lexer {
-			rule sign {
+			token sign {
 				||	'\t'
 			}
 		}
@@ -157,7 +157,7 @@ subtest 'rule', {
 		sign : 'Hello\u236a' ;
 		END
 		grammar Lexer {
-			rule sign {
+			token sign {
 				||	'Hello\x[236a]'
 			}
 		}
@@ -172,7 +172,7 @@ subtest 'rule', {
 			plain : 'terminal'? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	'terminal'?
 				}
 			}
@@ -183,7 +183,7 @@ subtest 'rule', {
 			plain : 'terminal'* ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	'terminal'*
 				}
 			}
@@ -194,7 +194,7 @@ subtest 'rule', {
 			plain : 'terminal'+ ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	'terminal'+
 				}
 			}
@@ -209,7 +209,7 @@ subtest 'rule', {
 			plain : 'terminal'?? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	'terminal'??
 				}
 			}
@@ -220,7 +220,7 @@ subtest 'rule', {
 			plain : 'terminal'*? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	'terminal'*?
 				}
 			}
@@ -231,7 +231,7 @@ subtest 'rule', {
 			plain : 'terminal'+? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	'terminal'+?
 				}
 			}
@@ -249,7 +249,7 @@ subtest 'rule', {
 		plain : ~'c' ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<-[ c ]>
 			}
 		}
@@ -261,7 +261,7 @@ subtest 'rule', {
 			plain : ~'c'? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ c ]>?
 				}
 			}
@@ -272,7 +272,7 @@ subtest 'rule', {
 			plain : ~'c'* ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ c ]>*
 				}
 			}
@@ -283,7 +283,7 @@ subtest 'rule', {
 			plain : ~'c'+ ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ c ]>+
 				}
 			}
@@ -296,7 +296,7 @@ subtest 'rule', {
 			plain : ~'c'?? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ c ]>??
 				}
 			}
@@ -307,7 +307,7 @@ subtest 'rule', {
 			plain : ~'c'*? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ c ]>*?
 				}
 			}
@@ -318,7 +318,7 @@ subtest 'rule', {
 			plain : ~'c'+? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ c ]>+?
 				}
 			}
@@ -336,7 +336,7 @@ subtest 'rule', {
 		plain : 'a'..'z' ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<[ a .. z ]>
 			}
 		}
@@ -347,7 +347,7 @@ subtest 'rule', {
 		plain : 'a'..']' ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<[ a .. \] ]>
 			}
 		}
@@ -358,7 +358,7 @@ subtest 'rule', {
 		plain : '\u0300'..'\u036F' ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<[ \x[0300] .. \x[036F] ]>
 			}
 		}
@@ -370,7 +370,7 @@ subtest 'rule', {
 			plain : ~'a'..'z' ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ a .. z ]>
 				}
 			}
@@ -382,7 +382,7 @@ subtest 'rule', {
 				plain : ~'a'..'z'? ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ a .. z ]>?
 					}
 				}
@@ -393,7 +393,7 @@ subtest 'rule', {
 				plain : ~'a'..'z'* ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ a .. z ]>*
 					}
 				}
@@ -404,7 +404,7 @@ subtest 'rule', {
 				plain : ~'a'..'z'+ ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ a .. z ]>+
 					}
 				}
@@ -418,7 +418,7 @@ subtest 'rule', {
 			plain : 'a'..'z'? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ a .. z ]>?
 				}
 			}
@@ -429,7 +429,7 @@ subtest 'rule', {
 			plain : 'a'..'z'* ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ a .. z ]>*
 				}
 			}
@@ -440,7 +440,7 @@ subtest 'rule', {
 			plain : 'a'..'z'+ ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ a .. z ]>+
 				}
 			}
@@ -456,7 +456,7 @@ subtest 'rule', {
 				plain : ~'a'..'z'?? ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ a .. z ]>??
 					}
 				}
@@ -467,7 +467,7 @@ subtest 'rule', {
 				plain : ~'a'..'z'*? ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ a .. z ]>*?
 					}
 				}
@@ -478,7 +478,7 @@ subtest 'rule', {
 				plain : ~'a'..'z'+? ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ a .. z ]>+?
 					}
 				}
@@ -492,7 +492,7 @@ subtest 'rule', {
 			plain : 'a'..'z'?? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ a .. z ]>??
 				}
 			}
@@ -503,7 +503,7 @@ subtest 'rule', {
 			plain : 'a'..'z'*? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ a .. z ]>*?
 				}
 			}
@@ -514,7 +514,7 @@ subtest 'rule', {
 			plain : 'a'..'z'+? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ a .. z ]>+?
 				}
 			}
@@ -532,7 +532,7 @@ subtest 'rule', {
 		plain : [c] ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<[ c ]>
 			}
 		}
@@ -543,7 +543,7 @@ subtest 'rule', {
 		plain : [\u000C] ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<[ \x[000C] ]>
 			}
 		}
@@ -554,7 +554,7 @@ subtest 'rule', {
 		plain : [\]] ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<[ \] ]>
 			}
 		}
@@ -566,7 +566,7 @@ subtest 'rule', {
 			plain : ~[c] ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ c ]>
 				}
 			}
@@ -578,7 +578,7 @@ subtest 'rule', {
 				plain : ~[c]? ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ c ]>?
 					}
 				}
@@ -589,7 +589,7 @@ subtest 'rule', {
 				plain : ~[c]* ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ c ]>*
 					}
 				}
@@ -600,7 +600,7 @@ subtest 'rule', {
 				plain : ~[c]+ ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ c ]>+
 					}
 				}
@@ -614,7 +614,7 @@ subtest 'rule', {
 			plain : [c]? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ c ]>?
 				}
 			}
@@ -625,7 +625,7 @@ subtest 'rule', {
 			plain : [c]* ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ c ]>*
 				}
 			}
@@ -636,7 +636,7 @@ subtest 'rule', {
 			plain : [c]+ ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ c ]>+
 				}
 			}
@@ -652,7 +652,7 @@ subtest 'rule', {
 				plain : ~[c]?? ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ c ]>??
 					}
 				}
@@ -663,7 +663,7 @@ subtest 'rule', {
 				plain : ~[c]*? ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ c ]>*?
 					}
 				}
@@ -674,7 +674,7 @@ subtest 'rule', {
 				plain : ~[c]+? ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ c ]>+?
 					}
 				}
@@ -688,7 +688,7 @@ subtest 'rule', {
 			plain : [c]?? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ c ]>??
 				}
 			}
@@ -699,7 +699,7 @@ subtest 'rule', {
 			plain : [c]*? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ c ]>*?
 				}
 			}
@@ -710,7 +710,7 @@ subtest 'rule', {
 			plain : [c]+? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ c ]>+?
 				}
 			}
@@ -728,7 +728,7 @@ subtest 'rule', {
 		plain : [abc] ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<[ a b c ]>
 			}
 		}
@@ -740,7 +740,7 @@ subtest 'rule', {
 			plain : ~[abc] ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ a b c ]>
 				}
 			}
@@ -751,7 +751,7 @@ subtest 'rule', {
 			plain : [abc]? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ a b c ]>?
 				}
 			}
@@ -762,7 +762,7 @@ subtest 'rule', {
 			plain : [abc]* ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ a b c ]>*
 				}
 			}
@@ -773,7 +773,7 @@ subtest 'rule', {
 			plain : [abc]+ ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<[ a b c ]>+
 				}
 			}
@@ -791,7 +791,7 @@ subtest 'rule', {
 		plain : [a-c] ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<[ a .. c ]>
 			}
 		}
@@ -802,7 +802,7 @@ subtest 'rule', {
 		plain : [\u000a-\u000c] ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<[ \x[000a] .. \x[000c] ]>
 			}
 		}
@@ -814,7 +814,7 @@ subtest 'rule', {
 			plain : ~[a-c] ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ a .. c ]>
 				}
 			}
@@ -826,7 +826,7 @@ subtest 'rule', {
 				plain : ~[a-c]? ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ a .. c ]>?
 					}
 				}
@@ -837,7 +837,7 @@ subtest 'rule', {
 				plain : ~[a-c]* ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ a .. c ]>*
 					}
 				}
@@ -848,7 +848,7 @@ subtest 'rule', {
 				plain : ~[a-c]+ ;
 				END
 				grammar Lexer {
-					rule plain {
+					token plain {
 						||	<-[ a .. c ]>+
 					}
 				}
@@ -874,7 +874,7 @@ subtest 'rule', {
 		plain : ~( 'W' ) ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<-[ W ]>
 			}
 		}
@@ -885,7 +885,7 @@ subtest 'rule', {
 		plain : ~( 'W' | 'Y' ) ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<-[ W Y ]>
 			}
 		}
@@ -896,7 +896,7 @@ subtest 'rule', {
 		plain : ~( [ \n\r\t\,] ) ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<-[   \n \r \t \, ]>
 			}
 		}
@@ -907,7 +907,7 @@ subtest 'rule', {
 		plain : ~( 'W' .. 'X' | 'Y' ) ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<-[ W .. X Y ]>
 			}
 		}
@@ -919,7 +919,7 @@ subtest 'rule', {
 			plain : ~( 'W' )? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ W ]>?
 				}
 			}
@@ -930,7 +930,7 @@ subtest 'rule', {
 			plain : ~( 'W' )* ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ W ]>*
 				}
 			}
@@ -941,7 +941,7 @@ subtest 'rule', {
 			plain : ~( 'W' )+ ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ W ]>+
 				}
 			}
@@ -956,7 +956,7 @@ subtest 'rule', {
 			plain : ~( 'W' )?? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ W ]>??
 				}
 			}
@@ -967,7 +967,7 @@ subtest 'rule', {
 			plain : ~( 'W' )*? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ W ]>*?
 				}
 			}
@@ -978,7 +978,7 @@ subtest 'rule', {
 			plain : ~( 'W' )+? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<-[ W ]>+?
 				}
 			}
@@ -998,7 +998,7 @@ subtest 'rule', {
 		plain : . ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	.
 			}
 		}
@@ -1013,7 +1013,7 @@ subtest 'rule', {
 			plain : .? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	.?
 				}
 			}
@@ -1024,7 +1024,7 @@ subtest 'rule', {
 			plain : .* ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	.*
 				}
 			}
@@ -1035,7 +1035,7 @@ subtest 'rule', {
 			plain : .+ ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	.+
 				}
 			}
@@ -1053,7 +1053,7 @@ subtest 'rule', {
 			plain : .?? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	.??
 				}
 			}
@@ -1064,7 +1064,7 @@ subtest 'rule', {
 			plain : .*? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	.*?
 				}
 			}
@@ -1075,7 +1075,7 @@ subtest 'rule', {
 			plain : .+? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	.+?
 				}
 			}
@@ -1087,13 +1087,13 @@ subtest 'rule', {
 		done-testing;
 	};
 
-	subtest 'rule with nonterminal', {
+	subtest 'token with nonterminal', {
 		is compile( Q:to[END] ), Q:to[END], 'bare';
 		grammar Lexer;
 		plain : Str ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<Str>
 			}
 		}
@@ -1104,7 +1104,7 @@ subtest 'rule', {
 		plain : alias=Str ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<alias=Str>
 			}
 		}
@@ -1115,7 +1115,7 @@ subtest 'rule', {
 		plain : ~Str ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	<!Str>
 			}
 		}
@@ -1126,7 +1126,7 @@ subtest 'rule', {
 		plain : EOF ;
 		END
 		grammar Lexer {
-			rule plain {
+			token plain {
 				||	$
 			}
 		}
@@ -1138,7 +1138,7 @@ subtest 'rule', {
 			plain : ~Str* ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<!Str>*
 				}
 			}
@@ -1149,7 +1149,7 @@ subtest 'rule', {
 			plain : Str? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<Str>?
 				}
 			}
@@ -1160,7 +1160,7 @@ subtest 'rule', {
 			plain : Str* ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<Str>*
 				}
 			}
@@ -1171,7 +1171,7 @@ subtest 'rule', {
 			plain : Str+ ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<Str>+
 				}
 			}
@@ -1190,7 +1190,7 @@ subtest 'rule', {
 			plain : Str?? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<Str>??
 				}
 			}
@@ -1201,7 +1201,7 @@ subtest 'rule', {
 			plain : Str*? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<Str>*?
 				}
 			}
@@ -1212,7 +1212,7 @@ subtest 'rule', {
 			plain : Str+? ;
 			END
 			grammar Lexer {
-				rule plain {
+				token plain {
 					||	<Str>+?
 				}
 			}

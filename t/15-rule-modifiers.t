@@ -2,14 +2,14 @@ use v6;
 use ANTLR4::Grammar;
 use Test;
 
-plan 4;
+plan 5;
 
 is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'channel XXX PARTIALLY BROKEN';
 grammar Empty;
 BLOCK_COMMENT :	 EOF  -> channel(HIDDEN) ;
 END
 grammar Empty {
-	rule BLOCK_COMMENT {
+	token BLOCK_COMMENT {
 		||	$
 	}
 }
@@ -20,24 +20,24 @@ grammar Empty;
 BLOCK_COMMENT : ('0'..'9') -> pushMode(I) ;
 END
 grammar Empty {
-	rule BLOCK_COMMENT {
+	token BLOCK_COMMENT {
 		||	(	||	<[ 0 .. 9 ]>
 			)
 	}
 }
 END
 
-subtest 'rule options', {
+subtest 'token options', {
 #`(
 #`(
-	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'single rule with options';
+	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'single token with options';
 	grammar Empty;
 	fragment parametrized[String name, int total]
 		 returns [int amount] throws XFoo options{I=1;} : ;
 	END
 	grammar Empty {
 		#|{ "type" : "fragment", "parameters" : [ { "type" : "String", "name" : "name" }, { "type" : "int", "name" : "total" } ], "returns" : { "type" : "int", "name" : "amount" }, "throws" : "XFoo", "options" : [ { "key" : "I", "vaue" : "1" } ] }
-		rule parametrized {
+		token parametrized {
 			||
 		}
 	}
@@ -47,14 +47,14 @@ subtest 'rule options', {
 
 #`(
 #`(
-	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'single rule with options';
+	is ANTLR4::Grammar.to-string( Q:to[END] ), Q:to[END], 'single token with options';
 	grammar Empty;
 	public test_catch_locals locals[int n = 0] : ;
 		 catch [int amount] {amount++} finally {amount=1}
 	END
 	grammar Empty {
 		#|{ "visibility" : "public", "locals" : "int n = 0", "catch" : { "type" : "int", "name" : "amount", "code" : "amount++" }, "finally" : "amount=1" }
-		rule test_catch_locals {
+		token test_catch_locals {
 			||
 		}
 	}
@@ -70,7 +70,7 @@ grammar Lexer;
 plain : {System.out.println("Found end");} ;
 END
 grammar Lexer {
-	rule plain {
+	token plain {
 		||	#|{System.out.println("Found end");}
 	}
 }
@@ -85,7 +85,7 @@ subtest 'actions', {
 	END
 	grammar Lexer {
 		#|{ "skip" : true }
-		rule plain {
+		token plain {
 			||	X
 		}
 	}
@@ -101,7 +101,7 @@ subtest 'actions', {
 	END
 	grammar Lexer {
 		#|{ "more" : true }
-		rule plain {
+		token plain {
 			||	X
 		}
 	}
@@ -117,7 +117,7 @@ subtest 'actions', {
 	END
 	grammar Lexer {
 		#|{ "type" : "STRING" }
-		rule plain {
+		token plain {
 			||	X
 		}
 	}
@@ -133,7 +133,7 @@ subtest 'actions', {
 	END
 	grammar Lexer {
 		#|{ "channel" : "HIDDEN" }
-		rule plain {
+		token plain {
 			||	X
 		}
 	}

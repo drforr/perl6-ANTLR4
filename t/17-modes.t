@@ -22,15 +22,15 @@ mode YetAnother;
 	parser_stuff : ;
 END
 grammar Empty {
-	rule plain {
+	token plain {
 	}
 	#|{ "mode" : "Remainder" }
-	rule lexer_stuff {
+	token lexer_stuff {
 		||
 	}
 	#|{ "mode" : "SkipThis" }
 	#|{ "mode" : "YetAnother" }
-	rule parser_stuff {
+	token parser_stuff {
 		||
 	}
 }
@@ -46,7 +46,7 @@ plain : 'X' -> pushMode(INSIDE) ;
 END
 grammar Lexer {
 	#|{ "pushMode" : "INSIDE" }
-	rule plain {
+	token plain {
 		||	X
 	}
 }
@@ -62,7 +62,7 @@ plain : 'X' -> popMode(INSIDE) ;
 END
 grammar Lexer {
 	#|{ "popMode" : "INSIDE" }
-	rule plain {
+	token plain {
 		||	X
 	}
 }

@@ -9,7 +9,7 @@ grammar Lexer;
 plain : 'X' {doStuff();} ;
 END
 grammar Lexer {
-	rule plain {
+	token plain {
 		||	'X'
 			#|{doStuff();}
 	}

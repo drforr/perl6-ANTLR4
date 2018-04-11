@@ -2,14 +2,22 @@ use v6;
 use ANTLR4::Grammar::Parser;
 use Test;
 
-plan 56;
+plan 54;
 
 my $p = ANTLR4::Grammar::Parser.new;
 
-ok $p.parsefile( 'corpus/Abnf.g4'                ), 'Abnf.g4';
+# Commenting out the Abnf test as 04-use-parser.t tests:
+# parsing a .g4 file
+# Compiling the .g4 file into Perl 6
+# Evaluating the grammar
+# Parsing a sample .abnf document
+#
+# So it's a pretty complete test now.
+#
+#ok $p.parsefile( 'corpus/Abnf.g4'                ), 'Abnf.g4'; # roundtrip
 ok $p.parsefile( 'corpus/ANTLRv4Lexer.g4'        ), 'ANTLRv4Lexer.g4';
 ok $p.parsefile( 'corpus/ANTLRv4Parser.g4'       ), 'ANTLRv4Parser.g4';
-ok $p.parsefile( 'corpus/asm6502.g4'             ), 'asm6502.g4';
+#ok $p.parsefile( 'corpus/asm6502.g4'             ), 'asm6502.g4'; # roundtrip
 ok $p.parsefile( 'corpus/ATL.g4'                 ), 'ATL.g4';
 ok $p.parsefile( 'corpus/bnf.g4'                 ), 'bnf.g4';
 ok $p.parsefile( 'corpus/C.g4'                   ), 'C.g4';
