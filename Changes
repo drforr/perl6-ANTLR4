@@ -2,6 +2,10 @@ Revision history for ANTLR4-Grammar
 
 {{$NEXT}}
 
+0.6.2  2019-02-24T12:27:28+09:00
+
+    - Making more original tests pass, the extra ANTLR info is what's left behind.
+
 0.6.1  2018-04-11T17:50:30+02:00
     - Changed from 'rule' to 'token', will work on this.
       Also added a simple (but complete) test of ABNF tests
